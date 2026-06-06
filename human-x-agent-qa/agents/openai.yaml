@@ -1,0 +1,4 @@
+interface:
+  display_name: "Human x Agent QA"
+  short_description: "Human and agent QA plans from branch diffs"
+  default_prompt: "Use $human-x-agent-qa to create a concise QA checklist for the current branch."

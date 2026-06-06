@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auto Browser QA"
+  short_description: "Plan and run browser QA checklists"
+  default_prompt: "Use $auto-browser-qa to generate and run QA test paths for the current browser feature."
