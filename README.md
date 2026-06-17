@@ -1,6 +1,4 @@
-# Skills
-
-Personal Cursor agent skills. Invoke with `/skill-name` in chat.
+# My Day-to-Day Skills ⚒️
 
 ## AI dev workflow
 
