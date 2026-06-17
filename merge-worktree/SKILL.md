@@ -1,11 +1,13 @@
 ---
-name: merge-worktree-branch
-description: Merge a completed isolated worktree branch back into the current main feature branch. Use from the main chat thread when the user wants to pull in changes from a parallel issue worktree, select from existing git worktrees, confirm the destination branch, resolve merge conflicts, and leave the result ready for review or commit.
+name: merge-worktree
+description: Merge a completed isolated worktree branch back into the current main feature branch. Use from the main chat thread when the user wants to pull in changes from a parallel issue worktree, select from existing git worktrees, confirm the destination branch, resolve merge conflicts, reconcile plan metadata, and optionally clean up the source worktree or local branch.
 ---
 
-# Merge Worktree Branch
+# Merge Worktree
 
 Merge a completed branch from an isolated worktree into the branch currently checked out in the main workspace. This skill is for the main chat thread, not the individual implementation worktree chat.
+
+Part of the AI dev workflow: `grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → **merge-worktree** → `run-ci` → `to-pr` → `babysit`
 
 ## Inputs
 
@@ -13,9 +15,13 @@ Accept any of:
 
 - a source worktree path
 - a source branch name
-- a request like "merge a worktree branch", "pull in a parallel issue branch", or "merge that worktree back"
+- a request like "merge a worktree", "pull in a parallel issue branch", or "merge that worktree back"
 
 If the source is not specified, list current git worktrees and ask the user which branch or path to merge.
+
+## Git & GitHub
+
+Use the **`git` CLI** for all local merge and worktree operations in this skill. Use **`gh`** only when remote/GitHub context is needed (e.g. checking whether a branch already has an open PR: `gh pr list --head <branch>`). Do not use GitHub MCP when `gh` is available.
 
 ## Workflow
 
@@ -96,13 +102,24 @@ If conflicts occur:
 1. Inspect `git status --short` and the conflicted files.
 2. Read each conflicted file before editing.
 3. Resolve conflicts in favor of the combined intended behavior, preserving the destination branch's current feature context and the source branch's completed issue slice.
-4. Keep shared plan files such as `00-index.md` and `diagram.md` coherent when both branches updated them.
+4. Keep shared plan files such as `00-index.md` coherent when both branches updated them.
 5. Stage resolved files only when they are part of the merge resolution.
 6. If the correct resolution is ambiguous, stop and ask the user instead of guessing.
 
 After conflict resolution, inspect `git diff --check` when appropriate. Respect user preferences and do not run lint, typecheck, tests, build, or format unless explicitly requested. Use `ReadLints` for recently edited files after substantive conflict edits.
 
-### 6. Commit or leave staged
+### 6. Reconcile plan metadata
+
+Before the final merge commit, reconcile local planning files:
+
+- treat issue frontmatter as canonical
+- regenerate or update affected `00-index.md` rows from issue frontmatter
+- if all issue frontmatter in a plan has `completed: true` and no unresolved blockers remain, move the plan from `plans/in-progress/<slug>/` to `plans/completed/<slug>/`
+- update obvious local cross-plan links affected by an archive move
+
+Use absolute paths when `plans/` lives in the main workspace rather than the current worktree. If reconciliation is ambiguous, stop and ask the user.
+
+### 7. Commit or leave staged
 
 If the user chose `Merge and commit if needed`:
 
@@ -116,18 +133,29 @@ If the user chose `Merge without committing`, leave the merge in progress or sta
 
 Never amend, skip hooks, or push unless the user explicitly asks.
 
-### 7. Output
+### 8. Optional cleanup
 
-Report:
+After a successful merge, ask before cleanup. Never remove worktrees, delete branches, or touch remotes without explicit user confirmation.
+
+Cleanup options:
+
+- `Remove source worktree`: run `git worktree remove <source-path>` only after confirming the source branch is merged and the worktree is clean
+- `Delete local source branch`: run `git branch -d <source-branch>` only after confirming it is fully merged
+- `Leave cleanup for later`: keep the worktree and branch
+
+Do not use forced cleanup (`git worktree remove --force`, `git branch -D`) unless the user explicitly asks and understands the risk.
+
+### 9. Output
+
+Final reply only. No preamble or process narration.
 
 ```markdown
-**Merge Complete**
-- Destination: <branch and workspace>
-- Source: <branch and worktree path>
-- Result: merged and committed | merged without commit | already merged | blocked
-- Conflicts: <none or files resolved>
-- Validation: <checks run or not run>
-- Next: <review status, commit status, or blocker>
+**Merge**
+
+- Result: merged | staged | already merged | blocked
+- Source → Destination: <branch> → <branch>
+- Conflicts: None | <resolved files>
+- Next: review | commit | [/run-ci](../run-ci/SKILL.md)
 ```
 
-If blocked, include the reason and the safest next action.
+Rules: no preamble; omit empty fields; `Next:` always last.
