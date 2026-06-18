@@ -5,9 +5,9 @@ description: Merge a completed isolated worktree branch back into the current ma
 
 # Merge Worktree
 
-Merge a completed branch from an isolated worktree into the branch currently checked out in the main workspace. This skill is for the main chat thread, not the individual implementation worktree chat.
+Merge a completed branch from an isolated worktree into the branch currently checked out in the main workspace. Used on the **parallel-handoff-prompts** path — not for `parallel-subagent-prs` (those merge via parallel PRs on GitHub).
 
-Part of the AI dev workflow: `grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → **merge-worktree** → `run-ci` → `to-pr` → `babysit`
+Part of the AI dev workflow (Path B): `grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → **merge-worktree** → `run-ci` → `to-pr` → `babysit`
 
 ## Inputs
 

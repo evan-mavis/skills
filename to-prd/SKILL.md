@@ -11,7 +11,7 @@ Part of the AI dev workflow: `grill-me` → **to-prd** → `to-issues` → `to-l
 
 This skill takes the current conversation context and codebase understanding and produces a detailed PRD. If meaningful ambiguity remains and `[grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `grill-me` first to clarify the plan. Otherwise, synthesize what you already know and capture remaining ambiguity in `Open Questions`.
 
-**Optimize the PRD for agents, not humans.** The author does not read PRDs — they exist so future agents can plan and implement without re-deriving context. Prefer precise constraints, decisions, assumptions, and execution cues over narrative prose or polished presentation. Linear is the human-readable layer; the PRD is not.
+**Optimize the PRD for agents, not humans.** This is the master plan for agent-driven development. The author does not read PRDs — they exist so future agents can plan and implement without re-deriving context. Prefer precise constraints, decisions, assumptions, and execution cues over narrative prose or polished presentation. Linear is the human-readable layer; the PRD is not.
 
 ## Process
 
@@ -104,6 +104,8 @@ last_synced: null
 ---
 
 # <Feature / Bug / Improvement Name> PRD
+
+> **Agent-only master plan.** This PRD is the source of truth for agent execution — not a human stakeholder doc. Optimize for agents: precise constraints, decisions, and execution cues over narrative prose.
 
 ## Intent
 

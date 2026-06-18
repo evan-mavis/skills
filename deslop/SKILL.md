@@ -7,9 +7,12 @@ description: Review uncommitted changes and clean AI slop from the diff — unne
 
 Review **uncommitted changes** and clean slop the implementation pass likely left behind. Fix it in place — do not expand scope beyond the current diff.
 
-Part of the AI dev workflow: `grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → **deslop** → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → `babysit`
+Part of the AI dev workflow:
 
-Run after `forge-issue`, before `thermo-nuclear-code-quality-review`.
+- **Single / handoff:** `grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → **deslop** → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → `babysit`
+- **Parallel subagent:** `forge-issue` (`parallel-subagent-prs`) → sub-agent: **deslop** → `to-worktree-pr` → merge on GitHub → main thread index refresh → `to-pr` + `babysit` when feature-ready
+
+Run after `forge-issue`, before `thermo-nuclear-code-quality-review` (single/handoff paths) or before commit/push in parallel sub-agent threads.
 
 ## Scope
 

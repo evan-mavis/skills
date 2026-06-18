@@ -2,18 +2,21 @@
 
 ## AI dev workflow
 
+Full diagram: [ai-dev-workflow/README.md](ai-dev-workflow/README.md)
+
 Run in order for a full feature loop:
 
-`grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → `babysit`
+`grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → `merge-worktree` / `to-worktree-pr` → `run-ci` → `to-pr` → `babysit`
 
 - **grill-me** — Stress-test a plan by interviewing you until decisions are clear.
-- **to-prd** — Turn conversation context into a local agent-facing PRD under `plans/in-progress/`.
+- **to-prd** — Master agent-optimized plan — full feature context for downstream agents.
 - **to-issues** — Break a PRD into vertical implementation slices as local issue files.
 - **to-linear** — Sync local plan and issue files to Linear with parent/sub-issue structure.
-- **forge-issue** — Pick and implement the next unblocked local issue slice.
+- **forge-issue** — Pick and implement the next slice (single, handoff, or parallel subagent PRs).
 - **deslop** — Clean AI slop from uncommitted changes before review.
 - **thermo-nuclear-code-quality-review** — Brutally strict maintainability and structure review of branch changes.
-- **merge-worktree** — Merge a completed parallel worktree branch back into the feature branch.
+- **merge-worktree** — Merge a completed parallel handoff branch back into the feature branch (Path B).
+- **to-worktree-pr** — Open parallel sub-issue PR from worktree branch (Path C).
 - **run-ci** — Run local typecheck, lint, test, and format checks before opening a PR.
 - **to-pr** — Create or update a GitHub PR using the repo template and title conventions.
 - **babysit** — Triage PR comments, conflicts, and CI until merge-ready.
