@@ -7,9 +7,9 @@ description: Turn the current conversation context into a detailed local PRD Mar
 
 Create a local PRD Markdown file in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after local issue files are created and approved.
 
-Part of the AI dev workflow: `grill-me` → **to-prd** → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → `babysit`
+Human planning workflow: `grill-me` → **to-prd** → `to-issues` → `to-linear`. Start a fresh thread with `forge-build` after the plan is approved and synced.
 
-This skill takes the current conversation context and codebase understanding and produces a detailed PRD. If meaningful ambiguity remains and `[grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `grill-me` first to clarify the plan. Otherwise, synthesize what you already know and capture remaining ambiguity in `Open Questions`.
+This skill takes the current conversation context and codebase understanding and produces a detailed PRD. If meaningful ambiguity remains and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` first to clarify the plan. Otherwise, synthesize what you already know and capture remaining ambiguity in `Open Questions`.
 
 **Optimize the PRD for agents, not humans.** This is the master plan for agent-driven development. The author does not read PRDs — they exist so future agents can plan and implement without re-deriving context. Prefer precise constraints, decisions, assumptions, and execution cues over narrative prose or polished presentation. Linear is the human-readable layer; the PRD is not.
 
@@ -19,13 +19,13 @@ Use the **`git` CLI** for repo-root and ignore checks below.
 
 1. Confirm the current repo root with `git rev-parse --show-toplevel`.
 2. Ensure `plans/`, `plans/in-progress/`, and `plans/completed/` exist at the repo root. If possible, confirm `plans/` is ignored with `git check-ignore -v plans/test.md`.
-3. Check whether the request has enough context to draft a useful PRD. If core product behavior, actors, scope, or success criteria are meaningfully ambiguous and `grill-me` has not already been used, run `grill-me` before drafting.
+3. Check whether the request has enough context to draft a useful PRD. If core product behavior, actors, scope, or success criteria are meaningfully ambiguous and `$grill-me` has not already been used, run `$grill-me` before drafting.
 4. Explore the repo only as needed to understand the current state and likely implementation areas.
 5. Sketch the major modules that may need to change. Look for deep modules that encapsulate meaningful behavior behind simple, testable interfaces.
 6. Write a PRD Markdown file at `plans/in-progress/<slug>/PRD.md` with the standard frontmatter below.
 7. In the response, link the local file and summarize the highest-signal assumptions, open questions, and suggested next step.
 
-Do not add extra clarification ceremony when the request is already clear or `grill-me` already ran. If module boundaries, implementation choices, or testing expectations are still uncertain after available clarification, document them as assumptions or open questions in the PRD.
+Do not add extra clarification ceremony when the request is already clear or `$grill-me` already ran. If module boundaries, implementation choices, or testing expectations are still uncertain after available clarification, document them as assumptions or open questions in the PRD.
 
 ## Plan Schema
 
@@ -42,7 +42,7 @@ last_synced: null
 
 Allowed plan statuses: `in_progress`, `completed`, `archived`.
 
-Issue files created later by `to-issues` use their own frontmatter as the canonical issue state. `00-index.md` is a generated summary, not the source of truth.
+Issue files created later by `to-issues` use their own frontmatter as the canonical issue state. `<plan-slug>-index.md` is a generated summary, not the source of truth.
 
 ## Interaction Standards
 
@@ -58,7 +58,7 @@ Use this standard decision prompt when ambiguity requires `grill-me` before draf
 
 ## Output
 
-Final reply only. No preamble or process narration.
+Keep the final answer in the format below and omit a final-answer preamble. Commentary updates may still be used when required by the host.
 
 **When pausing before write:**
 
@@ -67,7 +67,7 @@ Final reply only. No preamble or process narration.
 
 - Plan: <slug>
 - Ambiguity: None | Meaningful
-- Next: write PRD | [/grill-me](../grill-me/SKILL.md)
+- Next: write PRD | $grill-me
 ```
 
 **When done:**
@@ -75,18 +75,18 @@ Final reply only. No preamble or process narration.
 ```markdown
 **PRD**
 
-- Path: [plans/in-progress/<slug>/PRD.md](plans/in-progress/<slug>/PRD.md)
+- Path: [plans/in-progress/<slug>/PRD.md](<absolute PRD file path>)
 - Open Questions: <count or None>
-- Next: [/to-issues](../to-issues/SKILL.md)
+- Next: $to-issues
 ```
 
-Rules: no preamble; omit empty fields; `Next:` always last with a skill link.
+Rules: no final-answer preamble; use absolute targets for local file links; omit empty fields; `Next:` always last.
 
 ## File Conventions
 
 - Use a short kebab-case slug from the feature or bug name.
 - Use one plan directory per feature, bug, or improvement under the active bucket: `plans/in-progress/<slug>/`.
-- Completed plan archives live under `plans/completed/<slug>/`; update an archived PRD only when the user explicitly asks to revisit completed work.
+- Completed plan archives live under `plans/completed/<slug>/`; `forge-build` moves a plan only when every issue has `completed: true` and `status: done`. Update an archived PRD only when the user explicitly asks to revisit completed work.
 - When the PRD discusses future implementation slices, assume issue ordinals are global across the plan, not reset per stage. Stage folders keep their own stage number (`01-foundation`, `02-core-flows`, `03-followups`), but issue files and local IDs should count upward chronologically across all stages (for example `01-foundation/01-...`, `01-foundation/02-...`, then `02-core-flows/03-...`, `02-core-flows/04-...`).
 - If a matching PRD already exists, update it instead of creating a duplicate unless the user asks for a new version.
 - Keep files self-contained so future agents can work from the Markdown alone.

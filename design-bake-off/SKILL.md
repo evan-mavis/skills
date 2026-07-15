@@ -13,7 +13,7 @@ The user wants to see many full-page design variations of an existing page and p
 
 ## Non-Negotiables
 
-1. **Run subagents in parallel.** Dispatch every variant subagent in a single tool-call batch. Sequential dispatch defeats the point of this skill.
+1. **Run subagents concurrently.** Use every available subagent slot. When the requested variant count exceeds host capacity, run capacity-sized waves and keep each wave parallel.
 2. **No two subagents may produce the same idea.** The orchestrator pre-assigns each subagent a distinct, named design archetype before launching anything. Subagents do not get to pick.
 3. **One file per subagent.** Each subagent writes exactly one variant file in the variants directory and touches nothing else. This prevents merge conflicts and lost work.
 4. **Shared scaffolding is built once, by the orchestrator, before any subagent launches.** Types, "must-ship" components, and the switcher overlay all exist before the fan-out.
@@ -48,18 +48,16 @@ Confirm with the user:
 
 If the user already described all of this in the triggering message, do not re-ask. Restate your understanding instead.
 
-**Always confirm the variant count via the structured decision UI**, even if the triggering message named a number — the user may want to adjust before paying for N parallel subagents. Use the `AskQuestion` tool (or whichever structured decision UI is available; fall back to a concise numbered list if none is). Default is 10. Put the recommended option first and label it `(Recommended)`.
+**Always confirm the variant count via the host's structured decision UI when available**, even if the triggering message named a number — the user may want to adjust before paying for N subagents. Fall back to a concise numbered list when no decision UI is available. Default is 10. Put the recommended option first and label it `(Recommended)`. Explain that hosts with fewer concurrent slots will run multiple parallel waves.
 
-- Header: `Design Bake-Off`
+- Header: `Bake-Off`
 - Question: `How many variants should the bake-off generate?`
 - Options:
   - `10 (Recommended)` — balanced exploration, ~10 parallel subagents.
   - `5` — quick spike, low cost.
   - `15` — broad exploration, higher cost.
-  - `20` — exhaustive, near the limit of useful uniqueness given the archetype library.
-  - `Custom` — ask the user for an exact number, then proceed.
 
-If the user already explicitly stated a count in the triggering message (e.g., "generate 15 variants"), pre-select that option as `(Recommended)` instead of 10, but still present the picker so they can change their mind cheaply. Do not skip this gate.
+Do not add a `Custom` option when the host supplies its own free-form choice. In a numbered-list fallback, tell the user they may reply with another exact number. If the user already explicitly stated a count in the triggering message (e.g., "generate 20 variants"), put that count first as `(Recommended)` and include at most two nearby alternatives. Do not skip this gate.
 
 ### Step 2: Explore the target page and design system
 
@@ -143,9 +141,9 @@ return (
 
 Use the env guard that matches the framework (`import.meta.env.DEV` for Vite, `process.env.NODE_ENV !== 'production'` for Next/CRA).
 
-### Step 7: Fan out variant subagents IN PARALLEL
+### Step 7: Fan out variant subagents concurrently
 
-Dispatch all N subagents in a single tool-call batch using `Task` with `subagent_type: "generalPurpose"`. Each subagent gets:
+Detect the host's available subagent capacity. Launch as many variant subagents concurrently as the host permits, wait for that wave, then launch the next wave until all N variants finish. In Codex, use the native subagent tools; do not depend on Cursor-only `Task`, `subagent_type`, or `run_in_background` fields. Each subagent gets:
 
 - The exact file path to create (only that one path).
 - The assigned archetype name and one-sentence differentiator.
@@ -157,7 +155,7 @@ Dispatch all N subagents in a single tool-call batch using `Task` with `subagent
 
 Use the prompt template in `references/subagent-prompt.md`. Customize per archetype.
 
-Set `run_in_background: false` so the batch resolves together. If the user prefers fire-and-forget, set `run_in_background: true` and proceed to the next step only after every completion notification arrives.
+Track every launched subagent and do not proceed until all waves finish. If the user explicitly prefers background execution and the host supports it, wait for every completion notification before registering variants.
 
 ### Step 8: Register each completed variant in the switcher
 
@@ -198,7 +196,7 @@ The template the orchestrator sends to each variant subagent lives in [reference
 
 ## Anti-Patterns
 
-- **Sequential subagents.** Always parallel. If you need to launch 10 variants, that is one message with 10 `Task` calls.
+- **Needlessly sequential subagents.** Fill every available concurrent slot. Use multiple waves only when N exceeds host capacity.
 - **Open-ended archetypes.** "Make a creative design" produces near-duplicates. Always pre-assign a specific named archetype with a one-sentence differentiator.
 - **Subagent file sprawl.** Each subagent writes one file. Anything shared belongs to the orchestrator.
 - **Inventing primitives.** Variants must reuse existing components. If a subagent needs a new primitive, that is a signal the orchestrator missed shared scaffolding — pause and add it, do not let one subagent introduce something the others cannot use consistently.

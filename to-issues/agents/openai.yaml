@@ -1,0 +1,7 @@
+interface:
+  display_name: "To Issues"
+  short_description: "Break an agent PRD into implementation issues"
+  default_prompt: "Use $to-issues to split the approved local PRD into executable issues."
+
+policy:
+  allow_implicit_invocation: false

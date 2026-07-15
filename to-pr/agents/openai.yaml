@@ -1,0 +1,7 @@
+interface:
+  display_name: "To PR"
+  short_description: "Prepare or create the single feature PR"
+  default_prompt: "Use $to-pr to create the complete feature pull request in draft mode."
+
+policy:
+  allow_implicit_invocation: false

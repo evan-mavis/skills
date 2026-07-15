@@ -9,7 +9,7 @@ Create and execute a local QA checklist for a feature using the active thread co
 
 ## Required Tooling
 
-Use the best available browser automation for the current environment. In Cursor, prefer the in-app browser tools or a browser-use subagent. In other agent environments, use Browser Use, Playwright CLI, or another configured browser automation skill when available. Before browser actions, inspect the current page or active tab when applicable, and operate on the active tab unless the user gives a different URL.
+Use the best available browser automation for the current environment. In Codex, prefer the configured in-app Browser/Chrome skill when the user's active browser state matters, otherwise use Playwright CLI; in Cursor, prefer the in-app browser tools or a browser-use subagent; in other agent environments, use their configured browser automation. Before browser actions, inspect the current page or active tab when applicable, and operate on the active tab unless the user gives a different URL.
 
 If no browser automation surface is available, stop and tell the user what is missing instead of pretending the QA was executed.
 

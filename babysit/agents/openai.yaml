@@ -1,0 +1,7 @@
+interface:
+  display_name: "Babysit"
+  short_description: "Keep a feature PR clean and green"
+  default_prompt: "Use $babysit to keep the current feature PR merge-ready without merging it."
+
+policy:
+  allow_implicit_invocation: false

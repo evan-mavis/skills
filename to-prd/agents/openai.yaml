@@ -1,0 +1,7 @@
+interface:
+  display_name: "To PRD"
+  short_description: "Turn approved context into an agent PRD"
+  default_prompt: "Use $to-prd to create an agent-first local PRD from this context."
+
+policy:
+  allow_implicit_invocation: false

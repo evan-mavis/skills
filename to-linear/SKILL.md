@@ -7,17 +7,17 @@ description: Sync local PRD and issue Markdown files from the repo's ignored `pl
 
 Create or update Linear issues from local Markdown planning files. This is the only skill in this workflow that should create or update Linear issues.
 
-Part of the AI dev workflow: `grill-me` → `to-prd` → `to-issues` → **to-linear** → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → `babysit`
+Human planning workflow: `grill-me` → `to-prd` → `to-issues` → **to-linear**. Start a fresh thread with `forge-build` after the sync is approved.
 
-Use the available Linear integration for all Linear reads and writes. In Cursor, prefer the Linear MCP/plugin. In other agent environments, use the configured Linear MCP, plugin, or skill when available. If no Linear integration is available or authentication fails, stop and ask the user to connect Linear rather than inventing issue IDs or URLs.
+Use the configured Linear plugin, connector, or provided Linear skill for every Linear read and write. If no Linear integration is available or authentication fails, stop and ask the user to connect Linear rather than inventing issue IDs or URLs.
 
 ## Inputs
 
 Accept any of:
 
 - a local PRD file such as `plans/in-progress/<slug>/PRD.md`
-- a local issue index such as `plans/in-progress/<slug>/00-index.md`
-- a completed archive path such as `plans/completed/<slug>/00-index.md` when the user explicitly wants to sync or update completed work
+- a local issue index such as `plans/in-progress/<slug>/<slug>-index.md`
+- a completed archive path such as `plans/completed/<slug>/<slug>-index.md` when the user explicitly wants to sync or update completed work
 - one or more local issue files
 - pasted local plan or issue content
 - a request to update existing Linear issues from local files
@@ -36,7 +36,7 @@ Missing or ambiguous local plan:
 - Question: `Which local plan should I sync to Linear?`
 - Options:
   - `Use detected plan (Recommended)`: Sync the most relevant local plan.
-  - `Choose another`: Wait for a specific `plans/in-progress/<slug>/00-index.md` or `PRD.md` path.
+  - `Choose another`: Wait for a specific `plans/in-progress/<slug>/<slug>-index.md` or `PRD.md` path.
 
 Existing Linear target ambiguity:
 
@@ -49,7 +49,7 @@ Existing Linear target ambiguity:
 
 ## Output
 
-Final reply only. No preamble or process narration.
+Keep the final answer in the format below and omit a final-answer preamble. Commentary updates may still be used when required by the host.
 
 **When pausing before sync:**
 
@@ -70,12 +70,12 @@ Final reply only. No preamble or process narration.
 - [AIR-124](<linear url>)
 - [AIR-125](<linear url>) (parallel)
 - Failed: None
-- Next: [/forge-issue](../forge-issue/SKILL.md)
+- Next: start a fresh thread with $forge-build
 ```
 
 List parent first, then sub-issues in global issue order (ascending local issue number). Use the Linear issue URL for each link; label with the workspace issue id (e.g. `AIR-123`). Add `(parallel)` when the local issue has `parallelizable: true`. One issue per bullet after the parent line.
 
-Rules: no preamble; omit `Failed` when none; `Next:` always last with a skill link.
+Rules: no final-answer preamble; omit `Failed` when none; `Next:` always last.
 
 ## Process
 
@@ -90,11 +90,11 @@ Extract:
 - local issue IDs and filenames
 - stage folders and stage order
 - global issue ordinals from local IDs and filenames; issue numbers are chronological across the whole plan and do not reset inside each stage folder
-- issue titles, completion state, types, statuses, **What to Build**, **Acceptance Criteria**, and **Approach** — read **Implementation Notes** for local context only; never sync them to Linear
+- issue titles, completion state, types, `hitl_timing`, statuses, **What to Build**, **HITL Requirement**, **Acceptance Criteria**, and **Approach** — read **Implementation Notes** for local context only; never sync them to Linear
 - dependency relationships: blocked by, blocking, related, parent/sub-issue
 - existing `linear_issue` and `last_synced` frontmatter fields
 
-If `00-index.md` disagrees with issue frontmatter, prefer frontmatter and update the index after successful sync.
+If `<plan-slug>-index.md` disagrees with issue frontmatter, prefer frontmatter and update the index after successful sync.
 
 ### 2. Resolve Linear targets
 
@@ -118,7 +118,7 @@ Map local structure into Linear:
 - global issue ordinals -> sub-issue ordering and local reference labels; preserve them when updating Linear bodies or local metadata
 - `blocked_by` / `blocking` -> Linear blocked/blocking relationships
 - useful non-hierarchical relationships -> related issue links
-- `HITL` / `AFK` -> include clearly in the issue body or label if the workspace supports it
+- `HITL` / `AFK` and HITL timing -> include clearly in the issue body or label if the workspace supports it
 
 Create or update issues in dependency-safe order:
 
@@ -153,6 +153,7 @@ Linear uses the **same section names** as local issues, but shorter — a skim-f
 - **What to Build** → 1–2 sentences. What ships and why it matters.
 - **Acceptance Criteria** → same checkboxes, but trim if the local list is long. Keep observable outcomes, drop implementation detail.
 - **Approach** → 2–3 bullets max. Surfaces and constraints only — no file paths, migrations, or agent handoff notes.
+- **HITL Requirement** → for HITL issues only, preserve the exact decision or action, timing, and evidence requirement.
 - **Implementation Notes** → local only. Never sync to Linear.
 
 Each implementation issue body should use this shape:
@@ -178,6 +179,12 @@ Short summary of what this ships and why it matters.
 
 +++
 
++++ ## Human Input
+
+Timing plus the exact human decision or action. Include only for HITL issues.
+
++++
+
 +++ ## Dependencies
 
 Blockers or related Linear issues — only when needed. Link Linear IDs when available.
@@ -185,7 +192,7 @@ Blockers or related Linear issues — only when needed. Link Linear IDs when ava
 +++
 ```
 
-Omit the **Dependencies** section when there are no meaningful blockers or related issues.
+Omit **Human Input** for AFK issues. Omit **Dependencies** when there are no meaningful blockers or related issues.
 
 For the parent PRD issue, compress the PRD into Linear using its own sections (`Intent`, `Target Behavior`, `Scope`, `Key Decisions`) — not the issue template above.
 
@@ -204,7 +211,8 @@ After successful Linear writes, update the local Markdown files:
 - set issue frontmatter `linear_issue` to the Linear ID or URL
 - set issue frontmatter `last_synced` to the current date/time
 - preserve local completion state, implementation notes, and statuses
-- regenerate or update `00-index.md` from issue frontmatter when an index exists
+- preserve `type`, `hitl_timing`, and the full local **HITL Requirement**
+- regenerate or update `<plan-slug>-index.md` from issue frontmatter when an index exists
 - preserve global issue numbering in file paths, local IDs, and index rows; do not renumber or reset issue files per stage during sync
 - do not change `completed: false` to `completed: true` merely because a Linear issue was created; completion reflects implementation, not sync state
 

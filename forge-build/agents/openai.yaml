@@ -1,0 +1,7 @@
+interface:
+  display_name: "Forge Build"
+  short_description: "Build a plan through tasks or subagents"
+  default_prompt: "Use $forge-build to execute the approved local plan; ask me to choose tasks or subagents first."
+
+policy:
+  allow_implicit_invocation: false

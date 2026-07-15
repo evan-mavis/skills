@@ -1,75 +1,35 @@
 ---
 name: babysit
-description: Keep a PR merge-ready by triaging comments, resolving clear conflicts, and fixing CI — but stop and ask before committing or pushing when something is unclear or needs human review. Use after the feature branch is ready and a PR exists.
+description: Keep the single feature PR merge-ready after to-pr by monitoring CI, resolving clear conflicts, and addressing actionable review feedback. Use on draft or ready PRs; never mark a draft ready or merge without explicit user instruction.
 ---
 
-# Babysit PR
+# Babysit
 
-Get the PR to a merge-ready state: triage comments, resolve clear conflicts, fix in-scope CI failures.
+Drive the existing PR to a clean, green state. Preserve its draft/ready state.
 
-Part of the AI dev workflow: `grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → **babysit**
+## Loop
 
-Run after [`to-pr`](../to-pr/SKILL.md) has opened or updated the PR (or when the user explicitly invokes `/babysit` on an existing PR).
+1. Resolve the PR and inspect mergeability, checks, unresolved review threads, and whether the branch is behind its base.
+2. Fix only failures and feedback caused by this feature branch.
+3. Resolve merge conflicts when both intents are clear. Return `blocked` for semantic conflicts.
+4. Run `$deslop` inline against the uncommitted fix.
+5. Stop editing and spawn a fresh reviewer agent in the same worktree. Give it only the worktree path, PR URL, actionable failure or feedback, and `HEAD` as `review_base`; do not pass the fixer's conversation, rationale, or summary.
+6. Have the reviewer run `$thermo-nuclear-code-quality-review` once, return that skill's standard result contract, and exit without staging, committing, or pushing. Never let the fixer and reviewer edit concurrently.
+7. After review returns `done`, confirm the diff remains scoped, commit with the repository's allowed prefix, and push. If review blocks, preserve the uncommitted diff and return `blocked`.
+8. Recheck until CI is green and actionable threads are resolved, or a real blocker remains.
 
-## Before you commit or push
-
-**Stop and ask the user** before committing or pushing when any of these apply:
-
-- merge conflict resolution is ambiguous or changes intent on either side
-- a review comment (including Bugbot) is valid but the fix direction is unclear
-- CI failure is outside this PR's scope or would require changing workflows/checks to pass
-- a proposed fix needs a product, security, or architecture call
-- you disagree with a reviewer or are unsure the report is valid
-- the change would be large, risky, or hard to revert
-
-When blocked, explain the concern briefly and wait for guidance. Do not push "best guess" fixes.
-
-## Work loop
-
-1. **Merge conflicts:** resolve when intent is clear on both sides. If intents conflict, abort the merge and ask for clarification — do not commit the resolution.
-2. **Comments:** review active unresolved threads (including Bugbot). Filter out resolved threads first. Read only each comment body and the minimum location needed to act. Fix valid change requests in scope. Push back or ask when a comment is wrong, unclear, or out of scope.
-3. **CI:** fix failures caused by this PR's changes. Never weaken CI checks/workflows just to green the build. If a failure seems unrelated, check whether the branch is behind the base branch and merge latest first. Re-watch CI after scoped fixes.
-
-Only commit and push after the change is clear, in scope, and does not need human review. Prefer small, scoped commits for triage fixes.
-
-## Git & GitHub
-
-Prefer **`gh`** for GitHub PR operations; use **`git`** for local merge conflict resolution, commits, and push.
-
-- Find the PR: `gh pr view` / `gh pr list --head <branch>`
-- Status and metadata: `gh pr view --json state,mergeable,mergeStateStatus,baseRefName,headRefName,url`
-- CI: `gh pr checks`
-- Comments and review threads: `gh pr view --comments`; use `gh api` when thread-level detail is needed
-- Update base when behind: `git fetch origin <base>` then `git merge origin/<base>` (or rebase if repo convention); push with `git push`
-
-Do not use GitHub MCP when `gh` is available.
+Do not weaken CI, dismiss valid feedback, change unrelated workflows, mark a draft ready, merge, deploy, or publish a release. Return `blocked` for product, security, architecture, or out-of-scope decisions.
 
 ## Output
 
-Final reply only. No preamble or process narration.
+Return only:
 
-**When blocked on human review:**
-
-```markdown
-**Babysit**
-
-- Status: blocked
-- Concern: <one line>
-- Needs: <what you need from the user>
-- Next: waiting for guidance
+```yaml
+status: done | blocked
+pr: <url>
+review_state: draft | ready
+ci: green | failing
+comments: resolved | pending
+mergeable: true | false
+blocker: null | <specific blocker>
 ```
-
-**When done or in progress:**
-
-```markdown
-**Babysit**
-
-- PR: <url>
-- Status: merge-ready | in progress | blocked
-- Merge Conflicts: None | resolved
-- Comments: <triaged summary>
-- CI: green | failing — <check>
-- Next: merge | push fix | waiting for guidance
-```
-
-Rules: no preamble; `Next:` always last; say `waiting for guidance` instead of pushing when unsure.

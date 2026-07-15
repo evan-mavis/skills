@@ -1,0 +1,7 @@
+interface:
+  display_name: "Deslop"
+  short_description: "Clean an issue worktree diff inline"
+  default_prompt: "Use $deslop to proactively clean the current uncommitted issue diff."
+
+policy:
+  allow_implicit_invocation: false

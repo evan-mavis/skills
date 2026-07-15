@@ -1,0 +1,7 @@
+interface:
+  display_name: "Run CI"
+  short_description: "Run final local CI for an integrated plan"
+  default_prompt: "Use $run-ci to run the repository's final local CI checks."
+
+policy:
+  allow_implicit_invocation: false

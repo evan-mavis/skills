@@ -1,0 +1,7 @@
+interface:
+  display_name: "Forge Issue"
+  short_description: "Implement one isolated assigned issue"
+  default_prompt: "Use $forge-issue to implement the explicitly assigned local issue."
+
+policy:
+  allow_implicit_invocation: false

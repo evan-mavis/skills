@@ -7,13 +7,13 @@ description: Break a local PRD, plan, spec, or conversation context into indepen
 
 Break a PRD or plan into independently implementable local issue Markdown files in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the local issue files are approved.
 
-Part of the AI dev workflow: `grill-me` → `to-prd` → **to-issues** → `to-linear` → `forge-issue` → `deslop` → `thermo-nuclear-code-quality-review` → `merge-worktree` → `run-ci` → `to-pr` → `babysit`
+Human planning workflow: `grill-me` → `to-prd` → **to-issues** → `to-linear`. Start a fresh thread with `forge-build` after the plan is approved and synced.
 
 Use vertical slices (tracer bullets): each issue should deliver a narrow, complete path through the relevant layers, not a horizontal layer-only task.
 
 ## Plan Schema
 
-Issue frontmatter is the canonical state. `00-index.md` is a generated summary for humans and scheduling, rebuilt from issue frontmatter whenever issue state changes.
+Issue frontmatter is the canonical state. `<plan-slug>-index.md` is a generated summary for humans and scheduling, rebuilt from issue frontmatter whenever issue state changes.
 
 Required issue frontmatter:
 
@@ -24,6 +24,7 @@ plan_slug: <slug>
 title: <Issue Title>
 stage: <stage-number>-<stage-name>
 type: afk
+hitl_timing: null
 status: ready
 completed: false
 parallelizable: false
@@ -38,9 +39,20 @@ last_synced: null
 Allowed values:
 
 - `type`: `afk` or `hitl`
+- `hitl_timing`: `null` for `afk`; `upfront` or `evidence_dependent` for `hitl`
 - `status`: `draft`, `ready`, `in_progress`, `blocked`, or `done`
-- `completed`: `true` only when implementation is complete
+- `completed`: `true` only when the issue outcome is complete, whether through implementation or a decision-only human action
 - dependency fields use local IDs, not filenames, when possible
+
+### Descoping and plan archive
+
+When issues are deferred or cut from a plan's scope, **do not** leave them in the parent with `status: deferred` and archive anyway. Instead:
+
+1. create a new plan under `plans/in-progress/<new-slug>/` for the deferred work
+2. remove the issue from the parent plan (delete file + refresh parent `<plan-slug>-index.md`)
+3. link the follow-up from the parent PRD/index
+
+A plan is eligible for `plans/completed/` only when every remaining issue has `completed: true` and `status: done`. `forge-build` owns archive eligibility and the final move.
 
 ## Process
 
@@ -52,7 +64,7 @@ If the user passes a Linear issue identifier or URL, do not fetch Linear by defa
 
 Confirm the repo root with `git rev-parse --show-toplevel` and ensure `plans/`, `plans/in-progress/`, and `plans/completed/` exist. If possible, confirm `plans/` is ignored with `git check-ignore -v plans/test.md`.
 
-If the source plan is too ambiguous to slice into useful local issues and `[grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `grill-me` before drafting issue files. If `grill-me` already ran or the ambiguity is minor, proceed and capture uncertainty in **Approach**, `HITL` type, blockers, or acceptance criteria gaps.
+If the source plan is too ambiguous to slice into useful local issues and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` before drafting issue files. If `$grill-me` already ran or the ambiguity is minor, proceed and capture uncertainty in **Approach**, **HITL Requirement**, blockers, or acceptance criteria gaps.
 
 ### 2. Explore the codebase
 
@@ -65,7 +77,7 @@ Use the source PRD's `Intent`, `Current State`, `Target Behavior`, `Scenarios`, 
 Slices may be:
 
 - `AFK`: can likely be implemented and validated without human clarification
-- `HITL`: requires a human decision, design review, policy call, or unresolved product/technical choice
+- `HITL`: requires a specific human decision, approval, action, or evidence-based review
 
 Prefer `AFK` where the scope is clear.
 
@@ -87,9 +99,10 @@ Each slice should:
 - carry forward relevant key decisions, assumptions, and constraints into **Approach** — stay high level, no file-by-file specs
 - record dependencies using stable local IDs in `blocked_by`, `blocking`, and `related`
 - be marked parallelizable only when it does not depend on unresolved shared foundations
-- call out when it is a good candidate to spin off into a separate agent thread or subagent because its dependencies, write areas, and validation path are isolated from sibling slices
+- name expected write areas in **Approach** and set `parallelizable: true` only when they are meaningfully disjoint from sibling slices
+- for `hitl`, state the exact decision or action under **HITL Requirement** and set `hitl_timing` to `upfront` or `evidence_dependent`
 
-Local issues are **agent-first** — written so `forge-issue` can pick up the slice and run. Keep them lightly human-readable (clear headings, plain language) since they feed `to-linear`, but optimize for agent execution, not stakeholder review. Same section names as Linear, with more detail. Technical depth beyond planning belongs in **Implementation Notes**, filled during `forge-issue` after reading the codebase.
+Local issues are **agent-first** — written so `forge-build` can assign each slice to an atomic `forge-issue` worker. Keep them lightly human-readable since they feed `to-linear`, but optimize for agent execution. `forge-build` fills **Implementation Notes** after integrating the worker commit.
 
 ### 4. Review with the user
 
@@ -101,7 +114,8 @@ Present the proposed breakdown before writing files when the scope is large or a
 - blocked by
 - blocking
 - quick coverage summary
-- whether it should be spun off to a separate agent thread/subagent when the user wants parallel implementation
+- expected write areas and whether it is parallelizable
+- for `HITL`, the exact question or action and when it must occur
 
 Ask for approval only when the breakdown has meaningful ambiguity that was not already resolved by `grill-me`. Otherwise, create the files and note that the user can revise them locally.
 
@@ -121,7 +135,7 @@ Use this standard decision prompt for ambiguous breakdowns:
 Create issue files under one active plan directory using this staged naming pattern:
 
 - `plans/in-progress/<slug>/PRD.md`
-- `plans/in-progress/<slug>/00-index.md`
+- `plans/in-progress/<slug>/<slug>-index.md`
 - `plans/in-progress/<slug>/01-foundation/01-<slice-slug>.md`
 - `plans/in-progress/<slug>/01-foundation/02-<slice-slug>.md`
 - `plans/in-progress/<slug>/02-core-flows/03-<slice-slug>.md`
@@ -141,14 +155,14 @@ Each numbered folder is an execution stage:
 - use semantic stage names such as `01-foundation`, `02-core-flows`, or `03-polish`, not only `parallel`
 - when adding a new issue to an existing plan, pick the next unused global issue number after scanning every issue file in every stage folder
 
-Generate `00-index.md` from issue frontmatter. It should list every issue file, completion checkbox, Linear issue, type, status, dependency relationships, and whether each issue is parallelizable. If the index and frontmatter disagree, update the index from frontmatter.
+Generate `<plan-slug>-index.md` from issue frontmatter. It should list every issue file, completion checkbox, Linear issue, type, HITL timing, status, dependency relationships, and whether each issue is parallelizable. If the index and frontmatter disagree, update the index from frontmatter.
 
 Recommended index row format:
 
 ```markdown
-| Done | Stage         | Local ID  | Linear     | Issue                                          | Type | Status | Blocked By | Blocking  | Parallelizable |
-| ---- | ------------- | --------- | ---------- | ---------------------------------------------- | ---- | ------ | ---------- | --------- | -------------- |
-| [ ]  | 02-core-flows | <slug>-04 | Not synced | [Issue title](02-core-flows/04-issue-title.md) | AFK  | Ready  | <slug>-02  | <slug>-06 | Yes            |
+| Done | Stage         | Local ID  | Linear     | Issue                                          | Type | HITL Timing | Status | Blocked By | Blocking  | Parallelizable |
+| ---- | ------------- | --------- | ---------- | ---------------------------------------------- | ---- | ----------- | ------ | ---------- | --------- | -------------- |
+| [ ]  | 02-core-flows | <slug>-04 | Not synced | [Issue title](02-core-flows/04-issue-title.md) | AFK  | —           | Ready  | <slug>-02  | <slug>-06 | Yes            |
 ```
 
 ## Appendix: Local Issue Template
@@ -162,6 +176,7 @@ plan_slug: <slug>
 title: <Issue Title>
 stage: <stage-number>-<stage-name>
 type: afk
+hitl_timing: null
 status: ready
 completed: false
 parallelizable: false
@@ -178,6 +193,16 @@ last_synced: null
 
 What this slice delivers end-to-end. A short paragraph or two — enough to know what you're implementing next without opening the PRD.
 
+## HITL Requirement
+
+Include this section only when `type: hitl`:
+
+- **Timing:** `upfront` or `evidence_dependent`
+- **Decision or action:** the single concrete input needed from the human
+- **Evidence:** what the agent should present first, or `None` for upfront input
+
+Omit this section for `afk` issues.
+
 ## Acceptance Criteria
 
 - [ ] Observable, testable criterion
@@ -191,11 +216,10 @@ Be specific. These should stand alone as the definition of done.
 - **Surfaces:** packages, routes, jobs, tables, APIs, etc. you expect to touch
 - **Constraints:** key decisions or assumptions from the PRD that shape this slice
 - **Out of scope:** what this issue is not doing
-- **Sanity check:** how to verify the slice when done
 
 Add **Risks** or **Open choices** only when the slice is genuinely ambiguous — don't speculate.
 
-Stay at the planning level. No file-by-file specs — `forge-issue` fills in **Implementation Notes** after reading the code.
+Stay at the planning level. No file-by-file specs — `forge-build` fills in **Implementation Notes** after integration.
 
 ## Implementation Notes
 
@@ -203,14 +227,14 @@ Stay at the planning level. No file-by-file specs — `forge-issue` fills in **I
 
 ---
 
-PRD: <relative path> | Index: <relative path to 00-index.md>
+PRD: <relative path> | Index: <relative path to <plan-slug>-index.md>
 ```
 
 Keep frontmatter at the very top of every local issue file. Future agents should be able to determine scheduling, blocking, Linear sync, and completion by reading frontmatter without scraping the body.
 
 ## Output
 
-Final reply only. No preamble or process narration.
+Keep the final answer in the format below and omit a final-answer preamble. Commentary updates may still be used when required by the host.
 
 **When presenting a breakdown** — before writing files:
 
@@ -227,12 +251,12 @@ Final reply only. No preamble or process narration.
 ```markdown
 **Issues**
 
-- Index: [plans/in-progress/<slug>/00-index.md](plans/in-progress/<slug>/00-index.md)
-- [plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md)
-- [plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md) (parallel)
-- Next: [/to-linear](../to-linear/SKILL.md)
+- Index: [plans/in-progress/<slug>/<slug>-index.md](<absolute index file path>)
+- [plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>)
+- [plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>) (parallel)
+- Next: $to-linear
 ```
 
-List every created issue file in global order (ascending issue number). Use repo-relative paths for link text and target. Add `(parallel)` only when frontmatter has `parallelizable: true`. One issue per bullet after the index line.
+List every created issue file in global order (ascending issue number). Use repo-relative paths for link text and absolute local paths for link targets. Add `(parallel)` only when frontmatter has `parallelizable: true`. One issue per bullet after the index line.
 
-Rules: no preamble; `Next:` always last with a skill link.
+Rules: no final-answer preamble; `Next:` always last.
