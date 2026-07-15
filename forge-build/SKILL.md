@@ -14,9 +14,15 @@ Require one mode for the whole plan:
 - `tasks` — create one visible Codex task in a managed worktree per eligible issue. The issue task implements directly, spawns its own fresh reviewer subagent, commits once, and returns a commit SHA. Recommend this in the Codex desktop app for substantial parallel issues, persistent visibility, and independent steering.
 - `subagents` — create one Git worktree per issue and run implementation plus review through main-thread subagents. Recommend this when task/thread tools are unavailable or the user wants ephemeral workers with automatic result joins.
 
-Accept `$forge-build tasks` or `$forge-build subagents`. If the user invokes the skill without a mode, ask one concise mode question before dispatching work. This is the only implementation-mode choice; do not offer additional strategies.
+Accept `$forge-build tasks` or `$forge-build subagents`. If no mode is supplied:
 
-Persist the selection under `## Forge Build Execution` in the PRD. Do not switch modes after any issue starts. If `tasks` is selected but Codex task creation, worktree targeting, or thread-reading tools are unavailable, return `blocked` and recommend a new invocation with `subagents`.
+- In Cursor, default to `subagents` without asking because separate Codex tasks with managed worktrees are unavailable.
+- In Codex desktop with callable task/worktree thread tools, ask one concise mode question before dispatching work.
+- On any other surface without those task tools, default to `subagents`.
+
+This is the only implementation-mode choice; do not offer additional strategies.
+
+Persist the selection under `## Forge Build Execution` in the PRD. Do not switch modes after any issue starts. If `tasks` is explicitly selected in Cursor or where Codex task creation, worktree targeting, or thread-reading tools are unavailable, return `blocked` and recommend a new invocation with `subagents`.
 
 ## Inputs
 

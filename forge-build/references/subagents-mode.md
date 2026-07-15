@@ -1,6 +1,6 @@
 # Subagents Mode
 
-Use orchestrator-created Git worktrees and automatic subagent result joins.
+Use orchestrator-created Git worktrees and automatic subagent result joins. Default to this mode in Cursor and on any surface without Codex task/worktree thread tools.
 
 ## Dispatch
 

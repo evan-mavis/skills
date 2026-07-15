@@ -6,6 +6,8 @@ Use visible Codex tasks with app-managed worktrees. The issue task implements di
 
 Require callable Codex tools to list projects, create a project task in a worktree, read task status and turns, send follow-up messages, set task titles, and archive completed tasks. Task creation must support a worktree starting from the current feature branch.
 
+Do not use this mode in Cursor. Default to `subagents` there because Cursor does not provide the separate Codex task/worktree thread flow required by this contract.
+
 The selected `tasks` mode is explicit user authorization to create these issue tasks. If any required capability is unavailable, return `blocked` before creating partial task state.
 
 ## Dispatch
