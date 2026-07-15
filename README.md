@@ -18,7 +18,7 @@ You invoke these in order:
 
 Execution modes:
 
-- **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue gets a visible task with a managed worktree; that task implements directly, spawns a fresh reviewer subagent, and returns one commit.
+- **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue gets a visible task with a managed worktree; that task implements directly, spawns a fresh reviewer subagent, and returns one commit. Every spawned task stays unarchived for later inspection.
 - **subagents** — Default in Cursor. Each issue gets an orchestrator-created Git worktree plus ephemeral implementation and reviewer subagents with automatic result joins.
 
 ### Agent-run inside `forge-build`

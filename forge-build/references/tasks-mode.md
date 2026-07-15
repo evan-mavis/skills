@@ -4,7 +4,7 @@ Use visible Codex tasks with app-managed worktrees. The issue task implements di
 
 ## Availability
 
-Require callable Codex tools to list projects, create a project task in a worktree, read task status and turns, send follow-up messages, set task titles, and archive completed tasks. Task creation must support a worktree starting from the current feature branch.
+Require callable Codex tools to list projects, create a project task in a worktree, read task status and turns, send follow-up messages, and set task titles. Task creation must support a worktree starting from the current feature branch.
 
 Do not use this mode in Cursor. Default to `subagents` there because Cursor does not provide the separate Codex task/worktree thread flow required by this contract.
 
@@ -54,6 +54,10 @@ blocker: null | <specific blocker>
 
 The task must return `blocked` without committing if implementation or review blocks.
 
+## Task Retention
+
+Keep every spawned issue task unarchived, whether it succeeds or blocks. Never auto-archive a task created by this mode, and never manually delete its Codex-managed worktree. Archiving and cleanup require a separate explicit user request.
+
 ## Monitoring
 
 Task results do not automatically join the parent task.
@@ -78,7 +82,7 @@ For each successful task in dependency-safe global order:
 
 4. Resolve only unambiguous mechanical conflicts. For semantic conflicts, abort the cherry-pick, preserve the issue task, and return `blocked`.
 5. Apply the shared integrated-issue state procedure using the resulting integrated commit SHA.
-6. Archive the successful issue task after integration and let Codex manage its worktree cleanup. Never manually delete a Codex-managed worktree.
+6. Keep the successful issue task unarchived for later inspection.
 
 Do not create a local issue branch in this mode.
 

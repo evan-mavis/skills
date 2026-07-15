@@ -20,7 +20,7 @@ Choose once when invoking `forge-build`.
 
 | Mode | Issue execution | Integration | Best fit |
 | --- | --- | --- | --- |
-| **tasks** | One visible Codex task in a managed worktree per issue; the task implements directly and spawns a fresh reviewer subagent | Main task polls the terminal contract and cherry-picks its single commit | Recommended in Codex desktop for substantial parallel issues, visibility, and resumability |
+| **tasks** | One visible Codex task in a managed worktree per issue; the task implements directly and spawns a fresh reviewer subagent | Main task polls the terminal contract and cherry-picks its single commit | Recommended in Codex desktop for substantial parallel issues, visibility, and resumability; every task stays unarchived |
 | **subagents** | Main task creates one Git worktree per issue, then spawns separate implementation and reviewer subagents | Main task rebases and fast-forwards the issue branch | Default in Cursor; portable, ephemeral execution with automatic result joins |
 
 The mode controls issue implementation. Both modes still use fresh reviewer subagents, the same dependency scheduler, stage reviews, final CI, draft PR creation, and babysitting.
@@ -140,6 +140,6 @@ flowchart TB
   class TASK_REVIEW,SUB_IMPL,SUB_REVIEW,STAGE_REVIEW,PR_REVIEW spawned
 ```
 
-Task results do not automatically join the main task, so `forge-build` tracks each task ID and reads its terminal result contract with modest backoff.
+Task results do not automatically join the main task, so `forge-build` tracks each task ID and reads its terminal result contract with modest backoff. Every spawned issue task stays unarchived for later inspection; cleanup only happens after a separate explicit user request.
 
 `forge-build` produces exactly one integrated feature branch and one draft PR. It never marks the PR ready, merges it, deploys it, or publishes a release.
