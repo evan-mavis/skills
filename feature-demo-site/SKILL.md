@@ -1,6 +1,6 @@
 ---
 name: feature-demo-site
-description: Review a feature branch against its repository's default branch, identify every user-visible workflow and supporting operational change, capture concise videos or screenshots from the real local application, and publish a minimal Notion-inspired walkthrough with a section sidebar through an available site host. Use for feature demos, release walkthroughs, PR showcases, stakeholder demo sites, or requests to turn a branch diff into a media-led walkthrough.
+description: Review a feature branch against its repository's default branch, identify every user-visible workflow and supporting operational change, capture concise Chrome-backed videos with a target-anchored friendly #6248ff cursor and matching click rings or truthful screenshots from the real local application, and publish a minimal Notion-inspired walkthrough with a section sidebar through an available site host. Use for feature demos, release walkthroughs, PR showcases, stakeholder demo sites, or requests to turn a branch diff into a media-led walkthrough.
 ---
 
 # Feature Demo Site
@@ -10,7 +10,7 @@ Turn a branch into a concise, shareable demo story. Treat the diff as the source
 ## Required companion skills
 
 - Load `db-local` after reviewing the diff. Use it to select local accounts whose roles, eligibility, records, and lifecycle states best demonstrate the feature.
-- Load the host's browser automation before recording. In Codex, prefer the current in-app Browser skill; in Cursor, use its native browser tools or Playwright. Follow the active tool's setup, locator, policy, and finalization rules exactly.
+- Load the host's browser automation before recording. In Codex, prefer Chrome when any story beat calls for video; use the in-app Browser for screenshot-only work, when the user explicitly names it, or when Chrome is unavailable. In Cursor, use its native browser tools or Playwright. Follow the active tool's setup, locator, policy, and finalization rules exactly.
 - When Sites building and hosting skills are available, use them. Otherwise use an available, configured static-site workflow and hosting integration; never invent deployment credentials or silently publish publicly.
 - Use a repository-specific local-development skill when one is available.
 
@@ -69,6 +69,8 @@ Read [references/browser-capture.md](references/browser-capture.md) before the f
 - Record the real browser page. Do not make a slideshow of screenshots and call it a screen recording.
 - Keep each clip focused, usually 8–25 seconds. Longer clips are acceptable when one continuous workflow is easier to follow.
 - Show actual clicks and form interactions, pause briefly at important states, and add only short capture-time labels.
+- Use the browser-capture helper's friendly `#6248ff` cursor, target-anchor it to the live control immediately before every meaningful action, and trigger its matching click ring immediately before each real click. Never place the cursor over an interactive control with guessed coordinates.
+- Hide the cursor immediately after any action that removes or repositions its target, then reveal it only when anchored to the next live control.
 - Capture all states needed for the coverage matrix, including both sides of shared workflows.
 - Preserve capture timestamps and integrity metadata; do not estimate pacing when a manifest is available.
 - Resolve `SKILL_DIR` to this skill's installed directory and use `$SKILL_DIR/scripts/encode-capture.sh` to turn captured frames into a timestamp-paced, normalized MP4.
@@ -108,6 +110,7 @@ Before publishing:
 - Confirm every section has working media or an intentional static fallback.
 - Confirm videos show real interaction rather than only state changes between still frames.
 - Review capture-manifest warnings and visually inspect the first, middle, and last frames for blank, stale, or sensitive content.
+- Inspect frames before and after every meaningful action. Confirm the `#6248ff` cursor hotspot and click ring overlap the intended live control before the action and that the cursor is hidden or still truthfully anchored afterward.
 - Check MP4 duration, dimensions, codec, and file size with `ffprobe`.
 - Ensure captions contain no credentials, secrets, private tokens, or accidental customer data.
 - Confirm the rendered site uses the Solarized Light tokens, Geist typography, translucent sidebar, and restrained Notion component language consistently.

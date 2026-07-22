@@ -1,6 +1,6 @@
 # Browser-frame capture
 
-Use this reference only after loading the host's browser automation. In Codex, prefer the current in-app Browser skill; in Cursor, use its native browser tools or Playwright. Active browser instructions and policy always take precedence over this helper.
+Use this reference only after loading the host's browser automation. In Codex, prefer Chrome when the coverage matrix calls for video; use the in-app Browser for screenshot-only work, when the user explicitly names it, or when Chrome is unavailable. In Cursor, use its native browser tools or Playwright. Active browser instructions and policy always take precedence over this helper.
 
 ## Goal
 
@@ -34,7 +34,7 @@ const capture = await import(
 );
 ```
 
-3. Obtain a CDP session for the allowed tab using the active browser capability documentation. API names can change; do not guess them. If the host does not expose an allowed CDP session, skip this recorder and use its native recording or screenshot path.
+3. Obtain a CDP session for the allowed tab using the active browser capability documentation. API names can change; do not guess them. The recorder accepts both listener-based sessions (`on`/`off`) and cursor-based sessions (`readEvents`), including the Chrome plugin's CDP capability. If the host does not expose an allowed CDP session, skip this recorder and use its native recording or screenshot path.
 
 4. Wrap the real browser interaction sequence:
 
@@ -43,20 +43,22 @@ const frameCount = await capture.recordBrowserFlow({
   cdp,
   outputDir: "/absolute/path/public/videos/raw/01-setup-frames",
   perform: async () => {
-    await capture.showCaptureOverlay(cdp, {
+    await capture.showCaptureOverlayForTarget(cdp, {
       label: "Enable requests and choose locations",
-      x: 820,
-      y: 240,
+      target: { role: "button", name: "Enable demo requests" },
     });
 
+    await capture.pulseCaptureClick(cdp);
+    await pause(90);
     await enabledToggle.click();
     await pause(550);
 
-    await capture.moveCapturePointer(cdp, {
+    await capture.moveCapturePointerToTarget(cdp, {
       label: "Choose one or more locations",
-      x: 820,
-      y: 330,
+      target: { role: "combobox", name: "Eligible locations" },
     });
+    await capture.pulseCaptureClick(cdp);
+    await pause(90);
     await locationSelector.click();
     await pause(700);
 
@@ -70,8 +72,11 @@ The interaction functions and pause helper belong to the active browser session;
 ## Clip direction
 
 - Start with a stable orientation frame.
-- Use a visible pointer dot near the interaction and a short caption of 3–8 words.
-- Move the existing pointer with `moveCapturePointer` instead of recreating it; the helper animates the move.
+- Use the default friendly cursor (`#6248ff`) and a short caption of 3–8 words. Change `cursorColor` only when the user requests another color or contrast requires it.
+- Anchor the cursor to the live control immediately before every click, fill, selection, or submitted action with `showCaptureOverlayForTarget` or `moveCapturePointerToTarget`. Reuse the same role and accessible name already proven by fresh DOM evidence and the browser locator. Use manual `x`/`y` only for non-interactive orientation callouts.
+- Move the existing cursor instead of recreating it; the helper animates the move and places the friendly pointer hotspot at the resolved target point.
+- Call `pulseCaptureClick` immediately before every real click, pause for roughly 90 ms so the first `#6248ff` ring frame is visible, then click the same target the cursor is anchored to.
+- After a click that navigates, closes a dialog, submits a form, or otherwise removes or repositions the target, call `hideCapturePointer` immediately. Reveal it only by target-anchoring it to the next live control; do not leave a cursor floating over the resulting state.
 - Pause roughly 400–800 ms after meaningful clicks so state changes remain legible.
 - Move through one story beat rather than scanning the entire product.
 - Avoid long text entry. Fill representative copy, then cancel or restore it.
@@ -117,7 +122,7 @@ Prefer traditional recording for continuous animation, drag-and-drop, audio narr
 After capture:
 
 1. Read `capture-manifest.json` warnings. Recapture on timestamp regression, zero frames, or unexplained session-ID gaps.
-2. Inspect the first, middle, and last JPEG with the local image viewer. Recapture blank, partially rendered, stale, or sensitive frames.
+2. Inspect the first, middle, and last JPEG plus frames immediately before and after each meaningful action. Recapture blank, partially rendered, stale, sensitive, visibly misaligned, or post-action floating-pointer frames.
 3. Run the encoder and confirm its reported duration, dimensions, codec, and file size.
 4. Play the final MP4 when the user explicitly requests browser or media QA.
 

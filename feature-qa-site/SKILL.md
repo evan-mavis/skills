@@ -1,6 +1,6 @@
 ---
 name: feature-qa-site
-description: Review a feature branch against its repository's default branch, derive broad happy-path, negative, boundary, permission, lifecycle, data-state, regression, and edge-case scenarios, select feature-relevant local accounts with db-local, execute the scenarios in the real local application, document reproducible bugs with video evidence, and publish a private Notion-inspired QA review through an available site host. Use for exploratory QA, branch testing, pre-merge validation, bug hunts, release confidence reviews, or requests to turn a feature diff into a video-backed test report.
+description: Review a feature branch against its repository's default branch, derive broad happy-path, negative, boundary, permission, lifecycle, data-state, regression, and edge-case scenarios, select feature-relevant local accounts with db-local, execute the scenarios in the real local application, document reproducible bugs with Chrome-backed video evidence using a target-anchored friendly #6248ff cursor and matching click rings, and publish a private Notion-inspired QA review through an available site host. Use for exploratory QA, branch testing, pre-merge validation, bug hunts, release confidence reviews, or requests to turn a feature diff into a video-backed test report.
 ---
 
 # Feature QA Site
@@ -11,7 +11,7 @@ Turn a branch diff into an evidence-backed QA review. Maximize useful coverage, 
 
 - Load `db-local` after diff analysis. Use it for account and data-state selection plus read-only before/after verification.
 - Load the repository's local-development skill when available.
-- Load the host's browser automation before executing UI scenarios. In Codex, prefer the current in-app Browser skill; in Cursor, use its native browser tools or Playwright. Follow the active tool's setup, locator, policy, and finalization rules exactly.
+- Load the host's browser automation before executing UI scenarios. In Codex, prefer Chrome when any scenario may need video evidence; use the in-app Browser for screenshot-only work, when the user explicitly names it, or when Chrome is unavailable. In Cursor, use its native browser tools or Playwright. Follow the active tool's setup, locator, policy, and finalization rules exactly.
 - Load `feature-demo-site` only for its browser-frame capture reference and media scripts. Do not substitute its presentation-oriented coverage workflow for this QA workflow.
 - When Sites building and hosting skills are available, use them. Otherwise use an available, configured static-site workflow and hosting integration; never invent deployment credentials or silently publish publicly.
 
@@ -106,6 +106,8 @@ Do not include credentials, tokens, private customer data, or irrelevant console
 ### 6. Capture evidence
 
 - Read the loaded `feature-demo-site` browser-capture reference and reuse its timestamped recorder when the host exposes an allowed CDP session; otherwise use its native-recording and screenshot fallback rules.
+- Use the recorder's friendly `#6248ff` cursor, target-anchor it to the live control immediately before every triggering action, and trigger its matching click ring immediately before each real click. Never use guessed coordinates over an interactive control.
+- Hide the cursor immediately after an action removes or repositions its target, then reveal it only when anchored to the next live control.
 - Capture video for every confirmed reproducible UI bug unless policy or safety blocks it.
 - Capture representative critical-path passes when they materially improve review confidence; do not make a video for every passing assertion.
 - Prefer screenshots for static email output, audit rows, database verification summaries, or errors that disappear during interaction.
@@ -139,7 +141,7 @@ Before publishing:
 - Confirm bug severity and wording are supported by evidence.
 - Confirm the final scenario section includes Pass, Fail, Blocked, and Not run rows.
 - Confirm the rendered review consistently uses the Solarized Light tokens, Geist typography, translucent sidebar, and restrained Notion component language.
-- Inspect capture manifests and first/middle/last frames; verify final MP4 metadata with `ffprobe`.
+- Inspect capture manifests, first/middle/last frames, and frames before and after each triggering action; recapture evidence where the `#6248ff` cursor or click ring misses its control, or where the cursor floats over a changed state. Verify final MP4 metadata with `ffprobe`.
 - Run the selected site workflow's required production build once after the review is complete.
 
 Publish privately by default. Return the deployed URL first, then the scenario counts and a short list of confirmed bugs. If no publishing integration is available, preserve the validated local review and return its absolute path; when invoked by `forge-build`, report the missing private-URL capability as a blocker before PR creation. Do not claim comprehensive coverage without naming blocked or untested areas.
