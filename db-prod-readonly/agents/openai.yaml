@@ -1,0 +1,4 @@
+interface:
+  display_name: "Query Production Database"
+  short_description: "Run strictly read-only production SQL"
+  default_prompt: "Use $db-prod-readonly to inspect production data with strictly read-only SQL."

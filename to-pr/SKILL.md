@@ -1,6 +1,6 @@
 ---
 name: to-pr
-description: Prepare, create, or update the single feature pull request after run-ci passes. Use with mode prepare, draft, or ready; default to draft for forge-build so the PR remains not-ready-for-review while CI and babysit run.
+description: Prepare, create, or update the single feature pull request after run-ci passes, including caller-supplied QA and demo evidence links. Use with mode prepare, draft, or ready; default to draft for forge-build so the PR remains not-ready-for-review while CI and babysit run.
 ---
 
 # To PR
@@ -29,10 +29,12 @@ Omit the Linear suffix when no credible ID exists. Never invent one.
 
 Read and follow the repository PR template before creating or updating a PR. Build the body from the complete base diff, commit history, PRD, completed issue files, and known Linear links. Keep it concise and fill every required section.
 
+When the caller supplies a feature demo site or QA verification site, add a concise `PR evidence` section in the best matching template location. Link each artifact by name, include its one-line summary, disclose non-blocking QA findings, and omit any artifact that was not selected. Never publish credentials, raw local data, or private evidence URLs anywhere except the intended PR.
+
 ## Process
 
 1. Confirm `run-ci` passed, the working tree is clean, and `gh` authentication works.
-2. Resolve base/head branches, existing PR state, Linear IDs, title, and body.
+2. Resolve base/head branches, existing PR state, Linear IDs, caller-supplied evidence links, title, and body.
 3. Return `blocked` for an ambiguous base, conflicting IDs, or an unclear title category.
 4. In `prepare` mode, return the draft content without remote writes.
 5. In `draft` or `ready` mode, push if needed and create or update the PR with `gh`; return `body: null` after the remote write so the caller retains only compact orchestration state.

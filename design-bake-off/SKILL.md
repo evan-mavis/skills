@@ -143,7 +143,7 @@ Use the env guard that matches the framework (`import.meta.env.DEV` for Vite, `p
 
 ### Step 7: Fan out variant subagents concurrently
 
-Detect the host's available subagent capacity. Launch as many variant subagents concurrently as the host permits, wait for that wave, then launch the next wave until all N variants finish. In Codex, use the native subagent tools; do not depend on Cursor-only `Task`, `subagent_type`, or `run_in_background` fields. Each subagent gets:
+Detect the host's available subagent capacity. Launch as many variant subagents concurrently as the host permits, wait for that wave, then launch the next wave until all N variants finish. Use the host's native subagent surface: Codex collaboration tools in Codex, or Cursor's native task/subagent tools in Cursor. Do not pass host-specific fields or contracts from one surface into the other. Each subagent gets:
 
 - The exact file path to create (only that one path).
 - The assigned archetype name and one-sentence differentiator.

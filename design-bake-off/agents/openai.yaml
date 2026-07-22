@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Bake-Off"
+  short_description: "Generate parallel full-page design variants"
+  default_prompt: "Use $design-bake-off to generate distinct full-page design variants for this page."

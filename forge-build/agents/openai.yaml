@@ -1,7 +1,7 @@
 interface:
   display_name: "Forge Build"
-  short_description: "Build a plan through tasks or subagents"
-  default_prompt: "Use $forge-build to execute the approved local plan; ask me to choose tasks or subagents in Codex, and default to subagents in Cursor."
+  short_description: "Build, verify, demo, and open a draft PR"
+  default_prompt: "Use $forge-build to execute the approved local plan; collect execution mode and optional QA/demo PR evidence choices, then build through a draft PR."
 
 policy:
   allow_implicit_invocation: false

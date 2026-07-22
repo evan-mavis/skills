@@ -1,6 +1,6 @@
 ---
 name: forge-build
-description: Execute an approved local implementation plan end to end through either visible Codex worktree tasks or main-thread subagents. Use when the user wants Codex to resolve human-in-the-loop checkpoints, orchestrate dependency-ordered issue work, independently review every issue, integrate one clean commit per issue, run final CI, open a draft pull request, and keep it merge-ready.
+description: Execute an approved local implementation plan end to end through either visible Codex worktree tasks or main-thread subagents. Use when the user wants Codex to resolve human-in-the-loop checkpoints, orchestrate dependency-ordered issue work, independently review every issue, integrate one clean commit per issue, repair final CI failures, optionally generate video-backed QA and demo sites, open a draft pull request, and keep it merge-ready.
 ---
 
 # Forge Build
@@ -22,7 +22,20 @@ Accept `$forge-build tasks` or `$forge-build subagents`. If no mode is supplied:
 
 This is the only implementation-mode choice; do not offer additional strategies.
 
-Persist the selection under `## Forge Build Execution` in the PRD. Do not switch modes after any issue starts. If `tasks` is explicitly selected in Cursor or where Codex task creation, worktree targeting, or thread-reading tools are unavailable, return `blocked` and recommend a new invocation with `subagents`.
+Persist the execution mode under `## Forge Build Execution` in the PRD. Do not switch modes after any issue starts. If `tasks` is explicitly selected in Cursor or where Codex task creation, worktree targeting, or thread-reading tools are unavailable, return `blocked` and recommend a new invocation with `subagents`.
+
+## PR evidence choice
+
+On a new invocation, also collect one optional PR evidence selection:
+
+- `both` — generate a QA verification site and a feature demo site. Recommend this option.
+- `demo` — generate only the feature demo site.
+- `qa` — generate only the QA verification site.
+- `neither` — skip both sites.
+
+When execution mode also requires a question, collect both decisions in the same question UI. Present PR evidence as the four choices above when supported; if the UI limits option counts, ask separate yes/no questions for the demo and QA sites in the same UI. Accept an explicit user-supplied selection without prompting.
+
+Persist the selection as `pr_evidence: both | demo | qa | neither` under `## Forge Build Execution` in the PRD. Reuse it on resume and do not ask again. Generate selected evidence only after final CI passes and before creating the draft PR.
 
 ## Inputs
 
@@ -41,7 +54,7 @@ If the plan is ambiguous, the feature branch is detached, or the main workspace 
 2. Read the complete plan and build the dependency graph from issue frontmatter. Trust frontmatter over `<plan-slug>-index.md`.
 3. Record stage order, global issue order, `blocked_by`, `type`, `hitl_timing`, `parallelizable`, and completion state.
 4. Refuse completed, archived, or structurally invalid plans. Require `hitl_timing: null` on `afk` issues. On `hitl` issues, accept `upfront` or `evidence_dependent`; migrate a missing legacy value through the HITL procedure.
-5. Resolve and persist the execution mode. On resume, inspect its existing tasks or worktrees before creating anything.
+5. Resolve and persist the execution mode and PR evidence choice. On resume, inspect existing tasks, worktrees, and evidence state before creating anything.
 6. Read exactly one execution reference completely:
    - `tasks`: [tasks mode](references/tasks-mode.md)
    - `subagents`: [subagents mode](references/subagents-mode.md)
@@ -60,7 +73,7 @@ Before dispatching issue work, inspect every incomplete `hitl` issue and its **H
 5. Leave evidence-dependent issues as `type: hitl`. When one becomes the earliest dependency-unblocked issue, present the available evidence and ask only for the remaining decision or action. Persist the answer and apply the same transition rule.
 6. Refresh the index and rebuild the dependency graph after resolving HITL state.
 
-Do not return `blocked` merely because a resolvable HITL answer is pending: ask, wait, record, and resume. Return `blocked` only when the user cannot supply required input or the answer exposes ambiguous or conflicting scope. Execution-mode and HITL questions are the only exceptions to the terminal output contract.
+Do not return `blocked` merely because a resolvable HITL answer is pending: ask, wait, record, and resume. Return `blocked` only when the user cannot supply required input or the answer exposes ambiguous or conflicting scope. Execution-mode, PR-evidence, and HITL questions are the only exceptions to the terminal output contract.
 
 ## Scheduler
 
@@ -84,7 +97,7 @@ Keep detailed execution inside issue tasks or subagent threads. Keep canonical s
 - Send one compact update after preflight, after each completed wave, and after each stage.
 - If a wave runs longer than one minute, send a brief heartbeat without narrating unchanged state.
 - Use: `stage: <stage> | mode: <tasks-or-subagents> | completed: <ids-or-none> | active: <ids-or-none> | blocked: <id-and-reason-or-none> | next: <one action>`.
-- Interrupt normal cadence only for a mode question, HITL question, or actionable blocker.
+- Interrupt normal cadence only for a mode question, PR-evidence question, HITL question, or actionable blocker.
 - Do not repeat progress. The terminal response must use only the final output contract.
 
 ## Blocked work and resume
@@ -124,10 +137,41 @@ Record the feature SHA at the start of each stage. After every issue in that sta
 
 When every issue is `done` and `completed: true`:
 
-1. Run `$run-ci`. Return `blocked` if it fails.
-2. Run `$to-pr` in `draft` mode.
-3. Run `$babysit` on the draft PR. Never mark it ready, merge it, or publish a release.
-4. After babysit returns `done`, set PRD `status: completed` and move the plan to `plans/completed/<plan-slug>/` without leaving a duplicate.
+1. Run the repository's documented format-write or format-fix command before calling `$run-ci`. Inspect the diff and commit any formatting-only changes once as `maintenance: format final changes`. If formatting fails, handle it as the first mechanical failure in the CI repair loop.
+2. Run `$run-ci` as a read-only verification pass.
+3. If it fails, exit `$run-ci` and enter the CI repair loop below. Do not return `blocked` on the first repairable failure.
+4. After CI passes, execute the selected PR evidence workflow below.
+5. Run `$to-pr` in `draft` mode and supply the current QA and demo URLs plus their concise summaries. Require the PR body to link every selected artifact.
+6. Run `$babysit` on the draft PR. Never mark it ready, merge it, or publish a release.
+7. After babysit returns `done`, set PRD `status: completed` and move the plan to `plans/completed/<plan-slug>/` without leaving a duplicate.
+
+### PR evidence workflow
+
+Use fresh, separate subagents for the selected sites. Default to running QA before demo. Do not run the two subagents concurrently unless they have isolated browser sessions, local accounts, and mutable local data; shared browser or application state can invalidate both artifacts.
+
+1. If `pr_evidence` is `qa` or `both`, spawn a fresh subagent in the main workspace and have it run `$feature-qa-site` against the current feature SHA. It remains report-only and returns the private URL, scenario counts, confirmed findings, and tested SHA.
+2. Treat a confirmed finding as acceptance-blocking when it violates the PRD or an issue acceptance criterion, is Critical or High severity, or blocks a critical workflow. Before continuing, repair acceptance-blocking findings with a fresh scoped implementation subagent, review and commit the fixes once as `patch: fix final QA findings`, rerun the complete `$run-ci` suite, and rerun the QA site against the new SHA. Allow at most two QA repair attempts; then return `blocked` with the remaining findings.
+3. Keep non-blocking findings visible in the QA site and PR description.
+4. If `pr_evidence` is `demo` or `both`, spawn a fresh subagent after any QA repair cycle and have it run `$feature-demo-site` against the final CI-passing feature SHA. It returns the private URL, coverage summary, omissions, and demonstrated SHA.
+5. Persist each artifact's URL, summary, and exact feature SHA under `## PR Evidence` in the PRD. Treat an artifact as stale whenever `HEAD` changes; regenerate each selected stale artifact before `$to-pr`.
+
+If a selected skill, local database, browser session, application dependency, or authorized private publishing integration is unavailable, preserve completed evidence and return `blocked` with the specific missing prerequisite. Never silently downgrade a selected artifact to `neither`.
+
+### CI repair loop
+
+Allow at most three repair attempts. A repair attempt may address multiple failures that share a root cause.
+
+1. Persist the attempt number, failing checks, exact failure signatures, and current feature SHA under `## CI Repair` in the PRD.
+2. Classify each failure before changing code:
+   - **Mechanical**: formatting or safely auto-fixable lint. Run the repository's documented fix command, then inspect its diff.
+   - **Code**: typecheck, build, lint, or test failures caused by the feature branch. Fix the smallest root cause in the main workspace and add or adjust focused tests only when needed to preserve intended behavior.
+   - **Environment**: missing services, credentials, runtimes, containers, or transient network failures. Apply only documented, safe environment remediation and retry the affected check once. Never change product code to hide an environment failure.
+3. Never weaken CI, skip checks, delete meaningful tests, or update snapshots without verifying that the new output is intended.
+4. Review the repair diff and commit the cycle once as `patch: fix final CI failures`. Record the repair commit in `## CI Repair`.
+5. Rerun the complete `$run-ci` suite after every repair commit. A partial check may guide the repair, but it does not count as closeout verification.
+6. Clear `## CI Repair` after a full pass and continue to the PR evidence workflow.
+
+Return `blocked` only when a failure is not safely repairable, required environment remediation is unavailable, the same failure signature survives two repair attempts, or three total repair attempts have failed. Preserve the repair state and report the remaining exact failure.
 
 ## Output
 
@@ -141,5 +185,10 @@ completed_issues: <count>
 remaining_issues: <count>
 branch: <feature-branch>
 pr: <url-or-null>
+demo_site: <url-or-null>
+qa_site: <url-or-null>
 blocker: null | <specific blocker>
 ```
+
+Do not add explanatory prose. When Codex Desktop requires git action directives, append those
+standalone directives after the YAML contract; they are the only permitted non-YAML output.

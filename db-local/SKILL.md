@@ -7,17 +7,17 @@ description: Query a local PostgreSQL database named `stack`. Use when the user 
 
 ## Quick start
 
-Use the shared helper from the repository root instead of typing connection details manually:
+Resolve `SKILL_DIR` to the absolute directory containing this `SKILL.md`, then use the bundled helper instead of typing connection details manually. This works from Codex, Cursor, any repository, and any worktree:
 
 ```bash
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" -c "select now()"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" -c "\dt public.*"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "select table_schema, table_name from information_schema.tables where table_schema not in ('pg_catalog', 'information_schema') and table_name ilike '%keyword%' order by table_schema, table_name"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" -c "\d public.some_table"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" -At -c "select count(*) from public.some_table"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "select * from public.some_table order by created_at desc limit 1"
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "select id, name from public.some_table limit 20"
+SKILL_DIR="<absolute db-local skill directory>"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "select now()"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "\dt public.*"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select table_schema, table_name from information_schema.tables where table_schema not in ('pg_catalog', 'information_schema') and table_name ilike '%keyword%' order by table_schema, table_name"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "\d public.some_table"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -At -c "select count(*) from public.some_table"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select * from public.some_table order by created_at desc limit 1"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select id, name from public.some_table limit 20"
 ```
 
 The helper defaults to the local PostgreSQL database `stack` and forces read-only mode for the session by default.
@@ -33,13 +33,13 @@ The helper defaults to the local PostgreSQL database `stack` and forces read-onl
 ## Useful commands
 
 ```bash
-REPO_ROOT="$(git rev-parse --show-toplevel)"
+SKILL_DIR="<absolute db-local skill directory>"
 
 # list tables
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" -c "\dt public.*"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "\dt public.*"
 
 # find likely tables by keyword
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "
 select table_schema, table_name
 from information_schema.tables
 where table_schema not in ('pg_catalog', 'information_schema')
@@ -48,10 +48,10 @@ order by table_schema, table_name;
 "
 
 # describe a table
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" -c "\d public.table_name"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "\d public.table_name"
 
 # list columns with types
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "
 select column_name, data_type
 from information_schema.columns
 where table_schema = 'public' and table_name = 'table_name'
@@ -59,14 +59,14 @@ order by ordinal_position;
 "
 
 # sample rows
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "
 select *
 from public.table_name
 limit 20;
 "
 
 # newest row by created_at
-bash "$REPO_ROOT/.agents/skills/db-local/scripts/query-airgoods-local.sh" --csv -c "
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "
 select *
 from public.table_name
 order by created_at desc

@@ -12,7 +12,7 @@ These are the entry points you run directly, in order.
 | **to-prd** | Write the canonical local PRD |
 | **to-issues** | Create dependency-aware local implementation issues |
 | **to-linear** | Sync the local plan and issue graph to Linear |
-| **forge-build** | Choose an execution mode and orchestrate the approved plan through a merge-ready draft PR |
+| **forge-build** | Choose an execution mode and optional PR evidence, then orchestrate the approved plan through a merge-ready draft PR |
 
 ## Execution modes
 
@@ -27,6 +27,10 @@ The mode controls issue implementation. Both modes still use fresh reviewer suba
 
 Cursor defaults directly to `subagents` because it does not support the separate Codex task/worktree thread flow required by `tasks` mode.
 
+## PR evidence
+
+Choose once when invoking `forge-build`: both QA and demo sites, demo only, QA only, or neither. Forge persists the choice, generates selected evidence after final CI passes, and includes the private links in the draft PR.
+
 ## Agent-run skills
 
 After you start `forge-build`, it invokes and coordinates these skills.
@@ -37,7 +41,9 @@ After you start `forge-build`, it invokes and coordinates these skills.
 | **deslop** | Same issue task/subagent, or main feature workspace for PR fixes | Clean the current uncommitted diff |
 | **thermo-nuclear-code-quality-review** | Fresh issue, stage, or PR-fix reviewer subagent | Independently review and fix the scoped diff |
 | **run-ci** | Main `forge-build` task | Run final local CI after integration |
-| **to-pr** | Main `forge-build` task | Create or update the single feature PR |
+| **feature-qa-site** | Fresh QA subagent when selected | Exercise the final branch, publish video-backed verification, and gate acceptance-blocking findings |
+| **feature-demo-site** | Fresh demo subagent when selected | Publish a concise video-backed walkthrough of the final CI-passing branch |
+| **to-pr** | Main `forge-build` task | Create or update the single feature PR with selected evidence links |
 | **babysit** | Main task, with fresh PR-fix reviewers | Keep the PR clean and green without merging |
 
 ## Workflow
@@ -50,7 +56,7 @@ flowchart LR
   PRD["to-prd"]
   ISS["to-issues"]
   LIN["to-linear"]
-  BUILD["forge-build<br/>choose tasks or subagents"]
+  BUILD["forge-build<br/>choose execution mode + PR evidence"]
 
   GM --> PRD
   PRD --> ISS
@@ -65,7 +71,7 @@ The selected mode creates two issue-execution branches that converge before shar
 
 ```mermaid
 flowchart TB
-  PREFLIGHT["main: validate plan + dependency graph"]
+  PREFLIGHT["main: validate plan + dependency graph<br/>persist mode + PR evidence choice"]
   HITL["main: resolve HITL gates<br/>ask human only when needed"]
   SCHEDULE["main: schedule eligible issues<br/>parallel when safe"]
   MODE{"selected execution mode"}
@@ -89,13 +95,17 @@ flowchart TB
   SPAWN_STAGE["main: spawn fresh stage-review subagent"]
   STAGE_REVIEW["subagent: thermo-nuclear stage review"]
   MORE{"issues remaining?"}
-  CI["main: run-ci"]
-  PR["main: to-pr<br/>draft mode"]
-  BABY["main: babysit"]
-  PR_FIX{"PR fix needed?"}
-  FIX["main: fix + deslop"]
-  SPAWN_PR_REVIEW["babysit: spawn fresh PR-fix reviewer subagent"]
-  PR_REVIEW["subagent: thermo-nuclear review"]
+  CI["main: format + run-ci<br/>bounded repair loop until pass"]
+  EVIDENCE["main: load persisted PR evidence choice"]
+  QA_SELECTED{"QA selected?"}
+  SPAWN_QA["main: spawn fresh QA subagent"]
+  QA["subagent: feature-qa-site<br/>publish private verification site"]
+  QA_REPAIR["main: acceptance gate<br/>if blocked: repair → review → CI → rerun QA"]
+  DEMO_SELECTED{"demo selected?"}
+  SPAWN_DEMO["main: spawn fresh demo subagent"]
+  DEMO["subagent: feature-demo-site<br/>publish private walkthrough"]
+  PR["main: to-pr draft mode<br/>include QA + demo links"]
+  BABY["main: babysit<br/>fix + review loop until green"]
   DONE["main: move plan to<br/>plans/completed/"]
 
   PREFLIGHT --> HITL
@@ -125,21 +135,28 @@ flowchart TB
   STAGE_REVIEW --> MORE
   MORE -->|"yes — next stage"| SCHEDULE
   MORE -->|"no"| CI
-  CI --> PR
+  CI --> EVIDENCE
+  EVIDENCE --> QA_SELECTED
+  QA_SELECTED -->|"yes — both or QA only"| SPAWN_QA
+  QA_SELECTED -->|"no — demo only or neither"| DEMO_SELECTED
+  SPAWN_QA --> QA
+  QA --> QA_REPAIR
+  QA_REPAIR --> DEMO_SELECTED
+  DEMO_SELECTED -->|"yes — both or demo only"| SPAWN_DEMO
+  DEMO_SELECTED -->|"no — QA only or neither"| PR
+  SPAWN_DEMO --> DEMO
+  DEMO --> PR
   PR --> BABY
-  BABY --> PR_FIX
-  PR_FIX -->|"yes"| FIX
-  FIX --> SPAWN_PR_REVIEW
-  SPAWN_PR_REVIEW --> PR_REVIEW
-  PR_REVIEW --> BABY
-  PR_FIX -->|"no"| DONE
+  BABY --> DONE
 
   classDef task fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
   classDef spawned fill:#e8f4fc,stroke:#1a73e8,stroke-width:2px
   class TASK_EXEC,TASK_SPAWN_REVIEW,TASK_COMMIT task
-  class TASK_REVIEW,SUB_IMPL,SUB_REVIEW,STAGE_REVIEW,PR_REVIEW spawned
+  class TASK_REVIEW,SUB_IMPL,SUB_REVIEW,STAGE_REVIEW,QA,DEMO spawned
 ```
+
+CI repair, QA repair/reverification, and babysit repair loops are collapsed into single nodes so the diagram stays readable; their detailed retry contracts remain in the individual skills.
 
 Task results do not automatically join the main task, so `forge-build` tracks each task ID and reads its terminal result contract with modest backoff. Every spawned issue task stays unarchived for later inspection; cleanup only happens after a separate explicit user request.
 
-`forge-build` produces exactly one integrated feature branch and one draft PR. It never marks the PR ready, merges it, deploys it, or publishes a release.
+`forge-build` produces exactly one integrated feature branch and one draft PR. When selected, it also produces a private QA site, a private demo site, or both, and keeps every artifact tied to the exact final feature SHA. It never marks the PR ready, merges it, deploys it, or publishes a release.

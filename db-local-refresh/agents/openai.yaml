@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refresh Local Database"
+  short_description: "Refresh the local stack database safely"
+  default_prompt: "Use $db-local-refresh to refresh the local stack database from a Render export."

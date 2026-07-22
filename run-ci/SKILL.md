@@ -9,7 +9,7 @@ Run final local verification for the fully integrated feature branch. Invocation
 
 ## Process
 
-1. Read applicable `AGENTS.md`, package scripts, task-runner configuration, and PR workflows.
+1. Read applicable repository instructions (`AGENTS.md`, `.cursor/rules`, or equivalent), package scripts, task-runner configuration, and PR workflows.
 2. Resolve the base branch and inspect the complete branch diff.
 3. Prefer the repository's documented CI command. Otherwise run applicable typecheck, lint, test, build, and format-check commands using the narrowest reliable scope.
 4. Run all selected checks even if one fails.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature QA Site"
+  short_description: "Test feature branches and publish video evidence"
+  default_prompt: "Use $feature-qa-site to exhaustively test this feature branch, capture reproducible bugs, and publish a private QA review site."
