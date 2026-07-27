@@ -17,7 +17,7 @@ For every eligible issue in the current wave:
 1. Resolve the current project ID.
 2. Record the current feature `HEAD` as the issue base SHA.
 3. Create a project task with `environment: worktree` and the existing feature branch as its starting state.
-4. Title it `forge-build: <plan-slug> <local-id>`.
+4. Title it with the issue title only. Keep it short and plain so the full title is easy to read in the sidebar; omit `forge-build`, the plan slug, and the local ID.
 5. Record its returned thread or client-thread ID in the canonical issue file.
 6. Pass absolute main-workspace PRD, issue, and index paths because ignored plan files may be absent from the managed worktree.
 
