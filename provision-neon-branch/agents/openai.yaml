@@ -1,0 +1,7 @@
+interface:
+  display_name: "Provision Neon Branch"
+  short_description: "Create a disposable production-data branch"
+  default_prompt: "Use $provision-neon-branch to create an isolated Neon database branch for this task."
+
+policy:
+  allow_implicit_invocation: false

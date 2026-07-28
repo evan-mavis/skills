@@ -1,5 +1,5 @@
 ---
-name: db-local
+name: query-local-db
 description: Query a local PostgreSQL database named `stack`. Use when the user asks to inspect local data, run SQL, list tables, describe schema, validate records, or query the local `stack` database from any repo or worktree.
 ---
 
@@ -10,7 +10,7 @@ description: Query a local PostgreSQL database named `stack`. Use when the user 
 Resolve `SKILL_DIR` to the absolute directory containing this `SKILL.md`, then use the bundled helper instead of typing connection details manually. This works from Codex, Cursor, any repository, and any worktree:
 
 ```bash
-SKILL_DIR="<absolute db-local skill directory>"
+SKILL_DIR="<absolute query-local-db skill directory>"
 bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "select now()"
 bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "\dt public.*"
 bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select table_schema, table_name from information_schema.tables where table_schema not in ('pg_catalog', 'information_schema') and table_name ilike '%keyword%' order by table_schema, table_name"
@@ -33,7 +33,7 @@ The helper defaults to the local PostgreSQL database `stack` and forces read-onl
 ## Useful commands
 
 ```bash
-SKILL_DIR="<absolute db-local skill directory>"
+SKILL_DIR="<absolute query-local-db skill directory>"
 
 # list tables
 bash "$SKILL_DIR/scripts/query-airgoods-local.sh" -c "\dt public.*"

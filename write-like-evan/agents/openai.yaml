@@ -1,0 +1,4 @@
+interface:
+  display_name: "Write Like Evan"
+  short_description: "Draft messages in Evan’s natural voice"
+  default_prompt: "Use $write-like-evan to rewrite this message in my voice."

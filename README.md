@@ -20,11 +20,16 @@ The script preserves unrelated skills in `${CODEX_HOME:-$HOME/.codex}/skills`, w
 
 ### Host compatibility
 
-The tracked skills are capability-based and supported in both Codex and Cursor. `forge-build tasks` is intentionally Codex-only because it requires Codex-managed task worktrees; Cursor automatically uses `forge-build subagents`. Browser evidence uses each host's native browser automation, and demo/QA publishing prefers Sites when available or another configured private static-site integration otherwise.
+The tracked skills are capability-based and supported in Codex, Cursor, and Cursor Cloud. `forge-build tasks` is intentionally Codex-only because it requires Codex-managed task worktrees; Cursor automatically uses `forge-build subagents`. `forge-patch` is a self-contained folder with bundled ambiguity, Neon, cleanup, review, CI, PR, and evidence procedures; `provision-neon-branch` remains available for standalone Neon lifecycle requests. Browser evidence uses each host's native browser automation, and demo/QA publishing prefers Sites when available or another configured private static-site integration otherwise.
 
 ## AI development workflow
 
 Full diagram: [ai-dev-workflow/README.md](ai-dev-workflow/README.md)
+
+### Lightweight patches
+
+- **forge-patch** — Resolve one bug or improvement from a prompt, Linear issue, Slack message, Notion page, or other supplied context; inspect production read-only, implement against a disposable Neon branch, record video evidence, and open a draft PR.
+- **provision-neon-branch** — Standalone equivalent of the Neon lifecycle bundled into `forge-patch`; create and clean up a short-lived raw-production child branch directly.
 
 ### Human-invoked entry points
 
@@ -62,10 +67,11 @@ Once started, `forge-build` orchestrates these skills itself:
 
 ## Database
 
-- **db-local** — Query the local `stack` PostgreSQL database.
-- **db-local-refresh** — Refresh local `stack` from a local Render production export.
-- **db-prod-readonly** — Run read-only SQL against production Airgoods Postgres.
+- **query-local-db** — Query the local `stack` PostgreSQL database.
+- **refresh-local-db** — Refresh the database used by the local Airgoods app from a Render production export.
+- **query-prod-db** — Run read-only SQL against production Airgoods Postgres through MCP or `psql`.
 
 ## Utility
 
 - **handoff** — Compact the current conversation into a handoff doc for another agent.
+- **write-like-evan** — Draft or rewrite Slack messages, emails, and updates in Evan's natural voice.

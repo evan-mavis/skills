@@ -26,11 +26,12 @@ Validate the isolated checkout by mode:
 
 1. Read the issue, PRD, applicable `AGENTS.md`, and only the blocking issue context needed to understand established contracts.
 2. Inspect the owning code and nearby patterns. Treat the issue Acceptance Criteria and Approach as scope; treat the PRD as context, not permission to absorb sibling work.
-3. Implement the complete issue behavior with production-quality structure.
-4. Reuse canonical helpers and layers. Remove dead code exposed by the change and collapse duplication within scope.
-5. Do not add compatibility shims, speculative abstractions, broad defensive fallbacks, or unrelated cleanup.
-6. Do not run browser checks, targeted sanity checks, or full CI. `forge-build` owns final validation after integration.
-7. Leave all implementation changes uncommitted for `$deslop` in the current worker and the fresh independent thermo reviewer.
+3. When the issue implements user-facing UI or changes a user-visible outcome, load and follow the repository's `$product-design` skill in Implement mode before editing. Resolve the target surface and routed references as that skill requires, while preserving this skill's validation boundary.
+4. Implement the complete issue behavior with production-quality structure.
+5. Reuse canonical helpers and layers. Remove dead code exposed by the change and collapse duplication within scope.
+6. Do not add compatibility shims, speculative abstractions, broad defensive fallbacks, or unrelated cleanup.
+7. Do not run browser checks, targeted sanity checks, or full CI. `forge-build` owns final validation after integration.
+8. Leave all implementation changes uncommitted for `$deslop` in the current worker and the fresh independent thermo reviewer.
 
 Return `blocked` instead of guessing when acceptance behavior, a public contract, schema intent, permissions, security behavior, or required shared groundwork is unresolved.
 

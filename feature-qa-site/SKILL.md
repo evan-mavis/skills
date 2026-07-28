@@ -1,6 +1,6 @@
 ---
 name: feature-qa-site
-description: Review a feature branch against its repository's default branch, derive broad happy-path, negative, boundary, permission, lifecycle, data-state, regression, and edge-case scenarios, select feature-relevant local accounts with db-local, execute the scenarios in the real local application, document reproducible bugs with Chrome-backed video evidence using a target-anchored friendly #6248ff cursor and matching click rings, and publish a private Notion-inspired QA review through an available site host. Use for exploratory QA, branch testing, pre-merge validation, bug hunts, release confidence reviews, or requests to turn a feature diff into a video-backed test report.
+description: Review a feature branch against its repository's default branch, derive broad happy-path, negative, boundary, permission, lifecycle, data-state, regression, and edge-case scenarios, select feature-relevant local accounts with query-local-db, execute the scenarios in the real local application, document reproducible bugs with Chrome-backed video evidence using a target-anchored friendly #6248ff cursor and matching click rings, and publish a private Notion-inspired QA review through an available site host. Use for exploratory QA, branch testing, pre-merge validation, bug hunts, release confidence reviews, or requests to turn a feature diff into a video-backed test report.
 ---
 
 # Feature QA Site
@@ -9,7 +9,7 @@ Turn a branch diff into an evidence-backed QA review. Maximize useful coverage, 
 
 ## Required companion skills
 
-- Load `db-local` after diff analysis. Use it for account and data-state selection plus read-only before/after verification.
+- Load `query-local-db` after diff analysis. Use it for account and data-state selection plus read-only before/after verification.
 - Load the repository's local-development skill when available.
 - Load the host's browser automation before executing UI scenarios. In Codex, prefer Chrome when any scenario may need video evidence; use the in-app Browser for screenshot-only work, when the user explicitly names it, or when Chrome is unavailable. In Cursor, use its native browser tools or Playwright. Follow the active tool's setup, locator, policy, and finalization rules exactly.
 - Load `feature-demo-site` only for its browser-frame capture reference and media scripts. Do not substitute its presentation-oriented coverage workflow for this QA workflow.
@@ -33,10 +33,10 @@ Turn a branch diff into an evidence-backed QA review. Maximize useful coverage, 
 4. Build a feature map by actor, entry point, state transition, side effect, and downstream consumer.
 5. Mark changes that are implementation-only and explain which behavior they protect.
 
-### 2. Select accounts and data with `db-local`
+### 2. Select accounts and data with `query-local-db`
 
 1. Infer likely tables and relationships from the feature map.
-2. Follow the `db-local` schema-discovery workflow before writing targeted SQL.
+2. Follow the `query-local-db` schema-discovery workflow before writing targeted SQL.
 3. Query small read-only samples to find accounts representing:
    - Every affected role and permission level.
    - Eligible and ineligible users.
@@ -76,7 +76,7 @@ Create stable scenario IDs and record:
 - Use fresh page or DOM evidence and unique locators from the active browser tool. Do not guess selectors or use raw CDP for interaction.
 - Record actual result, status, account/data state, and evidence immediately after each scenario.
 - Use these statuses: `Pass`, `Fail`, `Blocked`, `Not run`.
-- Verify important UI side effects with `db-local` read-only queries when visible state alone is insufficient.
+- Verify important UI side effects with `query-local-db` read-only queries when visible state alone is insufficient.
 - Recheck shared behavior from each affected role rather than assuming symmetry.
 - Test direct links, reload, browser navigation, repeated actions, and stale state when relevant.
 - Do not stop after the first bug unless it blocks the remaining feature. Continue with independent scenarios.
@@ -156,6 +156,6 @@ Publish privately by default. Return the deployed URL first, then the scenario c
 ## Failure handling
 
 - If browser policy blocks a route, stop that capture path and mark the scenario `Blocked`. Do not attempt an indirect or raw-CDP workaround.
-- If one account lacks required data, return to `db-local` and choose a better local account before manufacturing state.
+- If one account lacks required data, return to `query-local-db` and choose a better local account before manufacturing state.
 - If an external integration cannot run locally, test the reachable boundary, capture truthful evidence, and mark downstream cases `Blocked` with the missing dependency.
 - If the selected host cannot publish, preserve the validated local review and report the user-visible blocker without exposing hosting credentials or internals.

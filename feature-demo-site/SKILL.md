@@ -9,7 +9,7 @@ Turn a branch into a concise, shareable demo story. Treat the diff as the source
 
 ## Required companion skills
 
-- Load `db-local` after reviewing the diff. Use it to select local accounts whose roles, eligibility, records, and lifecycle states best demonstrate the feature.
+- Load `query-local-db` after reviewing the diff. Use it to select local accounts whose roles, eligibility, records, and lifecycle states best demonstrate the feature.
 - Load the host's browser automation before recording. In Codex, prefer Chrome when any story beat calls for video; use the in-app Browser for screenshot-only work, when the user explicitly names it, or when Chrome is unavailable. In Cursor, use its native browser tools or Playwright. Follow the active tool's setup, locator, policy, and finalization rules exactly.
 - When Sites building and hosting skills are available, use them. Otherwise use an available, configured static-site workflow and hosting integration; never invent deployment credentials or silently publish publicly.
 - Use a repository-specific local-development skill when one is available.
@@ -45,7 +45,7 @@ Every meaningful diff item must map to a story beat, a concise supporting note, 
 ### 3. Select feature-relevant accounts
 
 - Infer the relevant entities, roles, eligibility rules, and lifecycle states from the diff.
-- Follow `db-local`: discover schemas first, then run small read-only queries against the local `stack` database.
+- Follow `query-local-db`: discover schemas first, then run small read-only queries against the local `stack` database.
 - Find accounts with the exact data needed for each story beat: correct role, existing relationships, empty and populated states, edge lifecycle states, multi-entity data, and any eligibility prerequisite.
 - Build a small account matrix with actor, local account identifier, qualifying records, target story beats, and why the account fits.
 - Prefer the best evidence-bearing accounts over familiar defaults. If login credentials are not known, return the candidate emails or identifiers and ask only for the missing authentication detail.

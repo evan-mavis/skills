@@ -1,0 +1,4 @@
+interface:
+  display_name: "Query Production Database"
+  short_description: "Query production through readonly MCP or psql"
+  default_prompt: "Use $query-prod-db to inspect production data through the Airgoods Postgres MCP server, falling back to readonly psql when needed."

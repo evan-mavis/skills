@@ -2,6 +2,30 @@
 
 One end-to-end workflow for turning a clarified idea into a merge-ready draft PR.
 
+## Lightweight patch path
+
+Use `forge-patch` for one scoped bug or improvement that does not need a PRD, issue graph, or dependency scheduler.
+
+```mermaid
+flowchart LR
+  SRC["prompt, Linear, Slack, Notion, or other context"]
+  PATCH["forge-patch<br/>self-contained patch workflow"]
+  PROD["Airgoods production Postgres MCP<br/>read-only evidence"]
+  NEON["bundled Neon lifecycle<br/>mutable raw-production child"]
+  VIDEO["host-native validation video"]
+  OUT["draft PR + Linear evidence"]
+
+  SRC --> PATCH
+  PROD --> PATCH
+  PATCH --> NEON
+  NEON --> PATCH
+  PATCH --> VIDEO
+  VIDEO --> OUT
+  OUT -->|"always cleanup"| NEON
+```
+
+`forge-patch` supports Codex, local Cursor, and Cursor Cloud. The Neon child may be freely mutated, but production remains read-only and the child is deleted after evidence is delivered.
+
 ## Human-invoked skills
 
 These are the entry points you run directly, in order.
