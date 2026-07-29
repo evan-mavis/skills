@@ -17,7 +17,7 @@ The user wants to see many full-page design variations of an existing page and p
 2. **No two subagents may produce the same idea.** The orchestrator pre-assigns each subagent a distinct, named design archetype before launching anything. Subagents do not get to pick.
 3. **One file per subagent.** Each subagent writes exactly one variant file in the variants directory and touches nothing else. This prevents merge conflicts and lost work.
 4. **Shared scaffolding is built once, by the orchestrator, before any subagent launches.** Types, "must-ship" components, and the switcher overlay all exist before the fan-out.
-5. **Variants stay faithful to the existing design system and prefer simplicity.** Re-use the existing components, color palette, typography, spacing scale, and primitives that already live in the codebase. Do not invent new color tokens, new primitives, new typography, or new visual flourishes. If a variant can be built from existing components alone, it should be. The differentiator between variants is *layout and information hierarchy*, not visual styling. When in doubt, choose the simpler, plainer option over the more decorated one.
+5. **Variants stay faithful to the existing design system and prefer simplicity.** Re-use the existing components, color palette, typography, spacing scale, and primitives that already live in the codebase. Do not invent new color tokens, new primitives, new typography, or new visual flourishes. If a variant can be built from existing components alone, it should be. The differentiator between variants is _layout and information hierarchy_, not visual styling. When in doubt, choose the simpler, plainer option over the more decorated one.
 6. **The switcher must be dev-only and visually unobtrusive.** It must not change the page when disabled.
 
 ## Workflow
@@ -48,7 +48,7 @@ Confirm with the user:
 
 If the user already described all of this in the triggering message, do not re-ask. Restate your understanding instead.
 
-**Always confirm the variant count via the host's structured decision UI when available**, even if the triggering message named a number — the user may want to adjust before paying for N subagents. Fall back to a concise numbered list when no decision UI is available. Default is 10. Put the recommended option first and label it `(Recommended)`. Explain that hosts with fewer concurrent slots will run multiple parallel waves.
+**Always confirm the variant count via the host's interactive choice UI when available**, even if the triggering message named a number — the user may want to adjust before paying for N subagents. Fall back to a concise numbered list when no choice UI is available. Follow [interactive choices](../references/host-surfaces.md#interactive-choices). Default is 10. Put the recommended option first and label it `(Recommended)`. Explain that hosts with fewer concurrent worker slots will run multiple parallel waves.
 
 - Header: `Bake-Off`
 - Question: `How many variants should the bake-off generate?`
@@ -133,8 +133,14 @@ const [variant, setVariant] = useState<string | null>(null);
 
 return (
   <>
-    {variant ? <SelectedVariant {...sharedProps} /> : <OriginalPageBody {...sharedProps} />}
-    {import.meta.env.DEV && <PageNameVariantSwitcher value={variant} onChange={setVariant} />}
+    {variant ? (
+      <SelectedVariant {...sharedProps} />
+    ) : (
+      <OriginalPageBody {...sharedProps} />
+    )}
+    {import.meta.env.DEV && (
+      <PageNameVariantSwitcher value={variant} onChange={setVariant} />
+    )}
   </>
 );
 ```
@@ -143,7 +149,7 @@ Use the env guard that matches the framework (`import.meta.env.DEV` for Vite, `p
 
 ### Step 7: Fan out variant subagents concurrently
 
-Detect the host's available subagent capacity. Launch as many variant subagents concurrently as the host permits, wait for that wave, then launch the next wave until all N variants finish. Use the host's native subagent surface: Codex collaboration tools in Codex, or Cursor's native task/subagent tools in Cursor. Do not pass host-specific fields or contracts from one surface into the other. Each subagent gets:
+Detect the host's available worker capacity. Launch as many variant subagents concurrently as the host permits, wait for that wave, then launch the next wave until all N variants finish. Follow [worker dispatch](../references/host-surfaces.md#worker-dispatch). Do not pass host-specific worker IDs or contracts across surfaces. Each subagent gets:
 
 - The exact file path to create (only that one path).
 - The assigned archetype name and one-sentence differentiator.

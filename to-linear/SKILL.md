@@ -27,7 +27,7 @@ If the user does not provide a path, inspect `plans/in-progress/` and pick the m
 
 ## Interaction Standards
 
-When asking the user to choose a plan, target Linear issue, or sync action, use the structured decision UI when available. Present 2-3 mutually exclusive choices, put the recommended option first, and label it `(Recommended)`. If the decision UI is unavailable, use the same choices as a concise numbered list.
+When asking the user to choose a plan, target Linear issue, or sync action, follow [interactive choices](../references/host-surfaces.md#interactive-choices).
 
 Use these standard decision prompts:
 

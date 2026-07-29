@@ -1,18 +1,20 @@
 # Video and Delivery
 
-Use the host's best native browser or computer-use capability to record one concise demo of the
-final integrated feature. Do not invoke site-building or site-publishing workflows.
+Use the host's native browser automation and screen-recording capabilities to record one concise
+demo of the final integrated feature. Read
+[host surfaces](../../references/host-surfaces.md#gui-verification-and-screen-recording). Do not
+invoke site-building or site-publishing workflows.
 
 ## Native capture
 
-- **Codex:** use Computer Use and RecordScreen. Save the final MP4 outside the repository and
-  return its absolute path so Codex can render it in chat.
-- **Local Cursor:** use Computer Use and RecordScreen when available, then expose the MP4 as the
-  task artifact.
-- **Cursor Cloud:** use its `computerUse` task and RecordScreen against the running application.
+1. Drive the real local application or explicitly supplied isolated preview in a desktop browser.
+2. Record an H.264 MP4 with the host's screen-recording capability.
+3. Save the file outside the repository; return its absolute path and/or expose it as the run
+   artifact when supported.
+4. Render or attach the MP4 in the originating chat when the host supports it.
 
-Use a Playwright-based recorder only when native Computer Use or RecordScreen is unavailable and
-disclose the fallback. Return `blocked` rather than silently replacing a resolved `video` profile
+Use a Playwright-based recorder only when native browser automation or recording is unavailable.
+Disclose the fallback. Return `blocked` rather than silently replacing a resolved `video` profile
 with text-only evidence.
 
 ## Demo scope
@@ -53,7 +55,6 @@ The draft PR must exist before evidence delivery.
    from the PR.
 4. Update the existing draft PR body with the evidence link, one-line outcome, exact tested SHA,
    and limitations.
-5. Render or attach the local MP4 in the originating chat when the host supports it.
 
 Never commit the video to the application repository or Git LFS. Never create a Linear issue
 solely for evidence storage.

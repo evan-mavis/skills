@@ -1,6 +1,6 @@
 ---
 name: provision-neon-branch
-description: Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Use when an agent needs a freely mutable production-shaped database without writing to production, or must resume an interrupted task against its exact existing child branch from forge-patch, forge-build, Codex, Cursor, or Cursor Cloud. Uses the Neon CLI, returns branch metadata without exposing credentials, enforces expiration, and deletes the branch after use.
+description: Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Use when an agent needs a freely mutable production-shaped database without writing to production, or must resume an interrupted task against its exact existing child branch from forge-issue, forge-build, or other orchestrators. Uses the Neon CLI, returns branch metadata without exposing credentials, enforces expiration, and deletes the branch after use.
 ---
 
 # Provision Neon Branch
@@ -34,23 +34,41 @@ Do not treat the Airgoods production Postgres MCP as a branch-management or bulk
 
 ## Provision
 
-1. Resolve a stable task key from the Linear identifier, git branch, or task slug.
+1. Resolve branch-name components:
+   - **env** — `cloud` for hosted or remote agent execution; `local` for developer-machine or CLI
+     runs. Accept an explicit `NEON_AGENT_ENV` override when the host is ambiguous.
+   - **user** — lowercase sanitized `$USER`. Accept `NEON_BRANCH_USER` when the runtime
+     user is not meaningful.
+   - **task-key** — prefer a Linear identifier such as `air-7688`; otherwise use a
+     sanitized git branch or task slug; otherwise `adhoc`.
+   - **short-id** — four lowercase alphanumeric characters for collision resistance when
+     the same user reruns or parallelizes the same task.
+
 2. Create a collision-resistant branch name:
 
-   `patch-<task-key>-<short-random-id>`
+   `agent-<env>-<user>-<task-key>-<short-id>`
+
+   Sanitize every component to lowercase `[a-z0-9-]` with single hyphens. Keep the
+   `agent-` prefix so these branches stay separate from previewctl namespaces
+   (`preview-local-*`, `preview-*`).
 
 3. Use Neon CLI help to confirm the installed command's current flags before mutation. Create a full-data child branch from the exact configured parent with an RFC 3339 expiration no later than 24 hours.
 4. Wait until the branch and its primary compute are ready.
-5. Retrieve the direct branch connection string using the CLI. Never print it, paste it into chat, store it in git, or place it in shell history.
+5. Retrieve the direct branch connection string for `NEON_DB_NAME` (default `neondb`) using
+   the CLI. Never print it, paste it into chat, store it in git, or place it in shell history.
 6. Bind it to the repository's canonical database environment variable, usually `DATABASE_URL`,
    without exposing the value. For a multi-process or orchestrated caller such as `forge-build`,
    create a mode-0600 sourceable temporary environment file outside the repository and return
-   only its path plus the variable name. A host-native task-scoped secret injection with
+   only its path plus the variable name. A session-scoped secret injection with
    equivalent isolation is also acceptable. Use a direct process export only when every
    database-dependent command runs in that same process environment. Never edit `.env`,
    `.env.local`, another dotenv file, or a shell profile.
 7. Run a minimal connectivity check and verify that the connected branch ID or endpoint differs from the parent.
 8. Return non-secret branch metadata to the caller.
+
+For local worktree dev that needs Redis, ports, and generated `.env.local` files, use the repo's
+`provision-local-worktree-environment` skill instead. Never delete or reuse previewctl-owned
+branches during agent cleanup.
 
 The child contains raw production-copy data and may be freely mutated. Never run an application, migration, worker, or test against the parent connection string.
 
@@ -67,7 +85,7 @@ presence of an old temporary file.
    during rebind.
 3. Retrieve a fresh direct connection string for that child without printing or persisting it.
 4. Create a new mode-0600 sourceable temporary environment file outside the repository or use an
-   equivalent host-native task-scoped secret injection. Return only its path and the original
+   equivalent session-scoped secret injection. Return only its path and the original
    `database_url_env`.
 5. Run the minimal connectivity and identity check again. Require the active endpoint or branch
    to match the supplied child and differ from the parent.
@@ -84,13 +102,17 @@ exist only in the original child.
 - Do not include raw values in logs, screenshots, videos, patches, fixtures, or model-visible summaries.
 - Before recording evidence, replace visible branch-only values with synthetic equivalents.
 - Use unique child-branch role credentials returned by Neon.
-- Prefer environment-scoped secrets and restricted egress. For hosted agents handling raw data, self-hosted Cursor Cloud is the safest option.
+- Prefer environment-scoped secrets and restricted egress. For hosted agents handling raw data,
+  prefer a self-hosted or tightly scoped environment per
+  [host surfaces](../references/host-surfaces.md#security-posture-for-raw-production-copy-data).
 
 Return `blocked` if the parent cannot be identified exactly, the parent is unprotected, expiration cannot be set, credentials would be exposed, or the caller cannot prove the application uses the child.
 
 ## Cleanup
 
-1. Resolve the exact project and child branch ID from the provision result. Never delete by a broad prefix or unresolved environment variable.
+1. Resolve the exact project and child branch ID from the provision result. Never delete by a
+   broad prefix, unresolved environment variable, or previewctl namespace (`preview-local-*`,
+   `preview-*`). Only delete branches this skill created under `agent-*`.
 2. Stop application and worker connections when practical.
 3. Delete the child with the Neon CLI.
 4. Verify the branch no longer appears in the project.

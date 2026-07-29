@@ -43,11 +43,11 @@ last_synced: null
 
 Allowed plan statuses: `in_progress`, `completed`, `archived`.
 
-Issue files created later by `to-issues` use their own frontmatter as the canonical issue state. `<plan-slug>-index.md` is a generated summary, not the source of truth.
+Slice files created later by `to-slices` use their own frontmatter as the canonical slice state. `<plan-slug>-index.md` is a generated summary, not the source of truth.
 
 ## Interaction Standards
 
-When asking the user to choose between options, use the structured decision UI when available. Present 2-3 mutually exclusive choices, put the recommended option first, and label it `(Recommended)`. If the decision UI is unavailable, use the same choices as a concise numbered list.
+When asking the user to choose between options, follow [interactive choices](../references/host-surfaces.md#interactive-choices).
 
 Use this standard decision prompt when ambiguity requires `grill-me` before drafting:
 
@@ -78,7 +78,7 @@ Keep the final answer in the format below and omit a final-answer preamble. Comm
 
 - Path: [plans/in-progress/<slug>/PRD.md](<absolute PRD file path>)
 - Open Questions: <count or None>
-- Next: $to-issues
+- Next: $to-slices
 ```
 
 Rules: no final-answer preamble; use absolute targets for local file links; omit empty fields; `Next:` always last.

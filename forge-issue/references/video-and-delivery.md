@@ -1,30 +1,31 @@
 # Video and Delivery
 
+Read [host surfaces](../../references/host-surfaces.md#gui-verification-and-screen-recording) for
+portable browser and recording guidance.
+
 ## Primary browser verification
 
-Use Computer Use for GUI verification and RecordScreen for the final recording. In Cursor Cloud,
-launch a `Task` with `subagent_type="computerUse"` and use the desktop browser against the running
-application.
+Use native desktop browser automation for GUI verification and host-native screen recording for
+the final MP4. Exercise the running application in a real browser session — not mocked pages,
+isolated component harnesses, or API-only proof for user-visible flows.
 
-Playwright and `playwright-cli` are not the default verification path. Use them only when Computer
-Use is unavailable, and disclose that limitation in the result and PR evidence.
+Playwright and `playwright-cli` are not the default verification path. Use them only when native
+browser automation is unavailable, and disclose that limitation in the result and PR evidence.
 
 When the `neon` data profile is active, exercise the real application against the disposable
-child through the same verified task-scoped environment used for implementation and CI.
-Otherwise use the isolated local or cloud runtime selected during preflight. Do not substitute
-mocked pages, isolated component harnesses, or API-only proof for the user-visible flow.
+child through the same verified session-scoped environment used for implementation and CI.
+Otherwise use the isolated local or cloud runtime selected during preflight.
 
-## Capture by host
+## Capture
 
-- **Codex:** use Computer Use and RecordScreen. Save the final MP4 outside the repository and
-  return its absolute path so Codex can render it in chat.
-- **Local Cursor:** use Computer Use and RecordScreen, then expose the MP4 as the task artifact.
-- **Cursor Cloud:** use the `computerUse` task and RecordScreen. Ensure the app is reachable from
-  the cloud desktop, required services are running, and the processed artifact is addressable
-  before environment cleanup.
+Follow [host surfaces](../../references/host-surfaces.md#secret-handoff) for credential handling
+during recording.
 
-Use a Playwright-based recorder only as the disclosed fallback when Computer Use or RecordScreen
-is unavailable.
+1. Save the final H.264 MP4 outside the repository.
+2. Return its absolute path and/or expose it as the run artifact when the host supports that.
+3. On remote hosts, ensure the app is reachable from the agent desktop, required services are
+   running, and the processed artifact is addressable before environment cleanup.
+4. Render or attach the local MP4 in the originating chat when the host supports it.
 
 ## Capture standard
 
@@ -43,7 +44,7 @@ Complete this capture standard whenever the resolved evidence profile is `video`
 When an associated issue exists, prefer Linear as the canonical video home after the draft PR
 exists:
 
-1. prepare a direct file upload with the Linear connector;
+1. prepare a direct file upload with the Linear integration;
 2. upload the raw MP4 bytes to the returned signed URL;
 3. finalize the attachment on the issue;
 4. retain the attachment URL for the PR body update;

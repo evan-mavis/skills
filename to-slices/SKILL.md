@@ -1,11 +1,11 @@
 ---
-name: to-issues
-description: Break a local PRD, plan, spec, or conversation context into independently implementable local issue Markdown files under the repo's ignored `plans/in-progress/` directory. Use when the user wants implementation slices, local tickets, task breakdowns, or issue drafts without creating Linear issues.
+name: to-slices
+description: Break a local PRD, plan, spec, or conversation context into independently implementable local slice Markdown files under the repo's ignored `plans/in-progress/` directory. Use when the user wants implementation slices, local tickets, task breakdowns, or slice drafts without creating Linear issues.
 ---
 
-# To Issues
+# To Slices
 
-Break a PRD or plan into independently implementable local issue Markdown files in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the local issue files are approved.
+Break a PRD or plan into independently implementable local slice Markdown files in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the local slice files are approved.
 
 This skill is directly callable for any approved local PRD or supplied plan. Clarification, PRD
 authoring, Linear sync, and implementation remain separate invocations.
@@ -124,7 +124,7 @@ Present the proposed breakdown before writing files when the scope is large or a
 
 Ask for approval only when the breakdown has meaningful ambiguity that was not already resolved by `grill-me`. Otherwise, create the files and note that the user can revise them locally.
 
-When asking for approval or a planning decision, use the structured decision UI when available. Present 2-3 mutually exclusive choices, put the recommended option first, and label it `(Recommended)`. If the decision UI is unavailable, use the same choices as a concise numbered list.
+When asking for approval or a planning decision, follow [interactive choices](../references/host-surfaces.md#interactive-choices).
 
 Use this standard decision prompt for ambiguous breakdowns:
 
@@ -137,7 +137,8 @@ Use this standard decision prompt for ambiguous breakdowns:
 
 ### 5. Write local issue files
 
-Create issue files under one active plan directory using this staged naming pattern:
+Create issue files under one active plan directory. Use the staged naming pattern and
+[issue template](references/issue-template.md) for every new slice file.
 
 - `plans/in-progress/<slug>/PRD.md`
 - `plans/in-progress/<slug>/<slug>-index.md`
@@ -169,74 +170,6 @@ Recommended index row format:
 | ---- | ------------- | --------- | ---------- | ---------------------------------------------- | ---- | ----------- | ------ | ---------- | --------- | -------------- |
 | [ ]  | 02-core-flows | <slug>-04 | Not synced | [Issue title](02-core-flows/04-issue-title.md) | AFK  | —           | Ready  | <slug>-02  | <slug>-06 | Yes            |
 ```
-
-## Appendix: Local Issue Template
-
-Agent-first, lightly human-readable. Enough detail for an agent to implement; clear enough to skim before syncing to Linear.
-
-```markdown
----
-local_id: <slug>-<global-issue-number>
-plan_slug: <slug>
-title: <Issue Title>
-stage: <stage-number>-<stage-name>
-type: afk
-hitl_timing: null
-status: ready
-completed: false
-parallelizable: false
-blocked_by: []
-blocking: []
-related: []
-linear_issue: null
-last_synced: null
----
-
-# <Issue Title>
-
-## What to Build
-
-What this slice delivers end-to-end. A short paragraph or two — enough to know what you're implementing next without opening the PRD.
-
-## HITL Requirement
-
-Include this section only when `type: hitl`:
-
-- **Timing:** `upfront` or `evidence_dependent`
-- **Decision or action:** the single concrete input needed from the human
-- **Evidence:** what the agent should present first, or `None` for upfront input
-
-Omit this section for `afk` issues.
-
-## Acceptance Criteria
-
-- [ ] Observable, testable criterion
-- [ ] Observable, testable criterion
-- [ ] Observable, testable criterion
-
-Be specific. These should stand alone as the definition of done.
-
-## Approach
-
-- **Surfaces:** packages, routes, jobs, tables, APIs, etc. you expect to touch
-- **Constraints:** key decisions or assumptions from the PRD that shape this slice
-- **Out of scope:** what this issue is not doing
-
-Add **Risks** or **Open choices** only when the slice is genuinely ambiguous — don't speculate.
-
-Stay at the planning level. Do not write file-by-file specs. Fill **Implementation Notes** only
-after integration.
-
-## Implementation Notes
-
-- Not started.
-
----
-
-PRD: <relative path> | Index: <relative path to <plan-slug>-index.md>
-```
-
-Keep frontmatter at the very top of every local issue file. Future agents should be able to determine scheduling, blocking, Linear sync, and completion by reading frontmatter without scraping the body.
 
 ## Output
 

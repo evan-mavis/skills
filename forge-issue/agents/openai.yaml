@@ -1,7 +1,4 @@
 interface:
   display_name: "Forge Issue"
-  short_description: "Implement one scoped change in an isolated checkout"
-  default_prompt: "Use $forge-issue to implement this scoped change and leave the diff uncommitted."
-
-policy:
-  allow_implicit_invocation: false
+  short_description: "Deliver one bug, improvement, or small feature"
+  default_prompt: "Use $forge-issue to choose an isolated runtime profile, deliver this scoped change, and babysit its draft PR until green."

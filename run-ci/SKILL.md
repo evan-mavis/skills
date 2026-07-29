@@ -28,7 +28,7 @@ unchanged because this skill does not modify code.
 
 ## Process
 
-1. Read applicable repository instructions (`AGENTS.md`, `.cursor/rules`, or equivalent), package scripts, task-runner configuration, and PR workflows.
+1. Read applicable repository instructions (`AGENTS.md`, host rules directories, or equivalent), package scripts, task-runner configuration, and PR workflows.
 2. Inspect the complete diff from `change_contract.review_base`.
 3. Prefer the repository's documented CI command. Otherwise run applicable typecheck, lint, test, build, and format-check commands using the narrowest reliable scope.
 4. Run all selected checks even if one fails.

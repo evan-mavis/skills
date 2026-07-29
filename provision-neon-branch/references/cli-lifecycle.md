@@ -19,10 +19,24 @@ Authenticate non-interactively with `NEON_API_KEY`. Never put the key on the com
 
 1. Get the configured parent by exact ID and verify its project, name, root/default status, and readiness.
 2. Calculate an RFC 3339 expiration at most 24 hours ahead.
-3. Create a uniquely named full-data child using the explicit project ID, parent branch ID, and expiration.
-4. Poll or re-read the child until ready.
-5. Retrieve the direct connection string for the child. Select the repository's expected database and role when they are not the Neon defaults.
-6. Run `select current_database(), now()` or an equivalent minimal connection check.
+3. Build a branch name:
+
+   ```text
+   agent-<env>-<user>-<task-key>-<short-id>
+   ```
+
+   - `env`: `cloud` or `local`, or `NEON_AGENT_ENV` when set
+   - `user`: sanitized `$USER`, or `NEON_BRANCH_USER` when set
+   - `task-key`: Linear id such as `air-7688`, else git branch or task slug, else `adhoc`
+   - `short-id`: four lowercase alphanumeric characters
+
+   Sanitize each component to lowercase `[a-z0-9-]` with single hyphens. Example:
+   `agent-cloud-evan-air-7688-k3m9`.
+
+4. Create a uniquely named full-data child using the explicit project ID, parent branch ID, and expiration.
+5. Poll or re-read the child until ready.
+6. Retrieve the direct connection string for the child. Use `NEON_DB_NAME` (default `neondb`) and the expected role when they are not the Neon defaults.
+7. Run `select current_database(), now()` or an equivalent minimal connection check.
 
 Adapt flags from local help rather than assuming a stale spelling. The logical operations correspond to:
 

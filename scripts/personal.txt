@@ -1,0 +1,5 @@
+# Installed locally only; never copied into the marketplace plugin.
+design-bake-off
+handoff
+refresh-local-db
+write-like-evan

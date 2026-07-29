@@ -5,13 +5,13 @@ usage() {
   cat <<'EOF'
 Usage: sync-skills.sh [--check]
 
-Sync repository skills into Codex and Cursor.
+Install repository skills into Cursor and Codex via the skills CLI.
 
   --check  Report drift without changing anything.
 
 Environment overrides:
-  CODEX_SKILLS_DIR   Defaults to ${CODEX_HOME:-$HOME/.codex}/skills
-  CURSOR_SKILLS_DIR  Defaults to $HOME/.cursor/skills
+  SKILLS_CLI          Defaults to "npx skills"
+  AGENTS_SKILLS_DIR   Defaults to ~/.agents/skills
 EOF
 }
 
@@ -31,97 +31,65 @@ esac
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 repo_root=$(cd "$script_dir/.." && pwd -P)
-codex_root=${CODEX_SKILLS_DIR:-${CODEX_HOME:-$HOME/.codex}/skills}
-cursor_root=${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}
-
-shopt -s nullglob
-skill_files=("$repo_root"/*/SKILL.md)
-if [[ ${#skill_files[@]} -eq 0 ]]; then
-  echo "No top-level skills found in $repo_root" >&2
-  exit 1
+agents_root=${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}
+skills_cli=(npx skills)
+if [[ -n "${SKILLS_CLI:-}" ]]; then
+  # shellcheck disable=SC2206
+  skills_cli=(${SKILLS_CLI})
 fi
 
-is_repo_skill() {
-  [[ -f "$repo_root/$1/SKILL.md" ]]
-}
+# shellcheck source=manifests.sh
+source "$script_dir/manifests.sh"
 
-check_target() {
-  local target_root=$1
-  local prune_extras=$2
-  local drift=0
-  local skill_file skill_dir skill_name target entry extra_name
+published=()
+personal=()
+while IFS= read -r skill; do
+  published+=("$skill")
+done < <(read_manifest "$script_dir/published.txt")
+while IFS= read -r skill; do
+  personal+=("$skill")
+done < <(read_manifest "$script_dir/personal.txt")
+validate_manifests "$repo_root"
 
-  for skill_file in "${skill_files[@]}"; do
-    skill_dir=${skill_file%/SKILL.md}
-    skill_name=${skill_dir##*/}
-    target="$target_root/$skill_name"
+repo_skills=("${published[@]}" "${personal[@]}")
+
+check_installed_skills() {
+  local drift=0 skill target
+
+  for skill in "${repo_skills[@]}"; do
+    target="$agents_root/$skill"
     if [[ ! -d "$target" ]]; then
       echo "missing: $target"
       drift=1
-    elif ! diff -qr "$skill_dir" "$target" >/dev/null; then
+    elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
       echo "different: $target"
       drift=1
     fi
   done
 
-  if [[ "$prune_extras" == true && -d "$target_root" ]]; then
-    for entry in "$target_root"/*; do
-      extra_name=${entry##*/}
-      if ! is_repo_skill "$extra_name"; then
-        echo "extra: $entry"
-        drift=1
-      fi
-    done
-  fi
-
   return "$drift"
 }
 
-sync_target() {
-  local target_root=$1
-  local prune_extras=$2
-  local skill_file skill_dir skill_name entry extra_name
-
-  mkdir -p "$target_root"
-  for skill_file in "${skill_files[@]}"; do
-    skill_dir=${skill_file%/SKILL.md}
-    skill_name=${skill_dir##*/}
-    mkdir -p "$target_root/$skill_name"
-    rsync -a --delete "$skill_dir/" "$target_root/$skill_name/"
-    echo "synced: $target_root/$skill_name"
-  done
-
-  if [[ "$prune_extras" == true ]]; then
-    if ! command -v trash >/dev/null 2>&1; then
-      echo "trash is required to prune extra Cursor skills safely" >&2
-      exit 1
-    fi
-    for entry in "$target_root"/*; do
-      extra_name=${entry##*/}
-      if ! is_repo_skill "$extra_name"; then
-        trash "$entry"
-        echo "moved extra skill to Trash: $entry"
-      fi
-    done
-  fi
-}
-
 if [[ "$mode" == check ]]; then
-  drift=0
-  check_target "$codex_root" false || drift=1
-  check_target "$cursor_root" true || drift=1
-  if [[ "$drift" -ne 0 ]]; then
-    exit 1
+  if check_installed_skills; then
+    echo "Cursor and Codex skills match the repository (~/.agents/skills)."
+    exit 0
   fi
-  echo "Codex and Cursor skills match the repository."
-  exit 0
+  echo "Run ./scripts/sync-skills.sh to refresh local installs." >&2
+  exit 1
 fi
 
-# Codex may contain system, plugin, or unrelated personal skills, so preserve extras.
-sync_target "$codex_root" false
+skill_args=()
+for skill in "${repo_skills[@]}"; do
+  skill_args+=(--skill "$skill")
+done
 
-# Cursor's user skill directory is an exact mirror of this repository. Cursor's
-# separately managed built-ins under ~/.cursor/skills-cursor remain untouched.
-sync_target "$cursor_root" true
+"${skills_cli[@]}" add "$repo_root" "${skill_args[@]}" -a cursor -a codex -g -y
 
-echo "Codex and Cursor skill sync complete."
+if ! check_installed_skills; then
+  echo "skills CLI finished, but installed skills still differ from the repository." >&2
+  exit 1
+fi
+
+echo "Cursor and Codex skills synced via skills CLI (~/.agents/skills)."
+echo "installed skills: ${#repo_skills[@]} (${#published[@]} published, ${#personal[@]} personal)"

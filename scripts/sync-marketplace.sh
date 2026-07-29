@@ -30,17 +30,20 @@ esac
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 repo_root=$(cd "$script_dir/.." && pwd -P)
-manifest="$script_dir/published-skills.txt"
 marketplace_root=${MARKETPLACE_ROOT:-"$repo_root/../airgoods-plugin-marketplace"}
 plugin_root="$marketplace_root/plugins/ai-dev-workflow"
 target_skills_root="$plugin_root/skills"
 target_readme="$plugin_root/README.md"
 source_readme="$repo_root/ai-dev-workflow/README.md"
 
-if [[ ! -f "$manifest" ]]; then
-  echo "Missing manifest: $manifest" >&2
-  exit 1
-fi
+# shellcheck source=manifests.sh
+source "$script_dir/manifests.sh"
+
+skills=()
+while IFS= read -r skill; do
+  skills+=("$skill")
+done < <(read_manifest "$script_dir/published.txt")
+validate_manifests "$repo_root"
 
 if [[ ! -d "$marketplace_root" ]]; then
   echo "Marketplace repo not found: $marketplace_root" >&2
@@ -48,22 +51,10 @@ if [[ ! -d "$marketplace_root" ]]; then
   exit 1
 fi
 
-skills=()
-while IFS= read -r skill; do
-  skills+=("$skill")
-done < <(grep -Ev '^\s*(#|$)' "$manifest")
-
 if [[ ${#skills[@]} -eq 0 ]]; then
-  echo "No published skills listed in $manifest" >&2
+  echo "No published skills listed in $script_dir/published.txt" >&2
   exit 1
 fi
-
-for skill in "${skills[@]}"; do
-  if [[ ! -f "$repo_root/$skill/SKILL.md" ]]; then
-    echo "Missing source skill: $repo_root/$skill/SKILL.md" >&2
-    exit 1
-  fi
-done
 
 if [[ ! -f "$source_readme" ]]; then
   echo "Missing workflow README: $source_readme" >&2
@@ -141,7 +132,7 @@ sync_marketplace() {
 
 if [[ "$mode" == check ]]; then
   if check_marketplace; then
-    echo "Marketplace plugin matches the repository."
+    echo "Marketplace plugin matches published.txt."
     exit 0
   fi
   exit 1

@@ -17,8 +17,23 @@ Use environment configuration as canonical:
 ```text
 NEON_PROJECT_ID=billowing-lab-64900636
 NEON_PARENT_BRANCH_ID=br-old-mud-amx76cuc
+NEON_DB_NAME=neondb
 NEON_BRANCH_TTL_HOURS=24
 ```
+
+Optional branch-name overrides:
+
+```text
+NEON_AGENT_ENV=cloud|local
+NEON_BRANCH_USER=evan
+```
+
+When running inside the Airgoods monorepo, load unset Neon variables from the primary checkout's
+ignored `.env.previewctl`. Never copy that file into a worktree or print its values.
+
+Agent branches use the `agent-*` namespace and a 24-hour TTL. Previewctl-owned branches use
+separate namespaces (`preview-local-*` for attached local worktrees, `preview-*` for remote
+previews) and longer TTLs. Never delete or reuse branches from another namespace.
 
 Before every provision operation, confirm through Neon that the project and parent IDs still resolve and that the parent is the root/default branch named `production`. If any identity differs, return `blocked`; do not discover a replacement and mutate it automatically.
 

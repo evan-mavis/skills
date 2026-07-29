@@ -2,7 +2,7 @@
 
 Use this template when dispatching each variant subagent in Step 7. Fill every `<...>` placeholder. The subagent must receive enough context to work in isolation without re-reading the user's original request.
 
-Dispatch subagents with the host's native subagent feature, using every available concurrent slot. If the variant count exceeds capacity, run parallel waves. Label each task clearly, for example `Variant 03: TimelineFirst`.
+Dispatch subagents through the host worker API, using every available concurrent slot. If the variant count exceeds capacity, run parallel waves. Label each worker clearly, for example `Variant 03: TimelineFirst`.
 
 ## Template
 

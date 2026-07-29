@@ -7,7 +7,7 @@ description: Query the local PostgreSQL `stack` database or an explicitly select
 
 ## Quick start
 
-Resolve `SKILL_DIR` to the absolute directory containing this `SKILL.md`, then use the bundled helper instead of typing connection details manually. This works from Codex, Cursor, any repository, and any worktree:
+Resolve `SKILL_DIR` to the absolute directory containing this `SKILL.md`, then use the bundled helper instead of typing connection details manually. This works from any agent host, repository, and worktree:
 
 ```bash
 SKILL_DIR="<absolute query-local-db skill directory>"
@@ -22,7 +22,7 @@ bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select id, name from
 
 The helper defaults to the local PostgreSQL database `stack` and forces read-only mode for the session by default.
 
-For a caller-verified task database such as a Forge Build or Forge Patch Neon child, pass only
+For a caller-verified task database such as a Forge Build or Forge Issue Neon child, pass only
 the environment variable name—not its value:
 
 ```bash

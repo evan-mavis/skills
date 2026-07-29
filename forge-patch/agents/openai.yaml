@@ -1,7 +1,0 @@
-interface:
-  display_name: "Forge Patch"
-  short_description: "Deliver one change as a merge-ready draft PR"
-  default_prompt: "Use $forge-patch to choose an isolated database profile, deliver this scoped change, and babysit its draft PR until green."
-
-policy:
-  allow_implicit_invocation: false

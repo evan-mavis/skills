@@ -1,16 +1,17 @@
+# Shipped in the ai-dev-workflow marketplace plugin.
 babysit
 deslop
 forge-build
 forge-issue
-forge-patch
 grill-me
 harden-architecture
+implement-slice
 provision-neon-branch
 query-local-db
 query-prod-db
 refactor-structure
 run-ci
-to-issues
 to-linear
 to-pr
 to-prd
+to-slices

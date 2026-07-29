@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Slice"
+  short_description: "Implement one scoped change uncommitted"
+  default_prompt: "Use $implement-slice to implement this scoped change and leave the diff uncommitted."

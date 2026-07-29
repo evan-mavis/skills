@@ -1,17 +1,18 @@
 # Airgoods Runtime
 
-Use this reference when `forge-patch` runs against the Airgoods monorepo.
+Use this reference when `forge-issue` runs against the Airgoods monorepo.
 
 ## Environment layering
 
-- Keep `NODE_ENVIRONMENT=development`. Never use `production` for patch verification.
+- Keep `NODE_ENVIRONMENT=development`. Never use `production` for issue verification.
 - Create each missing app `.env` from its tracked `.env.example`. Treat the tracked example values as intentional development defaults.
 - Inject real cloud credentials as environment secrets. Do not commit them or print their values.
-- Set `DATABASE_URL` only through the protected task-scoped handoff returned by
-  `$provision-neon-branch`. Load it into every database-dependent process and verify the active
-  child identity before use. Never save the child, parent, or production URL in `.env`,
-  `.env.local`, another dotenv file, a shell profile, or Cursor Cloud configuration.
-- In local Codex or local Cursor, reuse the checkout's existing ignored `.env` files. A new isolated worktree or hosted agent must not assume those files were copied.
+- Set `DATABASE_URL` through the active profile handoff:
+  - `neon` — protected task-scoped handoff from `$provision-neon-branch`; never edit dotenv files.
+  - `local-preview` — previewctl-generated `apps/backend/.env.local`; export into each process shell
+    without printing the value.
+- On local developer machines, reuse existing ignored `.env` files for non-database defaults.
+  A new isolated worktree or remote agent must not assume those files were copied.
 
 Tracked example values and existing ignored dotenv files provide ordinary development defaults
 only. The task-scoped process environment must override them. If the application's configuration
@@ -21,11 +22,11 @@ The Airgoods backend chooses `*_LOCAL` Algolia indexes when `NODE_ENVIRONMENT=de
 
 Infrastructure owns the periodic Render production snapshot import into Neon's `raw-production`
 parent. Its operational documentation lives in `docs/previewctl/refresh-database.md`; agents
-running `forge-patch` must not perform the parent refresh.
+running `forge-issue` must not perform the parent refresh.
 
-## Cursor Cloud variables
+## Remote agent variables
 
-Configure these for every `forge-patch` environment:
+Configure these for every remote `forge-issue` environment (`host: cloud`):
 
 ### Workflow and database lifecycle
 
@@ -34,16 +35,16 @@ Configure these for every `forge-patch` environment:
 - `NEON_PARENT_BRANCH_ID` — `br-old-mud-amx76cuc`
 - `NEON_BRANCH_TTL_HOURS` — `24` or less
 - `PREVIEWCTL_ENV_NAME`
-- `GH_TOKEN` — only when Cursor's GitHub authentication does not already support `gh`, push, and draft PR creation
-- `LINEAR_API_KEY` — only when the authenticated Linear connector cannot read the issue, upload the video, or post the evidence comment
+- `GH_TOKEN` — only when the host's GitHub authentication does not already support `gh`, push, and draft PR creation
+- `LINEAR_API_KEY` — only when the configured Linear integration cannot read the issue, upload the video, or post the evidence comment
 
 The Airgoods production Postgres MCP and other connectors are host configuration, not application `.env` values. Confirm their authentication separately.
 
 ### Core application
 
 - `NODE_ENVIRONMENT=development`
-- `DATABASE_URL` — supplied dynamically through `$provision-neon-branch`'s protected task-scoped
-  handoff; do not persist its value in Cursor settings
+- `DATABASE_URL` — from `$provision-neon-branch` handoff when `neon`; from previewctl
+  `.env.local` when `local-preview`
 - `ADMIN_PASSWORD` — use the value from `.env` for admin-password bypass during impersonation
   login; it is typically `123`
 - `REDIS_HOST=127.0.0.1`
@@ -77,7 +78,7 @@ Airgoods uses shared buckets and isolates non-production media under `uploads-te
 - `ALGOLIA_BRAND_EXPERIMENT_INDEX_LOCAL`
 - `ALGOLIA_BRAND_INDEX_SAMPLE_BOX_LOCAL`
 - `ALGOLIA_QUERY_CONCEPT_INDEX_LOCAL`
-- `ALGOLIA_EVENTS_ENABLED=disabled` unless the patch explicitly validates event delivery
+- `ALGOLIA_EVENTS_ENABLED=disabled` unless the issue explicitly validates event delivery
 - `VITE_APP_ALGOLIA_APP_ID`
 - `VITE_APP_ALGOLIA_API_KEY`
 
@@ -101,7 +102,7 @@ Ordinary local payment flows use Stripe test mode. Start a Stripe CLI listener o
 
 Install both binaries when validating video processing.
 
-Do not enable or test email or SMS unless the patch explicitly concerns them. Other integrations remain disabled through their tracked `*_ENABLED` defaults until the affected code proves they are required.
+Do not enable or test email or SMS unless the issue explicitly concerns them. Other integrations remain disabled through their tracked `*_ENABLED` defaults until the affected code proves they are required.
 
 ## Seller UI verification
 

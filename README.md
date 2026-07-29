@@ -1,120 +1,170 @@
 # My Day-to-Day Skills ⚒️
 
-## Source of truth and installation
-
-This repository is the canonical source for these personal skills. Edit skills here first; treat `${CODEX_HOME:-$HOME/.codex}/skills` as the installed mirror. System and plugin-provided skills are managed separately and are not copied into this repository.
-
-Install or resync every tracked skill into Codex, Cursor, and the
-`ai-dev-workflow` marketplace plugin:
+Canonical skill source. After editing, sync:
 
 ```bash
-./scripts/sync-all.sh
+./scripts/sync-all.sh          # install
+./scripts/sync-all.sh --check  # drift check
 ```
 
-Check for drift without changing files:
+- [scripts/published.txt](scripts/published.txt) — marketplace plugin (`ai-dev-workflow`)
+- [scripts/personal.txt](scripts/personal.txt) — local only
 
-```bash
-./scripts/sync-all.sh --check
+## Workflow
+
+Two orchestration paths. Single tickets skip planning and go straight to preflight; larger multi-slice features plan first, then `forge-build`. Both share the same implement → verify → deliver pipeline.
+
+```mermaid
+%%{init: {"flowchart": {"nodeSpacing": 40, "rankSpacing": 48, "padding": 14}}}%%
+flowchart TB
+  ORCH{{"Single ticket or larger feature?"}}
+
+  E1["forge-issue<br/>bug · improvement · small feature"]
+
+  subgraph PLANPATH["Plan"]
+    direction LR
+    P1["grill-me"] --> P2["to-prd"] --> P3["to-slices"] --> P4["to-linear"]
+  end
+
+  E2["forge-build<br/>execute approved plan"]
+
+  ORCH -->|"one ticket"| E1
+  ORCH -->|"needs planning"| P1
+  P4 --> E2
+
+  subgraph PREFLIGHT["Preflight"]
+    direction TB
+    PF1["ambiguity interview"] --> PF2["runtime profile"] --> PF3["query-prod-db"]
+  end
+
+  E1 --> PF1
+  E2 --> PF1
+
+  subgraph RUNTIME["Runtime · pick one profile"]
+    direction TB
+    RT0{{"data_profile — choose one"}}
+    R1["none"]
+    R2["local · fixtures"]
+    R3["neon · provision-neon-branch"]
+    R4["local-preview · preview stack"]
+    RT0 --> R1
+    RT0 --> R2
+    RT0 --> R3
+    RT0 --> R4
+    R1 ~~~ R2
+    R2 ~~~ R3
+    R3 ~~~ R4
+  end
+
+  subgraph IMPLEMENT["Implement · forge-build loops per slice"]
+    direction TB
+    I1["implement-slice"] --> I2["deslop"] --> I3["refactor-structure"] --> I4["harden-architecture"]
+    NEXT{{"more slices?"}}
+    I4 --> NEXT
+    NEXT -->|yes| I1
+  end
+
+  subgraph VERIFY["Verify"]
+    direction TB
+    V1["run-ci"] --> V2["optional browser QA"] --> V3["optional video demo"]
+  end
+
+  subgraph DELIVER["Deliver"]
+    direction TB
+    D1["to-pr draft"] --> D2["babysit"]
+  end
+
+  CLEANUP["runtime cleanup<br/>teardown ephemeral infra"]
+  YOU["you · review draft PR & merge"]
+
+  PF3 --> RT0
+  RT0 --> I1
+  NEXT -->|no| V1
+  I4 -->|"single ticket"| V1
+  V3 --> D1
+  D2 --> CLEANUP
+  CLEANUP -.-> YOU
+
+  classDef phase fill:#f5f5f5,stroke:#999,stroke-width:1px
+  classDef orchestrator fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+  classDef entry fill:#eeeeee,stroke:#666,stroke-width:2px
+  classDef human fill:#fff,stroke:#999,stroke-width:1px,stroke-dasharray: 5 5
+  class PLANPATH,PREFLIGHT,RUNTIME,IMPLEMENT,VERIFY,DELIVER phase
+  class E1,E2 orchestrator
+  class ORCH entry
+  class YOU human
 ```
 
-Individual targets:
+**Prefix guide:** `to-*` = transform context into an artifact · `forge-*` = run a delivery pipeline · everything else = atomic capability.
 
-```bash
-./scripts/sync-skills.sh        # Codex + Cursor only
-./scripts/sync-marketplace.sh     # marketplace plugin only
-```
+## Glossary
 
-Published plugin skills are listed in [scripts/published-skills.txt](scripts/published-skills.txt).
-Personal-only skills stay in this repository and are not copied into the plugin.
+### Plan
 
-`sync-skills.sh` preserves unrelated skills in `${CODEX_HOME:-$HOME/.codex}/skills`, where Codex plugins and other personal skills may coexist. It treats `~/.cursor/skills` as an exact mirror, moving extra Cursor skill folders to Trash. Cursor-managed built-ins under `~/.cursor/skills-cursor` are untouched. Override either destination with `CODEX_SKILLS_DIR` or `CURSOR_SKILLS_DIR`.
+| Skill       | One-liner                                                                |
+| ----------- | ------------------------------------------------------------------------ |
+| `grill-me`  | Ask focused questions until scope and behavior are clear enough to plan. |
+| `to-prd`    | Turn approved context into the canonical local PRD.                      |
+| `to-slices` | Split a PRD into dependency-aware local slice files.                     |
+| `to-linear` | Sync the local plan and slice graph to Linear.                           |
 
-`sync-marketplace.sh` writes into `../airgoods-plugin-marketplace/plugins/ai-dev-workflow` by default. Override with `MARKETPLACE_ROOT`.
+### Orchestration
 
-### Host compatibility
+| Skill         | One-liner                                                                                    |
+| ------------- | -------------------------------------------------------------------------------------------- |
+| `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
+| `forge-build` | Execute an approved multi-slice plan for larger features that needed planning first.         |
 
-The tracked skills are capability-based and supported in Codex, Cursor, and Cursor Cloud.
-`forge-build tasks` is intentionally Codex-only because it requires Codex-managed task worktrees;
-Cursor automatically uses `forge-build subagents`. `forge-patch` orchestrates one scoped change
-through `forge-issue`, cleanup, review, verification, evidence, a draft PR, and babysitting;
-`forge-build` orchestrates dependency-ordered plans through the same standalone capabilities.
-Both orchestrators expose a structured none/local/Neon database choice and delegate disposable
-Neon provision, resume rebind, and cleanup work to `provision-neon-branch`, which remains
-directly callable. They bind the
-selected database through process-scoped secret handoffs, verify its identity at process
-boundaries, and never edit dotenv files or shell profiles for task database selection. Browser
-evidence inside either orchestrator and manual QA inside `forge-build` use each host's best
-native browser capability.
+### Preflight
 
-## AI development workflow
+| Skill            | One-liner                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| `query-prod-db`  | Inspect production data read-only through MCP or `psql` before resolving scope.     |
+| `query-local-db` | Query the selected local or task-scoped database safely through a verified env var. |
 
-Full diagram: [ai-dev-workflow/README.md](ai-dev-workflow/README.md)
+### Runtime
 
-### Lightweight patches
+| Skill                                  | One-liner                                                                             |
+| -------------------------------------- | ------------------------------------------------------------------------------------- |
+| `provision-neon-branch`                | Create, rebind, and delete a disposable Neon child branch for agent or cloud work.    |
+| `provision-local-worktree-environment` | Attach previewctl services to a local worktree: Neon, Redis, ports, and `.env.local`. |
 
-- **forge-patch** — Orchestrate one bug or improvement from supplied context through isolated
-  implementation, a structured none/local/Neon database choice, focused review, verification,
-  video or text evidence, and a merge-ready draft PR.
-- **forge-issue** — Implement one explicit scoped change inside an isolated checkout and leave
-  the diff uncommitted.
-- **provision-neon-branch** — Create, safely reconnect, and clean up a short-lived
-  raw-production child branch directly.
+### Implement
 
-### Human-invoked entry points
+| Skill                 | One-liner                                                            |
+| --------------------- | -------------------------------------------------------------------- |
+| `implement-slice`     | Implement one scoped change and leave the diff uncommitted.          |
+| `deslop`              | Remove mechanical AI slop from the current diff.                     |
+| `refactor-structure`  | Improve folder layout, naming, and file cohesion in scope.           |
+| `harden-architecture` | Independently review and fix architectural or control-flow problems. |
 
-You invoke these in order:
+### Verify
 
-`grill-me` → `to-prd` → `to-issues` → `to-linear` → `forge-build`
+| Skill    | One-liner                                                                 |
+| -------- | ------------------------------------------------------------------------- |
+| `run-ci` | Run the repository's relevant CI-equivalent checks without changing code. |
 
-- **grill-me** — Resolve planning ambiguity through focused questions.
-- **to-prd** — Turn approved context into the canonical local PRD.
-- **to-issues** — Split the PRD into dependency-aware local implementation issues.
-- **to-linear** — Sync the local plan and issue graph to Linear.
-- **forge-build** — Choose `tasks` or `subagents`, resolve HITL gates, integrate issue work, repair
-  verification failures, ask which isolated database and none/light/heavy browser-QA profiles to
-  use, generate host-native video or text evidence when appropriate, and keep one draft PR
-  merge-ready.
+Browser QA and evidence capture are orchestrated inside `forge-issue` and `forge-build`, not separate skills.
 
-Execution modes:
+### Deliver
 
-- **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue
-  gets a visible orchestration task with a managed worktree; that task sequentially spawns fresh
-  `forge-issue`, `deslop`, `refactor-structure`, and `harden-architecture` subagents, then returns one
-  commit. Every spawned task stays unarchived for later inspection.
-- **subagents** — Default in Cursor. Each issue gets an orchestrator-created Git worktree where
-  the main task runs the same four fresh capability subagents sequentially with automatic result
-  joins.
+| Skill     | One-liner                                                                 |
+| --------- | ------------------------------------------------------------------------- |
+| `to-pr`   | Create or update one draft PR with verification summary and evidence.     |
+| `babysit` | Keep an existing draft PR clean, green, and mergeable without merging it. |
 
-### Standalone capabilities
+### Cleanup
 
-Each capability below is directly callable. `forge-patch` and `forge-build` compose the core
-implementation and delivery capabilities:
+Agent teardown after delivery: delete Neon branches, stop services, clear temp credentials. Preserve local-preview stacks by default.
 
-- **forge-issue** — Implement one scoped change and leave an uncommitted diff.
-- **deslop** — Remove mechanical AI slop from a scoped uncommitted diff.
-- **refactor-structure** — Improve folder grouping, file and folder naming, and file cohesion.
-- **harden-architecture** — Independently fix architectural and control-flow
-  problems.
-- **run-ci** — Run relevant local CI-equivalent checks without changing code.
-- **to-pr** — Prepare, create, or update one PR with supplied evidence.
-- **babysit** — Keep an existing PR clean and green without merging.
+**Human step (outside skills):** review the draft PR and merge when ready — orchestrators never mark ready or merge.
 
-Implementation and delivery capabilities pass one canonical `change_contract` containing
-`source`, `scope`, `exclusions`, `review_base`, and `changed_files`. Mutating skills update only
-the file manifest; non-mutating skills preserve the contract.
+### Other
 
-## Design
-
-- **design-bake-off** — Generate multiple distinct page design variants with a dev-only live switcher.
-
-## Database
-
-- **query-local-db** — Query local `stack` or an explicitly verified task-scoped PostgreSQL
-  database without selecting a remote target implicitly.
-- **refresh-local-db** — Refresh the database used by the local Airgoods app from a Render production export.
-- **query-prod-db** — Run read-only SQL against production Airgoods Postgres through MCP or `psql`.
-
-## Utility
-
-- **handoff** — Compact the current conversation into a handoff doc for another agent.
-- **write-like-evan** — Draft or rewrite Slack messages, emails, and updates in Evan's natural voice.
+| Skill / reference             | One-liner                                                               |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| `references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
+| `refresh-local-db`            | Refresh local Postgres from a Render production export.                 |
+| `design-bake-off`             | Generate multiple UI variants with a dev-only live switcher.            |
+| `handoff`                     | Compress the current conversation into a handoff doc for another agent. |
+| `write-like-evan`             | Draft Slack, email, or updates in Evan's voice.                         |
