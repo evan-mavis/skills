@@ -4,19 +4,32 @@
 
 This repository is the canonical source for these personal skills. Edit skills here first; treat `${CODEX_HOME:-$HOME/.codex}/skills` as the installed mirror. System and plugin-provided skills are managed separately and are not copied into this repository.
 
-Install or resync every tracked skill into both Codex and Cursor:
+Install or resync every tracked skill into Codex, Cursor, and the
+`ai-dev-workflow` marketplace plugin:
 
 ```bash
-./scripts/sync-skills.sh
+./scripts/sync-all.sh
 ```
 
 Check for drift without changing files:
 
 ```bash
-./scripts/sync-skills.sh --check
+./scripts/sync-all.sh --check
 ```
 
-The script preserves unrelated skills in `${CODEX_HOME:-$HOME/.codex}/skills`, where Codex plugins and other personal skills may coexist. It treats `~/.cursor/skills` as an exact mirror, moving extra Cursor skill folders to Trash. Cursor-managed built-ins under `~/.cursor/skills-cursor` are untouched. Override either destination with `CODEX_SKILLS_DIR` or `CURSOR_SKILLS_DIR`.
+Individual targets:
+
+```bash
+./scripts/sync-skills.sh        # Codex + Cursor only
+./scripts/sync-marketplace.sh     # marketplace plugin only
+```
+
+Published plugin skills are listed in [scripts/published-skills.txt](scripts/published-skills.txt).
+Personal-only skills stay in this repository and are not copied into the plugin.
+
+`sync-skills.sh` preserves unrelated skills in `${CODEX_HOME:-$HOME/.codex}/skills`, where Codex plugins and other personal skills may coexist. It treats `~/.cursor/skills` as an exact mirror, moving extra Cursor skill folders to Trash. Cursor-managed built-ins under `~/.cursor/skills-cursor` are untouched. Override either destination with `CODEX_SKILLS_DIR` or `CURSOR_SKILLS_DIR`.
+
+`sync-marketplace.sh` writes into `../airgoods-plugin-marketplace/plugins/ai-dev-workflow` by default. Override with `MARKETPLACE_ROOT`.
 
 ### Host compatibility
 
