@@ -1,0 +1,7 @@
+interface:
+  display_name: "Harden Architecture"
+  short_description: "Proactively fix architecture and control-flow issues"
+  default_prompt: "Use $harden-architecture to review and fix architectural and control-flow problems in the current scoped diff."
+
+policy:
+  allow_implicit_invocation: false

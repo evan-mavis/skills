@@ -20,7 +20,7 @@ Drive the existing PR to a clean, green state. Preserve its draft/ready state.
 6. Stop editing and spawn a fresh reviewer agent in the same worktree. Give it only the worktree
    path, PR URL, actionable failure or feedback, and returned contract; do not pass the fixer's
    conversation, rationale, or summary.
-7. Have the reviewer run `$thermo-nuclear-code-quality-review` once with the contract, return that
+7. Have the reviewer run `$harden-architecture` once with the contract, return that
    skill's standard result contract, and exit without staging, committing, or pushing. Never let
    the fixer and reviewer edit concurrently.
 8. After review returns `done`, confirm the diff remains inside `scope` and `changed_files`,

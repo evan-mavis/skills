@@ -66,7 +66,7 @@ Execution modes:
 
 - **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue
   gets a visible orchestration task with a managed worktree; that task sequentially spawns fresh
-  `forge-issue`, `deslop`, `refactor-structure`, and thermo-review subagents, then returns one
+  `forge-issue`, `deslop`, `refactor-structure`, and `harden-architecture` subagents, then returns one
   commit. Every spawned task stays unarchived for later inspection.
 - **subagents** — Default in Cursor. Each issue gets an orchestrator-created Git worktree where
   the main task runs the same four fresh capability subagents sequentially with automatic result
@@ -80,7 +80,7 @@ implementation and delivery capabilities:
 - **forge-issue** — Implement one scoped change and leave an uncommitted diff.
 - **deslop** — Remove mechanical AI slop from a scoped uncommitted diff.
 - **refactor-structure** — Improve folder grouping, file and folder naming, and file cohesion.
-- **thermo-nuclear-code-quality-review** — Independently fix architectural and control-flow
+- **harden-architecture** — Independently fix architectural and control-flow
   problems.
 - **run-ci** — Run relevant local CI-equivalent checks without changing code.
 - **to-pr** — Prepare, create, or update one PR with supplied evidence.

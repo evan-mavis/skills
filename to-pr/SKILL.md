@@ -49,11 +49,11 @@ Read and follow the repository PR template before creating or updating a PR. Bui
 the complete base diff, commit history, supplied working contract or planning documents, and known
 issue links. Keep it concise and fill every required section.
 
-When the caller supplies a feature demo site, QA verification site, validation video, or other
-evidence, add a concise `PR evidence` section in the best matching template location. Link each
-artifact by name, include its one-line summary, disclose non-blocking findings, and omit any
-artifact that was not selected. Never publish credentials, raw local data, or private evidence
-URLs anywhere except the intended PR.
+When the caller supplies validation video, text evidence, or another approved artifact, add a
+concise `PR evidence` section in the best matching template location. Link each artifact by name,
+include its one-line summary, disclose non-blocking findings, and omit any artifact that was not
+selected. Never publish credentials, raw local data, or private evidence URLs anywhere except the
+intended PR.
 
 ## Process
 

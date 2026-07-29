@@ -185,7 +185,7 @@ subagents in one isolated checkout:
 1. implementation — invoke only `$forge-issue`;
 2. cleanup — invoke only `$deslop`;
 3. structure — invoke only `$refactor-structure`;
-4. independent review — invoke only `$thermo-nuclear-code-quality-review`.
+4. independent review — invoke only `$harden-architecture`.
 
 The issue orchestrator is the visible issue task in `tasks` mode and the main Forge Build
 orchestrator in `subagents` mode. It owns dispatch, joins, contract validation, staging,
@@ -315,7 +315,7 @@ Record the feature SHA at the start of each stage. After every issue in that sta
 3. Have it run `$refactor-structure` with the stage contract and return that
    skill's standard contract.
 4. After it exits, spawn a separate fresh reviewer subagent with the returned contract and have
-   it run `$thermo-nuclear-code-quality-review`.
+   it run `$harden-architecture`.
 5. After both exit `done`, commit any structural or review fixes once as
    `refactor: harden <stage-name> integration`.
 6. Re-read issue frontmatter and refresh the index before scheduling the next stage.

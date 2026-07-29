@@ -1,9 +1,9 @@
 ---
-name: thermo-nuclear-code-quality-review
+name: harden-architecture
 description: Independently review and proactively fix architectural and control-flow problems in a scoped implementation, repair, feature, or stage diff. Use as a fresh reviewer to correct ownership boundaries, leaky abstractions, ad-hoc behavior models, unsafe orchestration, and avoidable coupling without redoing mechanical cleanup or file organization.
 ---
 
-# Thermo-Nuclear Code Quality Review
+# Harden Architecture
 
 Review and fix the current diff inline. Do not spawn another agent. When independent review is
 required, invoke this skill from an already-fresh reviewer agent.

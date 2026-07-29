@@ -47,7 +47,7 @@ Run this exact sequential pipeline in the managed worktree:
 3. After it exits done and its contract is validated, spawn a fresh subagent that invokes only
    $refactor-structure.
 4. After it exits done and its contract is validated, spawn a fresh subagent that invokes only
-   $thermo-nuclear-code-quality-review.
+   $harden-architecture.
 
 Give each subagent only the absolute worktree path, issue and PRD paths, current canonical
 change_contract, and the minimum non-secret database descriptor it needs. Do not pass any prior

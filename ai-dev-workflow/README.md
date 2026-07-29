@@ -60,7 +60,7 @@ Choose once when invoking `forge-build`.
 
 | Mode | Issue execution | Integration | Best fit |
 | --- | --- | --- | --- |
-| **tasks** | One visible issue-orchestrator task per managed worktree; it sequentially spawns fresh `forge-issue`, `deslop`, `refactor-structure`, and thermo-review subagents | Main task polls the terminal contract and cherry-picks its single commit | Recommended in Codex desktop for substantial parallel issues, visibility, and resumability; every task stays unarchived |
+| **tasks** | One visible issue-orchestrator task per managed worktree; it sequentially spawns fresh `forge-issue`, `deslop`, `refactor-structure`, and `harden-architecture` subagents | Main task polls the terminal contract and cherry-picks its single commit | Recommended in Codex desktop for substantial parallel issues, visibility, and resumability; every task stays unarchived |
 | **subagents** | Main task creates one Git worktree per issue and sequentially spawns the same four fresh capability subagents | Main task rebases and fast-forwards the issue branch | Default in Cursor; portable, ephemeral execution with automatic result joins |
 
 The mode controls who orchestrates each issue. Both modes use the same isolated four-subagent
@@ -111,9 +111,11 @@ variable name.
 | --- | --- | --- |
 | **forge-issue** | Directly or as a dedicated implementation subagent | Implement one scoped change in an isolated checkout and leave it uncommitted |
 | **provision-neon-branch** | Directly or conditionally from either orchestrator | Provision, safely rebind, and clean up one disposable production-shaped Neon child |
+| **query-prod-db** | Directly or from `forge-patch` preflight | Inspect Airgoods production data through the read-only Postgres MCP |
+| **query-local-db** | Directly or from either orchestrator | Inspect only the explicitly selected local or isolated database |
 | **deslop** | Directly or as a dedicated cleanup subagent | Clean the current uncommitted diff |
 | **refactor-structure** | Directly or as a dedicated issue or stage-closeout subagent | Explicitly improve folder grouping, file and folder naming, and oversized files |
-| **thermo-nuclear-code-quality-review** | Fresh issue, stage, or PR-fix reviewer subagent | Independently review and fix the scoped diff |
+| **harden-architecture** | Fresh issue, stage, or PR-fix reviewer subagent | Independently review and fix the scoped diff |
 | **run-ci** | Main orchestrator task | Run final local CI after implementation or integration |
 | **to-pr** | Main orchestrator task | Create or update the single PR with selected evidence links |
 | **babysit** | Main orchestrator task, with fresh PR-fix reviewers | Keep the PR clean and green without merging |
@@ -155,7 +157,7 @@ flowchart TB
   TASK_IMPL["fresh subagent: forge-issue"]
   TASK_CLEAN["fresh subagent: deslop"]
   TASK_STRUCTURE["fresh subagent: refactor-structure"]
-  TASK_REVIEW["fresh subagent: thermo-nuclear review"]
+  TASK_REVIEW["fresh subagent: harden architecture"]
   TASK_COMMIT["issue task: commit once<br/>return commit SHA"]
   TASK_INTEGRATE["main: poll task contract<br/>cherry-pick commit"]
 
@@ -163,7 +165,7 @@ flowchart TB
   SUB_IMPL["fresh subagent: forge-issue"]
   SUB_CLEAN["fresh subagent: deslop"]
   SUB_STRUCTURE["fresh subagent: refactor-structure"]
-  SUB_REVIEW["fresh subagent: thermo-nuclear review"]
+  SUB_REVIEW["fresh subagent: harden architecture"]
   SUB_COMMIT["main: commit issue worktree"]
   SUB_INTEGRATE["main: rebase + fast-forward<br/>feature branch"]
 
@@ -171,7 +173,7 @@ flowchart TB
   SPAWN_STRUCTURE["main: spawn fresh structural-refactor subagent"]
   STAGE_STRUCTURE["subagent: refactor-structure<br/>stage audit"]
   SPAWN_STAGE["main: spawn fresh stage-review subagent"]
-  STAGE_REVIEW["subagent: thermo-nuclear stage review"]
+  STAGE_REVIEW["subagent: harden stage architecture"]
   MORE{"issues remaining?"}
   CI["main: run-ci<br/>repairs use the same four-subagent pipeline"]
   QA{"persisted QA profile"}

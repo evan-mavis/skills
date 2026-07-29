@@ -66,7 +66,7 @@ After it exits `done`, validate and replace the contract. Spawn the fourth fresh
 ```text
 Independently review exactly <local-id> in <absolute worktree path>.
 Judge the resulting diff against the supplied issue and PRD.
-Invoke only $thermo-nuclear-code-quality-review with the supplied current change_contract.
+Invoke only $harden-architecture with the supplied current change_contract.
 Do not invoke another capability or spawn another agent.
 Leave the reviewed diff uncommitted and return only the review skill's standard contract.
 ```
