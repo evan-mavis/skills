@@ -24,6 +24,19 @@ High-confidence, behavior-preserving fixes for:
 
 Prefer deleting concepts over rearranging them. Do not perform routine comment/import/cast cleanup or file moves solely for organization.
 
+## Simplify aggressively (within scope)
+
+Before polishing, look for code-judo moves that delete complexity rather than redistribute it:
+
+- reframe so branches, modes, flags, or helper layers disappear
+- pull scattered special-case `if`s out of busy shared flows into a dedicated abstraction
+- delete thin wrappers, pass-through helpers, and magic generics that hide simple structure
+- reuse canonical helpers; do not duplicate or leak feature logic into shared modules
+- make unclear type boundaries explicit when that removes fallback branching
+
+If a touched file crosses ~1k lines and obvious decomposition is in scope, extract focused modules.
+Return `blocked` when the clean fix exceeds scope.
+
 ## Guardrails
 
 Do not silently change acceptance behavior, public APIs, schemas, migrations, permissions, or security/billing behavior. Do not broaden into an architectural rewrite. Do not stage, commit, push, run full CI, or edit plan files.
