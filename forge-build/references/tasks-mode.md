@@ -1,6 +1,8 @@
 # Tasks Mode
 
-Use visible Codex tasks with app-managed worktrees. The issue task implements directly so this mode does not add an implementation-subagent hop; it still spawns a fresh reviewer subagent before committing.
+Use visible Codex issue-orchestrator tasks with app-managed worktrees. Each issue task stays
+coordination-only and spawns four fresh sequential capability subagents in its managed worktree
+before committing their final scoped diff.
 
 ## Availability
 
@@ -31,22 +33,34 @@ Execute exactly <local-id> as a forge-build issue task.
 Work only in your Codex-managed worktree, which must start at <issue-base-sha>.
 Read the issue and PRD from the supplied absolute paths.
 Use the supplied <change-contract> without widening scope or exclusions.
+You are the issue orchestrator. Do not implement, clean, restructure, or review code yourself.
 Use the supplied <data-profile> and database environment descriptor. Before any
 database-dependent command, load the protected environment into that process and verify the
 connected database matches the supplied isolated environment. Do not print, persist, or return
 database credentials. Do not edit dotenv files or shell profiles. When querying through
 $query-local-db, pass `--database-url-env <supplied-variable-name>` to its helper.
-Run $forge-issue with the issue as source and the PRD as context. Pass its returned contract to
-$deslop, then pass that returned contract to $refactor-structure.
-Do not update plan files, modify the main feature workspace, push, open a PR, or run full CI.
 
-After implementation, deslop, and structural refactoring, stop editing and spawn one fresh
-reviewer subagent with no inherited implementation turns. Give it only your absolute worktree
-path, the PRD, the issue, and the returned change_contract. Have it run
-$thermo-nuclear-code-quality-review with that contract. The reviewer must not stage, commit,
-push, or spawn another agent.
+Run this exact sequential pipeline in the managed worktree:
+1. Spawn a fresh subagent that invokes only $forge-issue.
+2. After it exits done and its contract is validated, spawn a fresh subagent that invokes only
+   $deslop.
+3. After it exits done and its contract is validated, spawn a fresh subagent that invokes only
+   $refactor-structure.
+4. After it exits done and its contract is validated, spawn a fresh subagent that invokes only
+   $thermo-nuclear-code-quality-review.
 
-After the reviewer exits done, confirm the diff is scoped, stage only issue code changes, and create exactly one commit:
+Give each subagent only the absolute worktree path, issue and PRD paths, current canonical
+change_contract, and the minimum non-secret database descriptor it needs. Do not pass any prior
+subagent conversation, rationale, or summary. Require each subagent not to spawn another agent,
+update plan files, stage, commit, push, open a PR, or run full CI. Never run two of these
+subagents concurrently.
+
+After each subagent exits, require its standard terminal contract. Reject a changed source,
+scope, exclusions, or review_base, or a changed_files manifest that does not exactly match the
+worktree diff. Replace the canonical contract only after validation.
+
+After all four subagents exit done, confirm the final diff is scoped, stage only issue code
+changes, and create exactly one commit:
 <prefix>: <issue title> (<local-id>)
 
 Remain on the managed detached checkout. Return only the issue-task result contract.
@@ -74,8 +88,8 @@ summary: <one line>
 blocker: null | <specific blocker>
 ```
 
-The task must return `blocked` without committing if implementation, required database binding,
-or review blocks.
+The task must return `blocked` without committing if any capability or required database binding
+blocks.
 
 ## Task Retention
 

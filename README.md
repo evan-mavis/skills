@@ -64,8 +64,13 @@ You invoke these in order:
 
 Execution modes:
 
-- **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue gets a visible task with a managed worktree; that task implements directly, spawns a fresh reviewer subagent, and returns one commit. Every spawned task stays unarchived for later inspection.
-- **subagents** — Default in Cursor. Each issue gets an orchestrator-created Git worktree plus ephemeral implementation and reviewer subagents with automatic result joins.
+- **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue
+  gets a visible orchestration task with a managed worktree; that task sequentially spawns fresh
+  `forge-issue`, `deslop`, `refactor-structure`, and thermo-review subagents, then returns one
+  commit. Every spawned task stays unarchived for later inspection.
+- **subagents** — Default in Cursor. Each issue gets an orchestrator-created Git worktree where
+  the main task runs the same four fresh capability subagents sequentially with automatic result
+  joins.
 
 ### Standalone capabilities
 

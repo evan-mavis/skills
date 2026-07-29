@@ -11,8 +11,8 @@ Use `forge-patch` for one scoped bug or improvement that does not need a PRD, is
 flowchart LR
   SRC["prompt, Linear, Slack, Notion, or other context"]
   PATCH["forge-patch<br/>single-change orchestrator"]
-  ISSUE["forge-issue<br/>uncommitted implementation"]
-  REVIEW["mechanical deslop → structural refactor<br/>→ architecture/control-flow review"]
+  ISSUE["fresh forge-issue subagent<br/>uncommitted implementation"]
+  REVIEW["fresh sequential subagents:<br/>deslop → structural refactor<br/>→ architecture/control-flow review"]
   CI["targeted checks + run-ci"]
   PROD["Airgoods production Postgres MCP<br/>read-only evidence"]
   NEON["user-selected Neon profile<br/>mutable raw-production child"]
@@ -60,10 +60,12 @@ Choose once when invoking `forge-build`.
 
 | Mode | Issue execution | Integration | Best fit |
 | --- | --- | --- | --- |
-| **tasks** | One visible Codex task in a managed worktree per issue; the task implements directly and spawns a fresh reviewer subagent | Main task polls the terminal contract and cherry-picks its single commit | Recommended in Codex desktop for substantial parallel issues, visibility, and resumability; every task stays unarchived |
-| **subagents** | Main task creates one Git worktree per issue, then spawns separate implementation and reviewer subagents | Main task rebases and fast-forwards the issue branch | Default in Cursor; portable, ephemeral execution with automatic result joins |
+| **tasks** | One visible issue-orchestrator task per managed worktree; it sequentially spawns fresh `forge-issue`, `deslop`, `refactor-structure`, and thermo-review subagents | Main task polls the terminal contract and cherry-picks its single commit | Recommended in Codex desktop for substantial parallel issues, visibility, and resumability; every task stays unarchived |
+| **subagents** | Main task creates one Git worktree per issue and sequentially spawns the same four fresh capability subagents | Main task rebases and fast-forwards the issue branch | Default in Cursor; portable, ephemeral execution with automatic result joins |
 
-The mode controls issue implementation. Both modes still use fresh reviewer subagents, the same dependency scheduler, stage reviews, final CI, draft PR creation, and babysitting.
+The mode controls who orchestrates each issue. Both modes use the same isolated four-subagent
+capability pipeline, dependency scheduler, stage reviews, final CI, draft PR creation, and
+babysitting.
 
 Cursor defaults directly to `subagents` because it does not support the separate Codex task/worktree thread flow required by `tasks` mode.
 
@@ -107,10 +109,10 @@ variable name.
 
 | Skill | Runs in | Role |
 | --- | --- | --- |
-| **forge-issue** | Directly, issue task, or implementation subagent | Implement one scoped change in an isolated checkout and leave it uncommitted |
+| **forge-issue** | Directly or as a dedicated implementation subagent | Implement one scoped change in an isolated checkout and leave it uncommitted |
 | **provision-neon-branch** | Directly or conditionally from either orchestrator | Provision, safely rebind, and clean up one disposable production-shaped Neon child |
-| **deslop** | Same issue task/subagent, or main feature workspace for PR fixes | Clean the current uncommitted diff |
-| **refactor-structure** | Same issue task/subagent, plus a fresh stage-closeout subagent | Explicitly improve folder grouping, file and folder naming, and oversized files |
+| **deslop** | Directly or as a dedicated cleanup subagent | Clean the current uncommitted diff |
+| **refactor-structure** | Directly or as a dedicated issue or stage-closeout subagent | Explicitly improve folder grouping, file and folder naming, and oversized files |
 | **thermo-nuclear-code-quality-review** | Fresh issue, stage, or PR-fix reviewer subagent | Independently review and fix the scoped diff |
 | **run-ci** | Main orchestrator task | Run final local CI after implementation or integration |
 | **to-pr** | Main orchestrator task | Create or update the single PR with selected evidence links |
@@ -148,18 +150,20 @@ flowchart TB
   SCHEDULE["main: schedule eligible issues<br/>parallel when safe"]
   MODE{"selected execution mode"}
 
-  TASK_CREATE["main: create Codex task<br/>with managed worktree"]
-  TASK_EXEC["issue task: forge-issue → deslop<br/>→ refactor-structure"]
-  TASK_SPAWN_REVIEW["issue task: spawn fresh reviewer subagent<br/>in the same managed worktree"]
-  TASK_REVIEW["reviewer subagent:<br/>thermo-nuclear review"]
+  TASK_CREATE["main: create issue-orchestrator task<br/>with managed worktree"]
+  TASK_ORCH["issue task: coordinate + validate<br/>sequential capability results"]
+  TASK_IMPL["fresh subagent: forge-issue"]
+  TASK_CLEAN["fresh subagent: deslop"]
+  TASK_STRUCTURE["fresh subagent: refactor-structure"]
+  TASK_REVIEW["fresh subagent: thermo-nuclear review"]
   TASK_COMMIT["issue task: commit once<br/>return commit SHA"]
   TASK_INTEGRATE["main: poll task contract<br/>cherry-pick commit"]
 
   SUB_WORKTREE["main: create dedicated Git worktree"]
-  SUB_SPAWN_IMPL["main: spawn implementation subagent<br/>inside issue worktree"]
-  SUB_IMPL["implementation subagent:<br/>forge-issue → deslop<br/>→ refactor-structure"]
-  SUB_SPAWN_REVIEW["main: spawn fresh reviewer subagent<br/>in the same worktree"]
-  SUB_REVIEW["reviewer subagent:<br/>thermo-nuclear review"]
+  SUB_IMPL["fresh subagent: forge-issue"]
+  SUB_CLEAN["fresh subagent: deslop"]
+  SUB_STRUCTURE["fresh subagent: refactor-structure"]
+  SUB_REVIEW["fresh subagent: thermo-nuclear review"]
   SUB_COMMIT["main: commit issue worktree"]
   SUB_INTEGRATE["main: rebase + fast-forward<br/>feature branch"]
 
@@ -169,7 +173,7 @@ flowchart TB
   SPAWN_STAGE["main: spawn fresh stage-review subagent"]
   STAGE_REVIEW["subagent: thermo-nuclear stage review"]
   MORE{"issues remaining?"}
-  CI["main: format + run-ci<br/>bounded repair loop until pass"]
+  CI["main: run-ci<br/>repairs use the same four-subagent pipeline"]
   QA{"persisted QA profile"}
   QA_LIGHT["main: light browser QA<br/>changed happy paths"]
   QA_HEAVY["main: heavy browser QA<br/>broad risk-based scenarios"]
@@ -189,18 +193,20 @@ flowchart TB
   SCHEDULE --> MODE
 
   MODE -->|"tasks"| TASK_CREATE
-  TASK_CREATE --> TASK_EXEC
-  TASK_EXEC --> TASK_SPAWN_REVIEW
-  TASK_SPAWN_REVIEW --> TASK_REVIEW
+  TASK_CREATE --> TASK_ORCH
+  TASK_ORCH --> TASK_IMPL
+  TASK_IMPL -->|"join + validate"| TASK_CLEAN
+  TASK_CLEAN -->|"join + validate"| TASK_STRUCTURE
+  TASK_STRUCTURE -->|"join + validate"| TASK_REVIEW
   TASK_REVIEW --> TASK_COMMIT
   TASK_COMMIT --> TASK_INTEGRATE
   TASK_INTEGRATE --> STAGE_COMPLETE
 
   MODE -->|"subagents"| SUB_WORKTREE
-  SUB_WORKTREE --> SUB_SPAWN_IMPL
-  SUB_SPAWN_IMPL --> SUB_IMPL
-  SUB_IMPL --> SUB_SPAWN_REVIEW
-  SUB_SPAWN_REVIEW --> SUB_REVIEW
+  SUB_WORKTREE --> SUB_IMPL
+  SUB_IMPL -->|"join + validate"| SUB_CLEAN
+  SUB_CLEAN -->|"join + validate"| SUB_STRUCTURE
+  SUB_STRUCTURE -->|"join + validate"| SUB_REVIEW
   SUB_REVIEW --> SUB_COMMIT
   SUB_COMMIT --> SUB_INTEGRATE
   SUB_INTEGRATE --> STAGE_COMPLETE
@@ -231,8 +237,8 @@ flowchart TB
 
   classDef task fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
   classDef spawned fill:#e8f4fc,stroke:#1a73e8,stroke-width:2px
-  class TASK_EXEC,TASK_SPAWN_REVIEW,TASK_COMMIT task
-  class TASK_REVIEW,SUB_IMPL,SUB_REVIEW,STAGE_STRUCTURE,STAGE_REVIEW spawned
+  class TASK_ORCH,TASK_COMMIT task
+  class TASK_IMPL,TASK_CLEAN,TASK_STRUCTURE,TASK_REVIEW,SUB_IMPL,SUB_CLEAN,SUB_STRUCTURE,SUB_REVIEW,STAGE_STRUCTURE,STAGE_REVIEW spawned
 ```
 
 CI, QA, and babysit repair loops are collapsed into single nodes so the diagram stays readable;

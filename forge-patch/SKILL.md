@@ -1,6 +1,6 @@
 ---
 name: forge-patch
-description: Orchestrate one scoped bug fix or improvement from a prompt, Linear issue, Slack message, Notion page, or other supplied context through isolated implementation, review, verification, evidence, one draft pull request, and merge-readiness babysitting. Use for a complete single-change delivery flow with an explicit none, isolated local, or disposable Neon database choice and video or text evidence, without creating a multi-issue plan. Supports Codex, Cursor, and Cursor Cloud agents.
+description: Orchestrate one scoped bug fix or improvement from supplied context through fresh sequential implementation, cleanup, structure, and independent-review subagents, followed by verification, evidence, one draft pull request, and merge-readiness babysitting. Use for a complete single-change delivery flow with an explicit none, isolated local, or disposable Neon database choice and video or text evidence, without creating a multi-issue plan. Supports Codex, Cursor, and Cursor Cloud agents.
 ---
 
 # Forge Patch
@@ -18,7 +18,7 @@ Orchestrate these standalone capabilities in order:
 2. `$query-local-db` — when selected-database inspection is needed, query only through the
    verified task-scoped environment-variable name.
 3. `$forge-issue` — implement the resolved working contract and leave the diff uncommitted.
-4. `$deslop` — clean the scoped implementation diff inline.
+4. `$deslop` — clean the scoped implementation diff mechanically.
 5. `$refactor-structure` — improve scoped folder, naming, and file structure using the pre-change
    SHA as `review_base`.
 6. `$thermo-nuclear-code-quality-review` — independently review and fix the complete scoped diff.
@@ -27,10 +27,26 @@ Orchestrate these standalone capabilities in order:
 9. `$babysit` — keep the evidence-backed draft PR clean, green, and mergeable without marking it
    ready or merging it.
 
-Use a fresh reviewer agent for the thermo review when the host supports one. Otherwise run it
-inline and record the limitation. If a named capability is unavailable, use an equivalent
-host-native capability only when it preserves that capability's complete contract; otherwise
-return `blocked`.
+Run capabilities 3–6 as four fresh sequential subagents in the same checkout. Never run two of
+them concurrently. The orchestrator must not implement, clean, refactor, or review the code
+itself. If the host cannot spawn and join fresh subagents in the current checkout, return
+`blocked`; do not collapse the pipeline inline.
+
+For each capability subagent:
+
+- pass only the checkout path, source context, canonical `change_contract`, and the minimum
+  non-secret database runtime descriptor needed by that capability;
+- do not pass prior subagent conversations, rationale, or summaries;
+- require it to invoke exactly its named standalone skill, never spawn another agent, and never
+  stage, commit, push, run full CI, open or update a PR, or modify orchestration state;
+- wait for it to exit before starting the next capability;
+- require its standard terminal contract, verify that `source`, `scope`, `exclusions`, and
+  `review_base` are unchanged, verify `changed_files` exactly matches the checkout diff, and only
+  then replace the canonical contract.
+
+If a named capability is unavailable, use an equivalent host-native capability only when it can
+run in the same isolated subagent contract and preserves the complete named capability contract;
+otherwise return `blocked`.
 
 ## Bundled context
 
@@ -173,23 +189,28 @@ database identity metadata.
 1. Record the pre-change SHA and initialize the canonical `change_contract` with the source,
    resolved scope, exclusions, `review_base`, and an empty `changed_files` manifest.
 2. Reproduce or confirm the current failure when safe.
-3. Invoke `$forge-issue` with the working contract, source context, checkout path, and
-   `change_contract`. Include the concrete data profile and non-secret selected-database
-   descriptor when implementation needs database access; never include the connection value.
-   Require a terminal `done` result and replace the orchestrator's contract with the returned
-   contract.
-4. Invoke `$deslop` with that contract and replace it with the returned contract.
-5. Invoke `$refactor-structure` with that contract and replace it with the returned contract.
-6. Invoke `$thermo-nuclear-code-quality-review` with that contract in a fresh reviewer agent when
-   supported, then replace it with the returned contract.
+3. Spawn a fresh implementation subagent in the checkout and have it invoke `$forge-issue` with
+   the working contract, source context, and canonical `change_contract`. Include the concrete
+   data profile and non-secret selected-database descriptor only when implementation needs
+   database access; never include the connection value. Join it, validate its terminal `done`
+   result, and replace the canonical contract.
+4. Spawn a fresh cleanup subagent in the same checkout with the current contract and have it
+   invoke only `$deslop`. Join it, validate the result, and replace the contract.
+5. Spawn a fresh structural subagent in the same checkout with the current contract and have it
+   invoke only `$refactor-structure`. Join it, validate the result, and replace the contract.
+6. Spawn a fresh reviewer subagent in the same checkout with the current contract and have it
+   invoke only `$thermo-nuclear-code-quality-review`. Join it, validate the result, and replace
+   the contract.
 7. Re-read the complete diff. Return `blocked` on unresolved behavior, unsafe scope expansion, or
    a material review finding. At every handoff, reject changed files outside `scope`, inside
    `exclusions`, or absent from the returned manifest.
 
-Do not duplicate implementation inside this orchestrator. Route code repairs exposed by review,
-targeted checks, CI, or runtime verification back through `$forge-issue` as an explicit
-continuation using the current canonical contract, then rerun cleanup, structural review, and
-independent review while preserving the same `source`, `scope`, `exclusions`, and `review_base`.
+Do not duplicate implementation inside this orchestrator. Route every code-changing repair
+exposed by review, targeted checks, CI, or runtime verification through a new four-subagent
+continuation in the same order: `$forge-issue` → `$deslop` → `$refactor-structure` →
+`$thermo-nuclear-code-quality-review`. Use the finding as continuation context, preserve the
+same `source`, `scope`, `exclusions`, and `review_base`, and validate the canonical contract
+after every joined subagent.
 
 ## Verify
 

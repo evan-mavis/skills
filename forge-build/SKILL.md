@@ -1,6 +1,6 @@
 ---
 name: forge-build
-description: Execute an approved local implementation plan end to end through either visible Codex worktree tasks or main-thread subagents. Use when the user wants Codex to choose database isolation and none, light, or heavy manual browser QA, resolve human-in-the-loop checkpoints, orchestrate dependency-ordered issue work, independently review every issue, repair verification failures, generate host-native PR evidence, open a draft pull request, and keep it merge-ready.
+description: Execute an approved local implementation plan end to end through either visible Codex worktree tasks or main-thread orchestration. Each issue and code repair runs through fresh sequential implementation, cleanup, structure, and independent-review subagents. Use when the user wants Codex to choose database isolation and none, light, or heavy manual browser QA, resolve human-in-the-loop checkpoints, orchestrate dependency-ordered issue work, repair verification failures, generate host-native PR evidence, open a draft pull request, and keep it merge-ready.
 ---
 
 # Forge Build
@@ -11,8 +11,13 @@ Own implementation after `grill-me` → `to-prd` → `to-issues` → `to-linear`
 
 Require one mode for the whole plan:
 
-- `tasks` — create one visible Codex task in a managed worktree per eligible issue. The issue task implements directly, spawns its own fresh reviewer subagent, commits once, and returns a commit SHA. Recommend this in the Codex desktop app for substantial parallel issues, persistent visibility, and independent steering.
-- `subagents` — create one Git worktree per issue and run implementation plus review through main-thread subagents. Recommend this when task/thread tools are unavailable or the user wants ephemeral workers with automatic result joins.
+- `tasks` — create one visible Codex issue-orchestrator task in a managed worktree per eligible
+  issue. That task spawns four fresh sequential capability subagents, commits their final scoped
+  diff once, and returns a commit SHA. Recommend this in the Codex desktop app for substantial
+  parallel issues, persistent visibility, and independent steering.
+- `subagents` — create one Git worktree per issue and have the main orchestrator spawn the same
+  four fresh sequential capability subagents there. Recommend this when task/thread tools are
+  unavailable or the user wants ephemeral workers with automatic result joins.
 
 Accept `$forge-build tasks` or `$forge-build subagents`. If no mode is supplied:
 
@@ -172,6 +177,37 @@ Return `blocked` before database-dependent work when binding cannot be establish
 When no database-dependent action exists, record `not_needed`; do not claim the selected database
 was exercised.
 
+## Issue capability pipeline
+
+Every issue and every code-changing repair must run through four fresh sequential capability
+subagents in one isolated checkout:
+
+1. implementation — invoke only `$forge-issue`;
+2. cleanup — invoke only `$deslop`;
+3. structure — invoke only `$refactor-structure`;
+4. independent review — invoke only `$thermo-nuclear-code-quality-review`.
+
+The issue orchestrator is the visible issue task in `tasks` mode and the main Forge Build
+orchestrator in `subagents` mode. It owns dispatch, joins, contract validation, staging,
+committing, and integration, but must not implement, clean, restructure, or review the code
+itself. Never run two capability subagents concurrently in the same checkout.
+
+For each capability subagent:
+
+- pass only the checkout path, issue and PRD source paths, the current canonical
+  `change_contract`, and the minimum non-secret database runtime descriptor it needs;
+- do not pass prior subagent conversations, rationale, or summaries;
+- require it to invoke exactly its named standalone skill, never spawn another agent, and never
+  stage, commit, push, run full CI, open or update a PR, or modify plan state;
+- wait for it to exit before starting the next capability;
+- require its standard terminal contract, verify that `source`, `scope`, `exclusions`, and
+  `review_base` are unchanged, verify `changed_files` exactly matches the checkout diff, and only
+  then replace the canonical contract.
+
+If the selected mode cannot spawn and join all four fresh capability subagents in the same
+isolated checkout, return `blocked`; do not collapse the pipeline inline or combine capabilities
+inside one worker.
+
 ## HITL resolution
 
 Before dispatching issue work, inspect every incomplete `hitl` issue and its **HITL Requirement**. Use `hitl_timing` as canonical; classify and persist a missing legacy value once.
@@ -222,10 +258,10 @@ change_contract:
   changed_files: []
 ```
 
-Pass the same contract through implementation, cleanup, structural review, and independent review.
-Allow mutating capabilities to update only `changed_files`; reject any widened scope, changed
-exclusions, changed base, or unexplained file. Refresh the persisted contract after every
-mutating capability so resume uses the exact current manifest.
+Pass the same contract through the four-subagent issue capability pipeline. Allow mutating
+capabilities to update only `changed_files`; reject any widened scope, changed exclusions,
+changed base, or unexplained file. Refresh the persisted contract after every joined capability
+subagent so resume uses the exact current manifest.
 
 ## Main-thread hygiene
 
@@ -291,24 +327,23 @@ When every issue is `done` and `completed: true`:
 1. Construct a plan `change_contract` using the PRD and index as source, the full approved plan as
    scope, explicit non-goals as exclusions, the feature branch point as `review_base`, and the
    complete feature diff as `changed_files`.
-2. Run the repository's documented format-write or format-fix command before calling `$run-ci`. Inspect the diff and commit any formatting-only changes once as `maintenance: format final changes`. If formatting fails, handle it as the first mechanical failure in the CI repair loop.
-3. Run `$run-ci` with the plan contract as a read-only verification pass. Bind its selected
+2. Run `$run-ci` with the plan contract as a read-only verification pass. Bind its selected
    database-dependent commands to the verified database environment.
-4. If it fails, exit `$run-ci` and enter the CI repair loop below. Do not return `blocked` on the first repairable failure.
-5. Execute the manual browser QA procedure below against the exact CI-passing feature SHA.
-6. Run `$to-pr` in `draft` mode with the plan contract and verification plus QA summaries. When
+3. If it fails, exit `$run-ci` and enter the CI repair loop below. Do not return `blocked` on the first repairable failure.
+4. Execute the manual browser QA procedure below against the exact CI-passing feature SHA.
+5. Run `$to-pr` in `draft` mode with the plan contract and verification plus QA summaries. When
    `pr_evidence` is `video` or `text`, include an explicit note that final evidence is pending.
    Require one draft PR and retain its URL.
-7. Execute the PR evidence procedure below.
-8. When evidence was produced, run `$to-pr` again in `draft` mode with the same plan contract and
+6. Execute the PR evidence procedure below.
+7. When evidence was produced, run `$to-pr` again in `draft` mode with the same plan contract and
    final evidence. Update the existing PR body in place and remove the pending-evidence note.
-9. Record the QA and evidence SHA, then run `$babysit` on the draft PR with the plan contract.
+8. Record the QA and evidence SHA, then run `$babysit` on the draft PR with the plan contract.
    Never mark it ready, merge it, or publish a release.
-10. If babysit changes branch `HEAD`, rebuild the plan contract's `changed_files`, rerun complete
+9. If babysit changes branch `HEAD`, rebuild the plan contract's `changed_files`, rerun complete
     `$run-ci`, rerun the full selected QA profile, regenerate the selected evidence, and update
     the same draft PR. Do not finish with QA or evidence tied to an older SHA.
-11. Run the database cleanup procedure below.
-12. Set PRD `status: completed` and move the plan to
+10. Run the database cleanup procedure below.
+11. Set PRD `status: completed` and move the plan to
    `plans/completed/<plan-slug>/` without leaving a duplicate.
 
 ### Manual browser QA procedure
@@ -329,8 +364,8 @@ For a branch-caused failure inside the approved plan, allow at most three QA rep
 1. Dispatch the smallest repair through the selected execution mode in a dedicated task or
    worktree based on the current feature `HEAD`. Use the QA finding as the continuation source
    without widening the plan contract.
-2. Run `$forge-issue`, `$deslop`, `$refactor-structure`, and a fresh
-   `$thermo-nuclear-code-quality-review` inside that isolated checkout.
+2. Run the complete four-subagent issue capability pipeline inside that isolated checkout,
+   joining and validating each capability before starting the next.
 3. Commit the reviewed cycle once as `patch: fix manual QA findings` and integrate it through the
    selected mode's normal commit-validation path.
 4. Run the complete `$run-ci` suite again with the verified database binding.
@@ -385,11 +420,18 @@ Allow at most three repair attempts. A repair attempt may address multiple failu
 
 1. Persist the attempt number, failing checks, exact failure signatures, and current feature SHA under `## CI Repair` in the PRD.
 2. Classify each failure before changing code:
-   - **Mechanical**: formatting or safely auto-fixable lint. Run the repository's documented fix command, then inspect its diff.
-   - **Code**: typecheck, build, lint, or test failures caused by the feature branch. Fix the smallest root cause in the main workspace and add or adjust focused tests only when needed to preserve intended behavior.
-   - **Environment**: missing services, credentials, runtimes, containers, or transient network failures. Apply only documented, safe environment remediation and retry the affected check once. Never change product code to hide an environment failure.
+   - **Mechanical or code**: formatting, safely auto-fixable lint, typecheck, build, lint, or test
+     failures caused by the feature branch. Dispatch the smallest repair through the selected
+     execution mode in a dedicated task or worktree based on the current feature `HEAD`, then run
+     the complete four-subagent issue capability pipeline. Use the CI failure as continuation
+     context without widening the plan contract.
+   - **Environment**: missing services, credentials, runtimes, containers, or transient network
+     failures. The main orchestrator may apply only documented, non-code environment remediation
+     and retry the affected check once. Never change product code to hide an environment failure.
 3. Never weaken CI, skip checks, delete meaningful tests, or update snapshots without verifying that the new output is intended.
-4. Review the repair diff and commit the cycle once as `patch: fix final CI failures`. Record the repair commit in `## CI Repair`.
+4. After the repair pipeline exits `done`, commit its final validated diff once as
+   `patch: fix final CI failures`, integrate it through the selected mode's normal
+   commit-validation path, and record the repair commit in `## CI Repair`.
 5. Update the plan contract's `changed_files`, then rerun the complete `$run-ci` suite with the
    contract after every repair commit. A partial check may guide the repair, but it does not count
    as closeout verification.
