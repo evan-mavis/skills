@@ -5,7 +5,10 @@ usage() {
   cat <<'EOF'
 Usage: sync-skills.sh [--check]
 
-Install repository skills into Cursor and Codex via the skills CLI.
+Install repository skills via the skills CLI.
+
+  published.txt -> Codex only (~/.agents/skills). Cursor uses the ai-dev-workflow plugin.
+  personal.txt  -> Cursor and Codex (~/.agents/skills)
 
   --check  Report drift without changing anything.
 
@@ -72,24 +75,33 @@ check_installed_skills() {
 
 if [[ "$mode" == check ]]; then
   if check_installed_skills; then
-    echo "Cursor and Codex skills match the repository (~/.agents/skills)."
+    echo "Installed skills match the repository (~/.agents/skills)."
     exit 0
   fi
   echo "Run ./scripts/sync-skills.sh to refresh local installs." >&2
   exit 1
 fi
 
-skill_args=()
-for skill in "${repo_skills[@]}"; do
-  skill_args+=(--skill "$skill")
-done
+if ((${#published[@]} > 0)); then
+  published_args=()
+  for skill in "${published[@]}"; do
+    published_args+=(--skill "$skill")
+  done
+  "${skills_cli[@]}" add "$repo_root" "${published_args[@]}" -a codex -g -y
+fi
 
-"${skills_cli[@]}" add "$repo_root" "${skill_args[@]}" -a cursor -a codex -g -y
+if ((${#personal[@]} > 0)); then
+  personal_args=()
+  for skill in "${personal[@]}"; do
+    personal_args+=(--skill "$skill")
+  done
+  "${skills_cli[@]}" add "$repo_root" "${personal_args[@]}" -a cursor -a codex -g -y
+fi
 
 if ! check_installed_skills; then
   echo "skills CLI finished, but installed skills still differ from the repository." >&2
   exit 1
 fi
 
-echo "Cursor and Codex skills synced via skills CLI (~/.agents/skills)."
-echo "installed skills: ${#repo_skills[@]} (${#published[@]} published, ${#personal[@]} personal)"
+echo "Skills synced via skills CLI (~/.agents/skills)."
+echo "installed skills: ${#repo_skills[@]} (${#published[@]} published via Codex + plugin, ${#personal[@]} personal via Cursor + Codex)"
