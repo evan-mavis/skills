@@ -164,6 +164,7 @@ Agent teardown after delivery: delete Neon branches, stop services, clear temp c
 | Skill / reference             | One-liner                                                               |
 | ----------------------------- | ----------------------------------------------------------------------- |
 | `references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
+| `preflight-gates.md`          | Shared runtime, evidence, and closeout gates for orchestrators.   |
 | `refresh-local-db`            | Refresh local Postgres from a Render production export.                 |
 | `design-bake-off`             | Generate multiple UI variants with a dev-only live switcher.            |
 | `handoff`                     | Compress the current conversation into a handoff doc for another agent. |

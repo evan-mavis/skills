@@ -7,7 +7,7 @@ Usage: sync-skills.sh [--check]
 
 Install repository skills via the skills CLI.
 
-  published.txt -> Codex only (~/.agents/skills). Cursor uses the ai-dev-workflow plugin.
+  published.txt -> Codex only (~/.codex/skills). Cursor uses the ai-dev-workflow plugin.
   personal.txt  -> Cursor and Codex (~/.agents/skills)
 
   --check  Report drift without changing anything.
@@ -15,6 +15,7 @@ Install repository skills via the skills CLI.
 Environment overrides:
   SKILLS_CLI          Defaults to "npx skills"
   AGENTS_SKILLS_DIR   Defaults to ~/.agents/skills
+  CODEX_SKILLS_DIR    Defaults to ~/.codex/skills
 EOF
 }
 
@@ -35,6 +36,7 @@ esac
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 repo_root=$(cd "$script_dir/.." && pwd -P)
 agents_root=${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}
+codex_root=${CODEX_SKILLS_DIR:-$HOME/.codex/skills}
 skills_cli=(npx skills)
 if [[ -n "${SKILLS_CLI:-}" ]]; then
   # shellcheck disable=SC2206
@@ -59,7 +61,22 @@ repo_skills=("${published[@]}" "${personal[@]}")
 check_installed_skills() {
   local drift=0 skill target
 
-  for skill in "${repo_skills[@]}"; do
+  for skill in "${published[@]}"; do
+    target="$codex_root/$skill"
+    if [[ ! -d "$target" ]]; then
+      echo "missing: $target"
+      drift=1
+    elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
+      echo "different: $target"
+      drift=1
+    fi
+    if [[ -d "$agents_root/$skill" ]]; then
+      echo "unexpected cursor duplicate: $agents_root/$skill"
+      drift=1
+    fi
+  done
+
+  for skill in "${personal[@]}"; do
     target="$agents_root/$skill"
     if [[ ! -d "$target" ]]; then
       echo "missing: $target"
@@ -75,7 +92,7 @@ check_installed_skills() {
 
 if [[ "$mode" == check ]]; then
   if check_installed_skills; then
-    echo "Installed skills match the repository (~/.agents/skills)."
+    echo "Installed skills match the repository (Codex + personal in ~/.agents/skills)."
     exit 0
   fi
   echo "Run ./scripts/sync-skills.sh to refresh local installs." >&2
@@ -88,6 +105,11 @@ if ((${#published[@]} > 0)); then
     published_args+=(--skill "$skill")
   done
   "${skills_cli[@]}" add "$repo_root" "${published_args[@]}" -a codex -g -y
+  "${skills_cli[@]}" remove -g -a cursor -s "${published[@]}" -y >/dev/null
+  for skill in "${published[@]}"; do
+    rm -rf "$codex_root/$skill" "$agents_root/$skill"
+    cp -R "$repo_root/$skill" "$codex_root/$skill"
+  done
 fi
 
 if ((${#personal[@]} > 0)); then
@@ -103,5 +125,5 @@ if ! check_installed_skills; then
   exit 1
 fi
 
-echo "Skills synced via skills CLI (~/.agents/skills)."
+echo "Skills synced via skills CLI."
 echo "installed skills: ${#repo_skills[@]} (${#published[@]} published via Codex + plugin, ${#personal[@]} personal via Cursor + Codex)"

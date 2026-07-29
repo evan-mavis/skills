@@ -61,8 +61,9 @@ After inspecting the source, code, repository history, and relevant read-only ev
 
 ## Working contract
 
-Record `problem`, `expected`, `reproduction`, `evidence`, and `change_contract`. Persist runtime
-metadata under `runtime_state` using the schema in
+Record `problem`, `expected`, `reproduction`, `evidence`, and `change_contract`. Present and confirm
+[preflight confirm](../../references/preflight-gates.md#preflight-confirm) before implementation.
+Persist runtime metadata under `runtime_state` using the schema in
 [database runtime — Persisted metadata](../../forge-build/references/database-runtime.md#persisted-metadata).
 
 ```yaml

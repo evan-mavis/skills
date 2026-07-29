@@ -10,7 +10,7 @@ slice graph, or dependency scheduler.
 
 ## Read order
 
-1. **Always:** [change contract](../forge-build/references/change-contract.md) → [capability pipeline](../forge-build/references/capability-pipeline.md) → [database runtime](../forge-build/references/database-runtime.md) → [host surfaces](../references/host-surfaces.md)
+1. **Always:** [change contract](../forge-build/references/change-contract.md) → [capability pipeline](../forge-build/references/capability-pipeline.md) → [database runtime](../forge-build/references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [host surfaces](../references/host-surfaces.md)
 2. **Before resolve:** [execution contracts](references/execution-contracts.md)
 3. **If `host: cloud`:** [cloud environment](references/cloud-environment.md); on Airgoods add [Airgoods runtime](references/airgoods-runtime.md)
 4. **If `local-preview`:** [local worktree runtime](references/local-worktree-runtime.md)
@@ -20,9 +20,10 @@ slice graph, or dependency scheduler.
 ## Capability sequence
 
 1. `$query-prod-db` — Airgoods: inspect production data shape via read-only MCP before resolving.
-2. Runtime adapter — when `neon`: `$provision-neon-branch` provision/rebind/cleanup; when
+2. Runtime adapter — **blocking gate:** when `neon`: `$provision-neon-branch` provision/rebind/cleanup; when
    `local-preview`: `$provision-local-worktree-environment` provision/repair. Follow
-   [database runtime](../forge-build/references/database-runtime.md).
+   [database runtime](../forge-build/references/database-runtime.md). Do not implement until provisioned
+   or [runtime waived](../references/preflight-gates.md#preflight-confirm).
 3. `$query-local-db` — inspect selected database via verified env var name only.
 4. [Capability pipeline](../forge-build/references/capability-pipeline.md): `$implement-slice` →
    `$deslop` → `$refactor-structure` → `$harden-architecture`.
@@ -45,6 +46,7 @@ configuration, guardrails, and cleanup.
 3. Cloud/remote: accept platform-isolated workspace → `cloud`; must start clean. Reject `local-preview`.
 4. Resolve documented startup, validation, CI, and PR commands.
 5. On resume: verify changes belong to this issue, pre-change SHA resolves, runtime state is consistent.
+6. Present [preflight confirm](../references/preflight-gates.md#preflight-confirm); do not implement until the user confirms or says proceed with defaults.
 
 ## Resolve the task
 
@@ -57,19 +59,13 @@ configuration, guardrails, and cleanup.
    or the user explicitly opts to deliver it as a single ticket.
 4. Inspect code first. Airgoods: invoke `$query-prod-db` proactively; never issue production SQL here.
 5. Run ambiguity interview from [execution contracts](references/execution-contracts.md). Ask one human decision at a time with a recommended answer.
-6. Persist working contract with canonical `change_contract`. Do not implement while ambiguous.
+6. Persist working contract with canonical `change_contract`. Do not implement while ambiguous or unconfirmed.
 
 Nonessential missing evidence → disclosed limitation. Essential missing evidence → `blocked`.
 
-## Runtime profiles
+## Runtime and evidence
 
-Follow [database runtime](../forge-build/references/database-runtime.md) for isolated-runtime selection and binding.
-Persist `data_profile` and runtime metadata in the working contract.
-
-**Evidence** — `video` for user-visible/runtime behavior; `text` for non-visual proof. Accept
-`evidence: auto | video | text`; infer from scope; ask only when ambiguous. Persist concrete profile;
-do not ask again on resume. Never use `none` to bypass required verification or `text` to hide
-unavailable user-visible validation.
+Follow [preflight gates](../references/preflight-gates.md) and [database runtime](../forge-build/references/database-runtime.md). Resolve `data_profile` and `evidence_profile` in the preflight confirm block — do not rationalize `none` or `text` for user-visible UI flows. Persist concrete profiles in the working contract; do not ask again on resume.
 
 ## Implement and review
 
@@ -84,7 +80,7 @@ Route every code-changing repair through a fresh four-step continuation preservi
 
 1. Narrow reproduction and affected checks first; bind database before every dependent command.
 2. `$run-ci` with canonical contract — require pass; repair issue-caused failures via continuation.
-3. Exercise real application including negative/regression case; prove isolated child usage when `neon` or `local-preview` is active.
+3. **Blocking gate:** exercise the real application in a browser, including negative/regression case; prove isolated child usage when `neon` or `local-preview` is active. Unit tests and `$run-ci` never satisfy `evidence_profile: video`.
 4. Native desktop browser automation for GUI; Playwright only as disclosed fallback.
 5. Confirm production untouched; isolated environment received intended mutations.
 6. Re-read final diff; one commit with repository's allowed prefix.
@@ -92,13 +88,15 @@ Route every code-changing repair through a fresh four-step continuation preservi
 ## Record and deliver
 
 1. `$to-pr` in `draft` mode with pending-evidence note.
-2. Produce evidence at tested commit: [video and delivery](references/video-and-delivery.md) or text summary.
+2. **Blocking gate:** produce evidence at tested commit per [video and delivery](references/video-and-delivery.md) or text summary. If video is required but unavailable, return `blocked` — do not downgrade to text.
 3. Attach to Linear issue, draft PR, or private storage per profile.
 4. `$to-pr` again with final evidence; update PR in place.
 5. Linear evidence comment when associated issue exists.
 6. Render MP4 in chat when host supports it.
 7. `$babysit` on draft PR — preserve draft state; union repair files into canonical `changed_files`.
 8. If babysit changes `HEAD`, rerun `$run-ci`, runtime verification, evidence, and `$to-pr`.
+
+Do not return `status: done` without evidence matching the declared profile. See [invalid done](../references/preflight-gates.md#invalid-status-done).
 
 Do not create Linear issues solely for evidence. Do not mark ready, merge, deploy, or release.
 

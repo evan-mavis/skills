@@ -10,7 +10,7 @@ issue frontmatter as approved scope. Do not reopen planning.
 
 ## Read order
 
-1. **Always:** [change contract](references/change-contract.md) → [capability pipeline](references/capability-pipeline.md) → [database runtime](references/database-runtime.md) → [execution](references/execution.md) → [host surfaces](../references/host-surfaces.md)
+1. **Always:** [change contract](references/change-contract.md) → [capability pipeline](references/capability-pipeline.md) → [database runtime](references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [execution](references/execution.md) → [host surfaces](../references/host-surfaces.md)
 2. **If `qa_profile` is `light` or `heavy`:** [manual browser QA](references/manual-browser-qa.md)
 3. **If `pr_evidence` is `video`:** [video and delivery](references/video-and-delivery.md)
 4. **On plan closeout:** [plan closeout](references/plan-closeout.md) → [output schema](references/output-schema.md)
@@ -29,13 +29,14 @@ Do not delegate orchestration to a second-layer issue task runner.
 
 ## Runtime profiles
 
-Collect unresolved profiles in one initial interactive choice prompt when possible.
+Collect unresolved profiles in one initial interactive choice prompt when possible. Follow
+[preflight gates](../references/preflight-gates.md). Present [preflight confirm](../references/preflight-gates.md#preflight-confirm) and do not dispatch until the user confirms or says proceed with defaults.
 
-**Runtime** — `data: auto | none | local | neon | local-preview`. Follow [database runtime](references/database-runtime.md). Persist `data_profile` and `host` under `## Forge Build Execution`. Persist lifecycle metadata under `## Database Lifecycle` and invoke the routed provision skill during preflight.
+**Runtime** — `data: auto | none | local | neon | local-preview`. Follow [database runtime](references/database-runtime.md). Persist `data_profile` and `host` under `## Forge Build Execution`. Persist lifecycle metadata under `## Database Lifecycle` and invoke the routed provision skill during preflight — **blocking** before first dispatch unless [runtime waived](../references/preflight-gates.md#preflight-confirm).
 
 **Manual QA** — `qa: auto | none | light | heavy`:
 
-- `none` — skip browser QA; automated verification still runs.
+- `none` — skip browser QA; automated verification still runs. Invalid for user-visible plans unless waived in preflight confirm.
 - `light` — happy path for every meaningful changed user workflow.
 - `heavy` — broad risk-based coverage across affected actors and states.
 
@@ -46,7 +47,7 @@ Persist as `qa_profile`. Re-ask if the profile cannot be executed truthfully; ne
 **PR evidence** — `evidence: auto | video | text | none`. Resolve `auto` after other profiles:
 `video` for user-visible/runtime behavior; `text` for non-visual proof; never auto-resolve `none`.
 Ask only when materially ambiguous. Persist as `pr_evidence`. Never downgrade resolved `video`
-because capture is unavailable.
+because capture is unavailable. `$run-ci` alone never satisfies `pr_evidence: video`.
 
 ## Inputs and preflight
 
@@ -60,7 +61,8 @@ detached branches, or unrelated uncommitted changes in the main workspace.
 4. Refuse completed, archived, or structurally invalid plans. Require `hitl_timing: null` on `afk`
    issues; on `hitl` issues accept `upfront` or `evidence_dependent`.
 5. Resolve and persist database, QA, and evidence profiles through the initial interactive choice
-   prompt when needed. Follow [interactive choices](../references/host-surfaces.md#interactive-choices).
+   prompt when needed. Present [preflight confirm](../references/preflight-gates.md#preflight-confirm);
+   persist under `## Forge Build Execution`. Follow [interactive choices](../references/host-surfaces.md#interactive-choices).
    On resume, inspect existing worktrees, database lifecycle, QA, and evidence state before creating
    anything.
 6. Read [manual browser QA](references/manual-browser-qa.md) when `qa_profile` is `light` or `heavy`.
@@ -162,6 +164,7 @@ completed_issues: <count>
 remaining_issues: <count>
 ```
 
-Fill profile, QA, evidence, and lifecycle fields from the schema on closeout. Do not add
-explanatory prose. When the host requires structured git or action directives after the YAML
+Fill profile, QA, evidence, and lifecycle fields from the schema on closeout. Do not return
+`status: done` when [invalid done](../references/preflight-gates.md#invalid-status-done) applies.
+Do not add explanatory prose. When the host requires structured git or action directives after the YAML
 contract, append them after the contract block.

@@ -78,6 +78,9 @@ check_marketplace() {
   if [[ -d "$target_skills_root" ]]; then
     for entry in "$target_skills_root"/*; do
       extra_name=${entry##*/}
+      if [[ "$extra_name" == "references" ]]; then
+        continue
+      fi
       local found=false
       for skill in "${skills[@]}"; do
         if [[ "$skill" == "$extra_name" ]]; then
@@ -100,6 +103,16 @@ check_marketplace() {
     drift=1
   fi
 
+  if [[ -d "$repo_root/references" ]]; then
+    if [[ ! -d "$target_skills_root/references" ]]; then
+      echo "missing: $target_skills_root/references"
+      drift=1
+    elif ! diff -qr "$repo_root/references" "$target_skills_root/references" >/dev/null; then
+      echo "different: $target_skills_root/references"
+      drift=1
+    fi
+  fi
+
   return "$drift"
 }
 
@@ -119,8 +132,17 @@ sync_marketplace() {
     rsync -a --delete "$repo_root/$skill/" "$staging/skills/$skill/"
   done
 
+  if [[ -d "$repo_root/references" ]]; then
+    mkdir -p "$staging/references"
+    rsync -a --delete "$repo_root/references/" "$staging/references/"
+  fi
+
   mkdir -p "$target_skills_root"
   rsync -a --delete "$staging/skills/" "$target_skills_root/"
+  if [[ -d "$staging/references" ]]; then
+    mkdir -p "$target_skills_root/references"
+    rsync -a --delete "$staging/references/" "$target_skills_root/references/"
+  fi
   cp "$source_readme" "$target_readme"
 
   rm -rf "$staging"

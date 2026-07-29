@@ -32,6 +32,7 @@ linear_issue: <id-or-null>
 evidence: <artifact-url-or-inline-summary-or-null>
 video: <absolute-path-or-artifact-url-or-null>
 limitations: []
+runtime_waived: true | false
 ```
 
 ## Neon and local-preview lifecycle
@@ -53,3 +54,8 @@ recommended_plan_path: grill-me → to-prd → to-slices → to-linear → forge
 ```
 
 Otherwise `recommended_plan_path: null`.
+
+## Invalid done
+
+See [preflight gates — invalid done](../../references/preflight-gates.md#invalid-status-done).
+Return `blocked` instead of `done` when closeout violates those rules.

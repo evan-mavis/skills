@@ -45,7 +45,11 @@ Present each option by label; persist the profile key:
 
 Recommend by host: `cloud` → `neon`; `local_worktree` → `local-preview`. One short sentence per
 option when the interactive choice UI supports descriptions. Treat omitted or `auto` as requiring
-this question. Follow [interactive choices](../../references/host-surfaces.md#interactive-choices).
+this question. Follow [interactive choices](../../references/host-surfaces.md#interactive-choices)
+and [preflight gates](../../references/preflight-gates.md).
+
+Do not choose `none` on Airgoods cloud for flows that need backend, auth, or data. `frontend-only`
+UI work still needs runtime when verification crosses API, auth, or database boundaries.
 
 ## Provision and resume
 

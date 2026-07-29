@@ -44,4 +44,10 @@ qa_scenarios:
 ```yaml
 neon_branch_deleted: true | false | null
 local_preview_preserved: true | false | null
+runtime_waived: true | false
 ```
+
+## Invalid done
+
+See [preflight gates — invalid done](../references/preflight-gates.md#invalid-status-done).
+Return `blocked` instead of `done` when closeout violates those rules.
