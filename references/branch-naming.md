@@ -21,12 +21,12 @@ Examples:
 
 ## Prefix selection
 
-| Work kind | Prefix |
-| --------- | ------ |
-| Bug | `fix` |
-| Small feature / feature plan | `feat` |
-| Improvement | `improve` |
-| Internal, infra, refactor-only, tooling | `tech` |
+| Work kind                               | Prefix    |
+| --------------------------------------- | --------- |
+| Bug                                     | `fix`     |
+| Small feature / feature plan            | `feat`    |
+| Improvement                             | `improve` |
+| Internal, infra, refactor-only, tooling | `tech`    |
 
 For `forge-issue`, derive from `issue_kind`. For `forge-build`, derive from PRD/plan intent or the
 primary Linear issue type.
