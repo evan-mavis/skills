@@ -11,9 +11,11 @@ After inspecting the source, code, and scope — and before provisioning, dispat
 ```yaml
 # Working contract — confirm or edit
 issue: <id-or-plan-slug>
+issue_kind: bug | improvement | small_feature  # forge-issue only; infer from source
 host: cloud | local_worktree
 data_profile: neon | local-preview | local | none
 evidence_profile: video | text          # forge-build: pr_evidence
+bug_evidence: none | before_after_video # forge-issue; see defaults below
 qa_profile: none | light | heavy        # forge-build only; omit for forge-issue
 surfaces: [<user-visible apps touched>] # e.g. apps/web, apps/dashboard, apps/mobile
 runtime_waived: false                   # true only when user explicitly opts out
@@ -36,6 +38,9 @@ Rules:
   claims, checkout, uploads, permissions).
 - **`data_profile: none` or `runtime_waived: true`** only when the user explicitly opts out in
   this block.
+- **`issue_kind: bug` + non-empty `surfaces`** → default `bug_evidence: before_after_video` and
+  `evidence_profile: video`. Non-UI bugs default `bug_evidence: none` and may use `text`.
+- Improvements and small features omit `bug_evidence` or set `none` — single closeout video only.
 
 ## Blocking gates
 
@@ -46,6 +51,7 @@ waived in the preflight confirm block:
 | ---- | ----------- | ----------- |
 | Runtime provisioned + bound | capability step 2 | preflight, before first dispatch |
 | Healthchecks / stack ready | before browser verify | before plan closeout QA |
+| Bug reproduced on video | Reproduce §3–4 when `bug_evidence: before_after_video` | — |
 | Browser exercise | Verify §3–4 | plan closeout manual QA when `qa_profile` is `light` or `heavy` |
 | Evidence attached | Record §2–4 | plan closeout PR evidence |
 
@@ -57,6 +63,10 @@ Return `blocked` instead of `done` when:
 
 - `evidence_profile: video` (or forge-build `pr_evidence: video`) and both `evidence` and `video`
   are null
+- `bug_evidence: before_after_video` and `video_before` is null, or closeout after-video (`video`
+  or `video_after`) is null
+- `bug_evidence: before_after_video` and implementation started without `reproduction_confirmed:
+  true`
 - `data_profile: neon` (or `local-preview`) and `database_runtime` is not `verified`, unless
   `runtime_waived: true` was confirmed upfront
 - user-visible surfaces were in scope and browser verification was skipped without waiver

@@ -66,11 +66,20 @@ Record `problem`, `expected`, `reproduction`, `evidence`, and `change_contract`.
 Persist runtime metadata under `runtime_state` using the schema in
 [database runtime — Persisted metadata](../../forge-build/references/database-runtime.md#persisted-metadata).
 
+Set `issue_kind` during resolve. For UI bugs, default `bug_evidence: before_after_video` in the
+preflight confirm block unless the user opts out.
+
 ```yaml
 working_contract:
+  issue_kind: bug | improvement | small_feature
+  bug_evidence: none | before_after_video
   problem: <observed behavior or requested improvement>
   expected: <required behavior>
-  reproduction: <short path>
+  reproduction: <numbered steps — same path for before and after clips>
+  reproduction_confirmed: false
+  evidence_before:
+    sha: null
+    video: null
   evidence: []
   runtime_state: {} # shape per database-runtime.md
   change_contract: # per ../forge-build/references/change-contract.md
@@ -80,6 +89,9 @@ working_contract:
     review_base: <pre-change-sha>
     changed_files: []
 ```
+
+After the pre-implement repro gate, set `reproduction_confirmed: true` and fill `evidence_before`
+with the pre-fix SHA (`review_base`) and before MP4 path or URL.
 
 One independently shippable change only. Pass `change_contract` through the capability pipeline,
 CI, and delivery. Return `blocked` when behavior cannot be resolved, a capability widens scope,

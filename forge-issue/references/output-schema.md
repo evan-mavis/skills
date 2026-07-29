@@ -22,6 +22,9 @@ change_contract:
 ## Runtime and evidence
 
 ```yaml
+issue_kind: bug | improvement | small_feature | null
+bug_evidence: none | before_after_video | null
+reproduction_confirmed: true | false | null
 data_profile: none | local | neon | local-preview
 host: cloud | local_worktree
 database_runtime: verified | not_needed | blocked
@@ -30,10 +33,14 @@ branch: <git-branch>
 commit: <final-green-sha-or-null>
 linear_issue: <id-or-null>
 evidence: <artifact-url-or-inline-summary-or-null>
-video: <absolute-path-or-artifact-url-or-null>
+video_before: <absolute-path-or-artifact-url-or-null>
+video: <absolute-path-or-artifact-url-or-null> # after clip; alias video_after
 limitations: []
 runtime_waived: true | false
 ```
+
+When `bug_evidence: before_after_video`, `video_before` and `video` are both required for
+`status: done`. `reproduction_confirmed: true` is required before implementation may start.
 
 ## Neon and local-preview lifecycle
 

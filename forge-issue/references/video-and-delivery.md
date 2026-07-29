@@ -39,6 +39,27 @@ during recording.
 Visually inspect the beginning, middle, end, and every frame around sensitive state changes.
 Complete this capture standard whenever the resolved evidence profile is `video`.
 
+## Bug before/after evidence
+
+When `bug_evidence: before_after_video`:
+
+**Before (pre-implement, blocking):**
+
+- Record on `review_base` before any fix commit.
+- Same route, account, and data setup as the after clip when possible.
+- Show trigger → broken outcome; usually 10–30 seconds.
+- Save as `evidence_before.video`; do not commit to the repo.
+
+**After (closeout, blocking):**
+
+- Record on the final green commit after Verify.
+- Repeat the same numbered reproduction steps from `working_contract.reproduction`.
+- Show trigger → expected outcome, plus one negative or regression check.
+- Populate output `video` (alias `video_after`).
+
+Label both assets with their commit SHA in Linear comments and the PR body. Prefer attaching the
+before clip to the Linear issue when one exists; attach both to the draft PR on closeout.
+
 ## Linear evidence
 
 When an associated issue exists, prefer Linear as the canonical video home after the draft PR
@@ -49,7 +70,7 @@ exists:
 3. finalize the attachment on the issue;
 4. retain the attachment URL for the PR body update;
 5. create one evidence comment containing the tested SHA, outcome, existing PR URL, and
-   limitations.
+   limitations. For bug before/after, include repro SHA, fix SHA, and links to both clips.
 
 Do not expose the signed upload URL. Complete prepare, upload, and finalize sequentially because upload URLs expire quickly.
 
