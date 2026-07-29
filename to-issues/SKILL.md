@@ -7,7 +7,8 @@ description: Break a local PRD, plan, spec, or conversation context into indepen
 
 Break a PRD or plan into independently implementable local issue Markdown files in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the local issue files are approved.
 
-Human planning workflow: `grill-me` → `to-prd` → **to-issues** → `to-linear`. Start a fresh thread with `forge-build` after the plan is approved and synced.
+This skill is directly callable for any approved local PRD or supplied plan. Clarification, PRD
+authoring, Linear sync, and implementation remain separate invocations.
 
 Use vertical slices (tracer bullets): each issue should deliver a narrow, complete path through the relevant layers, not a horizontal layer-only task.
 
@@ -52,7 +53,8 @@ When issues are deferred or cut from a plan's scope, **do not** leave them in th
 2. remove the issue from the parent plan (delete file + refresh parent `<plan-slug>-index.md`)
 3. link the follow-up from the parent PRD/index
 
-A plan is eligible for `plans/completed/` only when every remaining issue has `completed: true` and `status: done`. `forge-build` owns archive eligibility and the final move.
+A plan is eligible for `plans/completed/` only when every remaining issue has `completed: true`
+and `status: done`. The workflow completing the plan owns the final move.
 
 ## Process
 
@@ -102,7 +104,10 @@ Each slice should:
 - name expected write areas in **Approach** and set `parallelizable: true` only when they are meaningfully disjoint from sibling slices
 - for `hitl`, state the exact decision or action under **HITL Requirement** and set `hitl_timing` to `upfront` or `evidence_dependent`
 
-Local issues are **agent-first** — written so `forge-build` can assign each slice to an atomic `forge-issue` worker. Keep them lightly human-readable since they feed `to-linear`, but optimize for agent execution. `forge-build` fills **Implementation Notes** after integrating the worker commit.
+Local issues are **agent-first** — write each slice so an atomic implementation capability can
+execute it without reconstructing the plan. Keep them lightly human-readable since they may feed
+external issue tracking, but optimize for agent execution. Fill **Implementation Notes** after
+integrating the implementation commit.
 
 ### 4. Review with the user
 
@@ -219,7 +224,8 @@ Be specific. These should stand alone as the definition of done.
 
 Add **Risks** or **Open choices** only when the slice is genuinely ambiguous — don't speculate.
 
-Stay at the planning level. No file-by-file specs — `forge-build` fills in **Implementation Notes** after integration.
+Stay at the planning level. Do not write file-by-file specs. Fill **Implementation Notes** only
+after integration.
 
 ## Implementation Notes
 

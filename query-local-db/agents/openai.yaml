@@ -1,4 +1,4 @@
 interface:
   display_name: "Query Local Database"
-  short_description: "Query the local stack PostgreSQL database"
-  default_prompt: "Use $query-local-db to inspect the local stack PostgreSQL database safely."
+  short_description: "Query local or isolated task PostgreSQL"
+  default_prompt: "Use $query-local-db to inspect the local stack database or an explicitly verified task database safely."

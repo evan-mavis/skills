@@ -1,7 +1,7 @@
 interface:
   display_name: "Thermo-Nuclear Code Quality Review"
-  short_description: "Proactively fix structural code-quality issues"
-  default_prompt: "Use $thermo-nuclear-code-quality-review to review and fix the current scoped diff."
+  short_description: "Proactively fix architecture and control-flow issues"
+  default_prompt: "Use $thermo-nuclear-code-quality-review to review and fix architectural and control-flow problems in the current scoped diff."
 
 policy:
   allow_implicit_invocation: false

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Feature Demo Site"
-  short_description: "Turn feature diffs into polished demo sites"
-  default_prompt: "Use $feature-demo-site to review this feature branch, capture the new workflows, and publish a concise video-led demo site."

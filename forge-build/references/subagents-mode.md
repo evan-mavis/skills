@@ -11,13 +11,23 @@ git worktree add -b "wt/<plan-slug>/<local-id>" "<main-workspace>-wt-<local-id>"
 ```
 
 Pass absolute main-workspace PRD, issue, and index paths because ignored plan files may be absent from the worktree. Never let two agents use one worktree concurrently.
+Pass the persisted `data_profile` and, when needed, only the database environment-variable name
+and protected temporary environment-file path. Never include a connection string in a subagent
+prompt.
 
 Give the implementation subagent:
 
 ```text
 Implement exactly <local-id> in <absolute worktree path>.
 Read the issue and PRD from the supplied absolute paths.
-Run $forge-issue with execution_mode subagents, then $deslop inline.
+Use the supplied <change-contract> without widening scope or exclusions.
+Use the supplied <data-profile> and database environment descriptor. Before any
+database-dependent command, load the protected environment into that process and verify the
+connected database matches the supplied isolated environment. Do not print, persist, or return
+database credentials. Do not edit dotenv files or shell profiles. When querying through
+$query-local-db, pass `--database-url-env <supplied-variable-name>` to its helper.
+Run $forge-issue with the issue as source and the PRD as context. Pass its returned contract to
+$deslop, then pass that returned contract to $refactor-structure.
 Do not run thermo, update plan files, stage, commit, push, open a PR, or run full CI.
 Leave the cleaned diff uncommitted and return only the implementation contract.
 ```
@@ -28,6 +38,14 @@ Require:
 status: done | blocked
 local_id: <local-id>
 branch: wt/<plan-slug>/<local-id>
+database_binding: verified | not_needed | blocked
+change_contract:
+  source: <absolute-issue-path>
+  scope: []
+  exclusions: []
+  review_base: <issue-base-sha>
+  changed_files:
+    - <repo-relative path>
 summary: <one line>
 blocker: null | <specific blocker>
 ```
@@ -39,7 +57,7 @@ After the implementation subagent returns `done` and exits, spawn a fresh review
 ```text
 Independently review exactly <local-id> in <absolute worktree path>.
 Judge the resulting diff against the supplied issue and PRD.
-Run $thermo-nuclear-code-quality-review with <issue-base-sha> as review_base.
+Run $thermo-nuclear-code-quality-review with the implementation result's change_contract.
 Do not spawn another agent, update plan files, stage, commit, push, open a PR, or run full CI.
 Return only the review contract.
 ```
@@ -50,6 +68,13 @@ Require:
 status: done | blocked
 local_id: <local-id>
 changed: true | false
+change_contract:
+  source: <absolute-issue-path>
+  scope: []
+  exclusions: []
+  review_base: <issue-base-sha>
+  changed_files:
+    - <repo-relative path>
 summary: <one line>
 blocker: null | <specific blocker>
 ```
@@ -83,7 +108,8 @@ For each successful issue in dependency-safe order:
 4. Apply the shared integrated-issue state procedure.
 5. Remove the clean worktree and delete the fully merged local branch with non-forced commands.
 
-Treat a missing result field, out-of-scope diff, dirty post-commit worktree, or commit-count mismatch as blocked.
+Treat a missing result field, required database binding that is not `verified`, out-of-scope
+diff, dirty post-commit worktree, or commit-count mismatch as blocked.
 
 ## Resume
 

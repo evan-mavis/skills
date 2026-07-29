@@ -1,7 +1,7 @@
 interface:
   display_name: "Forge Build"
-  short_description: "Build, verify, demo, and open a draft PR"
-  default_prompt: "Use $forge-build to execute the approved local plan; collect execution mode and optional QA/demo PR evidence choices, then build through a draft PR."
+  short_description: "Build, browser-QA, and open a merge-ready PR"
+  default_prompt: "Use $forge-build to choose execution, database, and manual QA profiles, then execute the approved plan through a verified draft PR."
 
 policy:
   allow_implicit_invocation: false

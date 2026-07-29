@@ -9,7 +9,7 @@ Confirm support for:
 - listing and getting branches in an explicit project
 - creating a branch from an explicit parent
 - setting `expires_at` during creation
-- retrieving a branch connection string
+- retrieving a branch connection string for an exact existing child
 - deleting an exact branch ID
 - machine-readable output where available
 
@@ -33,12 +33,30 @@ neon connection-string
 neon branches delete
 ```
 
+## Rebind sequence
+
+1. Accept the exact persisted project, parent, child, name, expiration, and database variable
+   metadata from the original provision result.
+2. Get the child by exact project and branch ID. Confirm it exists, is ready, is not root or
+   default, has not expired, and still belongs to the configured parent.
+3. Compare its name and expiration with the persisted metadata. Do not extend expiration.
+4. Retrieve a fresh direct connection string for that exact child.
+5. Create a new protected runtime handoff using the credential rules below.
+6. Connect through the new handoff and verify the endpoint or branch matches the child and differs
+   from the parent.
+
+Never fall back to branch-name lookup or create a replacement during rebind.
+
 ## Credential handling
 
 - Capture the connection string without echoing command output.
 - Disable shell tracing before handling it.
-- Prefer an exported environment variable in the application process.
-- If a temporary env file is required, place it outside the repository, set mode `0600`, and delete it during cleanup.
+- Use an exported environment variable when every command shares one application process.
+- For multi-process orchestrators, place a sourceable environment file outside the repository,
+  set mode `0600`, return only its path and variable name, and delete it during cleanup.
+- Treat temporary handoff files as replaceable. Rebind creates a fresh file; the branch ID, not
+  an earlier file path, is the durable identity.
+- Never write the connection to a repository dotenv file or shell profile.
 - Never include the URL in the skill's YAML result.
 
 ## Cleanup sequence

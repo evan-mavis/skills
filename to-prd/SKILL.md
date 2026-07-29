@@ -7,7 +7,8 @@ description: Turn the current conversation context into a detailed local PRD Mar
 
 Create a local PRD Markdown file in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after local issue files are created and approved.
 
-Human planning workflow: `grill-me` → **to-prd** → `to-issues` → `to-linear`. Start a fresh thread with `forge-build` after the plan is approved and synced.
+This skill is directly callable whenever the user wants a canonical local PRD. Planning,
+issue-splitting, Linear sync, and implementation remain separate invocations.
 
 This skill takes the current conversation context and codebase understanding and produces a detailed PRD. If meaningful ambiguity remains and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` first to clarify the plan. Otherwise, synthesize what you already know and capture remaining ambiguity in `Open Questions`.
 
@@ -86,7 +87,9 @@ Rules: no final-answer preamble; use absolute targets for local file links; omit
 
 - Use a short kebab-case slug from the feature or bug name.
 - Use one plan directory per feature, bug, or improvement under the active bucket: `plans/in-progress/<slug>/`.
-- Completed plan archives live under `plans/completed/<slug>/`; `forge-build` moves a plan only when every issue has `completed: true` and `status: done`. Update an archived PRD only when the user explicitly asks to revisit completed work.
+- Completed plan archives live under `plans/completed/<slug>/`. Move a plan only when every issue
+  has `completed: true` and `status: done`. Update an archived PRD only when the user explicitly
+  asks to revisit completed work.
 - When the PRD discusses future implementation slices, assume issue ordinals are global across the plan, not reset per stage. Stage folders keep their own stage number (`01-foundation`, `02-core-flows`, `03-followups`), but issue files and local IDs should count upward chronologically across all stages (for example `01-foundation/01-...`, `01-foundation/02-...`, then `02-core-flows/03-...`, `02-core-flows/04-...`).
 - If a matching PRD already exists, update it instead of creating a duplicate unless the user asks for a new version.
 - Keep files self-contained so future agents can work from the Markdown alone.

@@ -6,9 +6,14 @@ Use this reference for Cursor Cloud, another remote agent, or any checkout that 
 
 For local Cursor, install the canonical skills repository with its `scripts/sync-skills.sh` command.
 
-For Cursor Cloud, install the complete `forge-patch` folder, including `SKILL.md`, `agents/`, and `references/`, under `.cursor/skills/forge-patch`, `.agents/skills/forge-patch`, or the environment's `~/.cursor/skills/forge-patch`.
+For Cursor Cloud, install the complete `forge-patch` folder, including `SKILL.md`, `agents/`, and
+`references/`, under `.cursor/skills/forge-patch`, `.agents/skills/forge-patch`, or the
+environment's `~/.cursor/skills/forge-patch`. When the Neon profile may be selected, also install
+the complete standalone `provision-neon-branch` skill folder. When selected-database inspection
+may be needed, also install the complete standalone `query-local-db` skill folder.
 
-No other skill folder is required. Do not install only `SKILL.md`: its bundled references are mandatory runtime context.
+Do not install only `SKILL.md`: each selected skill's bundled references are mandatory runtime
+context.
 
 Configure the Airgoods production Postgres MCP and optional source connectors through Cursor's MCP configuration. The agent must confirm each server is authenticated before editing.
 
@@ -18,13 +23,16 @@ Provision these in the target application repository's cloud-agent environment:
 
 - the repository's documented language runtimes and package managers
 - Git, GitHub authentication, and `gh`
-- Chromium or Chrome plus the host's browser/computer-use recording support
+- Chromium or Chrome plus Computer Use and RecordScreen support
 - `ffmpeg` and `ffprobe` for an H.264 MP4
 - Neon CLI 2.14 or newer
 - a Postgres client compatible with the target application when migrations or direct verification require it
 - every app service needed for the affected flow, including workers and queues
 
 Cursor Cloud supports committed `.cursor/environment.json` setup, reusable environment snapshots, startup terminals, a browser, and a full desktop. Keep repository-specific setup there; do not add or modify it from `forge-patch` unless the user asks.
+
+Prefer Computer Use over Playwright for GUI verification in Cursor Cloud. Use Playwright only
+when Computer Use is unavailable and disclose the fallback.
 
 For Airgoods, read [Airgoods runtime](airgoods-runtime.md) for the exact environment variables and service startup. Do not duplicate every tracked `.env.example` value in Cursor's environment settings: copy the examples into the checkout, then inject only secrets and host-specific overrides.
 
@@ -41,15 +49,26 @@ Configure secrets at the environment level, never in `.cursor/environment.json` 
 
 Keep production-side credentials read-only. The mutable database credential must always come from the disposable Neon child branch.
 
+Pass the mutable connection only through a mode-0600 temporary environment file outside the
+repository or an equivalent host-native task-scoped secret injection. Load that handoff into
+every database-dependent process. Never persist it in `.env`, `.env.local`, another dotenv file,
+a shell profile, `.cursor/environment.json`, or reusable cloud environment settings.
+
 ## Non-secret configuration
 
 Provide:
 
 - `NEON_PROJECT_ID`
 - `NEON_PARENT_BRANCH_ID`
+- `PREVIEWCTL_ENV_NAME`
 - `NEON_BRANCH_TTL_HOURS`, at most `24`
 - the repository's canonical database variable name when it is not `DATABASE_URL`
 - documented app ports and startup commands
+
+Before migrations, workers, tests, runtime verification, browser evidence, or direct queries,
+verify that the active non-secret database identity matches the selected child and differs from
+the parent. Invoke `$query-local-db` only with the verified variable name via
+`--database-url-env`; never pass the connection value.
 
 ## Network and raw-data posture
 

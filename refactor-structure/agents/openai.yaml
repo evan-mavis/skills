@@ -1,0 +1,4 @@
+interface:
+  display_name: "Refactor Structure"
+  short_description: "Clean up file structure, size, and naming"
+  default_prompt: "Use $refactor-structure to improve the current diff’s file organization, file size, and naming without changing behavior."

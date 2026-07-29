@@ -1,9 +1,9 @@
 ---
 name: query-local-db
-description: Query a local PostgreSQL database named `stack`. Use when the user asks to inspect local data, run SQL, list tables, describe schema, validate records, or query the local `stack` database from any repo or worktree.
+description: Query the local PostgreSQL `stack` database or an explicitly selected task-scoped isolated database through a verified environment-variable name. Use when the user asks to inspect local or active task data, run SQL, list tables, describe schema, validate records, or query PostgreSQL safely from any repo or worktree.
 ---
 
-# Query Local PostgreSQL (`stack`)
+# Query Local or Task-Scoped PostgreSQL
 
 ## Quick start
 
@@ -22,13 +22,30 @@ bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select id, name from
 
 The helper defaults to the local PostgreSQL database `stack` and forces read-only mode for the session by default.
 
+For a caller-verified task database such as a Forge Build or Forge Patch Neon child, pass only
+the environment variable name—not its value:
+
+```bash
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" \
+  --database-url-env DATABASE_URL \
+  --csv -c "select id, name from public.some_table limit 20"
+```
+
+Use this option only when the caller supplied the variable name and already verified the
+isolated target. The caller must first load its protected task environment into the query
+process. Never infer task-database use merely because `DATABASE_URL` happens to exist.
+
 ## Workflow
 
 1. Start with schema discovery before writing a targeted query.
 2. Prefer read-only queries and keep result sets small with `limit`.
 3. Use `-At` for a single value or machine-readable output.
 4. Use `--csv` when the user wants rows in an easy-to-scan format.
-5. If `psql` says the database is unavailable, stop and ask the user to start or verify the local database instead of switching to a remote environment.
+5. When a caller supplies `database_url_env`, invoke the helper with
+   `--database-url-env <name>`. If that variable is absent or empty, stop; never fall back to
+   another database.
+6. If `psql` says the database is unavailable, stop and ask the user to start or verify the
+   selected database instead of switching targets.
 
 ## Useful commands
 
@@ -76,11 +93,14 @@ limit 1;
 
 ## Connection behavior
 
-- If `AIRGOODS_LOCAL_DATABASE_URL` is set, the helper connects with that URL.
-- Otherwise it defaults to `PGDATABASE=stack`.
+- `--database-url-env <name>` has highest precedence and requires that exact variable to be set.
+- Otherwise, if `AIRGOODS_LOCAL_DATABASE_URL` is set, the helper connects with that URL.
+- Otherwise, it defaults to `PGDATABASE=stack`.
 - It also defaults `PGHOST=localhost`, `PGPORT=5432`, and `PGUSER=postgres` when those values are unset.
 - Override `PGHOST`, `PGPORT`, `PGUSER`, or `PGPASSWORD` in the shell if the local database uses non-default settings.
 - The helper also enables `ON_ERROR_STOP` so SQL and `psql` errors fail fast instead of continuing.
+- The helper never reads `DATABASE_URL` implicitly and never edits `.env`, `.env.local`, or shell
+  configuration.
 
 ## Querying tips
 
@@ -92,6 +112,8 @@ limit 1;
 
 - Do not run `insert`, `update`, `delete`, `truncate`, `alter`, or migrations unless the user explicitly asks.
 - Use the helper for default read-only work; it forces `default_transaction_read_only=on` for the `psql` session and fails fast on SQL errors.
+- Treat an explicit task-database variable as authority only when its caller has already verified
+  the isolated target. Do not use this option with an unknown or production connection.
 - If the user explicitly asks for a write, it is okay to run a targeted write query instead of the read-only helper flow.
 - For write requests, confirm the target rows first with a read query whenever practical and keep the change as narrow as possible.
 - Do not expose database passwords in responses.

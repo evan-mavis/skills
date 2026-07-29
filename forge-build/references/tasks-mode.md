@@ -20,6 +20,9 @@ For every eligible issue in the current wave:
 4. Title it with the issue title only. Keep it short and plain so the full title is easy to read in the sidebar; omit `forge-build`, the plan slug, and the local ID.
 5. Record its returned thread or client-thread ID in the canonical issue file.
 6. Pass absolute main-workspace PRD, issue, and index paths because ignored plan files may be absent from the managed worktree.
+7. Pass the persisted `data_profile` and, when needed, only the database environment-variable
+   name and protected temporary environment-file path. Never include a connection string in the
+   task prompt.
 
 Give the issue task:
 
@@ -27,10 +30,21 @@ Give the issue task:
 Execute exactly <local-id> as a forge-build issue task.
 Work only in your Codex-managed worktree, which must start at <issue-base-sha>.
 Read the issue and PRD from the supplied absolute paths.
-Run $forge-issue with execution_mode tasks, then $deslop inline.
+Use the supplied <change-contract> without widening scope or exclusions.
+Use the supplied <data-profile> and database environment descriptor. Before any
+database-dependent command, load the protected environment into that process and verify the
+connected database matches the supplied isolated environment. Do not print, persist, or return
+database credentials. Do not edit dotenv files or shell profiles. When querying through
+$query-local-db, pass `--database-url-env <supplied-variable-name>` to its helper.
+Run $forge-issue with the issue as source and the PRD as context. Pass its returned contract to
+$deslop, then pass that returned contract to $refactor-structure.
 Do not update plan files, modify the main feature workspace, push, open a PR, or run full CI.
 
-After implementation and deslop, stop editing and spawn one fresh reviewer subagent with no inherited implementation turns. Give it only your absolute worktree path, the PRD, the issue, and <issue-base-sha>. Have it run $thermo-nuclear-code-quality-review with that SHA as review_base. The reviewer must not stage, commit, push, or spawn another agent.
+After implementation, deslop, and structural refactoring, stop editing and spawn one fresh
+reviewer subagent with no inherited implementation turns. Give it only your absolute worktree
+path, the PRD, the issue, and the returned change_contract. Have it run
+$thermo-nuclear-code-quality-review with that contract. The reviewer must not stage, commit,
+push, or spawn another agent.
 
 After the reviewer exits done, confirm the diff is scoped, stage only issue code changes, and create exactly one commit:
 <prefix>: <issue title> (<local-id>)
@@ -48,11 +62,20 @@ local_id: <local-id>
 worktree: <absolute-managed-worktree-path>
 base_sha: <issue-base-sha>
 commit_sha: <sha-or-null>
+database_binding: verified | not_needed | blocked
+change_contract:
+  source: <absolute-issue-path>
+  scope: []
+  exclusions: []
+  review_base: <issue-base-sha>
+  changed_files:
+    - <repo-relative path>
 summary: <one line>
 blocker: null | <specific blocker>
 ```
 
-The task must return `blocked` without committing if implementation or review blocks.
+The task must return `blocked` without committing if implementation, required database binding,
+or review blocks.
 
 ## Task Retention
 

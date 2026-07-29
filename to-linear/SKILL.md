@@ -7,7 +7,8 @@ description: Sync local PRD and issue Markdown files from the repo's ignored `pl
 
 Create or update Linear issues from local Markdown planning files. This is the only skill in this workflow that should create or update Linear issues.
 
-Human planning workflow: `grill-me` → `to-prd` → `to-issues` → **to-linear**. Start a fresh thread with `forge-build` after the sync is approved.
+This skill is directly callable after local planning files are approved. It synchronizes planning
+state only and does not start implementation.
 
 Use the configured Linear plugin, connector, or provided Linear skill for every Linear read and write. If no Linear integration is available or authentication fails, stop and ask the user to connect Linear rather than inventing issue IDs or URLs.
 
@@ -70,7 +71,7 @@ Keep the final answer in the format below and omit a final-answer preamble. Comm
 - [AIR-124](<linear url>)
 - [AIR-125](<linear url>) (parallel)
 - Failed: None
-- Next: start a fresh thread with $forge-build
+- Next: start implementation in a fresh task
 ```
 
 List parent first, then sub-issues in global issue order (ascending local issue number). Use the Linear issue URL for each link; label with the workspace issue id (e.g. `AIR-123`). Add `(parallel)` when the local issue has `parallelizable: true`. One issue per bullet after the parent line.

@@ -20,7 +20,18 @@ The script preserves unrelated skills in `${CODEX_HOME:-$HOME/.codex}/skills`, w
 
 ### Host compatibility
 
-The tracked skills are capability-based and supported in Codex, Cursor, and Cursor Cloud. `forge-build tasks` is intentionally Codex-only because it requires Codex-managed task worktrees; Cursor automatically uses `forge-build subagents`. `forge-patch` is a self-contained folder with bundled ambiguity, Neon, cleanup, review, CI, PR, and evidence procedures; `provision-neon-branch` remains available for standalone Neon lifecycle requests. Browser evidence uses each host's native browser automation, and demo/QA publishing prefers Sites when available or another configured private static-site integration otherwise.
+The tracked skills are capability-based and supported in Codex, Cursor, and Cursor Cloud.
+`forge-build tasks` is intentionally Codex-only because it requires Codex-managed task worktrees;
+Cursor automatically uses `forge-build subagents`. `forge-patch` orchestrates one scoped change
+through `forge-issue`, cleanup, review, verification, evidence, a draft PR, and babysitting;
+`forge-build` orchestrates dependency-ordered plans through the same standalone capabilities.
+Both orchestrators expose a structured none/local/Neon database choice and delegate disposable
+Neon provision, resume rebind, and cleanup work to `provision-neon-branch`, which remains
+directly callable. They bind the
+selected database through process-scoped secret handoffs, verify its identity at process
+boundaries, and never edit dotenv files or shell profiles for task database selection. Browser
+evidence inside either orchestrator and manual QA inside `forge-build` use each host's best
+native browser capability.
 
 ## AI development workflow
 
@@ -28,8 +39,13 @@ Full diagram: [ai-dev-workflow/README.md](ai-dev-workflow/README.md)
 
 ### Lightweight patches
 
-- **forge-patch** — Resolve one bug or improvement from a prompt, Linear issue, Slack message, Notion page, or other supplied context; inspect production read-only, implement against a disposable Neon branch, record video evidence, and open a draft PR.
-- **provision-neon-branch** — Standalone equivalent of the Neon lifecycle bundled into `forge-patch`; create and clean up a short-lived raw-production child branch directly.
+- **forge-patch** — Orchestrate one bug or improvement from supplied context through isolated
+  implementation, a structured none/local/Neon database choice, focused review, verification,
+  video or text evidence, and a merge-ready draft PR.
+- **forge-issue** — Implement one explicit scoped change inside an isolated checkout and leave
+  the diff uncommitted.
+- **provision-neon-branch** — Create, safely reconnect, and clean up a short-lived
+  raw-production child branch directly.
 
 ### Human-invoked entry points
 
@@ -41,25 +57,33 @@ You invoke these in order:
 - **to-prd** — Turn approved context into the canonical local PRD.
 - **to-issues** — Split the PRD into dependency-aware local implementation issues.
 - **to-linear** — Sync the local plan and issue graph to Linear.
-- **forge-build** — Choose `tasks` or `subagents` plus optional QA/demo PR evidence, resolve HITL gates, integrate issue work, repair final CI and QA failures, add evidence links to a draft PR, and keep it merge-ready.
+- **forge-build** — Choose `tasks` or `subagents`, resolve HITL gates, integrate issue work, repair
+  verification failures, ask which isolated database and none/light/heavy browser-QA profiles to
+  use, generate host-native video or text evidence when appropriate, and keep one draft PR
+  merge-ready.
 
 Execution modes:
 
 - **tasks** — Recommended in the Codex desktop app for substantial parallel issues. Each issue gets a visible task with a managed worktree; that task implements directly, spawns a fresh reviewer subagent, and returns one commit. Every spawned task stays unarchived for later inspection.
 - **subagents** — Default in Cursor. Each issue gets an orchestrator-created Git worktree plus ephemeral implementation and reviewer subagents with automatic result joins.
 
-### Agent-run inside `forge-build`
+### Standalone capabilities
 
-Once started, `forge-build` orchestrates these skills itself:
+Each capability below is directly callable. `forge-patch` and `forge-build` compose the core
+implementation and delivery capabilities:
 
-- **forge-issue** — Runs directly in an issue task or inside a spawned implementation subagent.
-- **deslop** — Runs inline in the same issue checkout, and in the main feature workspace for PR fixes.
-- **thermo-nuclear-code-quality-review** — Runs in fresh reviewers using the same issue worktree or integrated feature workspace.
-- **run-ci** — Runs in the main `forge-build` agent after integration.
-- **feature-qa-site** — Runs in a fresh subagent after CI when selected, publishes video-backed QA evidence, and gates acceptance-blocking findings.
-- **feature-demo-site** — Runs in a separate fresh subagent after QA when selected and publishes the final walkthrough.
-- **to-pr** — Runs in the main `forge-build` agent to create the draft PR with selected evidence links.
-- **babysit** — Runs in the main agent and spawns a fresh reviewer subagent after each PR fix.
+- **forge-issue** — Implement one scoped change and leave an uncommitted diff.
+- **deslop** — Remove mechanical AI slop from a scoped uncommitted diff.
+- **refactor-structure** — Improve folder grouping, file and folder naming, and file cohesion.
+- **thermo-nuclear-code-quality-review** — Independently fix architectural and control-flow
+  problems.
+- **run-ci** — Run relevant local CI-equivalent checks without changing code.
+- **to-pr** — Prepare, create, or update one PR with supplied evidence.
+- **babysit** — Keep an existing PR clean and green without merging.
+
+Implementation and delivery capabilities pass one canonical `change_contract` containing
+`source`, `scope`, `exclusions`, `review_base`, and `changed_files`. Mutating skills update only
+the file manifest; non-mutating skills preserve the contract.
 
 ## Design
 
@@ -67,7 +91,8 @@ Once started, `forge-build` orchestrates these skills itself:
 
 ## Database
 
-- **query-local-db** — Query the local `stack` PostgreSQL database.
+- **query-local-db** — Query local `stack` or an explicitly verified task-scoped PostgreSQL
+  database without selecting a remote target implicitly.
 - **refresh-local-db** — Refresh the database used by the local Airgoods app from a Render production export.
 - **query-prod-db** — Run read-only SQL against production Airgoods Postgres through MCP or `psql`.
 
