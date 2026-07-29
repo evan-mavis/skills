@@ -67,12 +67,14 @@ Persist runtime metadata under `runtime_state` using the schema in
 [database runtime — Persisted metadata](../../forge-build/references/database-runtime.md#persisted-metadata).
 
 Set `issue_kind` during resolve. For UI bugs, default `bug_evidence: before_after_video` in the
-preflight confirm block unless the user opts out.
+preflight confirm block unless the user opts out. Set `branch` per
+[branch naming](../../references/branch-naming.md).
 
 ```yaml
 working_contract:
   issue_kind: bug | improvement | small_feature
   bug_evidence: none | before_after_video
+  branch: <prefix>/<LINEAR-ID>/<slug>
   problem: <observed behavior or requested improvement>
   expected: <required behavior>
   reproduction: <numbered steps — same path for before and after clips>

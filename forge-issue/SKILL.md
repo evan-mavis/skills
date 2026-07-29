@@ -10,7 +10,7 @@ slice graph, or dependency scheduler.
 
 ## Read order
 
-1. **Always:** [change contract](../forge-build/references/change-contract.md) → [capability pipeline](../forge-build/references/capability-pipeline.md) → [database runtime](../forge-build/references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [host surfaces](../references/host-surfaces.md)
+1. **Always:** [change contract](../forge-build/references/change-contract.md) → [capability pipeline](../forge-build/references/capability-pipeline.md) → [database runtime](../forge-build/references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [branch naming](../references/branch-naming.md) → [host surfaces](../references/host-surfaces.md)
 2. **Before resolve:** [execution contracts](references/execution-contracts.md)
 3. **If `host: cloud`:** [cloud environment](references/cloud-environment.md); on Airgoods add [Airgoods runtime](references/airgoods-runtime.md)
 4. **If `local-preview`:** [local worktree runtime](references/local-worktree-runtime.md)
@@ -44,11 +44,12 @@ configuration, guardrails, and cleanup.
 ## Preflight
 
 1. Resolve repo root, instructions, source context, `host: cloud | local_worktree`, branch state, and pre-change `HEAD`.
-2. Local host (`local_worktree`): require clean dedicated non-primary worktree. Reject primary checkout.
-3. Cloud/remote: accept platform-isolated workspace → `cloud`; must start clean. Reject `local-preview`.
-4. Resolve documented startup, validation, CI, and PR commands.
-5. On resume: verify changes belong to this issue, pre-change SHA resolves, runtime state is consistent.
-6. Present [preflight confirm](../references/preflight-gates.md#preflight-confirm); do not implement until the user confirms or says proceed with defaults.
+2. Resolve Linear ID and create or check out the delivery branch per [branch naming](../references/branch-naming.md#forge-issue) before other work.
+3. Local host (`local_worktree`): require clean dedicated non-primary worktree. Reject primary checkout.
+4. Cloud/remote: accept platform-isolated workspace → `cloud`; must start clean. Reject `local-preview`.
+5. Resolve documented startup, validation, CI, and PR commands.
+6. On resume: verify changes belong to this issue, pre-change SHA resolves, runtime state is consistent.
+7. Present [preflight confirm](../references/preflight-gates.md#preflight-confirm); do not implement until the user confirms or says proceed with defaults.
 
 ## Resolve the task
 

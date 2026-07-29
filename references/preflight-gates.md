@@ -12,6 +12,7 @@ After inspecting the source, code, and scope — and before provisioning, dispat
 # Working contract — confirm or edit
 issue: <id-or-plan-slug>
 issue_kind: bug | improvement | small_feature  # forge-issue only; infer from source
+branch: <prefix>/<LINEAR-ID>/<slug>           # forge-issue; per branch-naming.md
 host: cloud | local_worktree
 data_profile: neon | local-preview | local | none
 evidence_profile: video | text          # forge-build: pr_evidence

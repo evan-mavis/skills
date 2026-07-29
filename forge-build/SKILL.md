@@ -10,7 +10,7 @@ issue frontmatter as approved scope. Do not reopen planning.
 
 ## Read order
 
-1. **Always:** [change contract](references/change-contract.md) → [capability pipeline](references/capability-pipeline.md) → [database runtime](references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [execution](references/execution.md) → [host surfaces](../references/host-surfaces.md)
+1. **Always:** [change contract](references/change-contract.md) → [capability pipeline](references/capability-pipeline.md) → [database runtime](references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [branch naming](../references/branch-naming.md) → [execution](references/execution.md) → [host surfaces](../references/host-surfaces.md)
 2. **If `qa_profile` is `light` or `heavy`:** [manual browser QA](references/manual-browser-qa.md)
 3. **If `pr_evidence` is `video`:** [video and delivery](references/video-and-delivery.md)
 4. **On plan closeout:** [plan closeout](references/plan-closeout.md) → [output schema](references/output-schema.md)
@@ -56,18 +56,19 @@ with canonical frontmatter, and a checked-out feature branch. Return `blocked` f
 detached branches, or unrelated uncommitted changes in the main workspace.
 
 1. Resolve repo root, main workspace, feature branch, PRD, index, and every issue file.
-2. Build the dependency graph from issue frontmatter (trust frontmatter over the index).
-3. Record stage order, `blocked_by`, `type`, `hitl_timing`, `parallelizable`, and completion state.
-4. Refuse completed, archived, or structurally invalid plans. Require `hitl_timing: null` on `afk`
+2. Verify the plan feature branch matches [branch naming](../references/branch-naming.md#forge-build); create or check out the correct branch when missing.
+3. Build the dependency graph from issue frontmatter (trust frontmatter over the index).
+4. Record stage order, `blocked_by`, `type`, `hitl_timing`, `parallelizable`, and completion state.
+5. Refuse completed, archived, or structurally invalid plans. Require `hitl_timing: null` on `afk`
    issues; on `hitl` issues accept `upfront` or `evidence_dependent`.
-5. Resolve and persist database, QA, and evidence profiles through the initial interactive choice
+6. Resolve and persist database, QA, and evidence profiles through the initial interactive choice
    prompt when needed. Present [preflight confirm](../references/preflight-gates.md#preflight-confirm);
    persist under `## Forge Build Execution`. Follow [interactive choices](../references/host-surfaces.md#interactive-choices).
    On resume, inspect existing worktrees, database lifecycle, QA, and evidence state before creating
    anything.
-6. Read [manual browser QA](references/manual-browser-qa.md) when `qa_profile` is `light` or `heavy`.
-7. Read [video and delivery](references/video-and-delivery.md) when `pr_evidence` is `video`.
-8. Do not update Linear unless the user separately invokes `to-linear`.
+7. Read [manual browser QA](references/manual-browser-qa.md) when `qa_profile` is `light` or `heavy`.
+8. Read [video and delivery](references/video-and-delivery.md) when `pr_evidence` is `video`.
+9. Do not update Linear unless the user separately invokes `to-linear`.
 
 See [Read order](#read-order) for the full ref list.
 
