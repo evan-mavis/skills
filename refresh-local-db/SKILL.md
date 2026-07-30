@@ -1,87 +1,104 @@
 ---
 name: refresh-local-db
-description: Refresh the PostgreSQL database used by the developer's local Airgoods application environment from a local Render production export. Use when the user wants fresh prod-ish data in their locally running app or has downloaded a Render DB export.
+description: Refresh the developer's local Airgoods application database from the personal Neon dev branch parent, or optionally from a local Render export.
 ---
 
 # Refresh the Developer's Local Application Database
 
-This skill is for the database connected to the developer's local Airgoods application environment. It must follow the effective `apps/backend` database configuration; it is not primarily for refreshing previewctl's Docker template database.
+This skill refreshes the database connected to the developer's local Airgoods application environment.
+
+The default path resets a personal persistent Neon dev branch from the Airgoods production-copy parent branch. That is much faster than downloading and importing a Render export, and it stays current with the automated Neon parent refresh workflow.
 
 ## Quick start
 
-Ask the user for the path to their downloaded Render export (usually a `.dir.tar.gz` from the Render dashboard). Resolve `SKILL_DIR` to the absolute directory containing this `SKILL.md`, then run the bundled [refresh script](scripts/refresh-airgoods-local.sh):
+Resolve `SKILL_DIR` to the absolute directory containing this `SKILL.md`, then run:
 
 ```bash
 SKILL_DIR="<absolute refresh-local-db skill directory>"
-bash "$SKILL_DIR/scripts/refresh-airgoods-local.sh" \
-  --yes \
-  --file "/absolute/path/to/export.dir.tar.gz"
+bash "$SKILL_DIR/scripts/refresh-airgoods-local.sh" --yes
 ```
 
-This imports the local export into the database currently configured for the developer's locally running `apps/backend`.
+This resets the configured Neon branch (default `evanmavis-local-dev`) from the production-copy parent and discards any mutations made on that branch.
+
+## Personal Neon dev setup
+
+Local app config should point at the personal Neon branch through `apps/backend/.env.local`:
+
+```text
+DATABASE_URL=<neon connection string>
+```
+
+Branch metadata for refresh lives in:
+
+```text
+~/.config/airgoods/local-dev-neon.env
+```
+
+Expected keys:
+
+```text
+NEON_PROJECT_ID=billowing-lab-64900636
+NEON_PARENT_BRANCH_ID=br-old-mud-amx76cuc
+NEON_LOCAL_DEV_BRANCH_NAME=evanmavis-local-dev
+NEON_LOCAL_DEV_BRANCH_ID=<branch-id>
+NEON_DB_NAME=neondb
+```
+
+The refresh script uses `neonctl branches reset <branch> --parent`. Authenticate once with `npx neonctl auth` or export `NEON_API_KEY`.
 
 ## Safety
 
-- This is destructive for the local target database. By default, it resolves the backend app's effective database and drops/recreates that database.
-- Before running, tell the user active app connections to `stack` should be stopped.
-- The script requires `--yes` so accidental restores fail closed.
-- The script refuses non-local DSNs unless `--allow-remote-dsn` is explicitly passed.
-- Never refresh production or a remote database unless the user explicitly asks and provides the DSN.
+- This is destructive for the target database branch. A Neon reset discards all changes made on the personal dev branch.
+- Before running, stop active backend/app connections to the branch.
+- The script requires `--yes` so accidental refreshes fail closed.
+- Never reset the production parent branch itself. The script only resets the configured personal dev branch name.
 
 ## Requirements
 
-- A local Render export file or extracted directory dump. Download it from the Render dashboard (Postgres → Export → `.dir.tar.gz`).
+- A configured personal Neon dev branch and `apps/backend/.env.local` with `DATABASE_URL`.
+- `~/.config/airgoods/local-dev-neon.env` with project, parent, and branch metadata.
+- Neon CLI auth via `NEON_API_KEY` or `neonctl auth`.
 - Run from inside an Airgoods repo checkout, or pass `--repo-root /absolute/path/to/airgoods`.
-- Local PostgreSQL should be running.
-- By default, the script loads `apps/backend/.env`, applies `.env.local` overrides, and follows the same database precedence as the backend:
-
-  1. Non-empty `DATABASE_URL`.
-  2. The `DB_*` group selected by `NODE_ENVIRONMENT`.
-
-- Pass `--dsn` only when intentionally overriding the app's configured database.
 
 ## Workflow
 
-1. Ask the user for the absolute path to their local Render export file.
-2. Confirm the file exists before running.
-3. Confirm the user wants to destructively refresh local `stack`.
-4. Warn them to stop active backend/app connections first.
-5. Run:
+1. Confirm the Neon parent refresh action has finished if you need the newest prod snapshot on the parent.
+2. Warn the user to stop active backend/app connections first.
+3. Run:
+
+```bash
+SKILL_DIR="<absolute refresh-local-db skill directory>"
+bash "$SKILL_DIR/scripts/refresh-airgoods-local.sh" --yes
+```
+
+4. Restart local app processes after the reset completes.
+
+## Legacy Render import
+
+If you explicitly need to import a downloaded Render export into a local Postgres database instead, use the legacy path:
 
 ```bash
 SKILL_DIR="<absolute refresh-local-db skill directory>"
 bash "$SKILL_DIR/scripts/refresh-airgoods-local.sh" \
   --yes \
+  --from-render-export \
   --file "/absolute/path/to/export.dir.tar.gz"
 ```
 
-6. The script prints the resolved target with its password redacted. Confirm it matches the backend app configuration shown in `apps/backend/.env` and `.env.local`.
-7. To intentionally override the app target, pass an explicit local DSN:
-
-```bash
-SKILL_DIR="<absolute refresh-local-db skill directory>"
-bash "$SKILL_DIR/scripts/refresh-airgoods-local.sh" \
-  --yes \
-  --file "/absolute/path/to/export.dir.tar.gz" \
-  --dsn "postgresql://postgres:Paghf123-1@localhost:5432/stack"
-```
+That path still resolves the target from `apps/backend/.env` and `.env.local`, and refuses non-local DSNs unless `--allow-remote-dsn` is passed.
 
 ## Relationship to previewctl
 
-The Docker database on port 5500 is commonly used as the previewctl template. Local previewctl envs clone from its `stack` database:
+Previewctl local worktrees use their own `preview-local-*` Neon branches. This skill is for a developer's personal persistent local-dev branch and does not replace previewctl provisioning or cleanup.
 
-```text
-stack -> wt_<env>
-```
-
-Only restores targeting that Docker `stack` affect new or reset previewctl environments. That is a separate use case and must be explicitly requested. The default refresh target is always the database connected to the developer's local application environment through `apps/backend`.
+The Docker database on port 5500 is a separate legacy/previewctl template path. Only use the Render import mode when you explicitly want to refresh that local Postgres target.
 
 ## Direct import
 
-The refresh script is a thin wrapper around the repo import script. You can also call it directly:
+The legacy Render path is a thin wrapper around the repo import script:
 
 ```bash
 ./scripts/import-pg-export.sh --file /absolute/path/to/export.dir.tar.gz --dsn "<effective local backend DSN>"
 ```
 
-Do not assume a prior dump path is still correct — always ask the user for the current export path.
+Do not assume a prior dump path is still correct — always ask the user for the current export path when using the legacy mode.

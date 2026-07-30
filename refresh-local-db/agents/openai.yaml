@@ -1,4 +1,4 @@
 interface:
   display_name: "Refresh Local Database"
-  short_description: "Refresh the local stack database safely"
-  default_prompt: "Use $refresh-local-db to refresh the local stack database from a Render export."
+  short_description: "Refresh personal Neon dev branch from parent"
+  default_prompt: "Use $refresh-local-db to reset my personal Neon local dev branch from the production-copy parent."
