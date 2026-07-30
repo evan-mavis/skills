@@ -78,6 +78,10 @@ working_contract:
   problem: <observed behavior or requested improvement>
   expected: <required behavior>
   reproduction: <numbered steps — same path for before and after clips>
+  repro_actor: # Airgoods UI bugs — user impersonated for before/after clips
+    email: null
+    store: null # buyer/store name when cited in issue
+    brand: null # supplier/brand name when cited in issue
   reproduction_confirmed: false
   evidence_before:
     sha: null

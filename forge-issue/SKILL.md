@@ -77,16 +77,21 @@ Follow [preflight gates](../references/preflight-gates.md) and [database runtime
 When `issue_kind: bug` and `bug_evidence: before_after_video`:
 
 1. Ensure runtime is provisioned, stack healthy, and database bound.
-2. Exercise the real application in a browser on the isolated runtime — not mocks or API-only proof.
-3. Follow `working_contract.reproduction`; refine numbered steps if the ticket is vague.
-4. **Blocking gate:** record a before MP4 per [video and delivery — bug before/after](references/video-and-delivery.md#bug-beforeafter-evidence) showing the failure.
-5. Persist `evidence_before` and set `reproduction_confirmed: true` in the working contract.
-6. Optionally attach the before clip to the Linear issue with repro SHA (`review_base`) and steps.
-7. If not reproducible after good-faith attempts → `blocked` with what you tried; do not implement on guesswork.
+2. **Airgoods:** resolve the affected user from the Linear issue and sign in via admin impersonation
+   per [Airgoods runtime — impersonation login](references/airgoods-runtime.md#bug-reproduction--impersonation-login).
+   Use `$query-local-db` against the isolated task database when a store or brand is named but email
+   is not. Persist the resolved email in `working_contract.repro_actor`.
+3. Exercise the real application in a browser on the isolated runtime — not mocks or API-only proof.
+4. Follow `working_contract.reproduction`; refine numbered steps if the ticket is vague. Reproduce
+   the exact path described in the issue while impersonating that account.
+5. **Blocking gate:** record a before MP4 per [video and delivery — bug before/after](references/video-and-delivery.md#bug-beforeafter-evidence) showing the failure.
+6. Persist `evidence_before` and set `reproduction_confirmed: true` in the working contract.
+7. Optionally attach the before clip to the Linear issue with repro SHA (`review_base`) and steps.
+8. If not reproducible after good-faith attempts → `blocked` with what you tried; do not implement on guesswork.
 
 Skip when `bug_evidence: none`, `evidence_profile: text`, or `surfaces` is empty (non-UI bug).
 
-Do not dispatch `$implement-slice` until step 5 succeeds or the user waives in preflight.
+Do not dispatch `$implement-slice` until step 6 succeeds or the user waives in preflight.
 
 ## Implement and review
 

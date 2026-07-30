@@ -104,6 +104,55 @@ Install both binaries when validating video processing.
 
 Do not enable or test email or SMS unless the issue explicitly concerns them. Other integrations remain disabled through their tracked `*_ENABLED` defaults until the affected code proves they are required.
 
+## Bug reproduction — impersonation login
+
+When reproducing UI bugs on Airgoods, sign in as the **affected user from the Linear issue** — not a
+generic test account. Use the same impersonated account for before and after clips.
+
+### 1. Extract actors from the issue
+
+Pull email, store (buyer) name, brand/supplier name, route, and any order or product identifiers
+from the Linear issue, comments, and attachments.
+
+### 2. Resolve the login email via `$query-local-db`
+
+Query the **isolated task database** — never production — to find the user to impersonate:
+
+- **`neon` or `local-preview`:** pass `--database-url-env DATABASE_URL` after the caller loads the
+  protected handoff into the query shell.
+- **`local` docker `stack`:** use the helper default connection.
+
+Lookup rules:
+
+| Issue mentions | Query path |
+| -------------- | ---------- |
+| Email | Confirm `"user".email` exists in the isolated DB |
+| Store / buyer | `store` by name or slug → join `"user"` on `user.store_id = store.id` |
+| Brand / supplier | `supplier` by name or slug → join `"user"` on `user.supplier_id = supplier.id` |
+
+Prefer `ILIKE` or `lower(name) = lower(...)` for fuzzy names. Quote `"user"` (reserved word).
+Select only `id`, `email`, and display names needed to confirm the match. Use `$query-prod-db`
+earlier only to understand production data shape — impersonation login must use the isolated child.
+
+Persist the resolved email in `working_contract.repro_actor.email`.
+
+### 3. Impersonation login
+
+1. Open the affected surface (usually web on port `3000`; dashboard, warehouse, or admin panel when
+   the issue names them).
+2. Sign in with the resolved **email** and **`ADMIN_PASSWORD`** from `.env` (typically `123`).
+3. The backend treats a matching `ADMIN_PASSWORD` as admin impersonation — same user context without
+   revoking their real sessions.
+
+Do not type or show the admin password on screen during video capture when avoidable.
+
+### 4. Reproduce the exact path
+
+Follow the numbered steps in `working_contract.reproduction` while impersonating this account.
+Match the route, store/brand context, and data preconditions the ticket describes. If the user
+cannot be found in the isolated database or impersonation login fails after good-faith lookup,
+return `blocked` with what was tried — do not implement on guesswork.
+
 ## Seller UI verification
 
 The minimum stack for seller UI verification is:
@@ -111,8 +160,8 @@ The minimum stack for seller UI verification is:
 - backend on port `8000`
 - web on port `3000`
 
-Use `ADMIN_PASSWORD` from `.env` for the admin-password bypass when the flow requires impersonation
-login. Start workers, Redis, or other services only when the affected flow needs them.
+Start workers, Redis, or other services only when the affected flow needs them. Impersonation
+login for seller flows follows [Bug reproduction — impersonation login](#bug-reproduction--impersonation-login).
 
 ## Redis and queue startup
 

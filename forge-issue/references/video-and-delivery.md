@@ -46,14 +46,17 @@ When `bug_evidence: before_after_video`:
 **Before (pre-implement, blocking):**
 
 - Record on `review_base` before any fix commit.
-- Same route, account, and data setup as the after clip when possible.
+- Same route, impersonated account, and data setup as the after clip. On Airgoods, sign in as the
+  user resolved from the Linear issue via admin impersonation (email + `ADMIN_PASSWORD`); see
+  [Airgoods runtime — impersonation login](airgoods-runtime.md#bug-reproduction--impersonation-login).
 - Show trigger → broken outcome; usually 10–30 seconds.
 - Save as `evidence_before.video`; do not commit to the repo.
 
 **After (closeout, blocking):**
 
 - Record on the final green commit after Verify.
-- Repeat the same numbered reproduction steps from `working_contract.reproduction`.
+- Repeat the same numbered reproduction steps from `working_contract.reproduction` as the **same
+  impersonated user** used in the before clip.
 - Show trigger → expected outcome, plus one negative or regression check.
 - Populate output `video` (alias `video_after`).
 
