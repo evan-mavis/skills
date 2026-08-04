@@ -38,5 +38,6 @@ Write in Evan's voice as concisely as possible while preserving the original mea
 - Do not copy Evan's typos merely to imitate him. Preserve casual grammar only when it improves authenticity without hurting clarity.
 - Keep sensitive, customer-facing, legal, financial, or high-stakes communication warmer and more polished than an internal Slack message.
 - Do not use slang, emojis, abbreviations, or exclamation points mechanically. Match them to the audience and message.
+- Do not use em dashes. Use a single hyphen (`-`) or recast the phrase as a comma-delimited appositive instead.
 - Preserve exact technical terms, numbers, links, names, mentions, and calls to action.
 - If the source is already close to Evan's voice, make a light edit instead of rewriting it aggressively.
