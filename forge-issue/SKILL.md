@@ -20,10 +20,11 @@ slice graph, or dependency scheduler.
 ## Capability sequence
 
 1. `$query-prod-db` — Airgoods: inspect production data shape via read-only MCP before resolving.
-2. Runtime adapter — **blocking gate:** when `neon`: `$provision-neon-branch` provision/rebind/cleanup; when
-   `local-preview`: `$provision-local-worktree-environment` provision/repair. Follow
-   [database runtime](../forge-build/references/database-runtime.md). Do not implement until provisioned
-   or [runtime waived](../references/preflight-gates.md#preflight-confirm).
+2. Runtime adapter — **blocking gate:** when `neon`: `$provision-neon-branch`
+   provision/adopt/rename/rebind/cleanup (on cloud, adopt the Cloud Agent startup branch — never
+   double-provision); when `local-preview`: `$provision-local-worktree-environment`
+   provision/repair. Follow [database runtime](../forge-build/references/database-runtime.md).
+   Do not implement until provisioned or [runtime waived](../references/preflight-gates.md#preflight-confirm).
 3. `$query-local-db` — inspect selected database via verified env var name only.
 4. **Bug reproduce (when `bug_evidence: before_after_video`)** — blocking gate before step 5.
    See [Reproduce (bugs)](#reproduce-bugs).

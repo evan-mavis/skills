@@ -1,7 +1,7 @@
 interface:
   display_name: "Provision Neon Branch"
-  short_description: "Create or reconnect a disposable data branch"
-  default_prompt: "Use $provision-neon-branch to provision or safely reconnect the isolated Neon database branch for this task."
+  short_description: "Create, adopt, rename, or reconnect a disposable data branch"
+  default_prompt: "Use $provision-neon-branch to provision, adopt the Cloud Agent Neon handoff, rename to the Linear-first convention, or safely reconnect the isolated Neon database branch for this task."
 
 policy:
   allow_implicit_invocation: false
