@@ -32,7 +32,7 @@ Do not delegate orchestration to a second-layer issue task runner.
 Collect unresolved profiles in one initial interactive choice prompt when possible. Follow
 [preflight gates](../references/preflight-gates.md). Present [preflight confirm](../references/preflight-gates.md#preflight-confirm) and do not dispatch until the user confirms or says proceed with defaults.
 
-**Runtime** — `data: auto | none | local | neon | local-preview`. Follow [database runtime](references/database-runtime.md). Persist `data_profile` and `host` under `## Forge Build Execution`. Persist lifecycle metadata under `## Database Lifecycle` and invoke the routed provision skill during preflight — **blocking** before first dispatch unless [runtime waived](../references/preflight-gates.md#preflight-confirm).
+**Runtime** — `data: auto | none | local | neon | local-preview`. Follow [database runtime](references/database-runtime.md). Persist `data_profile` and `host` under `## Forge Build Execution`. Persist lifecycle metadata under `## Database Lifecycle` and invoke the routed provision skill during preflight — **blocking** before first dispatch unless [runtime waived](../references/preflight-gates.md#preflight-confirm). On `host: cloud` with `neon`, adopt/rename the Cloud Agent startup branch when present; never create a second live agent branch for the same run.
 
 **Manual QA** — `qa: auto | none | light | heavy`:
 

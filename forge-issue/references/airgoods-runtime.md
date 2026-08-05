@@ -8,7 +8,9 @@ Use this reference when `forge-issue` runs against the Airgoods monorepo.
 - Create each missing app `.env` from its tracked `.env.example`. Treat the tracked example values as intentional development defaults.
 - Inject real cloud credentials as environment secrets. Do not commit them or print their values.
 - Set `DATABASE_URL` through the active profile handoff:
-  - `neon` — protected task-scoped handoff from `$provision-neon-branch`; never edit dotenv files.
+  - `neon` — protected task-scoped handoff from `$provision-neon-branch` (on Cloud Agent hosts,
+    prefer `/tmp/airgoods-cloud-agent-neon.env` written by `start`; adopt/rename that branch —
+    never double-provision); never edit dotenv files.
   - `local-preview` — previewctl-generated `apps/backend/.env.local`; export into each process shell
     without printing the value.
 - On local developer machines, reuse existing ignored `.env` files for non-database defaults.
@@ -33,7 +35,9 @@ Configure these for every remote `forge-issue` environment (`host: cloud`):
 - `NEON_API_KEY` — secret
 - `NEON_PROJECT_ID` — `billowing-lab-64900636`
 - `NEON_PARENT_BRANCH_ID` — `br-old-mud-amx76cuc`
-- `NEON_BRANCH_TTL_HOURS` — `24` or less
+- `NEON_BRANCH_TTL_HOURS` — `24` or less (Cloud Agent `start` often defaults to `8`)
+- `NEON_LINEAR_ISSUE_ID` / `LINEAR_ISSUE_ID` — optional; preferred for
+  `agent-<linearId>-<env>-<user>-<taskKey>` naming after adopt/rename
 - `PREVIEWCTL_ENV_NAME`
 - `GH_TOKEN` — only when the host's GitHub authentication does not already support `gh`, push, and draft PR creation
 - `LINEAR_API_KEY` — only when the configured Linear integration cannot read the issue, upload the video, or post the evidence comment
@@ -43,8 +47,9 @@ The Airgoods production Postgres MCP and other connectors are host configuration
 ### Core application
 
 - `NODE_ENVIRONMENT=development`
-- `DATABASE_URL` — from `$provision-neon-branch` handoff when `neon`; from previewctl
-  `.env.local` when `local-preview`
+- `DATABASE_URL` — from Cloud Agent `/tmp/airgoods-cloud-agent-neon.env` or
+  `$provision-neon-branch` handoff when `neon`; from previewctl `.env.local` when `local-preview`.
+  Never write it into repo dotenv files.
 - `ADMIN_PASSWORD` — use the value from `.env` for admin-password bypass during impersonation
   login; it is typically `123`
 - `REDIS_HOST=127.0.0.1`

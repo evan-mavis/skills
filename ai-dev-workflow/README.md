@@ -110,7 +110,7 @@ flowchart TB
 
 | Skill                                  | One-liner                                                                             |
 | -------------------------------------- | ------------------------------------------------------------------------------------- |
-| `provision-neon-branch`                | Create, rebind, and delete a disposable Neon child branch for agent or cloud work.    |
+| `provision-neon-branch`                | Create, adopt/rename Cloud Agent branches, rebind, and delete disposable Neon children. |
 | `provision-local-worktree-environment` | Attach previewctl services to a local worktree: Neon, Redis, ports, and `.env.local`. |
 
 ### Implement

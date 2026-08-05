@@ -53,13 +53,48 @@ UI work still needs runtime when verification crosses API, auth, or database bou
 
 ## Provision and resume
 
-**`neon`** — `$provision-neon-branch`:
+### `neon` — Cloud Agent order (no double-provision)
 
-- new run: `operation: provision`
+On `host: cloud`, Airgoods Cloud Agent `start` may already have provisioned a short-lived child
+and written:
+
+- `/tmp/airgoods-cloud-agent-neon.env` (mode 0600; `DATABASE_URL`)
+- `/tmp/airgoods-cloud-agent-neon.env.meta.json` (non-secret: `project_id`, `parent_branch_id`,
+  `branch_id`, `branch_name`, `expires_at`, …)
+
+Do **not** assume forge must always create a fresh Neon branch on cloud startup.
+
+Order:
+
+1. **Detect / adopt** — invoke `$provision-neon-branch` `operation: provision`. The skill adopts a
+   live Cloud Agent meta `branch_id` when present (rebind/adopt semantics) and must **not** create
+   a second branch for the same run.
+2. **Rename** — once the Linear issue id is known, ensure the branch name matches
+   `agent-<linearId>-<env>-<user>-<taskKey>` (skill `rename` or adopt-time rename). Keep the same
+   `branch_id` and existing DATABASE_URL handoff.
+3. **Persist** — write non-secret lifecycle metadata (`branch_id` as durable identity) under
+   `## Database Lifecycle` / `working_contract.runtime_state` for resume/rebind across
+   interruptions.
+4. **Cleanup** — at success, failure, or blocked closeout, `$provision-neon-branch`
+   `operation: cleanup` deletes that exact `branch_id` only.
+
+If no handoff/meta exists (non-cloud host, or Neon secrets missing so `start` skipped provision),
+fall back to the skill's normal create path with the same Linear-first naming convention.
+
+**Never leave two live `agent-*` branches for one forge run.**
+
+### `neon` — operations
+
+`$provision-neon-branch`:
+
+- new run: `operation: provision` (adopts Cloud Agent branch when present; otherwise creates)
+- Linear id becomes known after bind: `operation: rename` when the name still mismatches
 - resume with active uncleaned child: `operation: rebind`
 - after cleanup: provision anew only when database work remains
 
-**`local-preview`** — `$provision-local-worktree-environment` (Airgoods repo skill):
+### `local-preview`
+
+`$provision-local-worktree-environment` (Airgoods repo skill):
 
 - new run: `provision`
 - resume: `repair` when `.previewctl.json` or persisted metadata shows an active environment
@@ -71,7 +106,8 @@ Never create duplicate stacks for the same worktree. On cloud, never invoke the 
 
 **`local`** — bind every database-dependent process to the documented isolated target.
 
-**`neon`** — load the protected `$provision-neon-branch` handoff (mode-0600 temp env file
+**`neon`** — load the protected `$provision-neon-branch` handoff (prefer
+`/tmp/airgoods-cloud-agent-neon.env` when present; otherwise the skill's mode-0600 temp env file
 outside the repo or equivalent task-scoped injection) into every database-dependent process.
 Never edit dotenv files or shell profiles for task database selection.
 
@@ -103,10 +139,11 @@ runtime_state:
   neon: # when data_profile is neon
     project_id: <id-or-null>
     parent_branch_id: <id-or-null>
-    branch_id: <id-or-null>
-    branch_name: <name-or-null>
+    branch_id: <id-or-null> # durable identity
+    branch_name: <name-or-null> # Linear-first when known
     expires_at: <rfc3339-or-null>
     database_url_env: DATABASE_URL
+    temporary_env_file: <path-or-null> # replaceable; not identity
     deleted: true | false | null
   local_preview: # when data_profile is local-preview
     previewctl_env: <env-name-or-null>
@@ -118,19 +155,19 @@ runtime_state:
 
 Forge Build: persist under `## Database Lifecycle` in the PRD. Forge Issue: persist under
 `working_contract.runtime_state`. Never persist connection values or treat `temporary_env_file`
-as durable identity.
+as durable identity. After rename, update persisted `branch_name` to match Neon; keep `branch_id`.
 
 ## Cleanup
 
 Run after success and before every terminal `blocked` or failed result:
 
 1. Stop applications, workers, and database-dependent processes started for the run.
-2. **`neon` on any host** — `$provision-neon-branch` `operation: cleanup` with exact provision or
-   rebind result; require confirmed deletion; persist `deleted: true`.
-3. **`local-preview`** — preserve the environment by default (`preserve_after_done: true`). Tear down
-   with `$provision-local-worktree-environment` `delete --yes` only on explicit user request or
-   an ephemeral validation run.
+2. **`neon` on any host** — `$provision-neon-branch` `operation: cleanup` with the exact
+   provision/adopt/rebind `branch_id`; require confirmed deletion; persist `deleted: true`.
+3. **`local-preview`** — preserve the environment by default (`preserve_after_done: true`). Tear
+   down with `$provision-local-worktree-environment` `delete --yes` only on explicit user request
+   or an ephemeral validation run.
 4. Unset task-scoped database variables and remove protected temporary connection files from
-   `neon` runs.
+   `neon` runs (including Cloud Agent handoff + meta when they belonged to this run).
 
-Treat Neon expiration as crash protection, not normal cleanup.
+Treat Neon expiration as crash protection, not normal cleanup. TTL is only a safety net.

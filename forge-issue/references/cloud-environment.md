@@ -37,6 +37,21 @@ Use the repository's committed environment manifest, reusable environment snapsh
 terminals, and documented bootstrap hooks when available. Keep repository-specific setup there; do
 not add or modify it from `forge-issue` unless the user asks.
 
+### Airgoods Cloud Agent Neon bootstrap
+
+Airgoods `.cursor/environment.json` `start` (`.cursor/scripts/cloud-agent-start.sh`) may already:
+
+1. start Docker + Redis;
+2. provision a short-lived Neon child;
+3. write `/tmp/airgoods-cloud-agent-neon.env` (mode 0600 `DATABASE_URL`) and
+   `/tmp/airgoods-cloud-agent-neon.env.meta.json` (non-secret metadata).
+
+When `data_profile: neon` on cloud, forge must **adopt** that branch via `$provision-neon-branch`
+(detect meta → rebind/adopt → rename to Linear-first once the issue id is known). Do not create a
+second agent branch for the same run. If the handoff is missing (secrets absent), fall back to the
+skill's normal provision path. Persist `branch_id` for resume; cleanup deletes that exact id.
+Backend terminals source the handoff through `.cursor/scripts/cloud-agent-run-with-db.sh`.
+
 Prefer native browser automation over Playwright for GUI verification. Use Playwright only when
 native automation is unavailable and disclose the fallback.
 
@@ -58,9 +73,10 @@ Configure secrets at the environment level, never in committed files or reposito
 Keep production-side credentials read-only. The mutable database credential must always come from the disposable Neon child branch.
 
 Pass the mutable connection only through a mode-0600 temporary environment file outside the
-repository or an equivalent session-scoped secret injection. Load that handoff into every
-database-dependent process. Never persist it in `.env`, `.env.local`, another dotenv file, a shell
-profile, host environment manifests, or reusable environment settings.
+repository or an equivalent session-scoped secret injection. On Airgoods Cloud Agent hosts, prefer
+the existing `/tmp/airgoods-cloud-agent-neon.env` handoff when present. Load that handoff into
+every database-dependent process. Never persist it in `.env`, `.env.local`, another dotenv file, a
+shell profile, host environment manifests, or reusable environment settings.
 
 ## Non-secret configuration
 
