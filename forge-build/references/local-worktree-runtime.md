@@ -18,5 +18,5 @@ merely to derive a name.
 After provision: read `.previewctl.json` for non-secret branch metadata; use printed service URLs
 for verification; run `pnpm dev` or the minimal stack required by the affected flow.
 
-Never delete or reuse previewctl namespaces (`preview-local-*`, `preview-*`) from
-`$provision-neon-branch` cleanup. Never invoke this skill on cloud hosts.
+Never delete or reuse previewctl namespaces (`preview-local-*`, `preview-*`) from unrelated Neon
+cleanup. Never invoke this skill on cloud hosts.

@@ -1,22 +1,16 @@
 ---
 name: to-slices
-description: Break a PRD, plan, spec, or conversation context into independently implementable slice Markdown files in the remote specs repo under `in-progress/<slug>/`. Use when the user wants implementation slices, tickets, task breakdowns, or slice drafts without creating Linear issues.
+description: Break a PRD, plan, spec, or conversation context into independently implementable slice Markdown files under `specs/<slug>/issues/` in the application repo. Use when the user wants implementation slices, tickets, task breakdowns, or slice drafts without creating Linear issues.
 ---
 
 # To Slices
 
-Break a PRD or plan into independently implementable slice Markdown files in the [specs repo](../references/specs-repo.md) at `$SPECS_REPO_PATH/in-progress/<slug>/`. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the slice files are approved.
+Write vertical-slice issues under `<app-repo>/specs/<slug>/issues/`. No Linear — tell the user to
+run `$to-linear` after approval.
 
-This skill is directly callable for any approved PRD or supplied plan. Clarification, PRD
-authoring, Linear sync, and implementation remain separate invocations.
+Issue frontmatter is canonical; `<slug>-index.md` is a generated summary.
 
-Use vertical slices (tracer bullets): each issue should deliver a narrow, complete path through the relevant layers, not a horizontal layer-only task.
-
-## Plan Schema
-
-Issue frontmatter is the canonical state. `<plan-slug>-index.md` is a generated summary for humans and scheduling, rebuilt from issue frontmatter whenever issue state changes.
-
-Required issue frontmatter:
+## Frontmatter
 
 ```yaml
 ---
@@ -37,167 +31,41 @@ last_synced: null
 ---
 ```
 
-Allowed values:
+- `type`: `afk` \| `hitl`
+- `hitl_timing`: `null` (afk) or `upfront` \| `evidence_dependent` (hitl)
+- `status`: `draft` \| `ready` \| `in_progress` \| `blocked` \| `done`
+- Deps use local IDs. Prefer AFK when scope is clear.
 
-- `type`: `afk` or `hitl`
-- `hitl_timing`: `null` for `afk`; `upfront` or `evidence_dependent` for `hitl`
-- `status`: `draft`, `ready`, `in_progress`, `blocked`, or `done`
-- `completed`: `true` only when the issue outcome is complete, whether through implementation or a decision-only human action
-- dependency fields use local IDs, not filenames, when possible
-
-### Descoping and plan archive
-
-When issues are deferred or cut from a plan's scope, **do not** leave them in the parent with `status: deferred` and archive anyway. Instead:
-
-1. create a new plan under `$SPECS_REPO_PATH/in-progress/<new-slug>/` for the deferred work
-2. remove the issue from the parent plan (delete file + refresh parent `<plan-slug>-index.md`)
-3. link the follow-up from the parent PRD/index
-
-A plan is eligible for `$SPECS_REPO_PATH/completed/` only when every remaining issue has `completed: true`
-and `status: done`. The workflow completing the plan owns the final move.
+**Descoping:** new plan at `specs/<new-slug>/`; remove issue from parent; link from parent PRD/index.
+Do not leave `status: deferred` in the parent.
 
 ## Process
 
-### 1. Gather context
+1. [Resolve](../references/specs-repo.md#resolve) / [import](../references/specs-repo.md#import). Work from PRD under `specs/`, pasted plan, or chat. Linear IDs → ask paste vs `$to-linear`. Ambiguous + no grill → `$grill-me` or [Breakdown](../references/decision-prompts.md#breakdown).
+2. Explore code if needed. Draft tracer bullets from PRD Intent / Target / Scenarios / AC / Scope / Decisions. Shared contracts → small foundation issue first. Each slice: narrow end-to-end path, own file, deps, write areas; HITL gets exact decision + timing. Agent-first; no file-by-file specs. Fill Implementation Notes only after integration.
+3. If breakdown is large/ambiguous, one-sentence summary + [Breakdown](../references/decision-prompts.md#breakdown) — do not dump per-slice essays in chat. Otherwise write files.
+4. Layout + [issue template](references/issue-template.md):
 
-[Resolve and bootstrap](../references/specs-repo.md#resolve-the-planning-store) the planning store from env, attached workspace roots, user-supplied repo URL/path, an existing PRD path, or an interactive ask. Return `blocked` if unresolved or if clone, pull, or write access fails.
+   ```
+   specs/<slug>/PRD.md
+   specs/<slug>/<slug>-index.md
+   specs/<slug>/issues/01-<slice-slug>.md
+   ```
 
-Work from the provided PRD file (absolute path under `$SPECS_REPO_PATH`), plan file, pasted content, or current conversation context.
+   Stage in frontmatter only; global `NN` across the plan; regenerate index from frontmatter:
 
-If the user passes a Linear issue identifier or URL, do not fetch Linear by default. Ask whether they want to use `to-linear` or paste/export the issue contents first.
+   `| Done | Stage | Local ID | Linear | Issue | Type | HITL Timing | Status | Blocked By | Blocking | Parallelizable |`
 
-If the source plan is too ambiguous to slice into useful issues and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` before drafting issue files. If `$grill-me` already ran or the ambiguity is minor, proceed and capture uncertainty in **Approach**, **HITL Requirement**, blockers, or acceptance criteria gaps.
-
-### 2. Explore the codebase
-
-If you have not already explored the application repo enough to slice the work, inspect the relevant implementation and tests.
-
-### 3. Draft vertical slices
-
-Use the source PRD's `Intent`, `Current State`, `Target Behavior`, `Scenarios`, `Acceptance Criteria`, `Scope`, `Key Decisions`, `Assumptions`, `Implementation Notes`, and `Test Strategy` as the main planning inputs. Treat the PRD as agent-facing source material; preserve execution cues and constraints even when they are not polished prose.
-
-Slices may be:
-
-- `AFK`: can likely be implemented and validated without human clarification
-- `HITL`: requires a specific human decision, approval, action, or evidence-based review
-
-Prefer `AFK` where the scope is clear.
-
-Before marking slices parallelizable, check whether they share a foundation such as:
-
-- a new service or interface
-- shared request or response types
-- schema or contract changes
-- common wiring, registration, exports, or validation scaffolding
-
-If multiple slices would overlap heavily on shared structure, create a small foundation issue first. The foundation issue should introduce only the minimum shared contracts, shells, or wiring needed to unblock real vertical slices.
-
-Each slice should:
-
-- deliver a narrow, complete behavior path
-- be demoable or verifiable on its own
-- have a clear reason to exist as its own issue file
-- trace back to the PRD intent, target behavior, scope, and acceptance criteria it advances
-- carry forward relevant key decisions, assumptions, and constraints into **Approach** — stay high level, no file-by-file specs
-- record dependencies using stable local IDs in `blocked_by`, `blocking`, and `related`
-- be marked parallelizable only when it does not depend on unresolved shared foundations
-- name expected write areas in **Approach** and set `parallelizable: true` only when they are meaningfully disjoint from sibling slices
-- for `hitl`, state the exact decision or action under **HITL Requirement** and set `hitl_timing` to `upfront` or `evidence_dependent`
-
-Issue files are **agent-first** — write each slice so an atomic implementation capability can
-execute it without reconstructing the plan. Keep them lightly human-readable since they may feed
-external issue tracking, but optimize for agent execution. Fill **Implementation Notes** after
-integrating the implementation commit.
-
-### 4. Review with the user
-
-Present the proposed breakdown before writing files when the scope is large or ambiguous. For each slice, show:
-
-- title
-- type: `HITL` or `AFK`
-- relationship: parent plan, foundation, implementation slice, follow-up, or related
-- blocked by
-- blocking
-- quick coverage summary
-- expected write areas and whether it is parallelizable
-- for `HITL`, the exact question or action and when it must occur
-
-Ask for approval only when the breakdown has meaningful ambiguity that was not already resolved by `grill-me`. Otherwise, create the files and note that the user can revise them in the specs repo.
-
-When asking for approval or a planning decision, follow [interactive choices](../references/host-surfaces.md#interactive-choices).
-
-Use this standard decision prompt for ambiguous breakdowns:
-
-- Header: `Breakdown`
-- Question: `How should I proceed with this issue breakdown?`
-- Options:
-  - `Create files (Recommended)`: Write the staged issue files now.
-  - `Revise breakdown`: Adjust stages, dependencies, or issue granularity first.
-  - `Run grill-me`: Clarify unresolved scope before writing files.
-
-### 5. Write issue files
-
-Create issue files under one active plan directory in the specs repo. Use the staged naming pattern and
-[issue template](references/issue-template.md) for every new slice file.
-
-- `$SPECS_REPO_PATH/in-progress/<slug>/PRD.md`
-- `$SPECS_REPO_PATH/in-progress/<slug>/<slug>-index.md`
-- `$SPECS_REPO_PATH/in-progress/<slug>/01-foundation/01-<slice-slug>.md`
-- `$SPECS_REPO_PATH/in-progress/<slug>/01-foundation/02-<slice-slug>.md`
-- `$SPECS_REPO_PATH/in-progress/<slug>/02-core-flows/03-<slice-slug>.md`
-- `$SPECS_REPO_PATH/in-progress/<slug>/02-core-flows/04-<slice-slug>.md`
-- `$SPECS_REPO_PATH/in-progress/<slug>/03-followups/05-<slice-slug>.md`
-
-If a matching plan directory exists under `$SPECS_REPO_PATH/in-progress/`, update it instead of creating duplicates unless the user asks for a new version. Treat `$SPECS_REPO_PATH/completed/` as archived and only update a completed plan when the user explicitly asks to revisit it.
-
-Each numbered folder is an execution stage:
-
-- stages execute in ascending numeric order
-- issue file numbers are global chronological ordinals across the whole plan and must never reset inside each stage folder
-- local IDs use the same global issue ordinal, not a stage-local ordinal; for example, after two foundation issues `close-loop-01` and `close-loop-02`, the first core-flow issue is `close-loop-03`, not `close-loop-02-01`
-- issue files in the same stage may be parallelizable when their dependencies and write areas allow it
-- if an issue cannot run in parallel with the current stage, put it in the next numbered stage
-- keep the structure shallow inside the active plan: `$SPECS_REPO_PATH/in-progress/<slug>/<stage-number>-<stage-name>/<global-issue-number>-<issue-slug>.md`
-- use semantic stage names such as `01-foundation`, `02-core-flows`, or `03-polish`, not only `parallel`
-- when adding a new issue to an existing plan, pick the next unused global issue number after scanning every issue file in every stage folder
-
-Generate `<plan-slug>-index.md` from issue frontmatter. It should list every issue file, completion checkbox, Linear issue, type, HITL timing, status, dependency relationships, and whether each issue is parallelizable. If the index and frontmatter disagree, update the index from frontmatter.
-
-Recommended index row format:
-
-```markdown
-| Done | Stage         | Local ID  | Linear     | Issue                                          | Type | HITL Timing | Status | Blocked By | Blocking  | Parallelizable |
-| ---- | ------------- | --------- | ---------- | ---------------------------------------------- | ---- | ----------- | ------ | ---------- | --------- | -------------- |
-| [ ]  | 02-core-flows | <slug>-04 | Not synced | [Issue title](02-core-flows/04-issue-title.md) | AFK  | —           | Ready  | <slug>-02  | <slug>-06 | Yes            |
-```
-
-After writing or updating files, [commit and push](../references/specs-repo.md#commit-and-push-after-mutations) the specs repo.
+5. Commit+push `specs/<slug>/` on the feature branch. Then [Archive](../references/decision-prompts.md#archive) (default Skip).
 
 ## Output
 
-Keep the final answer in the format below and omit a final-answer preamble. Commentary updates may still be used when required by the host.
+Human-visible reply = **exactly one concise sentence**. No status blocks, file inventories, or
+preamble. Inline one markdown link (usually the index). Interactive choices
+([decision-prompts](../references/decision-prompts.md)) may accompany the sentence.
 
-**When presenting a breakdown** — before writing files:
+Examples:
 
-```markdown
-**Issues**
-
-- Plan: <slug>
-- Proposed: <short list of slice titles, or ask to create>
-- Next: create files | revise breakdown
-```
-
-**When done:**
-
-```markdown
-**Issues**
-
-- Index: [in-progress/<slug>/<slug>-index.md](<absolute index file path under SPECS_REPO_PATH>)
-- [in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>) 
-- [in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>) (parallel)
-- Next: $to-linear
-```
-
-List every created issue file in global order (ascending issue number). Use specs-repo-relative paths for link text and absolute paths for link targets. Add `(parallel)` only when frontmatter has `parallelizable: true`. One issue per bullet after the index line.
-
-Rules: no final-answer preamble; `Next:` always last.
+- Before write: `Proposed 6 slices for <slug> (1 foundation, 5 flows) — create files?`
+- Done: `Wrote [specs/<slug>/<slug>-index.md](<absolute>) and pushed — next $to-linear (archive skipped).`
+- Blocked: `Blocked: missing PRD under specs/<slug>/ — run $to-prd or import from archive.`

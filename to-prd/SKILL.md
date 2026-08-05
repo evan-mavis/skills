@@ -1,167 +1,41 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a detailed PRD Markdown file in the remote specs repo under `in-progress/<slug>/`. Use when the user wants to create a PRD, product spec, implementation spec, or planning document from the current context without creating Linear issues.
+description: Turn the current conversation context into a detailed PRD Markdown file at `specs/<slug>/PRD.md` in the application repo. Use when the user wants to create a PRD, product spec, implementation spec, or planning document from the current context without creating Linear issues.
 ---
 
 # To PRD
 
-Create a PRD Markdown file in the [specs repo](../references/specs-repo.md) at
-`$SPECS_REPO_PATH/in-progress/<slug>/PRD.md`. Do not create or update Linear issues from this skill.
-If the user wants Linear sync, tell them to run `to-linear` after slice files are created and
-approved in the specs repo.
+Write `<app-repo>/specs/<slug>/PRD.md`. No Linear. After slices exist, user runs `$to-linear`.
 
-This skill is directly callable whenever the user wants a canonical PRD. Planning, issue-splitting,
-Linear sync, and implementation remain separate invocations.
+Agent-only master plan — precise constraints and execution cues, not stakeholder prose. Linear is
+the human layer.
 
-This skill takes the current conversation context and codebase understanding and produces a detailed PRD. If meaningful ambiguity remains and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` first to clarify the plan. Otherwise, synthesize what you already know and capture remaining ambiguity in `Open Questions`.
-
-**Optimize the PRD for agents, not humans.** This is the master plan for agent-driven development. The author does not read PRDs — they exist so future agents can plan and implement without re-deriving context. Prefer precise constraints, decisions, assumptions, and execution cues over narrative prose or polished presentation. Linear is the human-readable layer; the PRD is not.
+If core behavior/actors/scope/success are ambiguous and `$grill-me` has not run, use
+[Clarify](../references/decision-prompts.md#clarify) or run `$grill-me`. Otherwise synthesize and
+put gaps in Open Questions.
 
 ## Process
 
-1. [Resolve and bootstrap](../references/specs-repo.md#resolve-the-planning-store) the planning store from env, attached workspace roots, user-supplied repo URL/path, or an interactive ask. Return `blocked` if unresolved or if clone, pull, or write access fails.
-2. Confirm the application repo root with `git rev-parse --show-toplevel` when codebase exploration is needed.
-3. Check whether the request has enough context to draft a useful PRD. If core product behavior, actors, scope, or success criteria are meaningfully ambiguous and `$grill-me` has not already been used, run `$grill-me` before drafting.
-4. Explore the application repo only as needed to understand the current state and likely implementation areas.
-5. Sketch the major modules that may need to change. Look for deep modules that encapsulate meaningful behavior behind simple, testable interfaces.
-6. Write a PRD Markdown file at `$SPECS_REPO_PATH/in-progress/<slug>/PRD.md` with the standard frontmatter below.
-7. [Commit and push](../references/specs-repo.md#commit-and-push-after-mutations) the specs repo.
-8. In the response, link the file (absolute path) and summarize the highest-signal assumptions, open questions, and suggested next step.
+1. [Resolve](../references/specs-repo.md#resolve) `specs/`; [import](../references/specs-repo.md#import) if slug missing.
+2. Explore the app repo only as needed; sketch deep modules / seams.
+3. Write PRD from [template](references/prd-template.md). Update in place if the slug already exists.
+4. **Do not commit** — `$to-slices` commits the full plan.
+5. Reply with one concise sentence (see Output).
 
-Do not add extra clarification ceremony when the request is already clear or `$grill-me` already ran. If module boundaries, implementation choices, or testing expectations are still uncertain after available clarification, document them as assumptions or open questions in the PRD.
+## Conventions
 
-## Plan Schema
-
-Use lightweight YAML frontmatter so later skills can parse plan state without scraping prose. Keep mutable plan-level fields in frontmatter; keep product detail in Markdown.
-
-```yaml
----
-plan_slug: <slug>
-status: in_progress
-linear_issue: null
-last_synced: null
----
-```
-
-Allowed plan statuses: `in_progress`, `completed`, `archived`.
-
-Slice files created later by `to-slices` use their own frontmatter as the canonical slice state. `<plan-slug>-index.md` is a generated summary, not the source of truth.
-
-## Interaction Standards
-
-When asking the user to choose between options, follow [interactive choices](../references/host-surfaces.md#interactive-choices).
-
-Use this standard decision prompt when ambiguity requires `grill-me` before drafting:
-
-- Header: `Clarify`
-- Question: `This PRD has meaningful ambiguity. How should I proceed?`
-- Options:
-  - `Run grill-me (Recommended)`: Clarify the plan before drafting.
-  - `Draft with assumptions`: Create the PRD now and capture uncertainty in `Assumptions` and `Open Questions`.
+- Kebab-case slug; one dir per feature under `specs/<slug>/` on the feature branch.
+- Frontmatter: `plan_slug`, `status` (`in_progress` \| `completed` \| `archived`), `linear_issue`, `last_synced`.
+- Global issue ordinals later live in `issues/` with stage in frontmatter only.
 
 ## Output
 
-Keep the final answer in the format below and omit a final-answer preamble. Commentary updates may still be used when required by the host.
+Human-visible reply = **exactly one concise sentence**. No status blocks, bullet lists, or
+preamble. Inline a markdown link when pointing at a file. Interactive choices
+([decision-prompts](../references/decision-prompts.md)) may accompany the sentence mid-flow.
 
-**When pausing before write:**
+Examples:
 
-```markdown
-**PRD**
-
-- Plan: <slug>
-- Ambiguity: None | Meaningful
-- Next: write PRD | $grill-me
-```
-
-**When done:**
-
-```markdown
-**PRD**
-
-- Path: [in-progress/<slug>/PRD.md](<absolute PRD file path under SPECS_REPO_PATH>)
-- Open Questions: <count or None>
-- Next: $to-slices
-```
-
-Rules: no final-answer preamble; use absolute targets for file links; omit empty fields; `Next:` always last.
-
-## File Conventions
-
-- Use a short kebab-case slug from the feature or bug name.
-- Use one plan directory per feature, bug, or improvement under the active bucket: `$SPECS_REPO_PATH/in-progress/<slug>/`.
-- Completed plan archives live under `$SPECS_REPO_PATH/completed/<slug>/`. Move a plan only when every issue
-  has `completed: true` and `status: done`. Update an archived PRD only when the user explicitly
-  asks to revisit completed work.
-- When the PRD discusses future implementation slices, assume issue ordinals are global across the plan, not reset per stage. Stage folders keep their own stage number (`01-foundation`, `02-core-flows`, `03-followups`), but issue files and local IDs should count upward chronologically across all stages (for example `01-foundation/01-...`, `01-foundation/02-...`, then `02-core-flows/03-...`, `02-core-flows/04-...`).
-- If a matching PRD already exists, update it instead of creating a duplicate unless the user asks for a new version.
-- Keep files self-contained so future agents can work from the Markdown alone.
-- Make the PRD agent-friendly: explicit, scannable, and useful for future planning or implementation.
-- Prefer stable concepts over specific file paths or code snippets unless the path is necessary to orient implementation.
-
-## Appendix: PRD Template
-
-```markdown
----
-plan_slug: <slug>
-status: in_progress
-linear_issue: null
-last_synced: null
----
-
-# <Feature / Bug / Improvement Name> PRD
-
-> **Agent-only master plan.** This PRD is the source of truth for agent execution — not a human stakeholder doc. Optimize for agents: precise constraints, decisions, and execution cues over narrative prose.
-
-## Intent
-
-The outcome that should exist after this ships.
-
-## Current State
-
-What exists today, including relevant product behavior, code behavior, workflow gaps, or failure modes.
-
-## Target Behavior
-
-What should change from the user, system, or operator perspective.
-
-## Scenarios
-
-> 1. A concrete actor is in a concrete situation and needs a concrete outcome.
-> 2. Include meaningful workflows, edge cases, failure states, permission boundaries, or state transitions.
-
-## Acceptance Criteria
-
-- [ ] Observable criterion
-- [ ] Observable criterion
-- [ ] Observable criterion
-
-## Scope
-
-In:
-
-- Work included in this plan
-
-Out:
-
-- Work intentionally excluded from this plan
-
-## Key Decisions
-
-- Confirmed product, technical, or workflow decision
-
-## Assumptions
-
-- Assumption that should be validated if it materially affects scope or behavior
-
-## Implementation Notes
-
-Likely surfaces, contracts, constraints, risks, or sequencing notes. Avoid over-specific file lists unless needed for orientation.
-
-## Test Strategy
-
-Nearest useful behavioral boundaries to test, based on existing repo patterns. Keep this focused on confidence, not ceremony.
-
-## Open Questions
-
-- Question that materially affects scope, behavior, or implementation
-```
+- Pause: `This PRD still has meaningful ambiguity — run $grill-me or draft with assumptions?`
+- Done: `Wrote [specs/<slug>/PRD.md](<absolute path>) — next $to-slices.`
+- Blocked: `Blocked: need an app-repo checkout before writing the PRD.`

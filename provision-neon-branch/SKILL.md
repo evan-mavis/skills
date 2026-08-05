@@ -1,6 +1,6 @@
 ---
 name: provision-neon-branch
-description: Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Use when an agent needs a freely mutable production-shaped database without writing to production, or must resume an interrupted task against its exact existing child branch from forge-issue, forge-build, or other orchestrators. Uses the Neon CLI, returns branch metadata without exposing credentials, enforces expiration, and deletes the branch after use.
+description: Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Standalone skill — forge-issue/forge-build do not auto-invoke it (cloud uses host-provided DATABASE_URL; local forge prefers local-preview or durable local DB). Use when the user explicitly wants a disposable Neon child. Uses the Neon CLI, returns branch metadata without exposing credentials, enforces expiration, and deletes the branch after use.
 ---
 
 # Provision Neon Branch
@@ -35,22 +35,18 @@ Do not treat the Airgoods production Postgres MCP as a branch-management or bulk
 ## Provision
 
 1. Resolve branch-name components:
-   - **env** — `cloud` for hosted or remote agent execution; `local` for developer-machine or CLI
-     runs. Accept an explicit `NEON_AGENT_ENV` override when the host is ambiguous.
    - **user** — lowercase sanitized `$USER`. Accept `NEON_BRANCH_USER` when the runtime
      user is not meaningful.
-   - **task-key** — prefer a Linear identifier such as `air-7688`; otherwise use a
-     sanitized git branch or task slug; otherwise `adhoc`.
-   - **short-id** — four lowercase alphanumeric characters for collision resistance when
-     the same user reruns or parallelizes the same task.
+   - **short-id** — four lowercase alphanumeric characters for collision resistance.
 
-2. Create a collision-resistant branch name:
+2. Create the branch name:
 
-   `agent-<env>-<user>-<task-key>-<short-id>`
+   `agent-<user>-<short-id>`
 
-   Sanitize every component to lowercase `[a-z0-9-]` with single hyphens. Keep the
-   `agent-` prefix so these branches stay separate from previewctl namespaces
-   (`preview-local-*`, `preview-*`).
+   Example: `agent-evan-k3m9`. Sanitize to lowercase `[a-z0-9-]` with single hyphens.
+   Keep the `agent-` prefix — separate from Cursor cloud (`cursor-cloud-agent-*`) and
+   previewctl (`preview-local-*`, `preview-*`). On Cursor cloud prefer host `DATABASE_URL`
+   (`hosted-db`); only run this skill when you explicitly need another disposable child.
 
 3. Use Neon CLI help to confirm the installed command's current flags before mutation. Create a full-data child branch from the exact configured parent with an RFC 3339 expiration no later than 24 hours.
 4. Wait until the branch and its primary compute are ready.

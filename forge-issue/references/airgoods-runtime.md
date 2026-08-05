@@ -1,182 +1,50 @@
 # Airgoods Runtime
 
-Use this reference when `forge-issue` runs against the Airgoods monorepo.
+Use when forge runs against the Airgoods monorepo.
 
-## Environment layering
+## Env layering
 
-- Keep `NODE_ENVIRONMENT=development`. Never use `production` for issue verification.
-- Create each missing app `.env` from its tracked `.env.example`. Treat the tracked example values as intentional development defaults.
-- Inject real cloud credentials as environment secrets. Do not commit them or print their values.
-- Set `DATABASE_URL` through the active profile handoff:
-  - `neon` — protected task-scoped handoff from `$provision-neon-branch`; never edit dotenv files.
-  - `local-preview` — previewctl-generated `apps/backend/.env.local`; export into each process shell
-    without printing the value.
-- On local developer machines, reuse existing ignored `.env` files for non-database defaults.
-  A new isolated worktree or remote agent must not assume those files were copied.
+- `NODE_ENVIRONMENT=development` always (never `production` for verification).
+- Seed missing app `.env` from tracked `.env.example`.
+- `DATABASE_URL`:
+  - `hosted-db` — host-injected; never edit dotenv; no `$provision-neon-branch`
+  - `local-preview` — previewctl `apps/backend/.env.local`; export into process shells; never print
+- Task env overrides dotenv. If the app overwrites an already-set `DATABASE_URL`, stop — don't edit dotenv.
+- Algolia `*_LOCAL` indexes when `NODE_ENVIRONMENT=development`. Don't switch to `testing` just for `*_DEV`.
+- Do not refresh Neon `raw-production` parent (see `docs/previewctl/refresh-database.md`).
 
-Tracked example values and existing ignored dotenv files provide ordinary development defaults
-only. The task-scoped process environment must override them. If the application's configuration
-loader overwrites an already-set `DATABASE_URL`, stop rather than editing a dotenv file.
+## Cloud variables
 
-The Airgoods backend chooses `*_LOCAL` Algolia indexes when `NODE_ENVIRONMENT=development`. Do not switch to `testing` merely to select `*_DEV`; that also changes database selection.
+Always: `NODE_ENVIRONMENT=development`, host `DATABASE_URL`, `ADMIN_PASSWORD` (impersonation;
+typically `123` from `.env`), `REDIS_HOST=127.0.0.1`, `REDIS_PORT=6379`.
 
-Infrastructure owns the periodic Render production snapshot import into Neon's `raw-production`
-parent. Its operational documentation lives in `docs/previewctl/refresh-database.md`; agents
-running `forge-issue` must not perform the parent refresh.
+As needed: `GH_TOKEN` / `LINEAR_API_KEY` if host auth is insufficient; AWS + Algolia from
+`.env.example` (search-only key for search; disclose shared indexes before write; never
+`NODE_ENVIRONMENT=production` for media — that selects `uploads/`).
 
-## Remote agent variables
+Conditional: Stripe test keys + webhook listener for payment flows; `FFMPEG_PATH` /
+`FFPROBE_PATH` only if not on `PATH`. Don't enable email/SMS unless the issue requires it.
 
-Configure these for every remote `forge-issue` environment (`host: cloud`):
+Connectors (prod Postgres MCP, etc.) are host config — authenticate separately.
 
-### Workflow and database lifecycle
+## Impersonation (bugs)
 
-- `NEON_API_KEY` — secret
-- `NEON_PROJECT_ID` — `billowing-lab-64900636`
-- `NEON_PARENT_BRANCH_ID` — `br-old-mud-amx76cuc`
-- `NEON_BRANCH_TTL_HOURS` — `24` or less
-- `PREVIEWCTL_ENV_NAME`
-- `GH_TOKEN` — only when the host's GitHub authentication does not already support `gh`, push, and draft PR creation
-- `LINEAR_API_KEY` — only when the configured Linear integration cannot read the issue, upload the video, or post the evidence comment
+Sign in as the **affected user from the ticket**, same account for before/after.
 
-The Airgoods production Postgres MCP and other connectors are host configuration, not application `.env` values. Confirm their authentication separately.
+1. Extract email / store / brand / route from the issue.
+2. Resolve email via `$query-local-db` on the **isolated** DB (`--database-url-env DATABASE_URL`
+   for hosted-db/local-preview). Lookup: email → `"user"`; store → join on `store_id`; brand → join on
+   `supplier_id`. Persist `working_contract.repro_actor.email`.
+3. Open the surface; login with email + `ADMIN_PASSWORD`. Don't show the password on video.
+4. Follow `working_contract.reproduction`. Missing user / failed login → `blocked`.
 
-### Core application
+## Local stack
 
-- `NODE_ENVIRONMENT=development`
-- `DATABASE_URL` — from `$provision-neon-branch` handoff when `neon`; from previewctl
-  `.env.local` when `local-preview`
-- `ADMIN_PASSWORD` — use the value from `.env` for admin-password bypass during impersonation
-  login; it is typically `123`
-- `REDIS_HOST=127.0.0.1`
-- `REDIS_PORT=6379`
-
-### AWS development storage
-
-- `AWS_ACCESS_KEY` — secret
-- `AWS_SECRET_KEY` — secret
-- `AWS_BUCKET_NAME`
-- `AWS_BUCKET_NAME_OLD`
-- `AWS_BUCKET_NAME_AIRGOODS`
-- `AWS_BUCKET_REGION`
-
-Airgoods uses shared buckets and isolates non-production media under `uploads-testing/`. Never set `NODE_ENVIRONMENT=production`; that selects the `uploads/` prefix. Restrict mutations to task-created objects and never delete a broad prefix.
-
-### Algolia
-
-- `ALGOLIA_APP_ID`
-- `ALGOLIA_SECRET_KEY` — secret; required only for indexing or configuration writes
-- `ALGOLIA_SEARCH_ONLY_KEY`
-- `ALGOLIA_PRODUCT_INDEX_LOCAL`
-- `ALGOLIA_PRODUCT_EXPERIMENT_INDEX_LOCAL`
-- `ALGOLIA_PRODUCT_INDEX_CREATED_AT_SORT_LOCAL`
-- `ALGOLIA_PRODUCT_INDEX_BEST_SELLERS_SORT_LOCAL`
-- `ALGOLIA_PRODUCT_INDEX_PRICE_LOW_HIGH_SORT_LOCAL`
-- `ALGOLIA_PRODUCT_INDEX_PRICE_HIGH_LOW_SORT_LOCAL`
-- `ALGOLIA_PRODUCT_INDEX_MARGIN_SORT_LOCAL`
-- `ALGOLIA_PRODUCT_INDEX_BRAND_ORDER_SORT_LOCAL`
-- `ALGOLIA_BRAND_INDEX_LOCAL`
-- `ALGOLIA_BRAND_EXPERIMENT_INDEX_LOCAL`
-- `ALGOLIA_BRAND_INDEX_SAMPLE_BOX_LOCAL`
-- `ALGOLIA_QUERY_CONCEPT_INDEX_LOCAL`
-- `ALGOLIA_EVENTS_ENABLED=disabled` unless the issue explicitly validates event delivery
-- `VITE_APP_ALGOLIA_APP_ID`
-- `VITE_APP_ALGOLIA_API_KEY`
-
-Use the tracked `.env.example` index names unless the task explicitly requires a different isolated index. Search-only validation must not receive the Algolia write key. Before an indexing write, confirm the selected index is non-production and disclose that it is shared; create a task-specific index when destructive or collision-prone verification is required.
-
-## Conditional variables
-
-Set these only when the affected flow needs them:
-
-### Payments
-
-- `STRIPE_SECRET_KEY_LOCAL` — Stripe test-mode secret
-- `STRIPE_PAYMENT_WEBHOOK_SECRET_LOCAL` — produced by the Stripe webhook listener
-
-Ordinary local payment flows use Stripe test mode. Start a Stripe CLI listener only for webhook-dependent verification.
-
-### Video processing
-
-- `FFMPEG_PATH` — only when `ffmpeg` is not discoverable on `PATH`
-- `FFPROBE_PATH` — only when `ffprobe` is not discoverable on `PATH`
-
-Install both binaries when validating video processing.
-
-Do not enable or test email or SMS unless the issue explicitly concerns them. Other integrations remain disabled through their tracked `*_ENABLED` defaults until the affected code proves they are required.
-
-## Bug reproduction — impersonation login
-
-When reproducing UI bugs on Airgoods, sign in as the **affected user from the Linear issue** — not a
-generic test account. Use the same impersonated account for before and after clips.
-
-### 1. Extract actors from the issue
-
-Pull email, store (buyer) name, brand/supplier name, route, and any order or product identifiers
-from the Linear issue, comments, and attachments.
-
-### 2. Resolve the login email via `$query-local-db`
-
-Query the **isolated task database** — never production — to find the user to impersonate:
-
-- **`neon` or `local-preview`:** pass `--database-url-env DATABASE_URL` after the caller loads the
-  protected handoff into the query shell.
-- **`local` docker `stack`:** use the helper default connection.
-
-Lookup rules:
-
-| Issue mentions | Query path |
-| -------------- | ---------- |
-| Email | Confirm `"user".email` exists in the isolated DB |
-| Store / buyer | `store` by name or slug → join `"user"` on `user.store_id = store.id` |
-| Brand / supplier | `supplier` by name or slug → join `"user"` on `user.supplier_id = supplier.id` |
-
-Prefer `ILIKE` or `lower(name) = lower(...)` for fuzzy names. Quote `"user"` (reserved word).
-Select only `id`, `email`, and display names needed to confirm the match. Use `$query-prod-db`
-earlier only to understand production data shape — impersonation login must use the isolated child.
-
-Persist the resolved email in `working_contract.repro_actor.email`.
-
-### 3. Impersonation login
-
-1. Open the affected surface (usually web on port `3000`; dashboard, warehouse, or admin panel when
-   the issue names them).
-2. Sign in with the resolved **email** and **`ADMIN_PASSWORD`** from `.env` (typically `123`).
-3. The backend treats a matching `ADMIN_PASSWORD` as admin impersonation — same user context without
-   revoking their real sessions.
-
-Do not type or show the admin password on screen during video capture when avoidable.
-
-### 4. Reproduce the exact path
-
-Follow the numbered steps in `working_contract.reproduction` while impersonating this account.
-Match the route, store/brand context, and data preconditions the ticket describes. If the user
-cannot be found in the isolated database or impersonation login fails after good-faith lookup,
-return `blocked` with what was tried — do not implement on guesswork.
-
-## Seller UI verification
-
-The minimum stack for seller UI verification is:
-
-- backend on port `8000`
-- web on port `3000`
-
-Start workers, Redis, or other services only when the affected flow needs them. Impersonation
-login for seller flows follows [Bug reproduction — impersonation login](#bug-reproduction--impersonation-login).
-
-## Redis and queue startup
-
-Start the isolated Redis container:
+Seller UI minimum: backend `:8000`, web `:3000`. Redis:
 
 ```bash
 docker compose -f preview/compose.infrastructure.yaml up -d
 ```
 
-Running `pnpm dev` at the repository root already starts `dev:queue`. For a selective stack, start the worker explicitly:
-
-```bash
-pnpm --filter @airgoods/backend dev:queue
-```
-
-Start only the application services required by the affected flow. Load the same protected
-task-scoped database handoff into the backend and worker, then confirm both use the selected Neon
-child and local Redis before triggering jobs.
+`pnpm dev` starts the queue; selective: `pnpm --filter @airgoods/backend dev:queue`. Bind the same
+DB handoff into backend + worker before jobs.

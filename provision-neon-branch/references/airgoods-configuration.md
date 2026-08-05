@@ -21,12 +21,14 @@ NEON_DB_NAME=neondb
 NEON_BRANCH_TTL_HOURS=24
 ```
 
-Optional branch-name overrides:
+Optional branch-name override:
 
 ```text
-NEON_AGENT_ENV=cloud|local
 NEON_BRANCH_USER=evan
 ```
+
+Standalone skill branches: `agent-<user>-<short-id>` (24h TTL). Cursor cloud boot uses
+`cursor-cloud-agent-*` (8h) via `.cursor` scripts — different owner; do not reuse that pattern here.
 
 When running inside the Airgoods monorepo, load unset Neon variables from the primary checkout's
 ignored `.env.previewctl`. Never copy that file into a worktree or print its values.

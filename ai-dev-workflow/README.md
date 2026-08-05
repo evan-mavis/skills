@@ -31,7 +31,7 @@ flowchart TB
     RT0{{"data_profile — choose one"}}
     R1["none"]
     R2["local · fixtures"]
-    R3["neon · provision-neon-branch"]
+    R3["hosted-db · host DATABASE_URL"]
     R4["local-preview · preview stack"]
     RT0 --> R1
     RT0 --> R2
@@ -88,16 +88,16 @@ flowchart TB
 | Skill       | One-liner                                                                                    |
 | ----------- | -------------------------------------------------------------------------------------------- |
 | `grill-me`  | Ask focused questions until scope and behavior are clear enough to plan.                     |
-| `to-prd`    | Turn approved context into the canonical PRD in the specs repo.                             |
-| `to-slices` | Split a PRD into dependency-aware slice files in the specs repo (see parallel work).       |
-| `to-linear` | Sync the specs repo plan and slice graph to Linear.                                          |
+| `to-prd`    | Turn approved context into `specs/<slug>/PRD.md` on the feature branch.                      |
+| `to-slices` | Split a PRD into `specs/<slug>/issues/`, commit/push, optional archive.                      |
+| `to-linear` | Sync the monorepo `specs/<slug>/` plan and slice graph to Linear.                            |
 
 ### Orchestration
 
 | Skill         | One-liner                                                                                    |
 | ------------- | -------------------------------------------------------------------------------------------- |
 | `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
-| `forge-build` | Execute an approved multi-slice plan from the specs repo for larger features that needed planning first. |
+| `forge-build` | Execute an approved multi-slice plan from `specs/<slug>/` for larger features that needed planning first. |
 
 ### Preflight
 
@@ -110,7 +110,7 @@ flowchart TB
 
 | Skill                                  | One-liner                                                                             |
 | -------------------------------------- | ------------------------------------------------------------------------------------- |
-| `provision-neon-branch`                | Create, rebind, and delete a disposable Neon child branch for agent or cloud work.    |
+| `provision-neon-branch`                | Standalone: create/rebind/delete a disposable Neon child (not auto-called by forge).  |
 | `provision-local-worktree-environment` | Attach previewctl services to a local worktree: Neon, Redis, ports, and `.env.local`. |
 
 ### Implement

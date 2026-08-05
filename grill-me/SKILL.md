@@ -7,10 +7,9 @@ description: Interview the user relentlessly about a plan / design / idea until 
 
 Interview me relentlessly about every aspect of this plan / design / idea until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
 
-Ask the questions one at a time.
+Ask the questions one at a time (question + recommended answer — no essays).
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
 
-When scope is clear, the typical next step is `$to-prd`, which writes the PRD to the resolved
-[planning store](../references/specs-repo.md) — infer from attached repos, a URL you paste, or ask
-when unclear.
+When scope is clear, close with **one concise sentence** pointing at `$to-prd` (e.g. `Scope is
+clear — next $to-prd.`). See [planning store](../references/specs-repo.md).

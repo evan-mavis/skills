@@ -12,9 +12,9 @@ After inspecting the source, code, and scope — and before provisioning, dispat
 # Working contract — confirm or edit
 issue: <id-or-plan-slug>
 issue_kind: bug | improvement | small_feature # forge-issue only; infer from source
-branch: <prefix>/<LINEAR-ID>/<slug> # forge-issue; per branch-naming.md
+branch: <current-checkout> # already created before forge; do not rename
 host: cloud | local_worktree
-data_profile: neon | local-preview | local | none
+data_profile: hosted-db | local-preview | local | none # neon = deprecated alias for hosted-db
 evidence_profile: video | text # forge-build: pr_evidence
 bug_evidence: none | before_after_video # forge-issue; see defaults below
 qa_profile: none | light | heavy # forge-build only; omit for forge-issue
@@ -32,7 +32,7 @@ Rules:
 
 ### Defaults (Airgoods)
 
-- **`host: cloud`** → default `data_profile: neon`, not `none`.
+- **`host: cloud`** → default `data_profile: hosted-db`, not `none`.
 - **Any user-visible surface** → default `evidence_profile: video`; forge-build also defaults
   `qa_profile: light` unless the plan is provably non-visual.
 - **`frontend-only` is not a skip reason** when the flow needs backend, auth, or data (orders,
@@ -68,14 +68,14 @@ Return `blocked` instead of `done` when:
   or `video_after`) is null
 - `bug_evidence: before_after_video` and implementation started without `reproduction_confirmed:
 true`
-- `data_profile: neon` (or `local-preview`) and `database_runtime` is not `verified`, unless
-  `runtime_waived: true` was confirmed upfront
+- `data_profile: hosted-db` (or `local-preview`; alias `neon`) and `database_runtime` is not
+  `verified`, unless `runtime_waived: true` was confirmed upfront
 - user-visible surfaces were in scope and browser verification was skipped without waiver
 - video capture or required runtime is unavailable — **do not** downgrade to `text` or `none`
   silently
 
 ## Agent mistake (AIR-7646)
 
-> UI bug with a React-only diff ≠ skip Neon, unit tests only, ship PR.
-> Correct: confirm working contract, provision runtime, exercise backend + web in browser, record
+> UI bug with a React-only diff ≠ skip DB runtime, unit tests only, ship PR.
+> Correct: confirm working contract, bind runtime, exercise backend + web in browser, record
 > video, attach to PR.

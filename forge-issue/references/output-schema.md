@@ -1,68 +1,21 @@
 # Output Schema
 
-Return compact YAML, then render video when the host supports it. Required fields must always be
-present; optional fields apply when relevant.
+Human-visible closeout = **exactly one concise sentence**, then surface video when relevant.
+No YAML dump. Persist runtime / `change_contract` in the working contract.
 
-## Required
+Sentence examples:
 
-```yaml
-status: done | blocked
-summary: <one line>
-blocker: null | <specific blocker>
-pr: <url-or-null>
-change_contract:
-  source: <prompt-or-source-url-or-path>
-  scope: []
-  exclusions: []
-  review_base: <sha-or-null>
-  changed_files:
-    - <repo-relative path>
-```
+- Done: `Build finished: https://github.com/org/repo/pull/456`
+- Blocked: `Blocked: bug not reproducible on hosted-db.`
+- Scope gate: `Blocked: needs planning — run grill-me → to-prd → to-slices → to-linear → forge-build.`
 
-## Runtime and evidence
+**Video (when relevant):**
 
-```yaml
-issue_kind: bug | improvement | small_feature | null
-bug_evidence: none | before_after_video | null
-reproduction_confirmed: true | false | null
-data_profile: none | local | neon | local-preview
-host: cloud | local_worktree
-database_runtime: verified | not_needed | blocked
-evidence_profile: video | text
-branch: <git-branch>
-commit: <final-green-sha-or-null>
-linear_issue: <id-or-null>
-evidence: <artifact-url-or-inline-summary-or-null>
-video_before: <absolute-path-or-artifact-url-or-null>
-video: <absolute-path-or-artifact-url-or-null> # after clip; alias video_after
-limitations: []
-runtime_waived: true | false
-```
+- `evidence_profile: video` or `bug_evidence: before_after_video` — after the sentence, render
+  MP4(s) in chat when the host supports it (after clip required; before + after when both exist).
+- If clips live only on the PR/Linear issue, put those links in the sentence or right after
+  (e.g. `Build finished: <pr-url> — before: <url>, after: <url>`).
+- Never omit required video that was produced.
 
-When `bug_evidence: before_after_video`, `video_before` and `video` are both required for
-`status: done`. `reproduction_confirmed: true` is required before implementation may start.
-
-## Neon and local-preview lifecycle
-
-Populate when the active profile used disposable infrastructure:
-
-```yaml
-neon_branch_id: <child-id-or-null>
-neon_branch_deleted: true | false | null
-local_preview_preserved: true | false | null
-```
-
-## Scope gate redirect
-
-When [scope gate](execution-contracts.md#scope-gate) blocks single-ticket delivery:
-
-```yaml
-recommended_plan_path: grill-me → to-prd → to-slices → to-linear → forge-build
-```
-
-Otherwise `recommended_plan_path: null`.
-
-## Invalid done
-
-See [preflight gates — invalid done](../../references/preflight-gates.md#invalid-status-done).
-Return `blocked` instead of `done` when closeout violates those rules.
+No `done` wording when [invalid done](../../references/preflight-gates.md#invalid-status-done)
+applies — say `Blocked: …` instead.

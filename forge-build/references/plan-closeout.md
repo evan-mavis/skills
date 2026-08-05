@@ -3,6 +3,10 @@
 Forge-build procedures after all issues are integrated. Tie QA and evidence to the exact
 CI-passing feature SHA.
 
+After database cleanup and delivery steps in `forge-build`, delete
+`<app-repo>/specs/<plan-slug>/` from the feature branch and commit/push. Do not move plans into a
+`completed/` folder and do not prompt to archive remotely here.
+
 ## Manual browser QA
 
 1. For `qa_profile: none`, skip browser QA and persist `qa_result: skipped`. Do not skip `$run-ci`
@@ -26,9 +30,9 @@ attempts, or unavailable browser/service/account/database. Never reduce `heavy` 
 
 ## PR evidence
 
-1. For `video`, follow [video and delivery](video-and-delivery.md): smallest coherent end-to-end
-   story; host-native recording against the verified database when relevant; inspect H.264 MP4;
-   attach to associated Linear issue, draft PR, or private artifact storage.
+1. For `video`, follow [video and delivery](../../references/video-and-delivery.md): smallest
+   coherent end-to-end story; host-native recording against the verified database when relevant;
+   inspect H.264 MP4; attach to associated Linear issue, draft PR, or private artifact storage.
 2. For `text`, record concise verification commands, results, and observed state — no raw
    production data or secrets.
 3. For `none`, produce no separate artifact.

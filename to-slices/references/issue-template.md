@@ -1,6 +1,6 @@
 # Issue Template
 
-Use when writing slice files under `$SPECS_REPO_PATH/in-progress/<slug>/`. Agent-first, lightly
+Use when writing slice files under `<app-repo>/specs/<slug>/issues/`. Agent-first, lightly
 human-readable.
 
 ```markdown
@@ -66,4 +66,5 @@ PRD: <relative path under plan dir> | Index: <relative path to <plan-slug>-index
 ```
 
 Keep frontmatter at the very top. Future agents should determine scheduling, blocking, Linear sync,
-and completion from frontmatter without scraping the body.
+and completion from frontmatter without scraping the body. Ignore legacy archive body metadata
+(`Completed:`, `Local ID:` prose headers, stage folders) when frontmatter is present.
