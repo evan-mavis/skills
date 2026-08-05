@@ -10,3 +10,7 @@ Interview me relentlessly about every aspect of this plan / design / idea until 
 Ask the questions one at a time.
 
 If a question can be answered by exploring the codebase, explore the codebase instead.
+
+When scope is clear, the typical next step is `$to-prd`, which writes the PRD to the resolved
+[planning store](../references/specs-repo.md) — infer from attached repos, a URL you paste, or ask
+when unclear.

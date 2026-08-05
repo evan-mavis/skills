@@ -1,6 +1,6 @@
-# Local Issue Template
+# Issue Template
 
-Use when writing slice files under `plans/in-progress/<slug>/`. Agent-first, lightly
+Use when writing slice files under `$SPECS_REPO_PATH/in-progress/<slug>/`. Agent-first, lightly
 human-readable.
 
 ```markdown
@@ -62,7 +62,7 @@ after integration.
 
 ---
 
-PRD: <relative path> | Index: <relative path to <plan-slug>-index.md>
+PRD: <relative path under plan dir> | Index: <relative path to <plan-slug>-index.md>
 ```
 
 Keep frontmatter at the very top. Future agents should determine scheduling, blocking, Linear sync,

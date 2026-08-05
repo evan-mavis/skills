@@ -1,7 +1,7 @@
 interface:
   display_name: "To Linear"
-  short_description: "Sync a local implementation plan to Linear"
-  default_prompt: "Use $to-linear to sync the approved local plan and issues to Linear."
+  short_description: "Sync a specs repo implementation plan to Linear"
+  default_prompt: "Use $to-linear to sync the approved specs repo plan and issues to Linear."
 
 policy:
   allow_implicit_invocation: false

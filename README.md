@@ -104,16 +104,16 @@ flowchart TB
 | Skill       | One-liner                                                                |
 | ----------- | ------------------------------------------------------------------------ |
 | `grill-me`  | Ask focused questions until scope and behavior are clear enough to plan. |
-| `to-prd`    | Turn approved context into the canonical local PRD.                      |
-| `to-slices` | Split a PRD into dependency-aware local slice files.                     |
-| `to-linear` | Sync the local plan and slice graph to Linear.                           |
+| `to-prd`    | Turn approved context into the canonical PRD in the specs repo.          |
+| `to-slices` | Split a PRD into dependency-aware slice files in the specs repo.         |
+| `to-linear` | Sync the specs repo plan and slice graph to Linear.                      |
 
 ### Orchestration
 
 | Skill         | One-liner                                                                                    |
 | ------------- | -------------------------------------------------------------------------------------------- |
 | `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
-| `forge-build` | Execute an approved multi-slice plan for larger features that needed planning first.         |
+| `forge-build` | Execute an approved multi-slice plan from the specs repo for larger features that needed planning first. |
 
 ### Preflight
 
@@ -163,6 +163,7 @@ Agent teardown after delivery: delete Neon branches, stop services, clear temp c
 
 | Skill / reference             | One-liner                                                               |
 | ----------------------------- | ----------------------------------------------------------------------- |
+| `references/specs-repo.md`    | Planning store — resolve from context, bootstrap, paths, commit/push.   |
 | `references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
 | `preflight-gates.md`          | Shared runtime, evidence, and closeout gates for orchestrators.   |
 | `refresh-local-db`            | Refresh local Postgres from a Render production export.                 |

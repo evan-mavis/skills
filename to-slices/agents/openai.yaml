@@ -1,4 +1,4 @@
 interface:
   display_name: "To Slices"
-  short_description: "Split a PRD into local implementation slices"
-  default_prompt: "Use $to-slices to split the approved local PRD into executable slices."
+  short_description: "Split a PRD into specs repo implementation slices"
+  default_prompt: "Use $to-slices to split the approved PRD into executable slices in the specs repo."

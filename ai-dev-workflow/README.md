@@ -88,16 +88,16 @@ flowchart TB
 | Skill       | One-liner                                                                                    |
 | ----------- | -------------------------------------------------------------------------------------------- |
 | `grill-me`  | Ask focused questions until scope and behavior are clear enough to plan.                     |
-| `to-prd`    | Turn approved context into the canonical local PRD.                                          |
-| `to-slices` | Split a PRD into dependency-aware local slice files (see which work can be run in parallel). |
-| `to-linear` | Sync the local plan and slice graph to Linear.                                               |
+| `to-prd`    | Turn approved context into the canonical PRD in the specs repo.                             |
+| `to-slices` | Split a PRD into dependency-aware slice files in the specs repo (see parallel work).       |
+| `to-linear` | Sync the specs repo plan and slice graph to Linear.                                          |
 
 ### Orchestration
 
 | Skill         | One-liner                                                                                    |
 | ------------- | -------------------------------------------------------------------------------------------- |
 | `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
-| `forge-build` | Execute an approved multi-slice plan for larger features that needed planning first.         |
+| `forge-build` | Execute an approved multi-slice plan from the specs repo for larger features that needed planning first. |
 
 ### Preflight
 

@@ -1,18 +1,19 @@
 # Execution
 
 One orchestrator thread. One Git worktree per slice. Four fresh sequential capability subagents per
-worktree. Main orchestrator runs the [capability pipeline](capability-pipeline.md), commits,
-integrates, and tracks canonical state in issue files and the index.
+worktree. Main orchestrator runs the [capability pipeline](capability-pipeline.md), commits in the
+application repo, integrates, and tracks canonical planning state in specs repo issue files and the
+index.
 
 ## Dispatch
 
-Create each worktree from the current integrated feature branch:
+Create each worktree from the current integrated feature branch in the application repo:
 
 ```bash
 git worktree add -b "wt/<plan-slug>/<local-id>" "<main-workspace>-wt-<local-id>" "<feature-branch>"
 ```
 
-Pass absolute main-workspace PRD, issue, and index paths. Never let two agents use one worktree.
+Pass absolute specs-repo paths for PRD, issue, and index files under `$SPECS_REPO_PATH`. Never let two agents use one worktree.
 Pass `data_profile`, `host`, and when needed only env var name and non-secret handoff metadata —
 never a connection string.
 
@@ -24,7 +25,7 @@ Spawn four fresh subagents sequentially per capability-pipeline.md. Example firs
 
 ```text
 Implement exactly <local-id> in <absolute worktree path>.
-Read issue and PRD from supplied absolute paths.
+Read issue and PRD from supplied absolute paths under SPECS_REPO_PATH.
 Use supplied change_contract without widening scope or exclusions.
 Follow database runtime binding from supplied descriptor.
 Invoke only $implement-slice. Leave diff uncommitted; return only its standard contract.
@@ -50,7 +51,7 @@ local_id: <local-id>
 branch: wt/<plan-slug>/<local-id>
 database_binding: verified | not_needed | blocked
 change_contract:
-  source: <absolute-issue-path>
+  source: <absolute-issue-path-under-SPECS_REPO_PATH>
   scope: []
   exclusions: []
   review_base: <issue-base-sha>
@@ -70,7 +71,7 @@ For each successful issue in dependency-safe order:
 1. Rebase private branch onto latest feature branch: `git -C "<worktree>" rebase "<feature-branch>"`.
 2. Resolve only unambiguous mechanical conflicts; semantic → `blocked`.
 3. Fast-forward feature branch: `git merge --ff-only "wt/<plan-slug>/<local-id>"`.
-4. Apply shared integrated-issue state procedure.
+4. Apply shared integrated-issue state procedure in the specs repo; commit and push specs repo changes.
 5. Remove clean worktree and delete fully merged local branch (non-forced).
 
 ## Resume

@@ -1,14 +1,17 @@
 ---
 name: to-prd
-description: Turn the current conversation context into a detailed local PRD Markdown file under the repo's ignored `plans/in-progress/` directory. Use when the user wants to create a PRD, product spec, implementation spec, or planning document from the current context without creating Linear issues.
+description: Turn the current conversation context into a detailed PRD Markdown file in the remote specs repo under `in-progress/<slug>/`. Use when the user wants to create a PRD, product spec, implementation spec, or planning document from the current context without creating Linear issues.
 ---
 
 # To PRD
 
-Create a local PRD Markdown file in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after local issue files are created and approved.
+Create a PRD Markdown file in the [specs repo](../references/specs-repo.md) at
+`$SPECS_REPO_PATH/in-progress/<slug>/PRD.md`. Do not create or update Linear issues from this skill.
+If the user wants Linear sync, tell them to run `to-linear` after slice files are created and
+approved in the specs repo.
 
-This skill is directly callable whenever the user wants a canonical local PRD. Planning,
-issue-splitting, Linear sync, and implementation remain separate invocations.
+This skill is directly callable whenever the user wants a canonical PRD. Planning, issue-splitting,
+Linear sync, and implementation remain separate invocations.
 
 This skill takes the current conversation context and codebase understanding and produces a detailed PRD. If meaningful ambiguity remains and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` first to clarify the plan. Otherwise, synthesize what you already know and capture remaining ambiguity in `Open Questions`.
 
@@ -16,15 +19,14 @@ This skill takes the current conversation context and codebase understanding and
 
 ## Process
 
-Use the **`git` CLI** for repo-root and ignore checks below.
-
-1. Confirm the current repo root with `git rev-parse --show-toplevel`.
-2. Ensure `plans/`, `plans/in-progress/`, and `plans/completed/` exist at the repo root. If possible, confirm `plans/` is ignored with `git check-ignore -v plans/test.md`.
+1. [Resolve and bootstrap](../references/specs-repo.md#resolve-the-planning-store) the planning store from env, attached workspace roots, user-supplied repo URL/path, or an interactive ask. Return `blocked` if unresolved or if clone, pull, or write access fails.
+2. Confirm the application repo root with `git rev-parse --show-toplevel` when codebase exploration is needed.
 3. Check whether the request has enough context to draft a useful PRD. If core product behavior, actors, scope, or success criteria are meaningfully ambiguous and `$grill-me` has not already been used, run `$grill-me` before drafting.
-4. Explore the repo only as needed to understand the current state and likely implementation areas.
+4. Explore the application repo only as needed to understand the current state and likely implementation areas.
 5. Sketch the major modules that may need to change. Look for deep modules that encapsulate meaningful behavior behind simple, testable interfaces.
-6. Write a PRD Markdown file at `plans/in-progress/<slug>/PRD.md` with the standard frontmatter below.
-7. In the response, link the local file and summarize the highest-signal assumptions, open questions, and suggested next step.
+6. Write a PRD Markdown file at `$SPECS_REPO_PATH/in-progress/<slug>/PRD.md` with the standard frontmatter below.
+7. [Commit and push](../references/specs-repo.md#commit-and-push-after-mutations) the specs repo.
+8. In the response, link the file (absolute path) and summarize the highest-signal assumptions, open questions, and suggested next step.
 
 Do not add extra clarification ceremony when the request is already clear or `$grill-me` already ran. If module boundaries, implementation choices, or testing expectations are still uncertain after available clarification, document them as assumptions or open questions in the PRD.
 
@@ -76,18 +78,18 @@ Keep the final answer in the format below and omit a final-answer preamble. Comm
 ```markdown
 **PRD**
 
-- Path: [plans/in-progress/<slug>/PRD.md](<absolute PRD file path>)
+- Path: [in-progress/<slug>/PRD.md](<absolute PRD file path under SPECS_REPO_PATH>)
 - Open Questions: <count or None>
 - Next: $to-slices
 ```
 
-Rules: no final-answer preamble; use absolute targets for local file links; omit empty fields; `Next:` always last.
+Rules: no final-answer preamble; use absolute targets for file links; omit empty fields; `Next:` always last.
 
 ## File Conventions
 
 - Use a short kebab-case slug from the feature or bug name.
-- Use one plan directory per feature, bug, or improvement under the active bucket: `plans/in-progress/<slug>/`.
-- Completed plan archives live under `plans/completed/<slug>/`. Move a plan only when every issue
+- Use one plan directory per feature, bug, or improvement under the active bucket: `$SPECS_REPO_PATH/in-progress/<slug>/`.
+- Completed plan archives live under `$SPECS_REPO_PATH/completed/<slug>/`. Move a plan only when every issue
   has `completed: true` and `status: done`. Update an archived PRD only when the user explicitly
   asks to revisit completed work.
 - When the PRD discusses future implementation slices, assume issue ordinals are global across the plan, not reset per stage. Stage folders keep their own stage number (`01-foundation`, `02-core-flows`, `03-followups`), but issue files and local IDs should count upward chronologically across all stages (for example `01-foundation/01-...`, `01-foundation/02-...`, then `02-core-flows/03-...`, `02-core-flows/04-...`).

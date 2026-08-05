@@ -8,7 +8,7 @@ CI, and PR delivery remain separate standalone capabilities coordinated by `forg
 Run immediately after reading the source and before the ambiguity interview or implementation.
 
 `forge-issue` owns **one** independently shippable change. When the source needs dependency
-ordering, staged rollout, or multiple vertical slices, stop and recommend local planning instead
+ordering, staged rollout, or multiple vertical slices, stop and recommend specs repo planning instead
 of improvising a multi-issue delivery inside this orchestrator.
 
 ### When to stop
@@ -41,11 +41,17 @@ Continue when the ticket is a bug, improvement, or **small feature** that:
 
 If the gate is borderline, ask once:
 
-> Should this stay a single-ticket delivery, or move to local planning with forge-build?
+> Should this stay a single-ticket delivery, or move to specs repo planning with forge-build?
 
-Recommend **single-ticket** when the scope is already narrow; recommend **local planning** when
+Recommend **single-ticket** when the scope is already narrow; recommend **specs repo planning** when
 multiple slices, stages, or dependencies are visible. Respect an explicit user choice to stay on
 `forge-issue`.
+
+## Specs repo path
+
+When blocked by the scope gate, set `recommended_plan_path` to
+`grill-me → to-prd → to-slices → to-linear → forge-build` and note that planning artifacts live in
+the [specs repo](../../references/specs-repo.md), not the application repo.
 
 ## Ambiguity interview
 
@@ -101,7 +107,7 @@ with the pre-fix SHA (`review_base`) and before MP4 path or URL.
 
 One independently shippable change only. Pass `change_contract` through the capability pipeline,
 CI, and delivery. Return `blocked` when behavior cannot be resolved, a capability widens scope,
-multiple slices need dependency ordering, or the [scope gate](#scope-gate) says to plan locally.
+multiple slices need dependency ordering, or the [scope gate](#scope-gate) says to plan in the specs repo.
 
 Persist only the non-secret runtime fields above. Treat a temporary environment-file path as
 replaceable process state, not the durable Neon identity.

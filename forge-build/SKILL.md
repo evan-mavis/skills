@@ -1,6 +1,6 @@
 ---
 name: forge-build
-description: Execute an approved local implementation plan through Git worktree subagents in one orchestrator thread. Orchestrates dependency-ordered slices, database/QA/evidence profiles, HITL resolution, verification repair, draft PR, and babysitting. Use after to-linear.
+description: Execute an approved specs-repo implementation plan through Git worktree subagents in one orchestrator thread. Orchestrates dependency-ordered slices, database/QA/evidence profiles, HITL resolution, verification repair, draft PR, and babysitting. Use after to-linear.
 ---
 
 # Forge Build
@@ -10,7 +10,7 @@ issue frontmatter as approved scope. Do not reopen planning.
 
 ## Read order
 
-1. **Always:** [change contract](references/change-contract.md) → [capability pipeline](references/capability-pipeline.md) → [database runtime](references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [branch naming](../references/branch-naming.md) → [execution](references/execution.md) → [host surfaces](../references/host-surfaces.md)
+1. **Always:** [specs repo](../references/specs-repo.md) → [change contract](references/change-contract.md) → [capability pipeline](references/capability-pipeline.md) → [database runtime](references/database-runtime.md) → [preflight gates](../references/preflight-gates.md) → [branch naming](../references/branch-naming.md) → [execution](references/execution.md) → [host surfaces](../references/host-surfaces.md)
 2. **If `qa_profile` is `light` or `heavy`:** [manual browser QA](references/manual-browser-qa.md)
 3. **If `pr_evidence` is `video`:** [video and delivery](references/video-and-delivery.md)
 4. **On plan closeout:** [plan closeout](references/plan-closeout.md) → [output schema](references/output-schema.md)
@@ -51,11 +51,13 @@ because capture is unavailable. `$run-ci` alone never satisfies `pr_evidence: vi
 
 ## Inputs and preflight
 
-Require one active plan under `plans/in-progress/<plan-slug>/` with `PRD.md`, index, issue files
-with canonical frontmatter, and a checked-out feature branch. Return `blocked` for ambiguous plans,
+[Resolve and bootstrap](../references/specs-repo.md#resolve-the-planning-store) the planning store from env, attached workspace roots, user-supplied repo URL/path, the active plan path, or an interactive ask. Return `blocked` if unresolved or if clone, pull, or write access fails.
+
+Require one active plan under `$SPECS_REPO_PATH/in-progress/<plan-slug>/` with `PRD.md`, index, issue files
+with canonical frontmatter, and a checked-out feature branch in the application repo. Return `blocked` for ambiguous plans,
 detached branches, or unrelated uncommitted changes in the main workspace.
 
-1. Resolve repo root, main workspace, feature branch, PRD, index, and every issue file.
+1. Resolve application repo root, main workspace, feature branch, PRD, index, and every issue file (absolute paths under `$SPECS_REPO_PATH`).
 2. Verify the plan feature branch matches [branch naming](../references/branch-naming.md#forge-build); create or check out the correct branch when missing.
 3. Build the dependency graph from issue frontmatter (trust frontmatter over the index).
 4. Record stage order, `blocked_by`, `type`, `hitl_timing`, `parallelizable`, and completion state.
@@ -80,9 +82,9 @@ Before dispatching, inspect every incomplete `hitl` issue. Use `hitl_timing` as 
 - `evidence_dependent` — answer requires completed dependencies, output, or live state.
 
 Batch upfront questions into one concise request with `local_id`, question, and recommended default.
-Do not dispatch until upfront questions are answered. Persist answers under `## HITL Resolution`.
+Do not dispatch until upfront questions are answered. Persist answers under `## HITL Resolution` in the specs repo issue files.
 Transition resolved implementation issues to `type: afk`, `hitl_timing: null`, `status: ready`.
-Decision-only gates become `status: done`, `completed: true`. Refresh the index after HITL changes.
+Decision-only gates become `status: done`, `completed: true`. Refresh the index after HITL changes; [commit and push](../references/specs-repo.md#commit-and-push-after-mutations) the specs repo.
 
 Ask and wait for resolvable HITL — do not return `blocked` merely because an answer is pending.
 Profile and HITL questions are the only exceptions to the terminal output contract.
@@ -98,14 +100,14 @@ Process stages in ascending order. An issue is eligible when incomplete, `status
 - Stop for missing groundwork, ambiguous scope, semantic conflict, HITL blocker, or infrastructure failure.
 
 Before dispatch: record feature `HEAD` as issue base SHA, set `status: in_progress`, remove resolved
-**Execution Blocker**, refresh index. Construct issue `change_contract` with absolute issue path as
+**Execution Blocker**, refresh index, commit and push the specs repo. Construct issue `change_contract` with absolute issue path as
 `source`, acceptance behavior as `scope`, and issue base SHA as `review_base`; persist under
 `## Change Contract`. Pass through the [capability pipeline](references/capability-pipeline.md).
 
 ## Main-thread hygiene
 
-Keep execution inside subagent threads in this orchestrator. Canonical state lives in issue files
-and the index.
+Keep execution inside subagent threads in this orchestrator. Canonical planning state lives in specs repo issue files
+and the index — [commit and push](../references/specs-repo.md#commit-and-push-after-mutations) after every update.
 
 - Validate worker contracts without pasting raw reasoning, logs, or diffs into main conversation.
 - One compact update after preflight, each completed wave, and each stage; heartbeat if a wave exceeds one minute.
@@ -116,16 +118,16 @@ and the index.
 
 When work blocks: stop new dispatches; let current wave finish; set issue `status: blocked`; record
 phase, blocker, base SHA, and worktree/branch/commit identifiers under **Execution Blocker**;
-integrate successful siblings; preserve blocked state; refresh index; run [database cleanup](references/database-runtime.md#cleanup).
+integrate successful siblings; preserve blocked state; refresh index; commit and push the specs repo; run [database cleanup](references/database-runtime.md#cleanup).
 
 On resume: inspect preserved state; rebind or repair per [database runtime](references/database-runtime.md) when `## Database Lifecycle` has an active child; resume
 failed phase in the existing worktree if the blocker is gone — never duplicate.
 
 ## Integrated issue state
 
-After each issue commit in dependency-safe order: set `status: done`, `completed: true`; remove
-**Execution Blocker**; write Implementation Notes; regenerate index. No merge commits, squash
-commits, per-issue PRs, or remote issue branches.
+After each issue commit in dependency-safe order: set `status: done`, `completed: true` in the specs repo; remove
+**Execution Blocker**; write Implementation Notes; regenerate index; commit and push the specs repo. No merge commits, squash
+commits, per-issue PRs, or remote issue branches in the application repo.
 
 ## Stage closeout
 
@@ -134,7 +136,7 @@ After every issue in a stage is integrated:
 1. Construct stage `change_contract` (completed stage as scope, later stages as exclusions).
 2. Fresh subagent → `$refactor-structure`; then fresh subagent → `$harden-architecture` in main workspace.
 3. Commit fixes once as `refactor: harden <stage-name> integration`.
-4. Refresh index before scheduling the next stage.
+4. Refresh index in the specs repo and commit/push before scheduling the next stage.
 
 ## Plan closeout
 
@@ -149,7 +151,7 @@ When every issue is done:
 7. Run `$babysit` on the draft PR. Never mark ready, merge, or publish a release.
 8. If babysit changes `HEAD`, rebuild contract, rerun `$run-ci`, full QA profile, evidence, and PR update.
 9. Run [database cleanup](references/database-runtime.md#cleanup).
-10. Set PRD `status: completed`; move plan to `plans/completed/<plan-slug>/`.
+10. Set PRD `status: completed`; move plan to `$SPECS_REPO_PATH/completed/<plan-slug>/`; commit and push the specs repo.
 
 ## Output
 

@@ -1,13 +1,13 @@
 ---
 name: to-slices
-description: Break a local PRD, plan, spec, or conversation context into independently implementable local slice Markdown files under the repo's ignored `plans/in-progress/` directory. Use when the user wants implementation slices, local tickets, task breakdowns, or slice drafts without creating Linear issues.
+description: Break a PRD, plan, spec, or conversation context into independently implementable slice Markdown files in the remote specs repo under `in-progress/<slug>/`. Use when the user wants implementation slices, tickets, task breakdowns, or slice drafts without creating Linear issues.
 ---
 
 # To Slices
 
-Break a PRD or plan into independently implementable local slice Markdown files in the current repository's ignored `plans/in-progress/` directory. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the local slice files are approved.
+Break a PRD or plan into independently implementable slice Markdown files in the [specs repo](../references/specs-repo.md) at `$SPECS_REPO_PATH/in-progress/<slug>/`. Do not create or update Linear issues from this skill. If the user wants Linear sync, tell them to run `to-linear` after the slice files are approved.
 
-This skill is directly callable for any approved local PRD or supplied plan. Clarification, PRD
+This skill is directly callable for any approved PRD or supplied plan. Clarification, PRD
 authoring, Linear sync, and implementation remain separate invocations.
 
 Use vertical slices (tracer bullets): each issue should deliver a narrow, complete path through the relevant layers, not a horizontal layer-only task.
@@ -49,28 +49,28 @@ Allowed values:
 
 When issues are deferred or cut from a plan's scope, **do not** leave them in the parent with `status: deferred` and archive anyway. Instead:
 
-1. create a new plan under `plans/in-progress/<new-slug>/` for the deferred work
+1. create a new plan under `$SPECS_REPO_PATH/in-progress/<new-slug>/` for the deferred work
 2. remove the issue from the parent plan (delete file + refresh parent `<plan-slug>-index.md`)
 3. link the follow-up from the parent PRD/index
 
-A plan is eligible for `plans/completed/` only when every remaining issue has `completed: true`
+A plan is eligible for `$SPECS_REPO_PATH/completed/` only when every remaining issue has `completed: true`
 and `status: done`. The workflow completing the plan owns the final move.
 
 ## Process
 
 ### 1. Gather context
 
-Work from the provided local PRD file, plan file, pasted content, or current conversation context.
+[Resolve and bootstrap](../references/specs-repo.md#resolve-the-planning-store) the planning store from env, attached workspace roots, user-supplied repo URL/path, an existing PRD path, or an interactive ask. Return `blocked` if unresolved or if clone, pull, or write access fails.
 
-If the user passes a Linear issue identifier or URL, do not fetch Linear by default. Ask whether they want to use `to-linear` or paste/export the issue contents locally first.
+Work from the provided PRD file (absolute path under `$SPECS_REPO_PATH`), plan file, pasted content, or current conversation context.
 
-Confirm the repo root with `git rev-parse --show-toplevel` and ensure `plans/`, `plans/in-progress/`, and `plans/completed/` exist. If possible, confirm `plans/` is ignored with `git check-ignore -v plans/test.md`.
+If the user passes a Linear issue identifier or URL, do not fetch Linear by default. Ask whether they want to use `to-linear` or paste/export the issue contents first.
 
-If the source plan is too ambiguous to slice into useful local issues and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` before drafting issue files. If `$grill-me` already ran or the ambiguity is minor, proceed and capture uncertainty in **Approach**, **HITL Requirement**, blockers, or acceptance criteria gaps.
+If the source plan is too ambiguous to slice into useful issues and `[$grill-me](../grill-me/SKILL.md)` has not already been used in the current chat context, use `$grill-me` before drafting issue files. If `$grill-me` already ran or the ambiguity is minor, proceed and capture uncertainty in **Approach**, **HITL Requirement**, blockers, or acceptance criteria gaps.
 
 ### 2. Explore the codebase
 
-If you have not already explored the codebase enough to slice the work, inspect the relevant implementation and tests.
+If you have not already explored the application repo enough to slice the work, inspect the relevant implementation and tests.
 
 ### 3. Draft vertical slices
 
@@ -104,7 +104,7 @@ Each slice should:
 - name expected write areas in **Approach** and set `parallelizable: true` only when they are meaningfully disjoint from sibling slices
 - for `hitl`, state the exact decision or action under **HITL Requirement** and set `hitl_timing` to `upfront` or `evidence_dependent`
 
-Local issues are **agent-first** — write each slice so an atomic implementation capability can
+Issue files are **agent-first** — write each slice so an atomic implementation capability can
 execute it without reconstructing the plan. Keep them lightly human-readable since they may feed
 external issue tracking, but optimize for agent execution. Fill **Implementation Notes** after
 integrating the implementation commit.
@@ -122,7 +122,7 @@ Present the proposed breakdown before writing files when the scope is large or a
 - expected write areas and whether it is parallelizable
 - for `HITL`, the exact question or action and when it must occur
 
-Ask for approval only when the breakdown has meaningful ambiguity that was not already resolved by `grill-me`. Otherwise, create the files and note that the user can revise them locally.
+Ask for approval only when the breakdown has meaningful ambiguity that was not already resolved by `grill-me`. Otherwise, create the files and note that the user can revise them in the specs repo.
 
 When asking for approval or a planning decision, follow [interactive choices](../references/host-surfaces.md#interactive-choices).
 
@@ -131,24 +131,24 @@ Use this standard decision prompt for ambiguous breakdowns:
 - Header: `Breakdown`
 - Question: `How should I proceed with this issue breakdown?`
 - Options:
-  - `Create files (Recommended)`: Write the staged local issue files now.
+  - `Create files (Recommended)`: Write the staged issue files now.
   - `Revise breakdown`: Adjust stages, dependencies, or issue granularity first.
   - `Run grill-me`: Clarify unresolved scope before writing files.
 
-### 5. Write local issue files
+### 5. Write issue files
 
-Create issue files under one active plan directory. Use the staged naming pattern and
+Create issue files under one active plan directory in the specs repo. Use the staged naming pattern and
 [issue template](references/issue-template.md) for every new slice file.
 
-- `plans/in-progress/<slug>/PRD.md`
-- `plans/in-progress/<slug>/<slug>-index.md`
-- `plans/in-progress/<slug>/01-foundation/01-<slice-slug>.md`
-- `plans/in-progress/<slug>/01-foundation/02-<slice-slug>.md`
-- `plans/in-progress/<slug>/02-core-flows/03-<slice-slug>.md`
-- `plans/in-progress/<slug>/02-core-flows/04-<slice-slug>.md`
-- `plans/in-progress/<slug>/03-followups/05-<slice-slug>.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/PRD.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/<slug>-index.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/01-foundation/01-<slice-slug>.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/01-foundation/02-<slice-slug>.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/02-core-flows/03-<slice-slug>.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/02-core-flows/04-<slice-slug>.md`
+- `$SPECS_REPO_PATH/in-progress/<slug>/03-followups/05-<slice-slug>.md`
 
-If a matching plan directory exists under `plans/in-progress/`, update it instead of creating duplicates unless the user asks for a new version. Treat `plans/completed/` as archived and only update a completed plan when the user explicitly asks to revisit it.
+If a matching plan directory exists under `$SPECS_REPO_PATH/in-progress/`, update it instead of creating duplicates unless the user asks for a new version. Treat `$SPECS_REPO_PATH/completed/` as archived and only update a completed plan when the user explicitly asks to revisit it.
 
 Each numbered folder is an execution stage:
 
@@ -157,7 +157,7 @@ Each numbered folder is an execution stage:
 - local IDs use the same global issue ordinal, not a stage-local ordinal; for example, after two foundation issues `close-loop-01` and `close-loop-02`, the first core-flow issue is `close-loop-03`, not `close-loop-02-01`
 - issue files in the same stage may be parallelizable when their dependencies and write areas allow it
 - if an issue cannot run in parallel with the current stage, put it in the next numbered stage
-- keep the structure shallow inside the active plan: `plans/in-progress/<slug>/<stage-number>-<stage-name>/<global-issue-number>-<issue-slug>.md`
+- keep the structure shallow inside the active plan: `$SPECS_REPO_PATH/in-progress/<slug>/<stage-number>-<stage-name>/<global-issue-number>-<issue-slug>.md`
 - use semantic stage names such as `01-foundation`, `02-core-flows`, or `03-polish`, not only `parallel`
 - when adding a new issue to an existing plan, pick the next unused global issue number after scanning every issue file in every stage folder
 
@@ -170,6 +170,8 @@ Recommended index row format:
 | ---- | ------------- | --------- | ---------- | ---------------------------------------------- | ---- | ----------- | ------ | ---------- | --------- | -------------- |
 | [ ]  | 02-core-flows | <slug>-04 | Not synced | [Issue title](02-core-flows/04-issue-title.md) | AFK  | —           | Ready  | <slug>-02  | <slug>-06 | Yes            |
 ```
+
+After writing or updating files, [commit and push](../references/specs-repo.md#commit-and-push-after-mutations) the specs repo.
 
 ## Output
 
@@ -190,12 +192,12 @@ Keep the final answer in the format below and omit a final-answer preamble. Comm
 ```markdown
 **Issues**
 
-- Index: [plans/in-progress/<slug>/<slug>-index.md](<absolute index file path>)
-- [plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>)
-- [plans/in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>) (parallel)
+- Index: [in-progress/<slug>/<slug>-index.md](<absolute index file path under SPECS_REPO_PATH>)
+- [in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>) 
+- [in-progress/<slug>/<stage>/<nn>-<issue-slug>.md](<absolute issue file path>) (parallel)
 - Next: $to-linear
 ```
 
-List every created issue file in global order (ascending issue number). Use repo-relative paths for link text and absolute local paths for link targets. Add `(parallel)` only when frontmatter has `parallelizable: true`. One issue per bullet after the index line.
+List every created issue file in global order (ascending issue number). Use specs-repo-relative paths for link text and absolute paths for link targets. Add `(parallel)` only when frontmatter has `parallelizable: true`. One issue per bullet after the index line.
 
 Rules: no final-answer preamble; `Next:` always last.
