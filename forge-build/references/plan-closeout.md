@@ -18,7 +18,7 @@ After database cleanup and delivery steps in `forge-build`, delete
    under `## Manual QA` in the PRD.
 4. Continue when all executed scenarios pass and every blocked case is disclosed and non-critical.
 
-Unit tests and `$run-ci` never satisfy `qa_profile: light` or `heavy`. See [preflight gates](../references/preflight-gates.md).
+Unit tests and `$run-ci` never satisfy `qa_profile: light` or `heavy`. See [preflight gates](../../references/preflight-gates.md).
 
 **QA repair** (max 3 attempts): dispatch the smallest repair in a dedicated worktree;
 run the [capability pipeline](capability-pipeline.md); commit as `patch: fix manual QA findings`;
@@ -40,7 +40,7 @@ attempts, or unavailable browser/service/account/database. Never reduce `heavy` 
 
 Return `blocked` when native capture, application dependencies, or authorized storage is
 unavailable. Never silently downgrade `video` → `text` or `none`. `$run-ci` alone never satisfies
-`pr_evidence: video`. See [invalid done](../references/preflight-gates.md#invalid-status-done).
+`pr_evidence: video`. See [invalid done](../../references/preflight-gates.md#invalid-status-done).
 
 ## CI repair
 
