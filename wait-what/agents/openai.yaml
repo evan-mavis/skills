@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wait What"
+  short_description: "Re-pitch confusing context in plain English"
+  default_prompt: "Use $wait-what to re-pitch the current context in ASD-STE100 Simplified Technical English."
