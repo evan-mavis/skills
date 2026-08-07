@@ -1,6 +1,6 @@
 ---
 name: forge-build
-description: Execute an approved `specs/<slug>/` implementation plan through Git worktree subagents in one orchestrator thread. Orchestrates dependency-ordered slices, database/QA/evidence profiles, HITL resolution, verification repair, draft PR, and babysitting. Use after to-linear.
+description: Execute an approved implementation plan under `specs/` through Git worktree subagents in one orchestrator thread. Orchestrates dependency-ordered slices, database/QA/evidence profiles, HITL resolution, verification repair, draft PR, and babysitting. Use after to-linear.
 ---
 
 # Forge Build

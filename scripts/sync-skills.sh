@@ -9,6 +9,7 @@ Install repository skills via the skills CLI.
 
   published.txt -> Codex only (~/.codex/skills). Cursor uses the ai-dev-workflow plugin.
   personal.txt  -> Cursor and Codex (~/.agents/skills)
+  references/   -> shared references in both skill roots
 
   --check  Report drift without changing anything.
 
@@ -59,7 +60,7 @@ validate_manifests "$repo_root"
 repo_skills=("${published[@]}" "${personal[@]}")
 
 check_installed_skills() {
-  local drift=0 skill target
+  local drift=0 skill target root
 
   for skill in "${published[@]}"; do
     target="$codex_root/$skill"
@@ -87,7 +88,31 @@ check_installed_skills() {
     fi
   done
 
+  if [[ -d "$repo_root/references" ]]; then
+    for root in "$codex_root" "$agents_root"; do
+      target="$root/references"
+      if [[ ! -d "$target" ]]; then
+        echo "missing: $target"
+        drift=1
+      elif ! diff -qr "$repo_root/references" "$target" >/dev/null; then
+        echo "different: $target"
+        drift=1
+      fi
+    done
+  fi
+
   return "$drift"
+}
+
+sync_shared_references() {
+  local root
+
+  [[ -d "$repo_root/references" ]] || return 0
+
+  for root in "$codex_root" "$agents_root"; do
+    mkdir -p "$root/references"
+    rsync -a --delete "$repo_root/references/" "$root/references/"
+  done
 }
 
 if [[ "$mode" == check ]]; then
@@ -119,6 +144,8 @@ if ((${#personal[@]} > 0)); then
   done
   "${skills_cli[@]}" add "$repo_root" "${personal_args[@]}" -a cursor -a codex -g -y
 fi
+
+sync_shared_references
 
 if ! check_installed_skills; then
   echo "skills CLI finished, but installed skills still differ from the repository." >&2
