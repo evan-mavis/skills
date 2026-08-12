@@ -135,6 +135,7 @@ flowchart TB
 | --------------------- | -------------------------------------------------------------------- |
 | `implement-slice`     | Implement one scoped change and leave the diff uncommitted.          |
 | `deslop`              | Remove mechanical AI slop from the current diff.                     |
+| `prune-dead-code`     | Remove unused symbols and orphaned files across a feature branch.    |
 | `refactor-structure`  | Improve folder layout, naming, and file cohesion in scope.           |
 | `harden-architecture` | Independently review and fix architectural or control-flow problems. |
 

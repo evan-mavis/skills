@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prune Dead Code"
+  short_description: "Remove unused code left on a feature branch"
+  default_prompt: "Use $prune-dead-code to remove dead code introduced or exposed on the current feature branch."
+
+policy:
+  allow_implicit_invocation: false
