@@ -12,6 +12,8 @@ query-local-db
 query-prod-db
 refactor-structure
 run-ci
+to-agent-demo
+to-agent-qa
 to-linear
 to-pr
 to-prd

@@ -52,7 +52,7 @@ flowchart TB
 
   subgraph VERIFY["Verify"]
     direction TB
-    V1["run-ci"] --> V2["optional browser QA"] --> V3["optional video demo"]
+    V1["run-ci"] --> V2["to-agent-qa"] --> V3["to-agent-demo"]
   end
 
   subgraph DELIVER["Deliver"]
@@ -125,11 +125,14 @@ flowchart TB
 
 ### Verify
 
-| Skill    | One-liner                                                                 |
-| -------- | ------------------------------------------------------------------------- |
-| `run-ci` | Run the repository's relevant CI-equivalent checks without changing code. |
+| Skill           | One-liner                                                                 |
+| --------------- | ------------------------------------------------------------------------- |
+| `run-ci`        | Run the repository's relevant CI-equivalent checks without changing code. |
+| `to-agent-qa`   | Browser-test, fix, retest, and publish an Agent QA artifact.               |
+| `to-agent-demo` | Record the main feature paths and publish a coworker-ready Agent Demo.     |
 
-Browser QA and evidence capture are orchestrated inside `forge-issue` and `forge-build`, not separate skills.
+Forge still owns its built-in verification. Invoke the standalone `to-*` skills when the Notion
+artifacts are required.
 
 ### Deliver
 
