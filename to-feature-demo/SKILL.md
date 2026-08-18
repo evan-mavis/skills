@@ -34,8 +34,8 @@ Capture the final user-visible feature. Read
    validation, empty, loading, error, permission, or other hard-to-reach states. Test desktop
    unless the user asks for mobile. There is no hard duration limit; remove idle time and split
    clips when that improves scanning.
-6. Inspect every clip for correctness and secrets or PII, upload the MP4s, and map every UI state
-   to evidence in concise collapsed toggles.
+6. Inspect every clip for correctness and secrets or PII, upload the MP4s, caption every video
+   using the contract formats, and map every UI state to evidence in concise collapsed toggles.
 
 ## Gate and closeout
 

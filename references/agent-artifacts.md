@@ -35,6 +35,14 @@ Record silent H.264 MP4s. Show the trigger and final state, remove idle time, an
 middle, end, and sensitive transitions before upload. Never expose credentials or PII and never
 commit video files to the app repository.
 
+Caption every uploaded video in its Notion video block. Use these short formats:
+
+- QA coverage: `Coverage · <area> · <scenario>`
+- Bug repro: `Repro · BUG-## · <path or scenario>`
+- Post-fix proof: `Verified · BUG-## · <same path or scenario>`
+- Main demo: `Feature tour · <primary workflow>`
+- Demo edge state: `<UI state> · <role or setup>`
+
 ## Properties
 
 Populate source links, branch, final commit, affected surfaces, environment, implementation
@@ -49,17 +57,17 @@ default. Agent QA also sets `Passed`, `Total`, and `Open Bugs`; Agent Demos sets
 - Use one collapsed toggle per logical area: `<Area> · <passed>/<total>`.
 - Use one short bullet per scenario: `✅ <scenario> — <observed result>`.
 - For each bug, add `[Fixed] BUG-## · <title>` with severity, path, expected/actual result, failing
-  and passing SHAs, a repro video, and post-fix verification video.
+  and passing SHAs, a captioned repro video, and captioned post-fix verification video.
 - Keep `Exclusions` and `Gaps` collapsed. Exclusions require a one-line rationale and do not count
   toward `Total`; any real gap blocks readiness.
 
 ## Agent Demo page
 
 - Keep the visible callout to UI coverage, video count, linked QA, and demo commit.
-- Put the primary end-to-end video under `Feature tour`.
+- Put the captioned primary end-to-end video under `Feature tour`.
 - Use one collapsed toggle per logical area: `<Area> · <covered>/<total>` with one short bullet per
   UI state and its evidence location.
-- Put alternate and hard-to-reach state videos under collapsed `Edge-state clips`.
+- Put captioned alternate and hard-to-reach state videos under collapsed `Edge-state clips`.
 - Keep `Gaps` collapsed; any introduced UI without evidence blocks readiness.
 
 Write for scanning: concise bullets, no narrative introduction, implementation diary, repeated

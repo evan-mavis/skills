@@ -42,7 +42,8 @@ completely before acting.
 6. Create scoped `patch:` commits as fixes become valid. Push the feature branch only after the
    complete browser matrix passes.
 7. Re-audit the feature for missed paths. Upload the native MP4s, inspect them for correctness and
-   secrets or PII, populate concise toggles, and store the pushed final SHA.
+   secrets or PII, caption every video using the contract formats, populate concise toggles, and
+   store the pushed final SHA.
 
 ## Gate and closeout
 
