@@ -39,6 +39,13 @@ When a recording or upload flow needs a local staging area, use
 repository, and use filenames that identify the covered path. Do not use a repository directory or
 an ad hoc temporary directory as the canonical staging area.
 
+When an app workflow needs a video upload fixture, prefer a suitable video that the user has
+authorized from Apple Photos instead of a generated test pattern. Use the Photos app to export only
+the selected asset into the agent staging area. Inspect the export for people, private information,
+sensitive audio, and unrelated personal content before use. Never modify the Photos library. Treat
+an example image as visual guidance only; select an actual video with similar safe content for a
+video upload test.
+
 Record silent H.264 MP4s. Show the trigger and final state, remove idle time, and inspect the start,
 middle, end, and sensitive transitions before upload. Never expose credentials or PII and never
 commit video files to the app repository.
