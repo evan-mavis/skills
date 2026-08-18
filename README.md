@@ -141,11 +141,14 @@ flowchart TB
 
 ### Verify
 
-| Skill    | One-liner                                                                 |
-| -------- | ------------------------------------------------------------------------- |
-| `run-ci` | Run the repository's relevant CI-equivalent checks without changing code. |
+| Skill             | One-liner                                                                 |
+| ----------------- | ------------------------------------------------------------------------- |
+| `run-ci`          | Run the repository's relevant CI-equivalent checks without changing code. |
+| `to-agent-qa`     | Browser-test, fix, retest, and publish an Agent QA artifact.               |
+| `to-feature-demo` | Record every introduced UI state and publish an Agent Demo artifact.       |
 
-Browser QA and evidence capture are orchestrated inside `forge-issue` and `forge-build`, not separate skills.
+Forge still owns its built-in verification. Invoke the personal `to-*` skills when the standalone
+Notion artifacts are required.
 
 ### Deliver
 

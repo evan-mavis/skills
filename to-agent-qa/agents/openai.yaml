@@ -1,0 +1,7 @@
+interface:
+  display_name: "Agent QA"
+  short_description: "Browser-test and publish an Agent QA artifact"
+  default_prompt: "Use $to-agent-qa to browser-test this feature, fix defects, and publish its Agent QA artifact."
+
+policy:
+  allow_implicit_invocation: false

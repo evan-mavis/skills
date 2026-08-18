@@ -3,5 +3,7 @@ design-bake-off
 handoff
 refresh-local-db
 review-pr
+to-agent-qa
+to-feature-demo
 wait-what
 write-like-evan
