@@ -1,0 +1,7 @@
+interface:
+  display_name: "Agent Demo"
+  short_description: "Record and publish a coworker-ready feature tour"
+  default_prompt: "Use $to-agent-demo to record the important feature paths and publish an Agent Demo artifact."
+
+policy:
+  allow_implicit_invocation: false

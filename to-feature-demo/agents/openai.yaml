@@ -1,7 +1,0 @@
-interface:
-  display_name: "Feature Demo"
-  short_description: "Record and publish a complete feature demo"
-  default_prompt: "Use $to-feature-demo to record this feature and publish its Agent Demos artifact."
-
-policy:
-  allow_implicit_invocation: false

@@ -35,13 +35,19 @@ Record silent H.264 MP4s. Show the trigger and final state, remove idle time, an
 middle, end, and sensitive transitions before upload. Never expose credentials or PII and never
 commit video files to the app repository.
 
-Caption every uploaded video in its Notion video block. Use these short formats:
+Give every uploaded video a short title above its Notion video block and a one-sentence caption in
+the block. State the actor, action, and result when they matter. Use these patterns:
 
-- QA coverage: `Coverage · <area> · <scenario>`
-- Bug repro: `Repro · BUG-## · <path or scenario>`
-- Post-fix proof: `Verified · BUG-## · <same path or scenario>`
-- Main demo: `Feature tour · <primary workflow>`
-- Demo edge state: `<UI state> · <role or setup>`
+- QA coverage title: `<Actor> can <complete the action>`
+- QA coverage caption: `The test confirms that <actor> can <action and result>.`
+- Bug repro title: `BUG-##: <Short sentence that states the problem>`
+- Bug repro caption: `The video shows that <action> causes <incorrect result>.`
+- Post-fix title: `BUG-## is fixed in <path or scenario>`
+- Post-fix caption: `The video confirms that <same action> now causes <correct result>.`
+- Main demo title: `<Actor> can <complete the primary workflow>`
+- Main demo caption: `This video shows how <actor> uses <feature> to <result>.`
+- Option demo title: `<Actor> can <use an important option or alternate path>`
+- Option demo caption: `This video shows when and how <actor> uses <option>.`
 
 ## Properties
 
@@ -54,9 +60,9 @@ default. Agent QA also sets `Passed`, `Total`, and `Open Bugs`; Agent Demos sets
 ## Agent QA page
 
 - Keep the visible callout to result, open bugs, ship status, and tested commit.
-- Use one collapsed toggle per logical area: `<Area> · <passed>/<total>`.
-- Use one short bullet per scenario: `✅ <scenario> — <observed result>`.
-- For each bug, add `[Fixed] BUG-## · <title>` with severity, path, expected/actual result, failing
+- Use one collapsed toggle per logical area: `<Area>: <passed>/<total> tests passed`.
+- Use one short bullet per scenario: `✅ <Actor and action>. <Observed result>.`
+- For each bug, add `[Fixed] BUG-##: <title>` with severity, path, expected/actual result, failing
   and passing SHAs, a captioned repro video, and captioned post-fix verification video.
 - Keep `Exclusions` and `Gaps` collapsed. Exclusions require a one-line rationale and do not count
   toward `Total`; any real gap blocks readiness.
@@ -64,11 +70,14 @@ default. Agent QA also sets `Passed`, `Total`, and `Open Bugs`; Agent Demos sets
 ## Agent Demo page
 
 - Keep the visible callout to UI coverage, video count, linked QA, and demo commit.
-- Put the captioned primary end-to-end video under `Feature tour`.
-- Use one collapsed toggle per logical area: `<Area> · <covered>/<total>` with one short bullet per
-  UI state and its evidence location.
-- Put captioned alternate and hard-to-reach state videos under collapsed `Edge-state clips`.
-- Keep `Gaps` collapsed; any introduced UI without evidence blocks readiness.
+- Put the titled and captioned primary end-to-end video under `Feature tour`.
+- Use one collapsed toggle per logical area: `<Area>: <covered>/<total> paths shown`. Add one short,
+  complete sentence for each path and its evidence location.
+- Put titled and captioned clips for important options and alternate workflows in the relevant
+  logical-area toggle. Do not create an edge-case section. Remove it if the template creates it.
+- Keep `Gaps` collapsed. A missing primary path or important user choice blocks readiness.
 
-Write for scanning: concise bullets, no narrative introduction, implementation diary, repeated
-metadata, automated-test output, or generic filler.
+Write all page text in ASD-STE100 Simplified Technical English. Use short, complete sentences,
+common words, active voice, and one thought per sentence. Do not use middle dots or other punctuation
+to join fragments. Write for scanning: concise bullets, no narrative introduction, implementation
+diary, repeated metadata, automated-test output, or generic filler.

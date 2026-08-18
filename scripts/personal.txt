@@ -4,6 +4,6 @@ handoff
 refresh-local-db
 review-pr
 to-agent-qa
-to-feature-demo
+to-agent-demo
 wait-what
 write-like-evan

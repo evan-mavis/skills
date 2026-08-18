@@ -145,7 +145,7 @@ flowchart TB
 | ----------------- | ------------------------------------------------------------------------- |
 | `run-ci`          | Run the repository's relevant CI-equivalent checks without changing code. |
 | `to-agent-qa`     | Browser-test, fix, retest, and publish an Agent QA artifact.               |
-| `to-feature-demo` | Record every introduced UI state and publish an Agent Demo artifact.       |
+| `to-agent-demo`   | Record the main feature paths and publish a coworker-ready Agent Demo.     |
 
 Forge still owns its built-in verification. Invoke the personal `to-*` skills when the standalone
 Notion artifacts are required.
