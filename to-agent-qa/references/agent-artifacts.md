@@ -46,6 +46,28 @@ sensitive audio, and unrelated personal content before use. Never modify the Pho
 an example image as visual guidance only; select an actual video with similar safe content for a
 video upload test.
 
+### Notion video upload
+
+Use this order for every Agent QA or Agent Demo video:
+
+1. Fetch Notion `self` and inspect `current_tool_access` before choosing an upload path.
+2. Prefer a callable native Notion MCP local-file or file-upload operation.
+3. Do not start `ntn login` when the workspace disables personal access tokens.
+4. If the available MCP attachment operation accepts only `source_url`, stage only the selected and
+   inspected MP4s under an isolated agent-evidence prefix in an approved object store. Use
+   short-lived signed HTTPS URLs. Treat these copies as temporary transit objects, not canonical
+   artifacts.
+5. Call `create_attachment`, then immediately insert each returned `file-upload://` source as a
+   native `<video>` block with the required title and caption.
+6. Fetch the page again. Confirm every upload source resolved to a persistent video block and verify
+   that each video plays.
+7. Delete only the temporary transit objects after verification. Keep the canonical MP4s in the
+   agent staging area.
+8. Keep the artifact `Blocked` if a video exists only as a local path, an external transit link, an
+   unresolved upload source, or a video that does not play.
+
+Batch transit uploads and page insertion when practical, but verify every video separately.
+
 Record silent H.264 MP4s. Show the trigger and final state, remove idle time, and inspect the start,
 middle, end, and sensitive transitions before upload. Never expose credentials or PII and never
 commit video files to the app repository.
