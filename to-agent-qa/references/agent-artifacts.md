@@ -15,21 +15,23 @@ Set `Feature Key` to the Linear identifier when available, otherwise the PR numb
 normalized `<branch>:<feature>` value. Use it to upsert and rename records. Relate Agent QA through
 `Agent Demo`; relate Agent Demos through `Agent QA`.
 
-## Cloud runtime
+## Runtime
 
 Read the repository's agent and environment documentation on every run, including
-`<airgoods-repo>/AGENTS.md` and `<airgoods-repo>/.cursor/README.md` when present. These files define
-the Airgoods runtime regardless of which agent environment is executing the skill. Expect a fully
-functioning cloud dev environment with Redis, app services, and a fresh per-run Neon child from
-the protected production-copy parent. The child is disposable: query and mutate it without
-restriction to make test states reachable. Never connect to or modify the protected parent or
-production.
+`<airgoods-repo>/AGENTS.md` and `<airgoods-repo>/.cursor/README.md` when present.
 
-Use the UI-control and screen-recording tools provided by the current environment. Follow that
-environment's documented tool instructions; do not assume a provider, tool name, or control API.
-Do not install replacement browsers, automation, or recording packages such as Playwright unless
-no provided tool can complete a required path. Disclose any installation or fallback in `Gaps`,
-and remain `Blocked` if video evidence cannot be produced.
+- **Codex:** Load `provision-local-worktree-environment` and attach previewctl to the current
+  worktree. Use its isolated services, in-app Browser, and disposable Neon child. Record the page
+  in the background with CDP screencasting, then use installed `ffmpeg` and `ffprobe` to produce
+  and validate silent H.264 MP4s. Show a click halo in QA clips and a synthetic cursor with click
+  feedback in Demo tours; remove injected markers after recording.
+- **Cursor:** Use the provisioned cloud services and disposable Neon child with Cursor's native
+  Computer Use and video recording.
+- **Other environments:** Use their provided UI and recording tools. Remain `Blocked` if they
+  cannot produce video; do not substitute or install Playwright.
+
+Use macOS screen capture only when evidence must include native UI outside the page. Never connect
+to or modify the protected Neon parent or production.
 
 Record silent H.264 MP4s. Show the trigger and final state, remove idle time, and inspect the start,
 middle, end, and sensitive transitions before upload. Never expose credentials or PII and never
@@ -53,9 +55,9 @@ the block. State the actor, action, and result when they matter. Use these patte
 
 Populate source links, branch, final commit, affected surfaces, environment, implementation
 harness/model, artifact harness/model, and completion date. Harness fields record attribution only;
-store the actual environment and do not branch the workflow by provider. Use `Cloud Dev` by
-default. Agent QA also sets `Passed`, `Total`, and `Open Bugs`; Agent Demos sets `UI Covered`,
-`UI Total`, and `Video Count`. Keep `Status` accurate throughout the run.
+runtime routing follows the current agent environment. Use `Local Worktree` for Codex and `Cloud
+Dev` for Cursor. Agent QA also sets `Passed`, `Total`, and `Open Bugs`; Agent Demos sets `UI
+Covered`, `UI Total`, and `Video Count`. Keep `Status` accurate throughout the run.
 
 ## Agent QA page
 
