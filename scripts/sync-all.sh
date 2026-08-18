@@ -10,7 +10,7 @@ Sync repository skills into Codex, Cursor, and the ai-dev-workflow marketplace p
   --check  Report drift without changing anything.
 
 Workflow:
-  1. sync-skills.sh      -> ~/.agents/skills via the skills CLI
+  1. sync-skills.sh      -> ~/.codex/skills and ~/.cursor/skills
   2. sync-marketplace.sh -> ../airgoods-plugin-marketplace/plugins/ai-dev-workflow
 
 Manifests:
@@ -19,7 +19,9 @@ Manifests:
 
 Environment overrides:
   SKILLS_CLI          Passed to sync-skills.sh
-  AGENTS_SKILLS_DIR   Passed to sync-skills.sh
+  AGENTS_SKILLS_DIR   Passed to sync-skills.sh for legacy cleanup
+  CURSOR_SKILLS_DIR   Passed to sync-skills.sh
+  CODEX_SKILLS_DIR    Passed to sync-skills.sh
   MARKETPLACE_ROOT    Passed to sync-marketplace.sh
 EOF
 }
