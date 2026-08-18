@@ -6,7 +6,7 @@ description: Record the primary paths, important options, and user-visible value
 # Agent Demo
 
 Show coworkers the final user-visible feature. Read
-[agent artifact contracts](../references/agent-artifacts.md) completely before acting.
+[agent artifact contracts](../to-agent-qa/references/agent-artifacts.md) completely before acting.
 
 ## Preconditions
 

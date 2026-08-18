@@ -5,7 +5,7 @@ description: Browser-test an implemented Airgoods feature in cloud with maximum 
 
 # Agent QA
 
-Run a browser-only shipping gate. Read [agent artifact contracts](../references/agent-artifacts.md)
+Run a browser-only shipping gate. Read [agent artifact contracts](./references/agent-artifacts.md)
 completely before acting.
 
 ## Preconditions
