@@ -33,6 +33,12 @@ Read the repository's agent and environment documentation on every run, includin
 Use macOS screen capture only when evidence must include native UI outside the page. Never connect
 to or modify the protected Neon parent or production.
 
+When a recording or upload flow needs a local staging area, use
+`~/Documents/resources/videos/agent/<feature-key>/<artifact-type>/`. Use `qa` or `demo` for
+`<artifact-type>`. Create the directory when needed, keep all staged MP4s outside the application
+repository, and use filenames that identify the covered path. Do not use a repository directory or
+an ad hoc temporary directory as the canonical staging area.
+
 Record silent H.264 MP4s. Show the trigger and final state, remove idle time, and inspect the start,
 middle, end, and sensitive transitions before upload. Never expose credentials or PII and never
 commit video files to the app repository.
