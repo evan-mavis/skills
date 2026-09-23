@@ -174,3 +174,4 @@ Agent teardown after delivery: delete Neon branches, stop services, clear temp c
 | `design-bake-off`             | Generate multiple UI variants with a dev-only live switcher.            |
 | `handoff`                     | Compress the current conversation into a handoff doc for another agent. |
 | `write-like-evan`             | Draft Slack, email, or updates in Evan's voice.                         |
+| `to-linear-spec`              | Create a Linear feature spec with a parent issue and focused subissues.  |

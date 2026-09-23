@@ -5,5 +5,6 @@ refresh-local-db
 review-pr
 to-agent-demo
 to-agent-qa
+to-linear-spec
 wait-what
 write-like-evan

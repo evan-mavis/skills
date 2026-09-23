@@ -1,0 +1,7 @@
+interface:
+  display_name: "To Linear Spec"
+  short_description: "Create a readable Linear parent issue and subissues"
+  default_prompt: "Use $to-linear-spec to create or update a Linear feature spec and its subissues from this context."
+
+policy:
+  allow_implicit_invocation: false
