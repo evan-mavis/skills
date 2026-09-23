@@ -20,14 +20,19 @@ flowchart LR
 
 ### Proposed files
 
-List files to create or materially modify. Mark each file `create` or `modify` and name its responsibility. This is an ownership map, not an exhaustive edit list.
+List files to create or materially modify in a fenced `text` directory tree. Start at a shared source root such as `apps/backend/src/`; use `├──`, `└──`, and `│` to show actual nested directories and sibling files. Separate different source roots with a blank line. A single-child directory chain may be compacted, but do not flatten multiple directories into file paths or replace the tree with Markdown bullets. Mark each file `create` or `modify` and name its responsibility in an inline `#` comment. This is an ownership map, not an exhaustive edit list.
 
 ```text
 apps/backend/src/
-├── services/PreferenceService.ts  # create: owns preference writes
-└── routes/buyer/preferences.ts    # modify: exposes preference API
+├── services/
+│   └── PreferenceService.ts  # create: owns preference writes
+└── routes/
+    └── buyer/
+        └── preferences.ts  # modify: exposes preference API
+
 apps/web/src/
-└── hooks/usePreference.ts         # create: loads and saves client preference
+└── hooks/
+    └── usePreference.ts  # create: loads and saves client preference
 ```
 
 ### Types and data model
@@ -113,12 +118,21 @@ sequenceDiagram
 
 ```text
 apps/backend/src/
-├── Database/entity/BuyerPreference.ts       # create: stores the user's mode
-├── Database/migration/<timestamp>.ts        # create: adds preference storage
-└── Routes/Buyer/preferences.ts              # create: reads and writes the mode
+├── Database/
+│   ├── entity/
+│   │   └── BuyerPreference.ts  # create: stores the user's mode
+│   └── migration/
+│       └── <timestamp>.ts  # create: adds preference storage
+└── Routes/
+    └── Buyer/
+        └── preferences.ts  # create: reads and writes the mode
+
 apps/web/src/
-├── Services/Buyer/PreferenceServices.ts      # create: calls the buyer API
-└── hooks/usePriceDisplayMode.ts             # create: owns loading and save state
+├── Services/
+│   └── Buyer/
+│       └── PreferenceServices.ts  # create: calls the buyer API
+└── hooks/
+    └── usePriceDisplayMode.ts  # create: owns loading and save state
 ```
 
 ### Types and data model
