@@ -21,32 +21,36 @@ Usage:
 Connection resolution:
   1. --database-url-env <name> when caller verified an isolated task database
   2. AIRGOODS_LOCAL_DATABASE_URL when explicitly exported in the shell
-  3. apps/backend/.env.example + apps/backend/.env.local when run from an Airgoods repo
+  3. apps/backend/.env.example -> .env -> .env.local when run from an Airgoods repo
   4. localhost Postgres defaults (PGDATABASE=stack, PGHOST=localhost, PGPORT=5432)
 EOF
 }
 
 find_backend_env_files() {
   local dir="${PWD}"
-  while [[ "${dir}" != "/" ]]; do
-    if [[ -f "${dir}/apps/backend/.env.example" ]]; then
-      printf '%s\n' "${dir}/apps/backend/.env.example"
-      if [[ -f "${dir}/apps/backend/.env.local" ]]; then
-        printf '%s\n' "${dir}/apps/backend/.env.local"
-      fi
+  local env_file=""
+  while :; do
+    if [[ -d "${dir}/apps/backend" ]] && [[ -f "${dir}/apps/backend/.env.example" || -f "${dir}/apps/backend/.env" || -f "${dir}/apps/backend/.env.local" ]]; then
+      for env_file in .env.example .env .env.local; do
+        if [[ -f "${dir}/apps/backend/${env_file}" ]]; then
+          printf '%s\n' "${dir}/apps/backend/${env_file}"
+        fi
+      done
       return 0
     fi
+    [[ "${dir}" == "/" ]] && break
     dir="$(dirname "${dir}")"
   done
 
   if command -v git >/dev/null 2>&1; then
     local git_root=""
     git_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
-    if [[ -n "${git_root}" && -f "${git_root}/apps/backend/.env.example" ]]; then
-      printf '%s\n' "${git_root}/apps/backend/.env.example"
-      if [[ -f "${git_root}/apps/backend/.env.local" ]]; then
-        printf '%s\n' "${git_root}/apps/backend/.env.local"
-      fi
+    if [[ -n "${git_root}" && -d "${git_root}/apps/backend" ]] && [[ -f "${git_root}/apps/backend/.env.example" || -f "${git_root}/apps/backend/.env" || -f "${git_root}/apps/backend/.env.local" ]]; then
+      for env_file in .env.example .env .env.local; do
+        if [[ -f "${git_root}/apps/backend/${env_file}" ]]; then
+          printf '%s\n' "${git_root}/apps/backend/${env_file}"
+        fi
+      done
       return 0
     fi
   fi
@@ -81,6 +85,7 @@ const wantedKeys = new Set([
 ]);
 
 const parsed = {};
+const parsedSource = {};
 
 for (const file of process.argv.slice(2)) {
   const contents = fs.readFileSync(file, 'utf8');
@@ -111,6 +116,7 @@ for (const file of process.argv.slice(2)) {
     }
 
     parsed[key] = value;
+    parsedSource[key] = file.split('/').pop();
   }
 }
 
@@ -136,7 +142,7 @@ function describeConnection(parsedValues) {
       return {
         mode: 'url',
         source,
-        label: `${source} database=${database} host=${host}`,
+        label: `${source} database=${database} host=${host} env=${parsedSource.DATABASE_URL}`,
       };
     } catch {
       return {
@@ -159,7 +165,7 @@ function describeConnection(parsedValues) {
   return {
     mode: 'host',
     source,
-    label: `${source} database=${database} host=${host} port=${port}`,
+    label: `${source} database=${database} host=${host} port=${port} env=${parsedSource.DB_HOST_LOCAL ?? parsedSource.DB_NAME_LOCAL ?? 'defaults'}`,
   };
 }
 
@@ -180,6 +186,19 @@ NODE
 
   # shellcheck disable=SC1090
   source "${resolved_env}"
+}
+
+describe_url_target() {
+  DATABASE_URL="${DATABASE_URL}" node - <<'NODE'
+try {
+  const url = new URL(process.env.DATABASE_URL);
+  const database = url.pathname.replace(/^\//, '') || 'postgres';
+  console.log(`database=${database} host=${url.hostname}`);
+} catch {
+  console.error('query-airgoods-local: invalid DATABASE_URL');
+  process.exitCode = 2;
+}
+NODE
 }
 
 while [[ "$#" -gt 0 ]]; do
@@ -248,18 +267,18 @@ if [[ "${database_url_env_requested}" == "true" ]]; then
 
   CONNECTION_MODE="url"
   CONNECTION_SOURCE="task-env"
-  CONNECTION_LABEL="task-env via ${database_url_env}"
-  readonly_psql_prefix=(-c "SET default_transaction_read_only = ON;")
+  CONNECTION_LABEL="task-env via ${database_url_env} $(describe_url_target)"
+  readonly_psql_prefix=(--single-transaction -c "SET TRANSACTION READ ONLY;")
 elif [[ -n "${AIRGOODS_LOCAL_DATABASE_URL:-}" ]]; then
   DATABASE_URL="${AIRGOODS_LOCAL_DATABASE_URL}"
   CONNECTION_MODE="url"
   CONNECTION_SOURCE="shell-override"
-  CONNECTION_LABEL="shell-override via AIRGOODS_LOCAL_DATABASE_URL"
-  readonly_psql_prefix=(-c "SET default_transaction_read_only = ON;")
+  CONNECTION_LABEL="shell-override via AIRGOODS_LOCAL_DATABASE_URL $(describe_url_target)"
+  readonly_psql_prefix=(--single-transaction -c "SET TRANSACTION READ ONLY;")
 elif load_backend_env_resolution; then
   if [[ "${CONNECTION_MODE}" == "url" ]]; then
     : "${DATABASE_URL:?DATABASE_URL is required}"
-    readonly_psql_prefix=(-c "SET default_transaction_read_only = ON;")
+    readonly_psql_prefix=(--single-transaction -c "SET TRANSACTION READ ONLY;")
   else
     : "${DB_HOST_LOCAL:?DB_HOST_LOCAL is required}"
     : "${DB_PORT_LOCAL:?DB_PORT_LOCAL is required}"
