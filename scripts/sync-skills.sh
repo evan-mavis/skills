@@ -40,6 +40,8 @@ esac
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 repo_root=$(cd "$script_dir/.." && pwd -P)
+skills_root="$repo_root/ai-dev-workflow/skills"
+shared_references="$skills_root/references"
 agents_root=${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}
 cursor_root=${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}
 codex_root=${CODEX_SKILLS_DIR:-$HOME/.codex/skills}
@@ -73,7 +75,7 @@ check_installed_skills() {
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
         drift=1
-      elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
+      elif ! diff -qr "$skills_root/$skill" "$target" >/dev/null; then
         echo "different: $target"
         drift=1
       fi
@@ -90,20 +92,20 @@ check_installed_skills() {
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
         drift=1
-      elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
+      elif ! diff -qr "$skills_root/$skill" "$target" >/dev/null; then
         echo "different: $target"
         drift=1
       fi
     done
   done
 
-  if [[ -d "$repo_root/references" ]]; then
+  if [[ -d "$shared_references" ]]; then
     for root in "$codex_root" "$cursor_root" "$agents_root"; do
       target="$root/references"
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
         drift=1
-      elif ! diff -qr "$repo_root/references" "$target" >/dev/null; then
+      elif ! diff -qr "$shared_references" "$target" >/dev/null; then
         echo "different: $target"
         drift=1
       fi
@@ -116,11 +118,11 @@ check_installed_skills() {
 sync_shared_references() {
   local root
 
-  [[ -d "$repo_root/references" ]] || return 0
+  [[ -d "$shared_references" ]] || return 0
 
   for root in "$codex_root" "$cursor_root" "$agents_root"; do
     mkdir -p "$root/references"
-    rsync -a --delete "$repo_root/references/" "$root/references/"
+    rsync -a --delete "$shared_references/" "$root/references/"
   done
 }
 
@@ -140,12 +142,12 @@ if ((${#published[@]} > 0)); then
   for skill in "${published[@]}"; do
     published_args+=(--skill "$skill")
   done
-  "${skills_cli[@]}" add "$repo_root" "${published_args[@]}" -a codex -g -y
+  "${skills_cli[@]}" add "$skills_root" "${published_args[@]}" -a codex -g -y
   "${skills_cli[@]}" remove -g -a cursor -s "${published[@]}" -y >/dev/null
   for skill in "${published[@]}"; do
     rm -rf "$codex_root/$skill" "$cursor_root/$skill" "$agents_root/$skill"
-    cp -R "$repo_root/$skill" "$codex_root/$skill"
-    cp -R "$repo_root/$skill" "$agents_root/$skill"
+    cp -R "$skills_root/$skill" "$codex_root/$skill"
+    cp -R "$skills_root/$skill" "$agents_root/$skill"
   done
 fi
 
@@ -154,12 +156,12 @@ if ((${#personal[@]} > 0)); then
   for skill in "${personal[@]}"; do
     personal_args+=(--skill "$skill")
   done
-  "${skills_cli[@]}" add "$repo_root" "${personal_args[@]}" -a cursor -a codex -g -y
+  "${skills_cli[@]}" add "$skills_root" "${personal_args[@]}" -a cursor -a codex -g -y
   for skill in "${personal[@]}"; do
     rm -rf "$codex_root/$skill" "$cursor_root/$skill" "$agents_root/$skill"
-    cp -R "$repo_root/$skill" "$codex_root/$skill"
-    cp -R "$repo_root/$skill" "$cursor_root/$skill"
-    cp -R "$repo_root/$skill" "$agents_root/$skill"
+    cp -R "$skills_root/$skill" "$codex_root/$skill"
+    cp -R "$skills_root/$skill" "$cursor_root/$skill"
+    cp -R "$skills_root/$skill" "$agents_root/$skill"
   done
 fi
 

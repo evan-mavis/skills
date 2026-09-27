@@ -1,6 +1,7 @@
 # My Day-to-Day Skills ⚒️
 
-Canonical skill source. After editing, sync:
+Canonical skill source lives in `ai-dev-workflow/skills/`. Each skill is a
+directory under that path, alongside shared `references/`. After editing, sync:
 
 ```bash
 ./scripts/sync-all.sh          # install
@@ -164,8 +165,8 @@ Agent teardown after delivery: delete Neon branches, stop services, clear temp c
 
 | Skill / reference             | One-liner                                                               |
 | ----------------------------- | ----------------------------------------------------------------------- |
-| `references/specs-repo.md`    | Planning store — resolve from context, bootstrap, paths, commit/push.   |
-| `references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
-| `preflight-gates.md`          | Shared runtime, evidence, and closeout gates for orchestrators.   |
+| `ai-dev-workflow/skills/references/specs-repo.md`    | Planning store — resolve from context, bootstrap, paths, commit/push.   |
+| `ai-dev-workflow/skills/references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
+| `ai-dev-workflow/skills/references/preflight-gates.md` | Shared runtime, evidence, and closeout gates for orchestrators. |
 | `refresh-local-db`            | Refresh local Postgres from a Render production export.                 |
 | `to-linear-spec`              | Create a Linear feature spec with a parent issue and focused subissues.  |

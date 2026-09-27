@@ -30,6 +30,8 @@ esac
 
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 repo_root=$(cd "$script_dir/.." && pwd -P)
+skills_root="$repo_root/ai-dev-workflow/skills"
+shared_references="$skills_root/references"
 marketplace_root=${MARKETPLACE_ROOT:-"$repo_root/../airgoods-plugin-marketplace"}
 plugin_root="$marketplace_root/plugins/ai-dev-workflow"
 target_skills_root="$plugin_root/skills"
@@ -69,7 +71,7 @@ check_marketplace() {
     if [[ ! -d "$target" ]]; then
       echo "missing: $target"
       drift=1
-    elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
+    elif ! diff -qr "$skills_root/$skill" "$target" >/dev/null; then
       echo "different: $target"
       drift=1
     fi
@@ -103,11 +105,11 @@ check_marketplace() {
     drift=1
   fi
 
-  if [[ -d "$repo_root/references" ]]; then
+  if [[ -d "$shared_references" ]]; then
     if [[ ! -d "$target_skills_root/references" ]]; then
       echo "missing: $target_skills_root/references"
       drift=1
-    elif ! diff -qr "$repo_root/references" "$target_skills_root/references" >/dev/null; then
+    elif ! diff -qr "$shared_references" "$target_skills_root/references" >/dev/null; then
       echo "different: $target_skills_root/references"
       drift=1
     fi
@@ -129,12 +131,12 @@ sync_marketplace() {
   mkdir -p "$staging/skills"
   for skill in "${skills[@]}"; do
     mkdir -p "$staging/skills/$skill"
-    rsync -a --delete "$repo_root/$skill/" "$staging/skills/$skill/"
+    rsync -a --delete "$skills_root/$skill/" "$staging/skills/$skill/"
   done
 
-  if [[ -d "$repo_root/references" ]]; then
+  if [[ -d "$shared_references" ]]; then
     mkdir -p "$staging/references"
-    rsync -a --delete "$repo_root/references/" "$staging/references/"
+    rsync -a --delete "$shared_references/" "$staging/references/"
   fi
 
   mkdir -p "$target_skills_root"
