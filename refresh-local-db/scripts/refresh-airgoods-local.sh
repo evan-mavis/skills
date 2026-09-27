@@ -138,7 +138,7 @@ wait_for_branch_ready() {
       neon_cli branches get "$branch_ref" \
         --project-id "$NEON_PROJECT_ID" \
         -o json \
-        | python3 -c 'import json,sys; print(json.load(sys.stdin).get("branch", {}).get("current_state", ""))'
+        | python3 -c 'import json,sys; data=json.load(sys.stdin); print(data.get("branch", data).get("current_state", ""))'
     )"
     if [[ "$state" == "ready" ]]; then
       return 0
