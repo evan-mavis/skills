@@ -1,10 +1,15 @@
 # Installed locally only; never copied into the marketplace plugin.
 design-bake-off
 handoff
+maintain-airgoods-verification
 refresh-local-db
 review-pr
 to-agent-demo
 to-agent-qa
 to-linear-spec
+verify-airgoods
+verify-airgoods-warehouse
+verify-airgoods-web
+verify-airgoods-web-public
 wait-what
 write-like-evan
