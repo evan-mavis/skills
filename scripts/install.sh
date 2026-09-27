@@ -16,6 +16,8 @@ personal/AGENTS.md (the Factory and Cursor copies are generated, not linked).
   ~/.codex/AGENTS.md           -> personal/AGENTS.md
   ~/.factory/AGENTS.md            copied from personal/AGENTS.md
   ~/.cursor/rules/personal.mdc    generated from personal/AGENTS.md
+  Factory plugins                 core, debugging, droid-control, typescript
+                                  from Factory-AI/factory-plugins (when droid is installed)
 
 Former ai-dev-workflow skills, and copies of managed skills in host-specific
 skill folders, are moved to ~/.skills-backup/<timestamp>/ rather than deleted.
@@ -143,6 +145,22 @@ ensure_link "$repo_root/personal/AGENTS.md" "$HOME/.codex/AGENTS.md"
 # Factory ignores a symlinked personal AGENTS.md, so it gets a copy.
 ensure_file "$HOME/.factory/AGENTS.md" "$(cat "$repo_root/personal/AGENTS.md")"
 ensure_file "$HOME/.cursor/rules/personal.mdc" "$(printf -- '---\ndescription: Personal defaults generated from personal/AGENTS.md by scripts/install.sh\nalwaysApply: true\n---\n'; cat "$repo_root/personal/AGENTS.md")"
+
+factory_marketplace=factory-plugins
+factory_plugins=(core debugging droid-control typescript)
+if command -v droid >/dev/null; then
+  if ! droid plugin marketplace list 2>/dev/null | grep -q "^ *$factory_marketplace "; then
+    report "add: Factory marketplace Factory-AI/factory-plugins"
+    [[ "$mode" == apply ]] && droid plugin marketplace add Factory-AI/factory-plugins
+  fi
+  installed_plugins=$(droid plugin list --scope user 2>/dev/null || true)
+  for plugin in "${factory_plugins[@]}"; do
+    id="$plugin@$factory_marketplace"
+    grep -q "^ *$id " <<<"$installed_plugins" && continue
+    report "install: Factory plugin $id"
+    [[ "$mode" == apply ]] && droid plugin install "$id" --scope user
+  done
+fi
 
 scripts_dir="$repo_root/pstack/skills/poteto-mode/scripts"
 if [[ ! -d "$scripts_dir/node_modules" ]]; then
