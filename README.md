@@ -1,171 +1,38 @@
-# My Day-to-Day Skills ⚒️
+# Personal Engineering Skills
 
-Published skill sources live in `ai-dev-workflow/skills/`; local-only skill
-sources live in `personal-skills/`. Shared references live alongside the
-published skills. After editing, sync:
+This repository is the source for a cross-tool engineering workflow built
+around pstack, with personal and Airgoods-specific skills alongside it.
 
-```bash
-./scripts/sync-all.sh          # install
-./scripts/sync-all.sh --check  # drift check
-```
+## Pstack
 
-- [scripts/published.txt](scripts/published.txt) — marketplace plugin (`ai-dev-workflow`)
-- [scripts/personal.txt](scripts/personal.txt) — local-only skills
+[`pstack/`](pstack/) is copied from the
+[upstream Cursor pstack plugin](https://github.com/cursor/plugins/tree/main/pstack).
+The imported snapshot is upstream version `0.15.5`, commit
+[`ecc249f1e306fc64ddf83c7bed16cacf7c2239db`](https://github.com/cursor/plugins/commit/ecc249f1e306fc64ddf83c7bed16cacf7c2239db),
+retrieved on 2026-09-27. Its internal directory structure and contents are
+preserved as upstream.
 
-## Workflow
+The upstream skills are Cursor-oriented. The next step is to adapt selected
+skill content for Codex, Factory, GitHub-native stacked PRs, and personal
+workflows. Those adaptations have not been made yet. Keep pstack's existing
+layout intact while editing the contents of individual skills; document
+meaningful adaptations here as they are made.
 
-Two orchestration paths. Single tickets skip planning and go straight to preflight; larger multi-slice features plan first, then `forge-build`. Both share the same implement → verify → deliver pipeline.
+## Personal skills
 
-```mermaid
-%%{init: {"flowchart": {"nodeSpacing": 40, "rankSpacing": 48, "padding": 14}}}%%
-flowchart TB
-  ORCH{{"Single ticket or larger feature?"}}
+These skills are organized by domain and remain separate from upstream pstack:
 
-  E1["forge-issue<br/>bug · improvement · small feature"]
+- [`personal/planning/`](personal/planning/): `grill-me`, `to-linear-spec`
+- [`personal/airgoods/`](personal/airgoods/): Airgoods database, verification,
+  and local development skills
 
-  subgraph PLANPATH["Plan"]
-    direction LR
-    P1["grill-me"] --> P2["to-prd"] --> P3["to-slices"] --> P4["to-linear"]
-  end
+## Deprecated
 
-  E2["forge-build<br/>execute approved plan"]
+[`deprecated/ai-dev-workflow/`](deprecated/ai-dev-workflow/) contains the former
+`ai-dev-workflow` plugin and its skills. It is retained for reference, not as
+the active workflow. Its former install and sync scripts are archived in
+[`deprecated/scripts/`](deprecated/scripts/) and should not be used for the
+new pstack-based setup.
 
-  ORCH -->|"one ticket"| E1
-  ORCH -->|"needs planning"| P1
-  P4 --> E2
-
-  subgraph PREFLIGHT["Preflight"]
-    direction TB
-    PF1["ambiguity interview"] --> PF2["runtime profile"] --> PF3["query-prod-db"]
-  end
-
-  E1 --> PF1
-  E2 --> PF1
-
-  subgraph RUNTIME["Runtime · pick one profile"]
-    direction TB
-    RT0{{"data_profile — choose one"}}
-    R1["none"]
-    R2["local · fixtures"]
-    R3["hosted-db · host DATABASE_URL"]
-    R4["local-preview · preview stack"]
-    RT0 --> R1
-    RT0 --> R2
-    RT0 --> R3
-    RT0 --> R4
-    R1 ~~~ R2
-    R2 ~~~ R3
-    R3 ~~~ R4
-  end
-
-  subgraph IMPLEMENT["Implement · forge-build loops per slice"]
-    direction TB
-    I1["implement-slice"] --> I2["deslop"] --> I3["refactor-structure"] --> I4["harden-architecture"]
-    NEXT{{"more slices?"}}
-    I4 --> NEXT
-    NEXT -->|yes| I1
-  end
-
-  subgraph VERIFY["Verify"]
-    direction TB
-    V1["run-ci"] --> V2["optional browser QA"] --> V3["optional video demo"]
-  end
-
-  subgraph DELIVER["Deliver"]
-    direction TB
-    D1["to-pr draft"] --> D2["babysit"]
-  end
-
-  CLEANUP["runtime cleanup<br/>teardown ephemeral infra"]
-  YOU["you · review draft PR & merge"]
-
-  PF3 --> RT0
-  RT0 --> I1
-  NEXT -->|no| V1
-  I4 -->|"single ticket"| V1
-  V3 --> D1
-  D2 --> CLEANUP
-  CLEANUP -.-> YOU
-
-  classDef phase fill:#f5f5f5,stroke:#999,stroke-width:1px
-  classDef orchestrator fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
-  classDef entry fill:#eeeeee,stroke:#666,stroke-width:2px
-  classDef human fill:#fff,stroke:#999,stroke-width:1px,stroke-dasharray: 5 5
-  class PLANPATH,PREFLIGHT,RUNTIME,IMPLEMENT,VERIFY,DELIVER phase
-  class E1,E2 orchestrator
-  class ORCH entry
-  class YOU human
-```
-
-**Prefix guide:** `to-*` = transform context into an artifact · `forge-*` = run a delivery pipeline · everything else = atomic capability.
-
-## Glossary
-
-### Plan
-
-| Skill       | One-liner                                                                |
-| ----------- | ------------------------------------------------------------------------ |
-| `to-prd`    | Turn approved context into `specs/<slug>/PRD.md` on the feature branch.  |
-| `to-slices` | Split a PRD into `specs/<slug>/issues/`, commit/push, optional archive.  |
-| `to-linear` | Sync the monorepo `specs/<slug>/` plan and slice graph to Linear.        |
-
-### Orchestration
-
-| Skill         | One-liner                                                                                    |
-| ------------- | -------------------------------------------------------------------------------------------- |
-| `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
-| `forge-build` | Execute an approved multi-slice plan from `specs/<slug>/` for larger features that needed planning first. |
-
-### Implement
-
-| Skill                 | One-liner                                                            |
-| --------------------- | -------------------------------------------------------------------- |
-| `implement-slice`     | Implement one scoped change and leave the diff uncommitted.          |
-| `deslop`              | Remove mechanical AI slop from the current diff.                     |
-| `refactor-structure`  | Improve folder layout, naming, and file cohesion in scope.           |
-| `harden-architecture` | Independently review and fix architectural or control-flow problems. |
-
-### Verify
-
-| Skill    | One-liner                                                                 |
-| -------- | ------------------------------------------------------------------------- |
-| `run-ci` | Run the repository's relevant CI-equivalent checks without changing code. |
-
-Forge owns its built-in verification.
-
-### Deliver
-
-| Skill     | One-liner                                                                 |
-| --------- | ------------------------------------------------------------------------- |
-| `to-pr`   | Create or update one draft PR with verification summary and evidence.     |
-| `babysit` | Keep an existing draft PR clean, green, and mergeable without merging it. |
-
-### Cleanup
-
-Agent teardown after delivery: delete Neon branches, stop services, clear temp credentials. Preserve local-preview stacks by default.
-
-**Human step (outside skills):** review the draft PR and merge when ready — orchestrators never mark ready or merge.
-
-### Local-only skills
-
-| Skill                          | One-liner                                                                  |
-| ------------------------------ | -------------------------------------------------------------------------- |
-| `grill-me`                     | Ask focused questions until scope and behavior are clear enough to plan.   |
-| `maintain-airgoods-verification` | Maintain Airgoods browser-verification skills and feature maps.         |
-| `provision-neon-branch`        | Provision or rebind a disposable Neon child database branch.              |
-| `query-local-db`               | Query a verified local or task-scoped database read-only.                  |
-| `query-prod-db`                | Inspect production data read-only through MCP or `psql`.                  |
-| `refresh-local-db`             | Refresh local Postgres from a Render production export.                    |
-| `to-linear-spec`               | Create a Linear feature spec with a parent issue and focused subissues.   |
-| `verify-airgoods`              | Route Airgoods live verification to the correct project-specific skill.   |
-| `verify-airgoods-warehouse`    | Verify Warehouse operator workflows and capture evidence.                 |
-| `verify-airgoods-web`          | Verify marketplace web workflows and capture evidence.                     |
-| `verify-airgoods-web-public`   | Verify public web, landing, editorial, and SEO behavior.                  |
-
-### Shared references
-
-| Reference                                                 | One-liner                                                       |
-| --------------------------------------------------------- | --------------------------------------------------------------- |
-| `ai-dev-workflow/skills/references/specs-repo.md`          | Planning store — resolve from context, bootstrap, paths, commit/push. |
-| `ai-dev-workflow/skills/references/host-surfaces.md`       | Portable host capability mappings shared across orchestrators. |
-| `ai-dev-workflow/skills/references/preflight-gates.md`     | Shared runtime, evidence, and closeout gates for orchestrators. |
+There is no active cross-tool installer yet. Installation and synchronization
+will be designed after the pstack adaptations are reviewed.
