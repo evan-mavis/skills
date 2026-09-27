@@ -5,12 +5,13 @@ usage() {
   cat <<'EOF'
 Usage: sync-all.sh [--check]
 
-Sync repository skills into Codex, Cursor, and the ai-dev-workflow marketplace plugin.
+Sync repository skills into Codex, Cursor, the agents hub, and the ai-dev-workflow
+marketplace plugin.
 
   --check  Report drift without changing anything.
 
 Workflow:
-  1. sync-skills.sh      -> ~/.codex/skills and ~/.cursor/skills
+  1. sync-skills.sh      -> ~/.codex/skills, ~/.cursor/skills, ~/.agents/skills
   2. sync-marketplace.sh -> ../airgoods-plugin-marketplace/plugins/ai-dev-workflow
 
 Manifests:
@@ -19,7 +20,7 @@ Manifests:
 
 Environment overrides:
   SKILLS_CLI          Passed to sync-skills.sh
-  AGENTS_SKILLS_DIR   Passed to sync-skills.sh for legacy cleanup
+  AGENTS_SKILLS_DIR   Passed to sync-skills.sh
   CURSOR_SKILLS_DIR   Passed to sync-skills.sh
   CODEX_SKILLS_DIR    Passed to sync-skills.sh
   MARKETPLACE_ROOT    Passed to sync-marketplace.sh
@@ -50,7 +51,7 @@ validate_manifests "$repo_root"
 if [[ "$mode" == check ]]; then
   "$script_dir/sync-skills.sh" --check
   "$script_dir/sync-marketplace.sh" --check
-  echo "Codex, Cursor, and marketplace plugin match the repository."
+  echo "Codex, Cursor, agents hub, and marketplace plugin match the repository."
 else
   "$script_dir/sync-skills.sh"
   "$script_dir/sync-marketplace.sh"

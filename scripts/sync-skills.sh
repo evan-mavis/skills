@@ -7,15 +7,18 @@ Usage: sync-skills.sh [--check]
 
 Install repository skills via the skills CLI.
 
-  published.txt -> Codex only (~/.codex/skills). Cursor uses the ai-dev-workflow plugin.
-  personal.txt  -> Cursor and Codex (~/.cursor/skills and ~/.codex/skills)
-  references/   -> shared references in both skill roots
+  published.txt -> Codex and the agents hub. Cursor uses the ai-dev-workflow plugin.
+  personal.txt  -> Cursor, Codex, and the agents hub.
+  references/   -> shared references in all three skill roots
+
+  The agents hub (~/.agents/skills) is a distribution target, never a source. Claude
+  Code and Droid reach it through the symlinks they keep in their own skill dirs.
 
   --check  Report drift without changing anything.
 
 Environment overrides:
   SKILLS_CLI          Defaults to "npx skills"
-  AGENTS_SKILLS_DIR   Defaults to ~/.agents/skills (legacy cleanup only)
+  AGENTS_SKILLS_DIR   Defaults to ~/.agents/skills
   CURSOR_SKILLS_DIR   Defaults to ~/.cursor/skills
   CODEX_SKILLS_DIR    Defaults to ~/.codex/skills
 EOF
@@ -65,24 +68,7 @@ check_installed_skills() {
   local drift=0 skill target root
 
   for skill in "${published[@]}"; do
-    target="$codex_root/$skill"
-    if [[ ! -d "$target" ]]; then
-      echo "missing: $target"
-      drift=1
-    elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
-      echo "different: $target"
-      drift=1
-    fi
-    for root in "$cursor_root" "$agents_root"; do
-      if [[ -d "$root/$skill" ]]; then
-        echo "unexpected duplicate: $root/$skill"
-        drift=1
-      fi
-    done
-  done
-
-  for skill in "${personal[@]}"; do
-    for root in "$codex_root" "$cursor_root"; do
+    for root in "$codex_root" "$agents_root"; do
       target="$root/$skill"
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
@@ -92,14 +78,27 @@ check_installed_skills() {
         drift=1
       fi
     done
-    if [[ -d "$agents_root/$skill" ]]; then
-      echo "unexpected legacy duplicate: $agents_root/$skill"
+    if [[ -d "$cursor_root/$skill" ]]; then
+      echo "unexpected duplicate: $cursor_root/$skill"
       drift=1
     fi
   done
 
+  for skill in "${personal[@]}"; do
+    for root in "$codex_root" "$cursor_root" "$agents_root"; do
+      target="$root/$skill"
+      if [[ ! -d "$target" ]]; then
+        echo "missing: $target"
+        drift=1
+      elif ! diff -qr "$repo_root/$skill" "$target" >/dev/null; then
+        echo "different: $target"
+        drift=1
+      fi
+    done
+  done
+
   if [[ -d "$repo_root/references" ]]; then
-    for root in "$codex_root" "$cursor_root"; do
+    for root in "$codex_root" "$cursor_root" "$agents_root"; do
       target="$root/references"
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
@@ -109,10 +108,6 @@ check_installed_skills() {
         drift=1
       fi
     done
-    if [[ -d "$agents_root/references" ]]; then
-      echo "unexpected legacy duplicate: $agents_root/references"
-      drift=1
-    fi
   fi
 
   return "$drift"
@@ -123,21 +118,22 @@ sync_shared_references() {
 
   [[ -d "$repo_root/references" ]] || return 0
 
-  for root in "$codex_root" "$cursor_root"; do
+  for root in "$codex_root" "$cursor_root" "$agents_root"; do
     mkdir -p "$root/references"
     rsync -a --delete "$repo_root/references/" "$root/references/"
   done
-  rm -rf "$agents_root/references"
 }
 
 if [[ "$mode" == check ]]; then
   if check_installed_skills; then
-    echo "Installed skills match the repository (Codex + Cursor)."
+    echo "Installed skills match the repository (Codex + Cursor + agents hub)."
     exit 0
   fi
   echo "Run ./scripts/sync-skills.sh to refresh local installs." >&2
   exit 1
 fi
+
+mkdir -p "$codex_root" "$cursor_root" "$agents_root"
 
 if ((${#published[@]} > 0)); then
   published_args=()
@@ -149,6 +145,7 @@ if ((${#published[@]} > 0)); then
   for skill in "${published[@]}"; do
     rm -rf "$codex_root/$skill" "$cursor_root/$skill" "$agents_root/$skill"
     cp -R "$repo_root/$skill" "$codex_root/$skill"
+    cp -R "$repo_root/$skill" "$agents_root/$skill"
   done
 fi
 
@@ -162,6 +159,7 @@ if ((${#personal[@]} > 0)); then
     rm -rf "$codex_root/$skill" "$cursor_root/$skill" "$agents_root/$skill"
     cp -R "$repo_root/$skill" "$codex_root/$skill"
     cp -R "$repo_root/$skill" "$cursor_root/$skill"
+    cp -R "$repo_root/$skill" "$agents_root/$skill"
   done
 fi
 
@@ -173,4 +171,4 @@ if ! check_installed_skills; then
 fi
 
 echo "Skills synced via skills CLI."
-echo "installed skills: ${#repo_skills[@]} (${#published[@]} published via Codex + plugin, ${#personal[@]} personal via Cursor + Codex)"
+echo "installed skills: ${#repo_skills[@]} (${#published[@]} published via Codex + plugin, ${#personal[@]} personal via Cursor + Codex; all ${#repo_skills[@]} mirrored to the agents hub)"
