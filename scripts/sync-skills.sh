@@ -41,6 +41,7 @@ esac
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 repo_root=$(cd "$script_dir/.." && pwd -P)
 skills_root="$repo_root/ai-dev-workflow/skills"
+personal_root="$repo_root/personal-skills"
 shared_references="$skills_root/references"
 agents_root=${AGENTS_SKILLS_DIR:-$HOME/.agents/skills}
 cursor_root=${CURSOR_SKILLS_DIR:-$HOME/.cursor/skills}
@@ -67,15 +68,16 @@ validate_manifests "$repo_root"
 repo_skills=("${published[@]}" "${personal[@]}")
 
 check_installed_skills() {
-  local drift=0 skill target root
+  local drift=0 skill target root source_root
 
   for skill in "${published[@]}"; do
+    source_root="$skills_root"
     for root in "$codex_root" "$agents_root"; do
       target="$root/$skill"
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
         drift=1
-      elif ! diff -qr "$skills_root/$skill" "$target" >/dev/null; then
+      elif ! diff -qr "$source_root/$skill" "$target" >/dev/null; then
         echo "different: $target"
         drift=1
       fi
@@ -87,12 +89,13 @@ check_installed_skills() {
   done
 
   for skill in "${personal[@]}"; do
+    source_root="$personal_root"
     for root in "$codex_root" "$cursor_root" "$agents_root"; do
       target="$root/$skill"
       if [[ ! -d "$target" ]]; then
         echo "missing: $target"
         drift=1
-      elif ! diff -qr "$skills_root/$skill" "$target" >/dev/null; then
+      elif ! diff -qr "$source_root/$skill" "$target" >/dev/null; then
         echo "different: $target"
         drift=1
       fi
@@ -156,12 +159,12 @@ if ((${#personal[@]} > 0)); then
   for skill in "${personal[@]}"; do
     personal_args+=(--skill "$skill")
   done
-  "${skills_cli[@]}" add "$skills_root" "${personal_args[@]}" -a cursor -a codex -g -y
+  "${skills_cli[@]}" add "$personal_root" "${personal_args[@]}" -a cursor -a codex -g -y
   for skill in "${personal[@]}"; do
     rm -rf "$codex_root/$skill" "$cursor_root/$skill" "$agents_root/$skill"
-    cp -R "$skills_root/$skill" "$codex_root/$skill"
-    cp -R "$skills_root/$skill" "$cursor_root/$skill"
-    cp -R "$skills_root/$skill" "$agents_root/$skill"
+    cp -R "$personal_root/$skill" "$codex_root/$skill"
+    cp -R "$personal_root/$skill" "$cursor_root/$skill"
+    cp -R "$personal_root/$skill" "$agents_root/$skill"
   done
 fi
 

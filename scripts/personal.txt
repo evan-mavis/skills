@@ -1,5 +1,9 @@
 # Installed locally only; never copied into the marketplace plugin.
 maintain-airgoods-verification
+grill-me
+provision-neon-branch
+query-local-db
+query-prod-db
 refresh-local-db
 to-linear-spec
 verify-airgoods

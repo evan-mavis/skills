@@ -1,7 +1,8 @@
 # My Day-to-Day Skills ⚒️
 
-Canonical skill source lives in `ai-dev-workflow/skills/`. Each skill is a
-directory under that path, alongside shared `references/`. After editing, sync:
+Published skill sources live in `ai-dev-workflow/skills/`; local-only skill
+sources live in `personal-skills/`. Shared references live alongside the
+published skills. After editing, sync:
 
 ```bash
 ./scripts/sync-all.sh          # install
@@ -9,7 +10,7 @@ directory under that path, alongside shared `references/`. After editing, sync:
 ```
 
 - [scripts/published.txt](scripts/published.txt) — marketplace plugin (`ai-dev-workflow`)
-- [scripts/personal.txt](scripts/personal.txt) — local only
+- [scripts/personal.txt](scripts/personal.txt) — local-only skills
 
 ## Workflow
 
@@ -104,7 +105,6 @@ flowchart TB
 
 | Skill       | One-liner                                                                |
 | ----------- | ------------------------------------------------------------------------ |
-| `grill-me`  | Ask focused questions until scope and behavior are clear enough to plan. |
 | `to-prd`    | Turn approved context into `specs/<slug>/PRD.md` on the feature branch.  |
 | `to-slices` | Split a PRD into `specs/<slug>/issues/`, commit/push, optional archive.  |
 | `to-linear` | Sync the monorepo `specs/<slug>/` plan and slice graph to Linear.        |
@@ -116,27 +116,12 @@ flowchart TB
 | `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
 | `forge-build` | Execute an approved multi-slice plan from `specs/<slug>/` for larger features that needed planning first. |
 
-### Preflight
-
-| Skill            | One-liner                                                                           |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| `query-prod-db`  | Inspect production data read-only through MCP or `psql` before resolving scope.     |
-| `query-local-db` | Query the selected local or task-scoped database safely through a verified env var. |
-
-### Runtime
-
-| Skill                                  | One-liner                                                                             |
-| -------------------------------------- | ------------------------------------------------------------------------------------- |
-| `provision-neon-branch`                | Standalone: create/rebind/delete a disposable Neon child (not auto-called by forge).  |
-| `provision-local-worktree-environment` | Attach previewctl services to a local worktree: Neon, Redis, ports, and `.env.local`. |
-
 ### Implement
 
 | Skill                 | One-liner                                                            |
 | --------------------- | -------------------------------------------------------------------- |
 | `implement-slice`     | Implement one scoped change and leave the diff uncommitted.          |
 | `deslop`              | Remove mechanical AI slop from the current diff.                     |
-| `prune-dead-code`     | Remove unused symbols and orphaned files across a feature branch.    |
 | `refactor-structure`  | Improve folder layout, naming, and file cohesion in scope.           |
 | `harden-architecture` | Independently review and fix architectural or control-flow problems. |
 
@@ -161,12 +146,26 @@ Agent teardown after delivery: delete Neon branches, stop services, clear temp c
 
 **Human step (outside skills):** review the draft PR and merge when ready — orchestrators never mark ready or merge.
 
-### Other
+### Local-only skills
 
-| Skill / reference             | One-liner                                                               |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| `ai-dev-workflow/skills/references/specs-repo.md`    | Planning store — resolve from context, bootstrap, paths, commit/push.   |
-| `ai-dev-workflow/skills/references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
-| `ai-dev-workflow/skills/references/preflight-gates.md` | Shared runtime, evidence, and closeout gates for orchestrators. |
-| `refresh-local-db`            | Refresh local Postgres from a Render production export.                 |
-| `to-linear-spec`              | Create a Linear feature spec with a parent issue and focused subissues.  |
+| Skill                          | One-liner                                                                  |
+| ------------------------------ | -------------------------------------------------------------------------- |
+| `grill-me`                     | Ask focused questions until scope and behavior are clear enough to plan.   |
+| `maintain-airgoods-verification` | Maintain Airgoods browser-verification skills and feature maps.         |
+| `provision-neon-branch`        | Provision or rebind a disposable Neon child database branch.              |
+| `query-local-db`               | Query a verified local or task-scoped database read-only.                  |
+| `query-prod-db`                | Inspect production data read-only through MCP or `psql`.                  |
+| `refresh-local-db`             | Refresh local Postgres from a Render production export.                    |
+| `to-linear-spec`               | Create a Linear feature spec with a parent issue and focused subissues.   |
+| `verify-airgoods`              | Route Airgoods live verification to the correct project-specific skill.   |
+| `verify-airgoods-warehouse`    | Verify Warehouse operator workflows and capture evidence.                 |
+| `verify-airgoods-web`          | Verify marketplace web workflows and capture evidence.                     |
+| `verify-airgoods-web-public`   | Verify public web, landing, editorial, and SEO behavior.                  |
+
+### Shared references
+
+| Reference                                                 | One-liner                                                       |
+| --------------------------------------------------------- | --------------------------------------------------------------- |
+| `ai-dev-workflow/skills/references/specs-repo.md`          | Planning store — resolve from context, bootstrap, paths, commit/push. |
+| `ai-dev-workflow/skills/references/host-surfaces.md`       | Portable host capability mappings shared across orchestrators. |
+| `ai-dev-workflow/skills/references/preflight-gates.md`     | Shared runtime, evidence, and closeout gates for orchestrators. |

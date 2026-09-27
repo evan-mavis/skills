@@ -15,12 +15,13 @@ read_manifest() {
 
 validate_manifests() {
   local repo_root=$1
-  local scripts_dir skills_root skill_file skill_name
+  local scripts_dir skills_root personal_root skill_file skill_name
   local -a published=() personal=() repo_skills=() overlap=() missing=() extra=()
   local skill published_skill personal_skill
 
   scripts_dir=$(manifests_dir)
   skills_root="$repo_root/ai-dev-workflow/skills"
+  personal_root="$repo_root/personal-skills"
 
   while IFS= read -r skill; do
     published+=("$skill")
@@ -32,6 +33,11 @@ validate_manifests() {
 
   shopt -s nullglob
   for skill_file in "$skills_root"/*/SKILL.md; do
+    skill_name=${skill_file%/SKILL.md}
+    skill_name=${skill_name##*/}
+    repo_skills+=("$skill_name")
+  done
+  for skill_file in "$personal_root"/*/SKILL.md; do
     skill_name=${skill_file%/SKILL.md}
     skill_name=${skill_name##*/}
     repo_skills+=("$skill_name")
@@ -78,14 +84,19 @@ validate_manifests() {
     return 1
   fi
 
-  for skill in "${published[@]}" "${personal[@]}"; do
+  for skill in "${published[@]}"; do
     if [[ ! -f "$skills_root/$skill/SKILL.md" ]]; then
-      extra+=("$skill")
+      extra+=("$skill (published)")
+    fi
+  done
+  for skill in "${personal[@]}"; do
+    if [[ ! -f "$personal_root/$skill/SKILL.md" ]]; then
+      extra+=("$skill (personal)")
     fi
   done
 
   if [[ ${#extra[@]} -gt 0 ]]; then
-    echo "Manifest entries without SKILL.md in the repository:" >&2
+    echo "Manifest entries without SKILL.md in their source directory:" >&2
     printf '  %s\n' "${extra[@]}" >&2
     return 1
   fi

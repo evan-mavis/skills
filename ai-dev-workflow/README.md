@@ -9,7 +9,7 @@ flowchart TB
 
   subgraph PLANPATH["Plan"]
     direction LR
-    P1["grill-me"] --> P2["to-prd"] --> P3["to-slices"] --> P4["to-linear"]
+    P1["scope clarification"] --> P2["to-prd"] --> P3["to-slices"] --> P4["to-linear"]
   end
 
   E2["forge-build<br/>execute approved plan"]
@@ -20,7 +20,7 @@ flowchart TB
 
   subgraph PREFLIGHT["Preflight"]
     direction TB
-    PF1["ambiguity interview"] --> PF2["runtime profile"] --> PF3["query-prod-db"]
+    PF1["ambiguity interview"] --> PF2["runtime profile"] --> PF3["data review"]
   end
 
   E1 --> PF1
@@ -87,7 +87,6 @@ flowchart TB
 
 | Skill       | One-liner                                                                                    |
 | ----------- | -------------------------------------------------------------------------------------------- |
-| `grill-me`  | Ask focused questions until scope and behavior are clear enough to plan.                     |
 | `to-prd`    | Turn approved context into `specs/<slug>/PRD.md` on the feature branch.                      |
 | `to-slices` | Split a PRD into `specs/<slug>/issues/`, commit/push, optional archive.                      |
 | `to-linear` | Sync the monorepo `specs/<slug>/` plan and slice graph to Linear.                            |
@@ -99,27 +98,12 @@ flowchart TB
 | `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
 | `forge-build` | Execute an approved multi-slice plan from `specs/<slug>/` for larger features that needed planning first. |
 
-### Preflight
-
-| Skill            | One-liner                                                                           |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| `query-prod-db`  | Inspect production data read-only through MCP or `psql` before resolving scope.     |
-| `query-local-db` | Query the selected local or task-scoped database safely through a verified env var. |
-
-### Runtime
-
-| Skill                                  | One-liner                                                                             |
-| -------------------------------------- | ------------------------------------------------------------------------------------- |
-| `provision-neon-branch`                | Standalone: create/rebind/delete a disposable Neon child (not auto-called by forge).  |
-| `provision-local-worktree-environment` | Attach previewctl services to a local worktree: Neon, Redis, ports, and `.env.local`. |
-
 ### Implement
 
 | Skill                 | One-liner                                                            |
 | --------------------- | -------------------------------------------------------------------- |
 | `implement-slice`     | Implement one scoped change and leave the diff uncommitted.          |
 | `deslop`              | Remove mechanical AI slop from the current diff.                     |
-| `prune-dead-code`     | Remove unused symbols and orphaned files across a feature branch.    |
 | `refactor-structure`  | Improve folder layout, naming, and file cohesion in scope.           |
 | `harden-architecture` | Independently review and fix architectural or control-flow problems. |
 

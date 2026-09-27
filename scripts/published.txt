@@ -3,13 +3,8 @@ babysit
 deslop
 forge-build
 forge-issue
-grill-me
 harden-architecture
 implement-slice
-prune-dead-code
-provision-neon-branch
-query-local-db
-query-prod-db
 refactor-structure
 run-ci
 to-linear
