@@ -141,14 +141,11 @@ flowchart TB
 
 ### Verify
 
-| Skill             | One-liner                                                                 |
-| ----------------- | ------------------------------------------------------------------------- |
-| `run-ci`          | Run the repository's relevant CI-equivalent checks without changing code. |
-| `to-agent-qa`     | Browser-test, fix, retest, and publish an Agent QA artifact.               |
-| `to-agent-demo`   | Record the main feature paths and publish a coworker-ready Agent Demo.     |
+| Skill    | One-liner                                                                 |
+| -------- | ------------------------------------------------------------------------- |
+| `run-ci` | Run the repository's relevant CI-equivalent checks without changing code. |
 
-Forge still owns its built-in verification. Invoke the personal `to-*` skills when the standalone
-Notion artifacts are required.
+Forge owns its built-in verification.
 
 ### Deliver
 
@@ -171,7 +168,4 @@ Agent teardown after delivery: delete Neon branches, stop services, clear temp c
 | `references/host-surfaces.md` | Portable host capability mappings shared across orchestrators.          |
 | `preflight-gates.md`          | Shared runtime, evidence, and closeout gates for orchestrators.   |
 | `refresh-local-db`            | Refresh local Postgres from a Render production export.                 |
-| `design-bake-off`             | Generate multiple UI variants with a dev-only live switcher.            |
-| `handoff`                     | Compress the current conversation into a handoff doc for another agent. |
-| `write-like-evan`             | Draft Slack, email, or updates in Evan's voice.                         |
 | `to-linear-spec`              | Create a Linear feature spec with a parent issue and focused subissues.  |
