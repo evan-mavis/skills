@@ -11,7 +11,7 @@ This directory is copied from the [Cursor pstack plugin](https://github.com/curs
 
 ## Adaptations
 
-- `skills/poteto-mode/references/host-runtime.md` (added) maps Cursor-only terms (`/loop`, `Task` subagent types, models, `AskQuestion`, control skills, transcript and skill paths, cloud agents, `/goal`) to Factory and Codex equivalents. Every subagent inherits the parent model. On Factory, Orchestrate and the two Autopilot playbooks become a Mission brief. On Codex, they run locally with worktree subagents.
+- `skills/poteto-mode/references/host-runtime.md` (added) maps Cursor-only terms (`/loop`, `Task` subagent types, models, `AskQuestion`, control skills, transcript and skill paths, cloud agents, `/goal`) to Factory, Codex, and Devin equivalents. Every subagent inherits the parent model. On Factory, Orchestrate and the two Autopilot playbooks become a Mission brief. On Codex and Devin, they run locally with worktree subagents.
 - `skills/poteto-mode/SKILL.md` has one added line near the top that routes to `host-runtime.md` outside Cursor, so the playbooks keep their upstream text.
 - `skills/poteto-mode/SKILL.md` frontmatter `name` is `poteto-mode` instead of `Poteto Mode`, because Factory requires lowercase hyphenated skill names.
 - `skills/poteto-mode/playbooks/opening-a-pr.md` **Titles** uses the personal `feat:`/`fix:`/`tech:`/`refactor:`/`maintenance:` convention with Linear issue ID suffixes instead of Conventional Commits, and adds a **Branches** rule.

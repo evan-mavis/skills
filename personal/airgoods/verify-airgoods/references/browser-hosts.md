@@ -16,6 +16,7 @@ Determine the host during preflight, before driving:
 | Codex           | Codex browser harness                     | `~/.codex/verification`                              |
 | Cursor          | Cursor browser surface and walkthrough video | `test-results` in the active checkout (gitignored) |
 | Factory (Droid) | `$droid-control`, driving `agent-browser` | `~/.factory/verification`                            |
+| Devin           | `browser_preview`; the user drives and relays DOM/console captures | `~/.config/devin/verification` |
 
 If the running host is not listed, use its native browser automation and screen recording per
 [host surfaces](../../references/host-surfaces.md), and record which capability you resolved. Never
@@ -24,8 +25,8 @@ send work to another host to obtain a capability the current one lacks.
 ## Invocation syntax
 
 A reference like `$verify-airgoods-web` or `$query-local-db` names a sibling skill. Invoke it using
-the syntax the current host exposes: `$name` in Codex and Factory (Droid), `/name` in Cursor. The
-skill name, not the sigil, is what matters.
+the syntax the current host exposes: `$name` in Codex and Factory (Droid), `/name` in Cursor, and
+the `skill` tool in Devin. The skill name, not the sigil, is what matters.
 
 ## Select a harness
 
@@ -103,13 +104,25 @@ configured listeners locally; never hardcode a default port over a verified one.
 
 ### Factory (Droid)
 
-### Factory (Droid)
-
 Invoke `$droid-control`, which owns browser driving and the recording lifecycle. It drives
 `agent-browser` underneath and captures the session as a video artifact.
 
 Use a unique session identifier for every command, and drive and record the same session. Read
 `$droid-control`'s current instructions before the first call rather than assuming its interface.
+
+### Devin
+
+Use the `browser_preview` tool pointed at the running local server. Devin cannot drive the page: the
+user interacts and sends DOM element captures (with component and source location when resolvable)
+and console output. Prepare the route and fixtures, then ask the user to walk the flow and share
+what they see. Supplement with read-only API or database evidence per this contract.
+
+The preview runs in the user's own browser, so it shares their cookies and session. Anonymous or
+conflicting-account proof needs a documented isolated context Devin does not provide; report that
+prerequisite instead of driving around it.
+
+Devin has no recording capability. When a walkthrough video is mandatory, route it per the
+mandatory-video rule under Cursor and report the routing.
 
 ## Recording and proof
 

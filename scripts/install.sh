@@ -6,11 +6,11 @@ usage() {
 Usage: install.sh [--check]
 
 Link pstack and personal skills, agents, and personal instructions into
-Cursor, Codex, and Factory. Edits in this repository are live after linking.
+Cursor, Codex, Factory, and Devin. Edits in this repository are live after linking.
 Rerun after adding, removing, or renaming a skill, or after editing
 personal/AGENTS.md (the Factory and Cursor copies are generated, not linked).
 
-  ~/.agents/skills/<skill>     -> every pstack and personal skill (read by all three hosts)
+  ~/.agents/skills/<skill>     -> every pstack and personal skill (read by all hosts)
   ~/.cursor/agents/<agent>.md  -> pstack agents
   ~/.cursor/rules/pstack-models.mdc -> personal/cursor/pstack-models.mdc
   ~/.codex/AGENTS.md           -> personal/AGENTS.md
