@@ -18,3 +18,4 @@ This directory is copied from the [Cursor pstack plugin](https://github.com/curs
 - `skills/deslop/` (added) is vendored unchanged from `cursor-team-kit/skills/deslop` at the snapshot commit, because poteto-mode requires it before every commit.
 - `skills/make-bot-ui/` and `automations/benny/` (removed) depended on Cursor Automations webhooks. `README.md` drops their table row and automations section.
 - `skills/setup-pstack/` is unchanged from upstream.
+- `.devin-plugin/plugin.json` (added) lets Devin load pstack as a plugin in local and cloud sessions. Skills are served from the existing `skills/` directory; plugin subagents (`agents/`) are local-only in Devin, so they are not declared in the manifest.
