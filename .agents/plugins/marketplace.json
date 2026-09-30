@@ -1,0 +1,32 @@
+{
+  "name": "evan-skills",
+  "interface": {
+    "displayName": "Evan's Skills"
+  },
+  "plugins": [
+    {
+      "name": "pstack",
+      "source": {
+        "source": "local",
+        "path": "./pstack"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "evan-personal",
+      "source": {
+        "source": "local",
+        "path": "./personal"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
