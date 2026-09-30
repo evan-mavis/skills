@@ -5,6 +5,18 @@
   },
   "plugins": [
     {
+      "name": "estack",
+      "source": {
+        "source": "local",
+        "path": "./estack"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "pstack",
       "source": {
         "source": "local",

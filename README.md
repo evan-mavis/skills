@@ -6,6 +6,7 @@ i use an adapted version of [pstack](https://github.com/cursor/plugins/tree/main
 
 - [`pstack/`](pstack/) has the shared workflows and skills, with a few tweaks for each app.
 - [`personal/`](personal/) has my planning and airgoods skills, plus my personal defaults.
+- [`estack/`](estack/) bundles both for Codex, with explicit Airgoods verification and personal babysitting policy. It is generated; edit the original skills or [`scripts/estack/`](scripts/estack/) and rebuild.
 - [`deprecated/`](deprecated/) has the old setup, kept around for reference.
 
 ## setup
@@ -26,6 +27,41 @@ checks whether the installed setup is in sync without changing anything.
 
 ## install as codex plugins
 
+For the combined Codex workflow, install estack from the same marketplace:
+
+A private account copy is also saved as [estack](https://chatgpt.com/plugins/plugins_6abd8639d7348191b31c1430745b5d94). Its identity and release are recorded in `scripts/estack/account.json` for updates.
+
+```sh
+codex plugin marketplace add evan-mavis/skills --ref main
+codex plugin add estack@evan-skills
+```
+
+Invoke `@estack` where plugin mentions are available, or ask Codex to use `estack:estack`. The entry skill loads poteto-mode and the bundled personal defaults. Mention routing still needs verification in a fresh cloud task. The supplied avatar is used for both the plugin logo and composer icon.
+
+The existing pstack and personal plugins remain available for independent use. Prefer one installation of each workflow to avoid duplicate skill entries.
+
+## build estack
+
+```sh
+bun scripts/build-estack.mjs
+bun scripts/build-estack.mjs --check
+bun test scripts/build-estack.test.ts scripts/native-estack.test.ts
+```
+
+The build copies skills and resources into a self-contained package with real files, preserves executable scripts and pstack attribution, and applies exact replacements from the registries under `scripts/estack/`. It fails if a replacement no longer matches its source. The check reports missing, changed, or unexpected generated files without writing them. It does not install plugins or change host configuration.
+
+Both `pstack/` and `personal/` remain the maintained sources and retain their other-host instructions. Codex-specific templates and adaptations live under `scripts/estack/`. Rebuild estack whenever those sources change, including personal defaults. Never edit generated files directly.
+
+For a private account upload, archive the generated package outside the repository:
+
+```sh
+tar -czf /tmp/estack.tar.gz estack
+```
+
+Save or update that archive through Plugin Creator to make the private package available to the account. Account saving does not verify cloud invocation; test the entry skill in a fresh task after installing the private plugin.
+
+## install the separate plugins
+
 Install the skills through the `evan-skills` marketplace without adding files to your project:
 
 ```sh
@@ -37,7 +73,7 @@ codex plugin list --marketplace evan-skills
 
 Restart the desktop app and open a new chat. Ask it to use `pstack:poteto-mode` or `evan-personal:babysit-airgoods-pr` and report the `SKILL.md` path it loaded.
 
-The marketplace exposes two plugins:
+The marketplace also exposes the two original plugins:
 
 - `pstack` loads the existing `pstack/skills` directory through its portable `plugin.json`. Its playbooks, scripts, and agent prompts stay in the package.
 - `evan-personal` loads `personal/airgoods` and `personal/planning` through the supported `.codex-plugin/plugin.json` compatibility manifest. Multiple skill roots preserve the existing layout and relative references without generated copies.

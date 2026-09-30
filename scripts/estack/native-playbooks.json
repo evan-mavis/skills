@@ -1,0 +1,392 @@
+[
+  {
+    "path": "skills/poteto-mode/playbooks/feature.md",
+    "from": "using your configured feature model (default `grok-4.7-xhigh-fast`)",
+    "to": "using the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/bug-fix.md",
+    "from": "using your configured bug-fix model (default `grok-4.7-xhigh-fast`)",
+    "to": "using the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/refactoring.md",
+    "from": "using your configured refactoring model (default `grok-4.7-xhigh-fast`)",
+    "to": "using the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/perf-issue.md",
+    "from": "using your configured perf-issue model (default `grok-4.7-xhigh-fast`)",
+    "to": "using the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/hillclimb.md",
+    "from": "using your configured hillclimb model (default `grok-4.7-xhigh-fast`)",
+    "to": "using the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/authoring-a-skill.md",
+    "from": "Use the **create-skill** skill (Cursor's built-in for authoring SKILL.md files).",
+    "to": "Use the **skill-creator** skill for authoring SKILL.md files."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autonomous-run.md",
+    "from": "Pick the wake mechanism using Cursor's `/loop` command (a built-in, not a pstack skill). An event to watch (CI, a merge, a ref advancing) gets a watcher subagent that wakes you on the event, with a long time-based heartbeat as fallback. No event gets a fixed-interval heartbeat sized to when the result is worth re-checking.",
+    "to": "Pick the wake mechanism from the available Codex tools. An event to watch (CI, a merge, a ref advancing) gets a watcher subagent and bounded waits on its result. For scheduled follow-ups, use the automation tool when available and authorized by the request. No event gets bounded time-based waits sized to when the result is worth re-checking. If scheduling is unavailable, keep the run in the active session and report that it cannot wake after the session ends."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autonomous-run.md",
+    "from": "or use `AskQuestion`",
+    "to": "or ask a blocking question"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/visual-parity.md",
+    "from": "`/loop` per component until the diff is zero.",
+    "to": "Iterate per component until the diff is zero."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/bug-fix.md",
+    "from": "Drive a long or stubborn hunt with Cursor's `/loop` command.",
+    "to": "Drive a long or stubborn hunt in the active Codex session, using bounded waits when runtime evidence is pending."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/shipping.md",
+    "from": "One subagent per PR, not batched, each a Cursor cloud agent, each exercising the real surface with the matching control skill (such as `control-ui` or `control-cli` from `cursor-team-kit`) against parent versus head.",
+    "to": "One Codex subagent per PR, not batched, each exercising the real surface with the available browser or terminal tools and matching verification skill against parent versus head. For Airgoods, read `../../verify-airgoods/SKILL.md` and its selected surface skills. Use an isolated cloud worker only when the session exposes that capability."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/shipping.md",
+    "from": "Hold the watch under `/loop` in dynamic mode.",
+    "to": "Hold the watch in the active session using bounded terminal waits. For background follow-up, use the automation tool when available and authorized by the request; otherwise report that watching stops when the session ends."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/babysit.md",
+    "from": "This playbook replaces Cursor's built-in babysit skill for these requests, so do not route there even though its description matches the same words.",
+    "to": "For Airgoods, read `../../babysit-airgoods-pr/SKILL.md` first; its overrides take precedence over this playbook."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/babysit.md",
+    "from": "Run `drive` and `background` under `/loop` in dynamic mode.",
+    "to": "Run `drive` in the active session with bounded terminal waits. Run `background` through the automation tool when available and authorized by the request; otherwise report that monitoring cannot continue after the session ends."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+    "from": "Multiple `Task` calls",
+    "to": "Multiple Codex subagent spawns"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+    "from": "Run `/deslop` from `cursor-team-kit` over the diff before commit.",
+    "to": "Run the bundled **deslop** skill (`../../deslop/SKILL.md`) over the diff before commit."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/session-pickup.md",
+    "from": "A local transcript under the active workspace's `agent-transcripts/` directory (the system prompt names the path. Do not glob across `~/.cursor/projects/*/`, that crosses workspace boundaries and reads private chats from unrelated projects), a cloud-agent URL, or a pushed branch.",
+    "to": "A local Codex session under `~/.codex/sessions/` whose recorded `cwd` matches the active workspace, accessible cloud chat history, or a pushed branch. Inspect session metadata first and read only workspace-matching transcripts; do not read unrelated private chats. If cloud history is unavailable, use the branch and durable reports and state the history gap."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/eval.md",
+    "from": "Read each candidate's local transcript under the active workspace's `agent-transcripts/` directory (the system prompt names this path). Do not glob across `~/.cursor/projects/*/`. That crosses workspace boundaries and reads private chats from unrelated projects.",
+    "to": "Read each candidate's Codex transcript only after its session metadata under `~/.codex/sessions/` confirms the candidate's recorded `cwd`. Do not read unrelated private chats. In cloud, use accessible tool history; if none exists, record chain-following as unverified."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/eval.md",
+    "from": "on different models per the **arena** skill's Phase B.",
+    "to": "per the **arena** skill's Phase B, inheriting the parent model unless the user requests available model variants. State when the run cannot test model diversity."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/eval.md",
+    "from": "on a different model family per the **arena** skill's Phase C.",
+    "to": "per the **arena** skill's Phase C, inheriting the parent model unless the user requests an available judge model. Keep the judge independent and report when cross-family judging is unavailable."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+    "from": "`.cursor/worktrees/myrepo/x`",
+    "to": "`~/.codex/worktrees/<id>/myrepo`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+    "from": "Xcode `DerivedData` and `iOS DeviceSupport`, `~/Library/Application Support/Cursor` (`state.vscdb.backup`, and `snapshots/roots/<root>` where a `<root>` named for a folder you opened as a workspace balloons), package caches (pnpm, uv, brew, yarn).",
+    "to": "Xcode `DerivedData` and `iOS DeviceSupport`, package caches (pnpm, uv, brew, yarn)."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+    "from": "Prune the confirmed set. Per path, `git worktree remove --force <path>`.",
+    "to": "Prune the confirmed set. Archive Codex-managed worktrees through the worktree archive tool when available, using the exact identity from the attachment list so their snapshots remain recoverable. For other worktrees, per path, `git worktree remove --force <path>`."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "arm a `/goal` with the full program objective",
+    "to": "record the full program objective with the goal tool when explicitly requested and available; otherwise keep it in the decision trail and active session"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "One Cursor cloud agent per PR",
+    "to": "One Codex subagent per PR, using an isolated cloud worker only when that capability is exposed,"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "the `deslop` skill from the `cursor-team-kit` plugin (`/deslop`)",
+    "to": "the bundled **deslop** skill (`../../deslop/SKILL.md`)"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "A local root arms each tick as a real terminal `/loop`. The loop uses a monitored-shell 30-minute sleep and emits an output-notification sentinel. A cloud root uses the existing cloud-sleeper wake chain instead. Never leave the cadence to memory or lossy completion notifications.",
+    "to": "Use the automation tool to schedule the 30-minute audit when available and authorized by the request. Otherwise audit against elapsed time in the active session with bounded waits; report that no wake survives the session. Never leave the cadence to memory or lossy completion notifications."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "git show origin/main:pstack/skills/poteto-mode/playbooks/autopilot-full.md",
+    "to": "<resolved-estack-plugin-root>/skills/poteto-mode/playbooks/autopilot-full.md"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "the armed `/goal`",
+    "to": "the recorded exit predicate"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "arm a `/goal` with the full program objective",
+    "to": "record the full program objective with the goal tool when explicitly requested and available; otherwise keep it in the decision trail and active session"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "One Cursor cloud agent per PR",
+    "to": "One Codex subagent per PR, using an isolated cloud worker only when that capability is exposed,"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "the `deslop` skill from the `cursor-team-kit` plugin (`/deslop`)",
+    "to": "the bundled **deslop** skill (`../../deslop/SKILL.md`)"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "A local root arms each tick as a real terminal `/loop`. The loop uses a monitored-shell 30-minute sleep and emits an output-notification sentinel. A cloud root uses the existing cloud-sleeper wake chain instead. Never leave the cadence to memory or lossy completion notifications.",
+    "to": "Use the automation tool to schedule the 30-minute audit when available and authorized by the request. Otherwise audit against elapsed time in the active session with bounded waits; report that no wake survives the session. Never leave the cadence to memory or lossy completion notifications."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "git show origin/main:pstack/skills/poteto-mode/playbooks/autopilot-stack.md",
+    "to": "<resolved-estack-plugin-root>/skills/poteto-mode/playbooks/autopilot-stack.md"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "the armed `/goal`",
+    "to": "the recorded exit predicate"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "with the matching control skill, such as `control-cli` or `control-ui` from `cursor-team-kit`, or a named driver where none exists",
+    "to": "with the matching verification skill and available browser or terminal tools, or a named driver where none exists; for Airgoods, read `../../verify-airgoods/SKILL.md` and its selected surface skills"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "with `subagent_type: \"poteto-agent\"` and an explicit model per the Subagents section",
+    "to": "using the Codex spawn tool with the `agents/poteto-agent.md` role instructions in the prompt and the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "under the agent store's `docs/`",
+    "to": "under an uncommitted task directory's `docs/`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "node pstack/skills/poteto-mode/scripts/check-plan.mjs <plan.md>",
+    "to": "node <estack-plugin-root>/skills/poteto-mode/scripts/check-plan.mjs <plan.md>"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "on the `swarm workers` model (default `grok-4.7-xhigh-fast`)",
+    "to": "with the inherited parent model unless the user requests an available model"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "Browser, Electron, and web UIs use `control-ui` from `cursor-team-kit`. CLIs and TUIs use `control-cli` from `cursor-team-kit`.",
+    "to": "Browser, Electron, and web UIs use the available Codex browser or computer-use tools. CLIs and TUIs use the available terminal tools. For Airgoods, read `../../verify-airgoods/SKILL.md` and its selected surface skills."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "arm a `/goal` with this exact text.",
+    "to": "record the exit predicate with the goal tool when explicitly requested and available, otherwise in the decision trail, with this exact text."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "In a local session, a real terminal `/loop`. In a cloud root, a cloud-sleeper wake chain. Never leave the cadence to memory.",
+    "to": "Use the automation tool when available and authorized by the request. Otherwise audit in the active session with bounded waits and report that no wake survives the session. Never leave the cadence to memory."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "the armed /goal",
+    "to": "the recorded exit predicate"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "Each live lane runs on its own cloud VM at the PR head. Drive through `control-ui` or `control-cli` from `cursor-team-kit`.",
+    "to": "Each live lane runs in an isolated checkout at the PR head; use a separate cloud worker only when available. Drive through the matching verification skill and available Codex browser or terminal tools. For Airgoods, read `../../verify-airgoods/SKILL.md` and its selected surface skills."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "Ten lanes on `<swarm workers model>`",
+    "to": "Ten lanes with `<inherited parent model or user-requested available model>`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "The program runs `pstack/skills/poteto-mode/playbooks/<execution playbook>.md`. <Who merges, and which PR ids are the operator's items that stop at merge-ready.>",
+    "to": "The program runs the bundled `skills/poteto-mode/playbooks/<execution playbook>.md`. <Who merges, and which PR ids are the operator's items that stop at merge-ready.>"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "  - [ ] `git show origin/main:pstack/skills/poteto-mode/playbooks/<execution playbook>.md`",
+    "to": "  - [ ] `<resolved-estack-plugin-root>/skills/poteto-mode/playbooks/<execution playbook>.md`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "  - [ ] `git show origin/main:pstack/skills/poteto-mode/playbooks/opening-a-pr.md`",
+    "to": "  - [ ] `<resolved-estack-plugin-root>/skills/poteto-mode/playbooks/opening-a-pr.md`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "  - [ ] `git show origin/main:pstack/skills/<each other leaf skill the program uses>`",
+    "to": "  - [ ] `<resolved-estack-plugin-root>/skills/<each other leaf skill the program uses>`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "<Docs to read before editing. Which PRs get `pstack/skills/how/SKILL.md` and `pstack/skills/interrogate/SKILL.md`. The trail per `pstack/skills/show-me-your-work/SKILL.md`.>",
+    "to": "<Docs to read before editing. Which PRs get `estack/skills/how/SKILL.md` and `estack/skills/interrogate/SKILL.md`. The trail per `estack/skills/show-me-your-work/SKILL.md`.>"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "  - [ ] `git show origin/main:pstack/skills/swarm/SKILL.md`",
+    "to": "  - [ ] `<resolved-estack-plugin-root>/skills/swarm/SKILL.md`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "- [ ] At the code-ready head SHA and at each later push that changes the patch, run the swarm per `pstack/skills/swarm/SKILL.md`. One gates lane. The ten live lanes from the PR's **Verify, live** block. The perf lane from its **Verify, perf** block. Two or more audit lanes, each with its own focus, that read the diff and the receipts and distrust the PR body. The root audits the receipts in the merge-ready report before the verdict.",
+    "to": "- [ ] At the code-ready head SHA and at each later push that changes the patch, run the swarm per `estack/skills/swarm/SKILL.md`. One gates lane. The ten live lanes from the PR's **Verify, live** block. The perf lane from its **Verify, perf** block. Two or more audit lanes, each with its own focus, that read the diff and the receipts and distrust the PR body. The root audits the receipts in the merge-ready report before the verdict."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "**Coordinator (this chat).** Local.",
+    "to": "**Coordinator (this chat).** In the active Codex session."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "Agents are spawned, resumed, and drained only through the Task tool.",
+    "to": "Agents are spawned, messaged, and drained through the available Codex subagent tools. A follow-up triggers an idle agent; status reads do not."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "**Sub-coordinator.** Always local, durable,",
+    "to": "**Sub-coordinator.** In the active Codex runtime, durable,"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "nesting works to depth 3, and a nested spawn has the full Task schema including `environment`",
+    "to": "nest only when the session exposes that capability, retaining the coordinator/track/worker depth limit"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "Always `environment: \"cloud\"` unless the task needs this machine: `control-ui` or `control-cli` runtime verification (from `cursor-team-kit`). Reading local transcripts under `agent-transcripts/`. Simulators and local IDE state. Auth that exists only here. Cloud agents cannot read the local store, so their briefs inline what they need or point at repo paths.",
+    "to": "Use the available Codex subagent runtime; use isolated cloud workers only when exposed. Keep work on this machine when it needs local browser or terminal verification, workspace-matching Codex transcripts, simulators, IDE state, or local auth. Cloud workers cannot read local task files, so their briefs inline what they need or point at repo paths. For Airgoods verification, read `../../verify-airgoods/SKILL.md` and its selected surface skills."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "Create `orchestrate/<project-slug>/` in the current agent's store (path in the system prompt).",
+    "to": "Create `orchestrate/<project-slug>/` under an uncommitted task directory accessible in the current Codex environment. Use gitignored workspace storage in cloud; do not assume a desktop store exists."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "its spawn budget with the cloud default and the local exception list",
+    "to": "its spawn budget with the available runtime and local capability requirements"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "arm it via the loop skill, with a long heartbeat fallback",
+    "to": "use the available watcher and bounded waits; use an automation heartbeat only when exposed and authorized by the request"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "the cloud agent's status in the Cursor dashboard",
+    "to": "the available Codex subagent status tool"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "After a Cursor restart: local agents are dead, cloud work is not.",
+    "to": "After a Codex restart: re-check agent state before assuming any worker survived."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "Run a unit's verifier on a different model family from its worker.",
+    "to": "Keep the verifier independent of its worker. Inherit the parent model unless the user requests an available alternative; report when cross-family review is unavailable."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "including its cross-model review",
+    "to": "including its independent review and any unavailable model diversity"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "(on a different model family than the worker)",
+    "to": "(independent of the worker, inheriting the parent model unless the user requests an available alternative)"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "Tool-error, retry on a different model.",
+    "to": "Tool-error, retry after correcting the tool failure; use another model only when the user requests one and it is available."
+  },
+  {
+    "path": "agents/poteto-agent.md",
+    "from": "description: Routing target for `/poteto-mode` and any request for poteto's style. Resume an existing `poteto-agent` for the conversation rather than spawning a sibling. Reads the `poteto-mode` skill's `SKILL.md` in full before any work, including its inline Principles index. Substituting `generalPurpose` skips that read and drifts.\nis_background: true",
+    "to": "description: Prompt role for Codex subagents operating in poteto-mode. Follow up with an existing agent for the conversation rather than spawning a sibling. Include this role in the Codex spawn prompt; read the bundled poteto-mode SKILL.md in full before any work, including its inline Principles index."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+    "from": "Run `/no-comments` before review.",
+    "to": "Run the bundled **no-comments** skill (`../../no-comments/SKILL.md`) before review."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+    "from": "with `/technical-writing`, then apply `/unslop`",
+    "to": "with the bundled **technical-writing** skill (`../../technical-writing/SKILL.md`), then apply **unslop** (`../../unslop/SKILL.md`)"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+    "from": "runs `interrogate`, `/deslop`, and `/no-comments`",
+    "to": "runs the bundled **interrogate**, **deslop**, and **no-comments** skills"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "`/no-comments` (the **no-comments** skill)",
+    "to": "the bundled **no-comments** skill (`../../no-comments/SKILL.md`)"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-stack.md",
+    "from": "`/no-comments` (the **no-comments** skill)",
+    "to": "the bundled **no-comments** skill (`../../no-comments/SKILL.md`)"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/autopilot-full.md",
+    "from": "after the slop-strip and `/no-comments`",
+    "to": "after the slop-strip and the bundled **no-comments** skill"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "Write under `/technical-writing` in full, then `/unslop`.",
+    "to": "Write under the bundled **technical-writing** skill (`../../technical-writing/SKILL.md`) in full, then **unslop** (`../../unslop/SKILL.md`)."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "Run `/deslop` before each commit and `/no-comments` before review.",
+    "to": "Run the bundled **deslop** skill (`../../deslop/SKILL.md`) before each commit and **no-comments** (`../../no-comments/SKILL.md`) before review."
+  },
+  {
+    "path": "agents/comment-sicko.md",
+    "from": "I run `/how`, `/why`, or both from the **how** and **why** skills",
+    "to": "I read and apply the bundled **how** skill (`../skills/how/SKILL.md`), **why** (`../skills/why/SKILL.md`), or both"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "Restacks run in cloud. A local restack at this scale takes the laptop down.",
+    "to": "Use an isolated cloud worker for restacks when that capability is available; otherwise bound local resource use and serialize them."
+  }
+]
