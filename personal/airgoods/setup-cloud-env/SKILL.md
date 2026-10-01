@@ -19,6 +19,10 @@ Use the checked-out versions as command and port truth. Inspect existing listene
 
 Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The Cursor Dockerfile describes the bootstrap requirements; it may not be the image running in Codex.
 
+Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
+
+Before driving a video demo, verify an available compatible browser, `ffmpeg`, `ffprobe`, the required encoders, and cursor recording support. Use an installed compatible browser when available; do not assume a browser download is needed. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser skill's current documentation for usage and recording details. Report missing prerequisites with `I RAN INTO AN ISSUE:` and continue setup work that does not depend on them.
+
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
 An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.
@@ -35,6 +39,10 @@ The current scripts use `/tmp/airgoods-cloud-agent-neon.env`, its `.status` file
 The start script clears the existing handoff and provisions a new child on every invocation. Never rerun it merely to restart Redis or apps. If a valid child exists but Redis is down, start Redis using the checked-out script's Redis configuration without executing its provisioning step.
 
 Use this repo lifecycle rather than `$provision-neon-branch` for normal cloud setup. Do not point apps at localhost Postgres or the parent. Do not create a second branch when one is already provisioned.
+
+The configured production parent is refreshed daily from a production dump by GitHub Actions. The copy can lag production. A child starts from that parent's data and can diverge through development changes and later production updates. The child's creation time does not establish when the production dump or snapshot was taken.
+
+Record the verified project, parent, and child identifiers with the source dump or snapshot timestamp and refresh evidence when available. Keep the child creation time separate. Resolve freshness from trusted metadata or refresh evidence; if unavailable, report it as unknown and never infer a freshness timestamp from branch creation.
 
 ## Start the dev servers
 
@@ -58,4 +66,4 @@ Warehouse is not a configured terminal. When requested, prepare its workspace de
 
 Require Redis `PONG`, a read-only database connectivity check through [query-local-db](../query-local-db/SKILL.md), startup evidence for each required process, and HTTP readiness of the requested apps. Allow cold compiles and inspect logs on failure. Match the query target to the same verified handoff used by backend processes. Use a repo health route or bounded HTTP request; an open port alone is insufficient.
 
-Report the child branch ID/name and expiration, service URLs, process/session IDs, and any blockers. Omit credentials and customer records. Leave the branch, handoff, Redis, and dev servers available for the task; do not delete them as setup cleanup. For browser verification, continue with [verify-airgoods](../verify-airgoods/SKILL.md) after startup.
+Report the child branch ID/name and expiration, source and freshness evidence or unknown freshness, service URLs, process/session IDs, and any blockers. Omit credentials and customer records. Leave the branch, handoff, Redis, and dev servers available for the task; do not delete them as setup cleanup. For browser verification, continue with [verify-airgoods](../verify-airgoods/SKILL.md) after startup.

@@ -63,5 +63,10 @@
     "path": "skills/poteto-mode/scripts/worktree-audit.sh",
     "from": "\t# Most recent chat whose transcript operated in this worktree. Match path\n\t# followed by \"/\" or a quote so glint-482 does not match glint-482-r37.\n\tlast=\"-\"; last_ts=0\n\tif [ -d \"$transcripts\" ]; then\n\t\tf=$(rg -l -e \"${wt}/\" -e \"${wt}\\\"\" \"$transcripts\" 2>/dev/null \\\n\t\t\t| xargs stat -f '%m %N' 2>/dev/null | sort -rn | head -1)\n\t\tif [ -n \"$f\" ]; then last_ts=$(echo \"$f\" | awk '{print $1}')\n\t\t\tlast=$(date -r \"$last_ts\" '+%Y-%m-%d' 2>/dev/null); fi\n\tfi\n",
     "to": "\tlast=\"-\"; last_ts=0\n\tif [ -d \"$transcripts\" ] && command -v bun >/dev/null; then\n\t\tsession=$(bun \"$audit_dir/latest-worktree-session.mjs\" \"$transcripts\" \"$wt\")\n\t\tIFS=$'\\t' read -r last_ts last <<< \"$session\"\n\tfi\n"
+  },
+  {
+    "path": "skills/poteto-mode/SKILL.md",
+    "from": "- Broken skill mid-task → fix it in its own PR. Don't block. Don't silently work around it.",
+    "to": "- Environment, tooling, task execution, or guidance issue → follow the [Estack issue-reporting convention](../estack/SKILL.md#issue-reporting), including when a workaround succeeds. Continue authorized work when possible; reporting does not authorize skill or infrastructure changes outside the task’s scope."
   }
 ]

@@ -388,5 +388,10 @@
     "path": "skills/poteto-mode/playbooks/orchestrate.md",
     "from": "Restacks run in cloud. A local restack at this scale takes the laptop down.",
     "to": "Use an isolated cloud worker for restacks when that capability is available; otherwise bound local resource use and serialize them."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/bug-fix.md",
+    "from": "Be scientific.",
+    "to": "When investigating or verifying a bug, checking the affected production records often helps; use query-prod-db for strictly read-only access.\n\nBe scientific."
   }
 ]

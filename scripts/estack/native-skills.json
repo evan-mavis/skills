@@ -283,5 +283,10 @@
     "path": "skills/reflect/references/synthesizer.md",
     "from": "| Problem | Proposal | Routing |\n|---|---|---|\n| <failure mode in a skill the parent used> | <change to that skill's body> | <skill path + section> |\n| <skill existed but didn't trigger> | <tune the skill's description so it fires next time> | <tune description: <skill path>> |\n| <new pattern, no existing skill is a real home> | <draft a new skill via create-skill> | <new skill via create-skill: <kebab-name>> |",
     "to": "| Problem | Proposal | Routing |\n|---|---|---|\n| <failure mode in a skill the parent used> | <change to that skill's body> | <skill path + section> |\n| <skill existed but didn't trigger> | <tune the skill's description so it fires next time> | <tune description: <skill path>> |\n| <new pattern, no existing skill is a real home> | <draft a new skill via skill-creator> | <new skill via skill-creator: <kebab-name>> |"
+  },
+  {
+    "path": "skills/principle-fix-root-causes/SKILL.md",
+    "from": "When debugging, do not fix symptoms. Trace every problem to its root cause and fix it there.",
+    "to": "When investigating or verifying a bug, checking the affected production records often helps; use query-prod-db for strictly read-only access.\n\nWhen debugging, do not fix symptoms. Trace every problem to its root cause and fix it there."
   }
 ]

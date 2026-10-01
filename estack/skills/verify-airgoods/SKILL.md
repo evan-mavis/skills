@@ -21,6 +21,8 @@ Choose the verification surface before launching anything. This skill routes; th
 
 ## Rules
 
+When investigating or verifying a bug, checking the affected production records often helps; use query-prod-db for strictly read-only access.
+
 - Never launch two skills against the same process or database without reconciling ownership first.
 - Follow [Local runtime](references/local-runtime.md): use the existing manually configured development environment and direct app commands. Do not invoke previewctl or a worktree provisioning helper.
 - Read [Browser hosts and evidence](references/browser-hosts.md) before driving. Resolve the host, use its browser harness, and preserve the selected surface's proof requirements.

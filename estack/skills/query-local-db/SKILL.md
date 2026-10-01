@@ -1,79 +1,65 @@
 ---
 name: query-local-db
-description: Query the Airgoods local development or explicitly selected task PostgreSQL database read-only. Use for schema discovery, records, and local data checks; verify a Neon branch before treating it as the requested environment.
+description: Query Airgoods Neon development branches read-only, including local development and verified cloud child branches. Use for schema discovery, records, and development data checks.
 ---
 
 # Query Airgoods Development PostgreSQL
 
-Use the bundled helper from the Airgoods repo or any worktree. It resolves the database, prints its source, and runs SQL read-only. Never paste a database URL or password into a command, tool output, or response.
+Development databases use Neon branches, including local development. Evan's default local branch is `evanmavis-local-dev`. Cloud agents use their own child branch resolved from verified current-run handoff metadata, not Evan's branch or the production parent.
 
-```bash
-SKILL_DIR="<absolute directory containing this SKILL.md>"
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --show-source
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "select id, name from public.supplier order by id limit 10"
-```
+The configured production parent is refreshed daily from a production dump by GitHub Actions. Development copies are generally current but can lag. A child can diverge through development changes and later production updates. Record the dump/snapshot timestamp when available separately from branch creation time. Never infer freshness from creation time or invent a timestamp.
 
 ## Select and verify the target
 
-The helper resolves connections in this order:
+Prefer the Neon plugin. Resolve the intended project, branch ID, and database explicitly through trusted repo configuration and Neon project/branch/database inspection. For local development, resolve `evanmavis-local-dev` within that verified project. A familiar name, endpoint hostname, or plugin default is insufficient verification. Never omit `project_id`, `branch_id`, or `database_name` from a query tool call.
 
-1. `--database-url-env NAME` for a caller-verified task database. The named variable must already be present in the query process; the helper never falls back if it is absent.
-2. Explicit `AIRGOODS_LOCAL_DATABASE_URL` in the query process.
-3. In an Airgoods repo, `apps/backend/.env.example`, then `.env`, then `.env.local`, with later files overriding earlier values. A nonempty `DATABASE_URL` wins over `DB_*_LOCAL` values. The backend itself loads `.env` and then `.env.local`; `.env.example` is only a helper fallback.
-4. Localhost defaults only when no backend env files are found.
+In a cloud session, use [setup-cloud-env](../setup-cloud-env/SKILL.md) to verify the current handoff's project, parent, child, endpoint, and expiration. A query-only request does not require servers or another branch. If provisioning is incomplete, wait for the existing operation. Missing, failed, expired, or inconsistent handoffs are blockers.
 
-Run `--show-source` before a substantive query. Check the reported source, database, and host against the user's requested environment. A Neon URL identifies an endpoint and database, **not its branch name**; if the user named a branch, confirm the endpoint-to-branch mapping in Neon or trusted environment metadata. If the target is ambiguous or the connection fails, stop and clarify it. Do not silently switch to localhost, production, or a different Neon branch.
+Keep this skill read-only even though a development branch can support separately authorized mutations. Validate user-provided SQL before execution. Reject writes, schema changes, migrations, backfills, mutating functions, and statements that disable read-only protections. Execute only clearly read-only SQL. Use Neon's `run_sql_transaction` with all three verified target arguments and these SQL statements in the same transaction:
 
-For an explicitly verified task-scoped database, pass the variable name, not its value:
-
-```bash
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" \
-  --database-url-env DATABASE_URL \
-  --csv -c "select id, name from public.supplier order by id limit 10"
+```sql
+SET TRANSACTION READ ONLY;
+SELECT current_database() AS database,
+       current_setting('transaction_read_only') AS read_only;
+-- Add the validated, bounded read-only query as the next statement.
 ```
 
-The helper does not read shell `DATABASE_URL` implicitly. Use `--database-url-env` only for a caller-verified task target, or use the explicit `AIRGOODS_LOCAL_DATABASE_URL` override. Never infer that a shell variable points to the current app database.
+Require the verification result to match the intended database and return `read_only = on`. If the tool fails, retain the same verified target. Report the blocker or use the fallback below only after verifying its endpoint maps to that exact branch. Never switch to a default branch, parent, production, or localhost.
 
-## Cloud Neon handoff
+## Reusable WebSocket fallback
 
-In an Airgoods cloud session, read [setup-cloud-env](../setup-cloud-env/SKILL.md) to resolve the current handoff and verify its child identity, endpoint, and expiration. A query-only request does not require starting dev servers or provisioning another branch. If the handoff is still provisioning, wait for it; if it failed or is missing, report the prerequisite instead of using dotenv or localhost fallback.
+Use [the bundled helper](scripts/query-airgoods-local.sh), not an ad hoc query script. Run it from an Airgoods package with `@neondatabase/serverless` and `ws` already installed. It reads credentials from one explicitly named environment variable and requires the verified project ID, branch ID, endpoint host, and database. It never reads dotenv files or selects a fallback target. Endpoint-to-branch verification remains the caller's responsibility.
 
-The backend wrapper loads the handoff only in its own process. The query helper does not discover it automatically. After verifying the current handoff, source it and invoke the helper in the same Bash process, with tracing off:
+For cloud queries, confirm the credential handoff path against the current repo scripts, source the verified file and invoke the helper in the same Bash process with tracing off. Do not print the file or use `cloud-agent-run-with-db.sh` for queries, since that wrapper can remove backend dotenv overrides. Repeat sourcing in each fresh process. For local queries, load the verified branch credential through the existing trusted local configuration without printing it.
 
 ```bash
 SKILL_DIR="<absolute directory containing this SKILL.md>"
 set +x
+# Cloud only, after verifying the current handoff.
 source /tmp/airgoods-cloud-agent-neon.env
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --database-url-env DATABASE_URL --show-source
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --database-url-env DATABASE_URL \
-  --csv -c "select current_database() as database, current_setting('transaction_read_only') as read_only"
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" \
+  --database-url-env DATABASE_URL \
+  --project-id '<verified-project-id>' --branch-id '<verified-branch-id>' \
+  --expected-host '<verified-endpoint-host>' --expected-database '<verified-database>' \
+  --show-source
 ```
 
-Confirm the handoff path against the current repo scripts. Repeat the source step in each fresh query process. Do not use `cloud-agent-run-with-db.sh` for queries, since it can remove backend dotenv overrides; source the verified credential file directly. Do not print it.
+Use the same arguments with `-c "select id, name from public.supplier order by id limit 10"` for a query. The helper uses a WebSocket connection, verifies the database and read-only transaction before executing SQL, sets a 15-second statement timeout, returns JSON rows, and rolls back. It accepts one `SELECT`; comments, multiple statements, and transaction/control/mutation keywords are rejected conservatively. This guard does not establish that an arbitrary function is read-only. Inspect unfamiliar functions before use. On failure, report the prerequisite or query problem without printing raw errors that may contain credentials or records. Never write another transport script or change targets to work around a failure.
 
 ## Discover before assuming a schema
 
-Tables and columns vary by branch. Find the table, inspect columns, then write a bounded query:
+Read [Airgoods schema examples](references/airgoods-schema-examples.md) for the shared verified joins and bounded examples. Tables and columns can differ across branches. Discover undocumented fields live in the selected branch before using them:
 
-```bash
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "
-select table_name
-from information_schema.tables
-where table_schema = 'public' and table_name ilike '%shipping%'
-order by table_name limit 30"
+```sql
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public' AND table_name ILIKE '%shipping%'
+ORDER BY table_name LIMIT 30;
 
-bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --csv -c "
-select column_name, data_type
-from information_schema.columns
-where table_schema = 'public' and table_name = 'shipping_profile'
-order by ordinal_position"
+SELECT column_name, data_type
+FROM information_schema.columns
+WHERE table_schema = 'public' AND table_name = 'shipping_profile'
+ORDER BY ordinal_position LIMIT 100;
 ```
 
-See [Airgoods schema examples](references/airgoods-schema-examples.md) when querying products, suppliers, shipping profiles, or their rate tiers. They are navigation examples from one development branch, not a stable schema contract. Use `\d public.table_name` for a table definition, `--csv` for rows, and `-At` for one machine-readable value. Limit result sets and avoid `select *` on large or sensitive tables.
-
-## Safety and reporting
-
-- The helper wraps remote URL queries in a read-only transaction; localhost queries use a read-only session setting. It never edits env files.
-- Do not run writes, migrations, or schema changes through this read-only workflow. A user-requested write needs a separately scoped method and a target-row check.
-- Report the selected source, database, and host, plus any limits of the query. Never report credentials.
-- If `psql` cannot connect, stop at that target. A connection error is not permission to try another database.
+Run these as separate validated queries through the selected method. Limit result sets and avoid `SELECT *` on large or sensitive tables. Exclude passwords, password hashes, tokens, credentials, and unnecessary personal/customer data. Report the verified project/branch/database, source/freshness evidence when available, and query limits. Never report connection URLs or secrets. User-requested mutations require a separately scoped workflow and are outside this skill.

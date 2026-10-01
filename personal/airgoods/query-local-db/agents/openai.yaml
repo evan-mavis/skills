@@ -1,4 +1,4 @@
 interface:
-  display_name: "Query Local Database"
-  short_description: "Query local or isolated task PostgreSQL"
-  default_prompt: "Use $query-local-db to inspect the local stack database or an explicitly verified task database safely."
+  display_name: "Query Development Database"
+  short_description: "Query verified Neon development branches read-only"
+  default_prompt: "Use $query-local-db to inspect the explicitly verified Airgoods Neon development branch read-only."
