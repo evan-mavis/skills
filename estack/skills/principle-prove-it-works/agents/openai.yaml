@@ -2,5 +2,3 @@ interface:
   display_name: "Principle Prove It Works"
   short_description: "Verify the real outcome before declaring completion"
   default_prompt: "Use $principle-prove-it-works to verify the real outcome before declaring completion."
-policy:
-  allow_implicit_invocation: false

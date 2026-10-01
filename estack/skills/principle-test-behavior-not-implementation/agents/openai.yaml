@@ -2,5 +2,3 @@ interface:
   display_name: "Principle Test Behavior Not Implementation"
   short_description: "Test observable behavior through the public interface"
   default_prompt: "Use $principle-test-behavior-not-implementation to test observable behavior through the public interface."
-policy:
-  allow_implicit_invocation: false

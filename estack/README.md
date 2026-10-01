@@ -8,11 +8,12 @@ This directory is generated. Edit `pstack/`, `personal/`, or the templates and e
 bun scripts/build-estack.mjs
 bun scripts/build-estack.mjs --check
 bun scripts/check-estack.mjs
+bun scripts/check-estack-loader.mjs
 ```
 
 To compare against a fresh checkout of `cursor/plugins`, run `bun scripts/check-estack.mjs --upstream /path/to/cursor/plugins`. The check flags source drift beyond the recorded name, host-adapter, and PR-convention changes. Cursor-only automations are excluded.
 
-Source explicit-invocation flags are translated to Codex `agents/openai.yaml` policies. Skill bodies and conditional reference loading are preserved.
+Codex invocation policy comes from `agents/openai.yaml`; Cursor-only frontmatter is omitted. Routed pstack skills remain discoverable, and their bodies and references load only when needed.
 
 The entry skill loads personal defaults from the package; installing the plugin does not install global `AGENTS.md` instructions. Skills and playbooks use Codex tools and workflows. Exact replacements under `scripts/estack/` adapt tools, models, scheduling, transcripts, and verification while preserving pstack's workflows.
 

@@ -2,5 +2,3 @@ interface:
   display_name: "How"
   short_description: "Explain how code works with references to its source"
   default_prompt: "Use $how to explain how code works with references to its source."
-policy:
-  allow_implicit_invocation: false

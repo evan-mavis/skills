@@ -2,5 +2,3 @@ interface:
   display_name: "Interrogate"
   short_description: "Review a design or implementation through adversarial passes"
   default_prompt: "Use $interrogate to review a design or implementation through adversarial passes."
-policy:
-  allow_implicit_invocation: false

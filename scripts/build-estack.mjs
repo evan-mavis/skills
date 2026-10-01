@@ -126,31 +126,12 @@ export async function buildEstack(repoRoot, outputRoot = path.join(repoRoot, 'es
       const match = text.match(/^---\n([\s\S]*?)\n---\n/);
       if (!match) throw new Error(`Missing skill frontmatter: ${target}`);
       const frontmatter = Bun.YAML.parse(match[1]);
-      const explicitOnly = frontmatter['disable-model-invocation'] === true;
       const hostFields = ['disable-model-invocation', 'mode', 'icon', 'color', 'reminder', 'paths'];
       if (hostFields.some(key => key in frontmatter)) {
         for (const key of hostFields) delete frontmatter[key];
         desired.set(target, { ...file, bytes: Buffer.from(`---\n${Bun.YAML.stringify(frontmatter).trimEnd()}\n---\n${text.slice(match[0].length)}`) });
       }
-      if (explicitOnly) {
-        const metadataPath = path.join(path.dirname(target), 'agents/openai.yaml');
-        const metadataFile = desired.get(metadataPath);
-        if (!metadataFile) throw new Error(`Missing Codex skill metadata: ${target}`);
-        const metadataText = metadataFile.bytes.toString('utf8');
-        const metadata = Bun.YAML.parse(metadataText);
-        if (metadata.policy?.allow_implicit_invocation === true) {
-          throw new Error(`Conflicting invocation policy: ${target}`);
-        }
-        if (metadata.policy?.allow_implicit_invocation !== false) {
-          let updated;
-          if (!metadata.policy) updated = `${metadataText.trimEnd()}\npolicy:\n  allow_implicit_invocation: false\n`;
-          else {
-            if (!/^policy:\s*\n/m.test(metadataText)) throw new Error(`Expected block policy: ${metadataPath}`);
-            updated = metadataText.replace(/^policy:\s*\n/m, 'policy:\n  allow_implicit_invocation: false\n');
-          }
-          desired.set(metadataPath, { ...metadataFile, bytes: Buffer.from(updated) });
-        }
-      }
+
     }
   }
   for (const target of desired.keys()) {

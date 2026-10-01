@@ -66,7 +66,7 @@ test('rejects stale removals before writing', async () => {
   await expect(lstat(output)).rejects.toThrow();
 });
 
-test('Codex packaging preserves the workflow and explicit invocation in supported metadata', async () => {
+test('Codex packaging keeps routed skills discoverable and preserves their workflow', async () => {
   const { root, output } = await fixture({ codexSkills: true });
   const body = '\nRead references/proof.md before recording.\n';
   await writeFile(path.join(root, 'source/SKILL.md'), '---\nname: example\ndescription: Record a demo.\ndisable-model-invocation: true\npaths: ["*.ts"]\nmode: true\n---\n' + body);
@@ -78,18 +78,19 @@ test('Codex packaging preserves the workflow and explicit invocation in supporte
   expect(skill.slice(skill.indexOf('\n---\n') + 5)).toBe(body);
   expect(Bun.YAML.parse(await readFile(path.join(output, 'skills/example/agents/openai.yaml'), 'utf8'))).toEqual({
     interface: { display_name: 'Example', short_description: 'Record a verified demonstration', default_prompt: 'Use $example to record a demo.' },
-    dependencies: { tools: [] }, policy: { allow_implicit_invocation: false },
+    dependencies: { tools: [] },
   });
   expect((await buildEstack(root, output, { check: true })).ok).toBe(true);
 });
 
-test('conflicting invocation metadata fails before modifying the plugin', async () => {
+test('Codex packaging preserves an existing native invocation policy', async () => {
   const { root, output } = await fixture({ codexSkills: true });
   await writeFile(path.join(root, 'source/SKILL.md'), '---\nname: example\ndescription: Record a demo.\ndisable-model-invocation: true\n---\n');
   await mkdir(path.join(root, 'source/agents'));
-  await writeFile(path.join(root, 'source/agents/openai.yaml'), 'policy:\n  allow_implicit_invocation: true\n');
-  await expect(buildEstack(root, output)).rejects.toThrow('Conflicting invocation policy');
-  await expect(lstat(output)).rejects.toThrow();
+  const metadata = 'interface:\n  display_name: Example\npolicy:\n  allow_implicit_invocation: false\n';
+  await writeFile(path.join(root, 'source/agents/openai.yaml'), metadata);
+  await buildEstack(root, output);
+  expect(await readFile(path.join(output, 'skills/example/agents/openai.yaml'), 'utf8')).toBe(metadata);
 });
 
 test.each(['missing', 'anchor'])('rejects %s replacement anchors before changing output', async anchor => {

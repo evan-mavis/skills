@@ -2,5 +2,3 @@ interface:
   display_name: "TDD"
   short_description: "Implement requested work through test-driven development"
   default_prompt: "Use $tdd to implement requested work through test-driven development."
-policy:
-  allow_implicit_invocation: false

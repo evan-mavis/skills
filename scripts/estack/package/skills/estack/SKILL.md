@@ -15,4 +15,4 @@ For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or ou
 
 For Airgoods verification, read [verify-airgoods](../verify-airgoods/SKILL.md) and invoke the affected surface skills. User-visible bugs need a reproduction before editing and verification afterward. Features and improvements need a demo. Read the verifier before starting the work so its proof requirements guide the change.
 
-Read other bundled skills directly by sibling path when their workflow applies. Preserve their supporting references and scripts. Report missing capabilities without claiming the workflow completed.
+Resolve bundled skills through the current skill catalog when their workflow applies. With a skill-resource reader, select the target skill and use its returned resource identifier; do not pass a sibling filesystem path as a resource of this entry skill. With filesystem tools, sibling paths are relative to the containing file. Preserve their supporting references and scripts. Report missing capabilities without claiming the workflow completed.

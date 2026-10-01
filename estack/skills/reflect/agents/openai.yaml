@@ -2,5 +2,3 @@ interface:
   display_name: "Reflect"
   short_description: "Review recent work through independent review passes"
   default_prompt: "Use $reflect to review recent work through independent review passes."
-policy:
-  allow_implicit_invocation: false
