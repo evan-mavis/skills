@@ -7,14 +7,13 @@ This file records the original pstack source snapshot and its historical adaptat
 - Version: `0.15.5`
 - Commit: [`ecc249f1e306fc64ddf83c7bed16cacf7c2239db`](https://github.com/cursor/plugins/commit/ecc249f1e306fc64ddf83c7bed16cacf7c2239db)
 - Retrieved: 2026-09-27
+- Compared against upstream main on 2026-10-01 at `2eb7ed4613cfc8f098dfe464a23680ea44d84c5e`. Its active skill and agent sources still match this snapshot.
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
 
-## Original source adaptations
+## Source adaptations
 
-- The shared pstack source includes integrations for Cursor, Factory, Codex, and Devin. Estack skills and playbooks use Codex tools directly.
-- `skills/poteto-mode/SKILL.md` frontmatter `name` is `poteto-mode` instead of `Poteto Mode`, because Factory requires lowercase hyphenated skill names.
-- `skills/poteto-mode/playbooks/opening-a-pr.md` **Titles** uses the personal `feat:`/`fix:`/`tech:`/`refactor:`/`maintenance:` convention with Linear issue ID suffixes instead of Conventional Commits, and adds a **Branches** rule.
-- `skills/deslop/` (added) is vendored unchanged from `cursor-team-kit/skills/deslop` at the snapshot commit, because poteto-mode requires it before every commit.
-- `skills/make-bot-ui/` and `automations/benny/` (removed) depended on Cursor Automations webhooks. `README.md` drops their table row and automations section.
-- `skills/setup-pstack/` is unchanged from upstream.
-- `.devin-plugin/plugin.json` (added) lets Devin load pstack as a plugin in local and cloud sessions. Skills are served from the existing `skills/` directory; plugin subagents (`agents/`) are local-only in Devin, so they are not declared in the manifest.
+- Estack skills and playbooks target Codex. The shared source history remains in `pstack/UPSTREAM.md` in the skills repository.
+- `skills/poteto-mode/SKILL.md` uses the lowercase skill name `poteto-mode`.
+- PR titles and branch names follow the bundled personal defaults.
+- `skills/deslop/` is vendored from the source snapshot and runs before commits.
+- Estack packaging preserves the source license and adapts runtime tools through `scripts/estack/`.

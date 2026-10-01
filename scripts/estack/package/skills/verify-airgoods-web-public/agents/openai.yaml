@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Airgoods Web Public"
+  short_description: "Verify public pages, authentication, and SEO behavior"
+  default_prompt: "Use $verify-airgoods-web-public to verify public pages, authentication, and SEO behavior."

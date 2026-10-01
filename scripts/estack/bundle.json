@@ -46,18 +46,18 @@
     },
     {
       "path": "skills/poteto-mode/SKILL.md",
-      "from": "- Before commit → the `deslop` skill from the `cursor-team-kit` plugin (`/deslop`).",
-      "to": "- Before commit → the bundled **deslop** skill (`../deslop/SKILL.md`)."
+      "from": "- Before commit \u2192 the `deslop` skill from the `cursor-team-kit` plugin (`/deslop`).",
+      "to": "- Before commit \u2192 the bundled **deslop** skill (`../deslop/SKILL.md`)."
     },
     {
       "path": "skills/poteto-mode/SKILL.md",
-      "from": "- Shipping UI / IDE / CLI → the matching control skill. `cursor-team-kit` publishes `control-cli` (CLIs and TUIs) and `control-ui` (browser / Electron / web UIs). For bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception.",
-      "to": "- Shipping UI / IDE / CLI → the available Codex browser harness for browser, Electron, and web UIs, or terminal tools for CLIs and TUIs. Read the selected tools' current instructions first. For Airgoods changes, read `../verify-airgoods/SKILL.md` before work and invoke its selected surface skills. User-visible bugs require a reproduction before editing and verification afterward; features and improvements require a demo. For other bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception."
+      "from": "- Shipping UI / IDE / CLI \u2192 the matching control skill. `cursor-team-kit` publishes `control-cli` (CLIs and TUIs) and `control-ui` (browser / Electron / web UIs). For bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception.",
+      "to": "- Shipping UI / IDE / CLI \u2192 the available Codex browser harness for browser, Electron, and web UIs, or terminal tools for CLIs and TUIs. Read the selected tools' current instructions first. For Airgoods changes, read `../verify-airgoods/SKILL.md` before work and invoke its selected surface skills. User-visible bugs require a reproduction before editing and verification afterward; features and improvements require a demo. For other bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception."
     },
     {
       "path": "skills/poteto-mode/SKILL.md",
-      "from": "- Any PR-status request → the **Babysit** playbook (`playbooks/babysit.md`),",
-      "to": "- Any Airgoods PR-status request → **babysit-airgoods-pr** (`../babysit-airgoods-pr/SKILL.md`), whose overrides take precedence. Any other PR-status request → the **Babysit** playbook (`playbooks/babysit.md`),"
+      "from": "- Any PR-status request \u2192 the **Babysit** playbook (`playbooks/babysit.md`),",
+      "to": "- Any Airgoods PR-status request \u2192 **babysit-airgoods-pr** (`../babysit-airgoods-pr/SKILL.md`), whose overrides take precedence. Any other PR-status request \u2192 the **Babysit** playbook (`playbooks/babysit.md`),"
     },
     {
       "path": "skills/babysit-airgoods-pr/SKILL.md",
@@ -80,21 +80,6 @@
       "to": "6. **Delivery.** For `changed`, write and verify the canonical repository files, then run `bun scripts/build-estack.mjs` and `bun scripts/build-estack.mjs --check` from the skills repository. Do not edit generated `estack/` files or install plugins as part of maintenance. Report that installed account or marketplace copies need an update. Leave changes uncommitted for the user to review; do not create a branch, commit, or pull request."
     },
     {
-      "path": "skills/verify-airgoods/references/browser-hosts.md",
-      "from": "| Host            | Browser driver                            | Evidence root                                        |\n| --------------- | ----------------------------------------- | ---------------------------------------------------- |\n| Codex           | Codex browser harness                     | `~/.codex/verification`                              |\n| Cursor          | Cursor browser surface and walkthrough video | `test-results` in the active checkout (gitignored) |\n| Factory (Droid) | `$droid-control`, driving `agent-browser` | `~/.factory/verification`                            |\n| Devin           | `browser_preview`; the user drives and relays DOM/console captures | `~/.config/devin/verification` |",
-      "to": "| Host | Browser driver | Evidence root |\n| --- | --- | --- |\n| Codex | Codex browser harness | `~/.codex/verification` |"
-    },
-    {
-      "path": "skills/verify-airgoods/references/browser-hosts.md",
-      "from": "the syntax the current host exposes: `$name` in Codex and Factory (Droid), `/name` in Cursor, and\nthe `skill` tool in Devin. The skill name, not the sigil, is what matters.",
-      "to": "the syntax the current Codex session exposes, or read `../<name>/SKILL.md` directly from a skill\ndirectory. The skill name, not the sigil, is what matters."
-    },
-    {
-      "path": "skills/verify-airgoods/references/browser-hosts.md",
-      "from": "### Cursor\n\nUse the Cursor browser surface and its walkthrough video capability. Follow Cursor's current tab and\nrecorder documentation; do not port Codex harness calls onto it.\n\nOpen a new background tab at the resolved `http://127.0.0.1:<port>` origin, lock it for the run, and\ntake an accessibility snapshot before interacting. Unlock and close only the tab this run created.\n\nMandatory video must come from a Computer Use-capable host. When host-native recording is\nunavailable, route the required walkthrough to a Computer Use-capable Cursor host and report the\nrouting; a screenshot-only local pass is supplemental evidence and never a substitute. Never capture\nproduction-copy messages, addresses, phone numbers, uploaded media, or recipient details in a\nwalkthrough artifact.\n\nThird-party frames and hosted fields (provider iframes, card fields, bank verification) may be\ninaccessible to the browser surface, redirect away, open a new tab, or be unavailable with local\ncredentials. Report that as a blocker requiring user takeover rather than guessing at the result.\n\n### Cursor Cloud runtime\n\nWhen running in Cursor Cloud, `.cursor/environment.json` is authoritative and the host has already\nbootstrapped the stack. Read the environment file before starting services, then reuse what it\nprovides instead of provisioning duplicates:\n\n- Redis and a per-run Neon branch are host-provisioned. Confirm the protected Neon handoff reached\n  `ready` and that backend-backed behavior waits for it; closed ports while the handoff reads\n  `provisioning` are wait conditions, not failures.\n- Backend is `:8000`, queue is `:8001`, marketplace web is `:3000`, public web is `:3006`.\n- Warehouse is not auto-started or prebuilt. Start only Warehouse with\n  `pnpm --dir apps/warehouse dev` on `:3005` when its port is closed, and allow for a cold compile\n  before declaring it unhealthy.\n- Load the protected handoff explicitly when the environment requires it, and pass\n  `--database-url-env DATABASE_URL` to `$query-local-db` against the verified isolated database.\n- Leave Neon, Redis, handoff files, host terminals, and walkthrough artifacts to the host, and stop\n  only processes this run started.\n\nCloud and local use different port truth. Prefer the resolved Cloud ports in Cloud, and the existing\nconfigured listeners locally; never hardcode a default port over a verified one.\n\n### Factory (Droid)\n\nInvoke `$droid-control`, which owns browser driving and the recording lifecycle. It drives\n`agent-browser` underneath and captures the session as a video artifact.\n\nUse a unique session identifier for every command, and drive and record the same session. Read\n`$droid-control`'s current instructions before the first call rather than assuming its interface.\n\n### Devin\n\nUse the `browser_preview` tool pointed at the running local server. Devin cannot drive the page: the\nuser interacts and sends DOM element captures (with component and source location when resolvable)\nand console output. Prepare the route and fixtures, then ask the user to walk the flow and share\nwhat they see. Supplement with read-only API or database evidence per this contract.\n\nThe preview runs in the user's own browser, so it shares their cookies and session. Anonymous or\nconflicting-account proof needs a documented isolated context Devin does not provide; report that\nprerequisite instead of driving around it.\n\nDevin has no recording capability. When a walkthrough video is mandatory, route it per the\nmandatory-video rule under Cursor and report the routing.\n\n",
-      "to": "### Codex cloud\n\nRead [setup-cloud-env](../../setup-cloud-env/SKILL.md) before server startup or database queries.\nReuse the verified per-run Neon handoff and start missing required dev servers through the repo\ncommands, even when Codex did not execute the Cursor lifecycle hooks. An explicit setup request\nallows the repo bootstrap when no handoff exists; verification alone does not provision a\nreplacement database.\n\nUse the available browser tools. Confirm suitable fixtures, authentication, session isolation,\nand recording are available before driving. Do not assume desktop tools exist in cloud. Report\nthe exact missing prerequisite as blocked proof.\n\n"
-    },
-    {
       "path": "skills/to-linear-spec/SKILL.md",
       "from": "$pstack-for-codex:architect",
       "to": "$estack:architect"
@@ -105,7 +90,16 @@
       "to": "$estack:unslop"
     }
   ],
-  "overrides": [],
+  "overrides": [
+    {
+      "from": "scripts/estack/overrides/browser-hosts.md",
+      "to": "skills/verify-airgoods/references/browser-hosts.md"
+    },
+    {
+      "from": "scripts/estack/overrides/maintain-airgoods-verification/openai.yaml",
+      "to": "skills/maintain-airgoods-verification/agents/openai.yaml"
+    }
+  ],
   "removals": [
     "skills/poteto-mode/references/host-runtime.md"
   ],
@@ -114,5 +108,6 @@
     "scripts/estack/native-skills.json",
     "scripts/estack/native-playbooks.json",
     "scripts/estack/native-final.json"
-  ]
+  ],
+  "codexSkills": true
 }

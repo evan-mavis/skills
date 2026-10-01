@@ -1,0 +1,6 @@
+interface:
+  display_name: "Principle Redesign from First Principles"
+  short_description: "Integrate new requirements into a coherent design"
+  default_prompt: "Use $principle-redesign-from-first-principles to integrate new requirements into a coherent design."
+policy:
+  allow_implicit_invocation: false

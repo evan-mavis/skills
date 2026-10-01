@@ -1,4 +1,4 @@
 interface:
-  display_name: "estack"
+  display_name: "Estack"
   short_description: "poteto-mode with personal defaults"
   default_prompt: "Use $estack and poteto-mode for this task."

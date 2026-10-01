@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principle Guard the Context Window"
+  short_description: "Keep large artifacts and repeated output out of context"
+  default_prompt: "Use $principle-guard-the-context-window to keep large artifacts and repeated output out of context."

@@ -66,6 +66,32 @@ test('rejects stale removals before writing', async () => {
   await expect(lstat(output)).rejects.toThrow();
 });
 
+test('Codex packaging preserves the workflow and explicit invocation in supported metadata', async () => {
+  const { root, output } = await fixture({ codexSkills: true });
+  const body = '\nRead references/proof.md before recording.\n';
+  await writeFile(path.join(root, 'source/SKILL.md'), '---\nname: example\ndescription: Record a demo.\ndisable-model-invocation: true\npaths: ["*.ts"]\nmode: true\n---\n' + body);
+  await mkdir(path.join(root, 'source/agents'));
+  await writeFile(path.join(root, 'source/agents/openai.yaml'), 'interface:\n  display_name: Example\n  short_description: Record a verified demonstration\n  default_prompt: Use $example to record a demo.\ndependencies:\n  tools: []\n');
+  await buildEstack(root, output);
+  const skill = await readFile(path.join(output, 'skills/example/SKILL.md'), 'utf8');
+  expect(Bun.YAML.parse(skill.split('---')[1])).toEqual({ name: 'example', description: 'Record a demo.' });
+  expect(skill.slice(skill.indexOf('\n---\n') + 5)).toBe(body);
+  expect(Bun.YAML.parse(await readFile(path.join(output, 'skills/example/agents/openai.yaml'), 'utf8'))).toEqual({
+    interface: { display_name: 'Example', short_description: 'Record a verified demonstration', default_prompt: 'Use $example to record a demo.' },
+    dependencies: { tools: [] }, policy: { allow_implicit_invocation: false },
+  });
+  expect((await buildEstack(root, output, { check: true })).ok).toBe(true);
+});
+
+test('conflicting invocation metadata fails before modifying the plugin', async () => {
+  const { root, output } = await fixture({ codexSkills: true });
+  await writeFile(path.join(root, 'source/SKILL.md'), '---\nname: example\ndescription: Record a demo.\ndisable-model-invocation: true\n---\n');
+  await mkdir(path.join(root, 'source/agents'));
+  await writeFile(path.join(root, 'source/agents/openai.yaml'), 'policy:\n  allow_implicit_invocation: true\n');
+  await expect(buildEstack(root, output)).rejects.toThrow('Conflicting invocation policy');
+  await expect(lstat(output)).rejects.toThrow();
+});
+
 test.each(['missing', 'anchor'])('rejects %s replacement anchors before changing output', async anchor => {
   const { root, output } = await fixture({ replacements: [{ path: 'skills/example/SKILL.md', from: anchor, to: 'changed' }] });
   await writeFile(path.join(root, 'source/SKILL.md'), 'anchor anchor\n');

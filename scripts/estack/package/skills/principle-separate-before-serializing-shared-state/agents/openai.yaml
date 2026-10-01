@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principle Separate Before Serializing Shared State"
+  short_description: "Separate concurrent state before adding synchronization"
+  default_prompt: "Use $principle-separate-before-serializing-shared-state to separate concurrent state before adding synchronization."

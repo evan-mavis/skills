@@ -11,17 +11,19 @@ When this skill is used only to prepare verification, reuse the existing provisi
 
 ## Read the repository setup
 
-Resolve the current Airgoods Git root and read its applicable instructions, `.cursor/README.md`, `.cursor/environment.json`, `.cursor/Dockerfile`, and the scripts named by its `install`, `start`, and `terminals` entries. These are repo-managed setup commands even when the host is Codex. Codex may not have executed Cursor's lifecycle hooks or launched its terminals. Their presence alone does not establish a running environment.
+Resolve the current Airgoods Git root and read its applicable instructions, `.cursor/README.md`, `.cursor/environment.json`, `.cursor/Dockerfile`, and the scripts named by its `install`, `start`, and `terminals` entries. These are repo-managed setup commands even when the host is Codex. Codex may not have run the repository bootstrap or launched its configured services. Their presence alone does not establish a running environment.
 
 Use the checked-out versions as command and port truth. Inspect existing listeners and process ownership before starting anything. Reuse healthy processes belonging to this checkout. Do not adopt another checkout's services.
 
 ## Install missing prerequisites
 
-Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The Cursor Dockerfile describes the bootstrap requirements; it may not be the image running in Codex.
+Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Codex.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
 An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.
+
+For video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites.
 
 ## Resolve the per-run Neon handoff
 

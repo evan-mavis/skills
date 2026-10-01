@@ -30,6 +30,4 @@ Choose the verification surface before launching anything. This skill routes; th
 
 ## Installed layout
 
-The surface skills and `$maintain-airgoods-verification` are sibling skill directories on every host. Read their `SKILL.md` files directly if skill discovery has not refreshed.
-
-Every host installs this family from the same source. Host differences belong in [Browser hosts and evidence](references/browser-hosts.md); do not fork a surface skill to accommodate one host.
+The surface skills and `$maintain-airgoods-verification` are bundled sibling directories. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).

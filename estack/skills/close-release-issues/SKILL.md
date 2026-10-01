@@ -29,7 +29,7 @@ Deterministic release closeout for Linear issues. **Audit first, close only afte
 
 ## Tools
 
-- **Available Linear integration** — in Codex, use the configured Linear plugin/connector or `$linear`; in other hosts, use their configured Linear MCP/plugin
+- **Available Linear integration** — use the configured Linear plugin, connector, or MCP tools in this Codex session
 - `gh` — verify PR merge state and base branch
 
 Read the current Linear integration's callable schemas or skill instructions before calling; do not assume a host-specific tool name. Prefer `gh` over GitHub MCP.
@@ -108,7 +108,7 @@ Extract PR number from URL: `.../pull/682` → `682`.
 Run the helper script (batch) or `gh` per PR:
 
 ```bash
-scripts/check-prs-merged-to-dev.sh 682 661 262
+bash "<resolved-close-release-issues-dir>/scripts/check-prs-merged-to-dev.sh" 682 661 262
 ```
 
 Or manually:

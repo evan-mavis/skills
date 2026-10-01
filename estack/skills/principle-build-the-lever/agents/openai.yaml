@@ -1,0 +1,6 @@
+interface:
+  display_name: "Principle Build the Lever"
+  short_description: "Build a repeatable tool to perform or prove the work"
+  default_prompt: "Use $principle-build-the-lever to build a repeatable tool to perform or prove the work."
+policy:
+  allow_implicit_invocation: false

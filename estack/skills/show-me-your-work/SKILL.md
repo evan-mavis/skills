@@ -1,7 +1,5 @@
 ---
-name: show-me-your-work
-description: "Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for $show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away."
-disable-model-invocation: true
+{name: show-me-your-work,description: "Keep a reviewable decision trail for long-running or unattended work: a TSV log with one row per decision (what, why, evidence, result). Local by default; commit it when a reviewer needs the trail to trust the result. Use for $show-me-your-work, autonomous or multi-phase runs, or work a human reviews after stepping away."}
 ---
 
 # Show me your work
@@ -35,7 +33,7 @@ ts	phase	decision	why	evidence	result
 
 Write each entry the way you'd tell a teammate what you did. Plain words, concrete actions, no AI speak or abstract jargon (the **unslop** skill applies to log text too).
 
-Use the helper `scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`. It stamps `ts`, writes the header on first use, strips stray tabs/newlines, and prefixes any cell starting with `=`, `+`, `-`, or `@` with a single quote. A bare `printf` appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
+Use the helper `bash "<resolved-show-me-your-work-dir>/scripts/log.sh" <logfile> <phase> <decision> <why> <evidence> <result>`. It stamps `ts`, writes the header on first use, strips stray tabs/newlines, and prefixes any cell starting with `=`, `+`, `-`, or `@` with a single quote. A bare `printf` appending a row works too, but mind those same bytes if cells come from generated or user-supplied text.
 
 Log decision points and checkpoints, not every action: a fork chosen, a unit completed with its verification result, a pivot or revert with its trigger, a blocker surfaced, a gate fixed. For loop runs, one row per iteration. Skip the trivial and self-evident.
 
@@ -62,7 +60,7 @@ At the end of the run, before handing back, check the log told the truth. Use th
 
 Correct the log, not the story. The audit never edits or removes a row, even an invented one. When a row records neither a real decision nor a real action, or its claim or evidence is wrong, add a row that supersedes it with what actually happened and a pointer that resolves. This audit does not check rows outside this run's stretches. If this run's own work shows one of them is wrong, supersede it like any wrong call.
 
-## Cross-model review of the trail
+## Independent review of the trail
 
 Before handing back, spawn an independent Codex subagent. Omit `model` and reasoning overrides to inherit the parent. Only select a model or reasoning effort when the user explicitly requests it and the live Codex subagent tool lists that selection as available. If it is unavailable, report the limitation and inherit the parent. Report the actual model and whether it differs from the worker's; an inherited-model pass does not provide cross-model review. The subagent reads the audit trail and the run's transcript or available conversation, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "TypeScript Best Practices"
+  short_description: "Apply TypeScript patterns that preserve type safety"
+  default_prompt: "Use $typescript-best-practices to apply TypeScript patterns that preserve type safety."

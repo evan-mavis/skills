@@ -1,0 +1,4 @@
+interface:
+  display_name: "Swarm"
+  short_description: "Coordinate parallel workers and collect their results"
+  default_prompt: "Use $swarm to coordinate parallel workers and collect their results."

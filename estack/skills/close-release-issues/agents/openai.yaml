@@ -1,0 +1,4 @@
+interface:
+  display_name: "Close Release Issues"
+  short_description: "Audit release issues and close those proven complete"
+  default_prompt: "Use $close-release-issues to audit release issues and close those proven complete."

@@ -1,7 +1,5 @@
 ---
-name: automate-me
-description: "Use for \"automate me\", \"create/update/refresh my -mode skill\", \"turn/capture my preferences or working style into a skill\", or wanting agents to follow how the user works. Drafts or revises a personal -mode skill via skill-creator + unslop, optionally pulling fresh evidence from recent transcripts."
-disable-model-invocation: true
+{name: automate-me,description: "Use for \"automate me\", \"create/update/refresh my -mode skill\", \"turn/capture my preferences or working style into a skill\", or wanting agents to follow how the user works. Drafts or revises a personal -mode skill via skill-creator + unslop, optionally pulling fresh evidence from recent transcripts."}
 ---
 
 # Automate me
@@ -14,7 +12,7 @@ This skill orchestrates three others: an inline mining pass (see step 1), Codex'
 
 ### 0. Check for an existing skill
 
-Look recursively for `.agents/skills/**/*-mode/SKILL.md` and `~/.agents/skills/*-mode/SKILL.md` matching the user's handle. Mode skills can live in a personal category directory (`.agents/skills/<handle>/`), not only at the top level. If one exists, confirm intent with the available structured question tool (unless they already said "update my skill" or similar):
+Look for matching mode skills in the live catalog, project `.agents/skills/`, and personal `~/.codex/skills/` or `~/.agents/skills/`. Mode skills can live in a personal category directory (`.agents/skills/<handle>/`), not only at the top level. If one exists, confirm intent with the available structured question tool (unless they already said "update my skill" or similar):
 
 - Update the existing skill (default for repeat runs)
 - Start fresh (rare, ask why before doing it)
@@ -68,9 +66,9 @@ Use Codex's `skill-creator` skill to author the skill. Placement:
 
 - Path: preserve an existing mode skill's category. For a new mode, use `.agents/skills/<handle>/<handle>-mode/SKILL.md` when the repo has an established personal category for that handle. Otherwise default to `.agents/skills/<handle>-mode/SKILL.md` in the project (or `~/.agents/skills/<handle>-mode/` if the user prefers a personal skill).
 - Handle: the user's first name or chosen identifier.
-- Frontmatter `description`: trigger on their name + `/<handle>-mode` + "work in their style", not on generic keywords like "write code" or "review PR".
+- Frontmatter `description`: trigger on their name + `$<handle>-mode` + "work in their style", not on generic keywords like "write code" or "review PR".
 - Frontmatter formatting: follow `skill-creator`'s YAML rules. Keep `description` as one YAML scalar. Quote it or use `description: >-` with indented continuation lines when punctuation or wrapping requires it.
-- Frontmatter `disable-model-invocation: true` by default. Opt out only if the user explicitly wants their mode to apply on every turn.
+- Preserve an existing invocation policy. For a new mode, keep automatic selection enabled unless the user requests explicit-only invocation. For explicit-only invocation, set `policy.allow_implicit_invocation: false` in `agents/openai.yaml`.
 
 ### 5. Iterate on prose
 

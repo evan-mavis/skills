@@ -1,0 +1,6 @@
+interface:
+  display_name: "Architect"
+  short_description: "Sketch types and module boundaries before implementation"
+  default_prompt: "Use $architect to sketch types and module boundaries before implementation."
+policy:
+  allow_implicit_invocation: false

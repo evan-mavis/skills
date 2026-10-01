@@ -27,7 +27,7 @@ Optional branch-name override:
 NEON_BRANCH_USER=evan
 ```
 
-Standalone skill branches: `agent-<user>-<short-id>` (24h TTL). Cursor cloud boot uses
+Standalone skill branches: `agent-<user>-<short-id>` (24h TTL). The repository cloud bootstrap uses
 `cursor-cloud-agent-*` (8h) via `.cursor` scripts — different owner; do not reuse that pattern here.
 
 When running inside the Airgoods monorepo, load unset Neon variables from the primary checkout's

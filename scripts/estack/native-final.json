@@ -81,8 +81,8 @@
   },
   {
     "path": "skills/create-verification-skill/SKILL.md",
-    "from": "description: \"Generate a project-local verification skill that drives your app the way a user does \u2014 any language, framework, or platform. Use for /create-verification-skill, \\\"make a control skill for this repo\\\", or when a project has no scripted way to prove UI/CLI/service behavior.\"",
-    "to": "description: \"Generate a project-local verification skill that drives your app the way a user does \u2014 any language, framework, or platform. Use for $create-verification-skill, \\\"make a control skill for this repo\\\", or when a project has no scripted way to prove UI/CLI/service behavior.\""
+    "from": "description: \"Generate a project-local verification skill that drives your app the way a user does — any language, framework, or platform. Use for /create-verification-skill, \\\"make a control skill for this repo\\\", or when a project has no scripted way to prove UI/CLI/service behavior.\"",
+    "to": "description: \"Generate a project-local verification skill that drives your app the way a user does — any language, framework, or platform. Use for $create-verification-skill, \\\"make a control skill for this repo\\\", or when a project has no scripted way to prove UI/CLI/service behavior.\""
   },
   {
     "path": "skills/create-verification-skill/SKILL.md",
@@ -106,8 +106,8 @@
   },
   {
     "path": "skills/maintain-verification-skill/SKILL.md",
-    "from": "0. **Locate the target.** Find the verification skill to maintain: the project-local skill whose body has launch/drive sections and a feature map (usually `.agents/skills/verify-*/`). Several candidates \u2192 ask which one; none \u2192 stop and point at `/create-verification-skill` instead of inventing a target.",
-    "to": "0. **Locate the target.** Find the verification skill to maintain: the project-local skill whose body has launch/drive sections and a feature map (usually `.agents/skills/verify-*/`). Several candidates \u2192 ask which one; none \u2192 stop and point at `$create-verification-skill` instead of inventing a target."
+    "from": "0. **Locate the target.** Find the verification skill to maintain: the project-local skill whose body has launch/drive sections and a feature map (usually `.agents/skills/verify-*/`). Several candidates → ask which one; none → stop and point at `/create-verification-skill` instead of inventing a target.",
+    "to": "0. **Locate the target.** Find the verification skill to maintain: the project-local skill whose body has launch/drive sections and a feature map (usually `.agents/skills/verify-*/`). Several candidates → ask which one; none → stop and point at `$create-verification-skill` instead of inventing a target."
   },
   {
     "path": "skills/no-comments/SKILL.md",
@@ -131,13 +131,13 @@
   },
   {
     "path": "skills/poteto-mode/SKILL.md",
-    "from": "- Docs, RFCs, readmes, PR descriptions, or commit messages \u2192 the **technical-writing** skill (`/technical-writing`).",
-    "to": "- Docs, RFCs, readmes, PR descriptions, or commit messages \u2192 the **technical-writing** skill (`$technical-writing`)."
+    "from": "- Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/technical-writing`).",
+    "to": "- Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`$technical-writing`)."
   },
   {
     "path": "skills/poteto-mode/SKILL.md",
-    "from": "- Before review \u2192 the **no-comments** skill (`/no-comments`).",
-    "to": "- Before review \u2192 the **no-comments** skill (`$no-comments`)."
+    "from": "- Before review → the **no-comments** skill (`/no-comments`).",
+    "to": "- Before review → the **no-comments** skill (`$no-comments`)."
   },
   {
     "path": "skills/reflect/SKILL.md",
@@ -161,8 +161,8 @@
   },
   {
     "path": "skills/technical-writing/SKILL.md",
-    "from": "description: \"Layered technical-writing standard: Di\u00e1taxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for /technical-writing or when writing or reviewing docs, RFCs, readmes, PR descriptions, or commit messages.\"",
-    "to": "description: \"Layered technical-writing standard: Di\u00e1taxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for $technical-writing or when writing or reviewing docs, RFCs, readmes, PR descriptions, or commit messages.\""
+    "from": "description: \"Layered technical-writing standard: Diátaxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for /technical-writing or when writing or reviewing docs, RFCs, readmes, PR descriptions, or commit messages.\"",
+    "to": "description: \"Layered technical-writing standard: Diátaxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for $technical-writing or when writing or reviewing docs, RFCs, readmes, PR descriptions, or commit messages.\""
   },
   {
     "path": "UPSTREAM.md",
@@ -173,5 +173,135 @@
     "path": "skills/automate-me/SKILL.md",
     "from": "- User wants to capture one narrow workflow (e.g. \"how I write commit messages\"). That's a regular skill, not a mode skill.\n\n",
     "to": "- User wants to capture one narrow workflow (e.g. \"how I write commit messages\"). That's a regular skill, not a mode skill.\n"
+  },
+  {
+    "path": "skills/setup-cloud-env/SKILL.md",
+    "from": "Codex may not have executed Cursor's lifecycle hooks or launched its terminals.",
+    "to": "Codex may not have run the repository bootstrap or launched its configured services."
+  },
+  {
+    "path": "skills/setup-cloud-env/SKILL.md",
+    "from": "The Cursor Dockerfile describes the bootstrap requirements; it may not be the image running in Codex.",
+    "to": "The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Codex."
+  },
+  {
+    "path": "skills/provision-neon-branch/references/airgoods-configuration.md",
+    "from": "Cursor cloud boot uses",
+    "to": "The repository cloud bootstrap uses"
+  },
+  {
+    "path": "skills/poteto-mode/SKILL.md",
+    "from": "- Shipping UI / IDE / CLI → the available Codex browser harness",
+    "to": "- Recorded demos or review walkthroughs → read [Record a demo](../references/video-recording.md) before browser setup.\n- Shipping UI / IDE / CLI → the available Codex browser harness"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/opening-a-pr.md",
+    "from": "After these sections, attach videos or screenshots when they prove a claim.",
+    "to": "After these sections, attach videos or screenshots when they prove a claim. For video capture and delivery, follow [Record a demo](../../references/video-recording.md)."
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/multi-phase-plan.md",
+    "from": "- [ ] Record a 30 to 60 second video of the change on a lane VM. Save it as `<media path>/<pr-id>-review.mp4`.",
+    "to": "- [ ] Record a 30 to 60 second video of the change in the verified Codex browser session using [Record a demo](../../references/video-recording.md). Save `<media path>/<pr-id>-review.mp4`, converting from WebM when required."
+  },
+  {
+    "path": "UPSTREAM.md",
+    "from": "## Original source adaptations\n\n- The shared pstack source includes integrations for Cursor, Factory, Codex, and Devin. Estack skills and playbooks use Codex tools directly.\n- `skills/poteto-mode/SKILL.md` frontmatter `name` is `poteto-mode` instead of `Poteto Mode`, because Factory requires lowercase hyphenated skill names.\n- `skills/poteto-mode/playbooks/opening-a-pr.md` **Titles** uses the personal `feat:`/`fix:`/`tech:`/`refactor:`/`maintenance:` convention with Linear issue ID suffixes instead of Conventional Commits, and adds a **Branches** rule.\n- `skills/deslop/` (added) is vendored unchanged from `cursor-team-kit/skills/deslop` at the snapshot commit, because poteto-mode requires it before every commit.\n- `skills/make-bot-ui/` and `automations/benny/` (removed) depended on Cursor Automations webhooks. `README.md` drops their table row and automations section.\n- `skills/setup-pstack/` is unchanged from upstream.\n- `.devin-plugin/plugin.json` (added) lets Devin load pstack as a plugin in local and cloud sessions. Skills are served from the existing `skills/` directory; plugin subagents (`agents/`) are local-only in Devin, so they are not declared in the manifest.\n",
+    "to": "## Source adaptations\n\n- Estack skills and playbooks target Codex. The shared source history remains in `pstack/UPSTREAM.md` in the skills repository.\n- `skills/poteto-mode/SKILL.md` uses the lowercase skill name `poteto-mode`.\n- PR titles and branch names follow the bundled personal defaults.\n- `skills/deslop/` is vendored from the source snapshot and runs before commits.\n- Estack packaging preserves the source license and adapts runtime tools through `scripts/estack/`.\n"
+  },
+  {
+    "path": "skills/setup-cloud-env/SKILL.md",
+    "from": "An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.",
+    "to": "An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.\n\nFor video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites."
+  },
+  {
+    "path": "skills/blast-radius/SKILL.md",
+    "from": "Ask several models the same question and merge the answers. Different models catch different real bugs.",
+    "to": "Run independent attempts under arena's model-selection rules and combine evidenced findings."
+  },
+  {
+    "path": "skills/show-me-your-work/SKILL.md",
+    "from": "## Cross-model review of the trail",
+    "to": "## Independent review of the trail"
+  },
+  {
+    "path": "skills/automate-me/SKILL.md",
+    "from": "`/<handle>-mode`",
+    "to": "`$<handle>-mode`"
+  },
+  {
+    "path": "skills/automate-me/SKILL.md",
+    "from": "- Frontmatter `disable-model-invocation: true` by default. Opt out only if the user explicitly wants their mode to apply on every turn.",
+    "to": "- Preserve an existing invocation policy. For a new mode, keep automatic selection enabled unless the user requests explicit-only invocation. For explicit-only invocation, set `policy.allow_implicit_invocation: false` in `agents/openai.yaml`."
+  },
+  {
+    "path": "skills/automate-me/SKILL.md",
+    "from": "Look recursively for `.agents/skills/**/*-mode/SKILL.md` and `~/.agents/skills/*-mode/SKILL.md` matching the user's handle.",
+    "to": "Look for matching mode skills in the live catalog, project `.agents/skills/`, and personal `~/.codex/skills/` or `~/.agents/skills/`."
+  },
+  {
+    "path": "skills/reflect/references/synthesizer.md",
+    "from": "\"path-shaped triggers belong in `paths:`, not description prose\"",
+    "to": "\"Codex skill descriptions state file-based triggers; invocation policy belongs in agents/openai.yaml\""
+  },
+  {
+    "path": "skills/close-release-issues/SKILL.md",
+    "from": "in Codex, use the configured Linear plugin/connector or `$linear`; in other hosts, use their configured Linear MCP/plugin",
+    "to": "use the configured Linear plugin, connector, or MCP tools in this Codex session"
+  },
+  {
+    "path": "skills/verify-airgoods/SKILL.md",
+    "from": "The surface skills and `$maintain-airgoods-verification` are sibling skill directories on every host. Read their `SKILL.md` files directly if skill discovery has not refreshed.\n\nEvery host installs this family from the same source. Host differences belong in [Browser hosts and evidence](references/browser-hosts.md); do not fork a surface skill to accommodate one host.",
+    "to": "The surface skills and `$maintain-airgoods-verification` are bundled sibling directories. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md)."
+  },
+  {
+    "path": "skills/babysit-airgoods-pr/SKILL.md",
+    "from": "It is a sibling skill directory on every host.",
+    "to": "It is a bundled sibling skill directory."
+  },
+  {
+    "path": "skills/maintain-airgoods-verification/SKILL.md",
+    "from": "5. **Host neutrality.** These verifiers are shared by every host. Keep surface skills and feature maps free of host names, harness calls, and host-specific paths. A host difference belongs in `verify-airgoods/references/browser-hosts.md`; never fork a surface skill or add a host-conditional branch to a feature map.",
+    "to": "5. **Canonical sources.** Keep surface skills and feature maps free of runtime-specific calls and paths. Browser tooling belongs in `verify-airgoods/references/browser-hosts.md`; preserve the shared source instead of forking a surface skill or adding runtime branches to a feature map."
+  },
+  {
+    "path": "skills/poteto-mode/SKILL.md",
+    "from": "## Playbooks\n",
+    "to": "## Playbooks\n\nResolve bundled helper paths from this skill's directory and run them by absolute path while keeping the working directory in the target repository. Resolve sibling-skill helpers from their own directories.\n"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/babysit.md",
+    "from": "`scripts/watch-pr/watch-pr`",
+    "to": "`\"<resolved-poteto-mode-dir>/scripts/watch-pr/watch-pr\"`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/shipping.md",
+    "from": "`scripts/watch-pr/watch-pr --queued-stack --stack-prs <bottom>`",
+    "to": "`\"<resolved-poteto-mode-dir>/scripts/watch-pr/watch-pr\" --queued-stack --stack-prs <bottom>`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/orchestrate.md",
+    "from": "`bun scripts/orch/orch.ts`",
+    "to": "`bun \"<resolved-poteto-mode-dir>/scripts/orch/orch.ts\"`"
+  },
+  {
+    "path": "skills/poteto-mode/playbooks/worktree-cleanup.md",
+    "from": "`scripts/worktree-audit.sh`",
+    "to": "`bash \"<resolved-poteto-mode-dir>/scripts/worktree-audit.sh\"`"
+  },
+  {
+    "path": "skills/show-me-your-work/SKILL.md",
+    "from": "`scripts/log.sh <logfile> <phase> <decision> <why> <evidence> <result>`",
+    "to": "`bash \"<resolved-show-me-your-work-dir>/scripts/log.sh\" <logfile> <phase> <decision> <why> <evidence> <result>`"
+  },
+  {
+    "path": "skills/close-release-issues/SKILL.md",
+    "from": "scripts/check-prs-merged-to-dev.sh 682 661 262",
+    "to": "bash \"<resolved-close-release-issues-dir>/scripts/check-prs-merged-to-dev.sh\" 682 661 262"
+  },
+  {
+    "path": "UPSTREAM.md",
+    "from": "- Retrieved: 2026-09-27\n",
+    "to": "- Retrieved: 2026-09-27\n- Compared against upstream main on 2026-10-01 at `2eb7ed4613cfc8f098dfe464a23680ea44d84c5e`. Its active skill and agent sources still match this snapshot.\n"
   }
 ]

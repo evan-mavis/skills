@@ -1,0 +1,6 @@
+interface:
+  display_name: "Principle Type System Discipline"
+  short_description: "Use types to prevent invalid states and ambiguous values"
+  default_prompt: "Use $principle-type-system-discipline to use types to prevent invalid states and ambiguous values."
+policy:
+  allow_implicit_invocation: false

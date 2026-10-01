@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principle Attack the Premise"
+  short_description: "Question a shared premise after repeated fixes fail"
+  default_prompt: "Use $principle-attack-the-premise to question a shared premise after repeated fixes fail."

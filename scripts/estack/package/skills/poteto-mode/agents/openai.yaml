@@ -1,0 +1,4 @@
+interface:
+  display_name: "Poteto Mode"
+  short_description: "Apply concise communication and verified execution"
+  default_prompt: "Use $poteto-mode to apply concise communication and verified execution."

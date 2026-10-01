@@ -1,0 +1,6 @@
+interface:
+  display_name: "Principle Outcome Oriented Execution"
+  short_description: "Complete migrations around the target architecture"
+  default_prompt: "Use $principle-outcome-oriented-execution to complete migrations around the target architecture."
+policy:
+  allow_implicit_invocation: false

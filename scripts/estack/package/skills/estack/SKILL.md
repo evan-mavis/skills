@@ -7,7 +7,9 @@ description: Use when the user invokes the estack plugin or asks for estack. Rou
 
 When the estack plugin is invoked, read [Personal defaults](references/personal-defaults.md) and [poteto-mode](../poteto-mode/SKILL.md) in full. Follow poteto-mode for the requested task. Repository instructions and explicit user requests take precedence.
 
-For an Airgoods cloud setup request, including `@estack setup cloud`, read [setup-cloud-env](../setup-cloud-env/SKILL.md) and carry it through database and server readiness. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that Codex executed `.cursor/environment.json` automatically. Documentation-only work does not need app startup.
+This plugin runs in Codex.
+
+For an Airgoods cloud setup request, including `@estack setup cloud`, read [setup-cloud-env](../setup-cloud-env/SKILL.md) and carry it through database and server readiness. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that Codex executed the repository bootstrap automatically. Documentation-only work does not need app startup.
 
 For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or outstanding PR work, read [babysit-airgoods-pr](../babysit-airgoods-pr/SKILL.md) and use its overrides. Opening a PR alone does not trigger babysitting.
 

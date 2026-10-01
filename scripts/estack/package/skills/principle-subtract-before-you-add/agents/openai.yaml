@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principle Subtract Before You Add"
+  short_description: "Remove obsolete code before adding its replacement"
+  default_prompt: "Use $principle-subtract-before-you-add to remove obsolete code before adding its replacement."

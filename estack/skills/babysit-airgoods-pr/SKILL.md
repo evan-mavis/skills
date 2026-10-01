@@ -131,7 +131,7 @@ Keep the scheduled follow-up active while blocked so it can detect user decision
 
 ### Verification
 
-For an approved UX-affecting fix, invoke `$verify-airgoods` before editing to capture the reproduction and after editing to capture the fix. Follow its surface routing, feature map, recorded walkthrough evidence, redaction, and cleanup contracts. It is a sibling skill directory on every host. Read its `SKILL.md` directly if skill discovery has not refreshed. Preserve its no-previewctl runtime policy.
+For an approved UX-affecting fix, invoke `$verify-airgoods` before editing to capture the reproduction and after editing to capture the fix. Follow its surface routing, feature map, recorded walkthrough evidence, redaction, and cleanup contracts. It is a bundled sibling skill directory. Read its `SKILL.md` directly if skill discovery has not refreshed. Preserve its no-previewctl runtime policy.
 
 Behavior-preserving fixes use the narrowest proof required by the base Babysit playbook. Never claim bot reruns or green CI as user-visible verification.
 

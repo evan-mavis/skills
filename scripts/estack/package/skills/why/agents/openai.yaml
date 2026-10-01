@@ -1,0 +1,4 @@
+interface:
+  display_name: "Why"
+  short_description: "Investigate the evidence behind a technical decision"
+  default_prompt: "Use $why to investigate the evidence behind a technical decision."

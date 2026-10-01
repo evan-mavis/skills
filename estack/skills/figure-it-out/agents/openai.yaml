@@ -1,0 +1,6 @@
+interface:
+  display_name: "Figure It Out"
+  short_description: "Design a verifiable workflow for a complex task"
+  default_prompt: "Use $figure-it-out to design a verifiable workflow for a complex task."
+policy:
+  allow_implicit_invocation: false

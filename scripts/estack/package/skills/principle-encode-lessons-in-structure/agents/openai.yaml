@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principle Encode Lessons in Structure"
+  short_description: "Encode recurring lessons in tools, types, or checks"
+  default_prompt: "Use $principle-encode-lessons-in-structure to encode recurring lessons in tools, types, or checks."

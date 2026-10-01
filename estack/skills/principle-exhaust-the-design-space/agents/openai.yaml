@@ -1,0 +1,6 @@
+interface:
+  display_name: "Principle Exhaust the Design Space"
+  short_description: "Compare competing prototypes before choosing a design"
+  default_prompt: "Use $principle-exhaust-the-design-space to compare competing prototypes before choosing a design."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Verification Skill"
+  short_description: "Create a project skill that drives and verifies the app"
+  default_prompt: "Use $create-verification-skill to create a project skill that drives and verifies the app."
