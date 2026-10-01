@@ -21,6 +21,8 @@ use `@estack` at the start of a task. it loads poteto-mode, picks a playbook, an
 @estack reproduce this bug, fix it, and verify the result.
 ```
 
+in an airgoods codex cloud session, use `@estack setup cloud`. it installs missing dependencies, reuses the per-run neon child or runs the repo bootstrap when none exists, starts the dev servers, and checks readiness. `query-local-db` uses the verified cloud handoff through its explicit task-database option. the cloud environment needs `NEON_API_KEY`, `NEON_PROJECT_ID`, and `NEON_PARENT_BRANCH_ID` secrets.
+
 ## what's here
 
 - [pstack/](pstack/) has shared workflows for cursor, factory, codex, and devin.

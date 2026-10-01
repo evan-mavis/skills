@@ -34,6 +34,23 @@ bash "$SKILL_DIR/scripts/query-airgoods-local.sh" \
 
 The helper does not read shell `DATABASE_URL` implicitly. Use `--database-url-env` only for a caller-verified task target, or use the explicit `AIRGOODS_LOCAL_DATABASE_URL` override. Never infer that a shell variable points to the current app database.
 
+## Cloud Neon handoff
+
+In an Airgoods cloud session, read [setup-cloud-env](../setup-cloud-env/SKILL.md) to resolve the current handoff and verify its child identity, endpoint, and expiration. A query-only request does not require starting dev servers or provisioning another branch. If the handoff is still provisioning, wait for it; if it failed or is missing, report the prerequisite instead of using dotenv or localhost fallback.
+
+The backend wrapper loads the handoff only in its own process. The query helper does not discover it automatically. After verifying the current handoff, source it and invoke the helper in the same Bash process, with tracing off:
+
+```bash
+SKILL_DIR="<absolute directory containing this SKILL.md>"
+set +x
+source /tmp/airgoods-cloud-agent-neon.env
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --database-url-env DATABASE_URL --show-source
+bash "$SKILL_DIR/scripts/query-airgoods-local.sh" --database-url-env DATABASE_URL \
+  --csv -c "select current_database() as database, current_setting('transaction_read_only') as read_only"
+```
+
+Confirm the handoff path against the current repo scripts. Repeat the source step in each fresh query process. Do not use `cloud-agent-run-with-db.sh` for queries, since it can remove backend dotenv overrides; source the verified credential file directly. Do not print it.
+
 ## Discover before assuming a schema
 
 Tables and columns vary by branch. Find the table, inspect columns, then write a bounded query:

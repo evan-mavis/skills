@@ -1,4 +1,4 @@
 interface:
-  display_name: "refresh-local-db"
+  display_name: "Refresh Local Database"
   short_description: "Refresh personal Neon dev branch from parent"
   default_prompt: "Use $refresh-local-db to reset my personal Neon local dev branch from the production-copy parent."

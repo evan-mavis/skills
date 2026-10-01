@@ -62,10 +62,15 @@ and drive and record the same session.
 
 ### Codex cloud
 
-Use the existing environment configuration and available browser tools. Confirm that required
-services, suitable fixtures, authentication, session isolation, and recording are available before
-driving. Do not assume desktop tools or local services exist in cloud, and do not provision a
-replacement environment. Report the exact missing prerequisite as blocked proof.
+Read [setup-cloud-env](../../setup-cloud-env/SKILL.md) before server startup or database queries.
+Reuse the verified per-run Neon handoff and start missing required dev servers through the repo
+commands, even when Codex did not execute the Cursor lifecycle hooks. An explicit setup request
+allows the repo bootstrap when no handoff exists; verification alone does not provision a
+replacement database.
+
+Use the available browser tools. Confirm suitable fixtures, authentication, session isolation,
+and recording are available before driving. Do not assume desktop tools exist in cloud. Report
+the exact missing prerequisite as blocked proof.
 
 ## Recording and proof
 

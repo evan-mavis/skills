@@ -165,41 +165,6 @@
     "to": "description: \"Layered technical-writing standard: Di\u00e1taxis structure, Google developer style sentences, STE instruction rules, Global English syntax. Use for $technical-writing or when writing or reviewing docs, RFCs, readmes, PR descriptions, or commit messages.\""
   },
   {
-    "path": "skills/babysit-airgoods-pr/agents/openai.yaml",
-    "from": "  display_name: \"Babysit Airgoods PR\"",
-    "to": "  display_name: \"babysit-airgoods-pr\""
-  },
-  {
-    "path": "skills/to-linear-spec/agents/openai.yaml",
-    "from": "  display_name: \"To Linear Spec\"",
-    "to": "  display_name: \"to-linear-spec\""
-  },
-  {
-    "path": "skills/grill-me/agents/openai.yaml",
-    "from": "  display_name: \"Grill Me\"",
-    "to": "  display_name: \"grill-me\""
-  },
-  {
-    "path": "skills/provision-neon-branch/agents/openai.yaml",
-    "from": "  display_name: \"Provision Neon Branch\"",
-    "to": "  display_name: \"provision-neon-branch\""
-  },
-  {
-    "path": "skills/query-local-db/agents/openai.yaml",
-    "from": "  display_name: \"Query Local Database\"",
-    "to": "  display_name: \"query-local-db\""
-  },
-  {
-    "path": "skills/query-prod-db/agents/openai.yaml",
-    "from": "  display_name: \"Query Production Database\"",
-    "to": "  display_name: \"query-prod-db\""
-  },
-  {
-    "path": "skills/refresh-local-db/agents/openai.yaml",
-    "from": "  display_name: \"Refresh Local Database\"",
-    "to": "  display_name: \"refresh-local-db\""
-  },
-  {
     "path": "UPSTREAM.md",
     "from": "- `skills/poteto-mode/references/host-runtime.md` (added) maps Cursor-only terms (`/loop`, `Task` subagent types, models, `AskQuestion`, control skills, transcript and skill paths, cloud agents, `/goal`) to Factory, Codex, and Devin equivalents. Every subagent inherits the parent model. On Factory, Orchestrate and the two Autopilot playbooks become a Mission brief. On Codex and Devin, they run locally with worktree subagents.\n- `skills/poteto-mode/SKILL.md` has one added line near the top that routes to `host-runtime.md` outside Cursor, so the playbooks keep their upstream text.\n",
     "to": "- The shared pstack source includes integrations for Cursor, Factory, Codex, and Devin. Estack skills and playbooks use Codex tools directly.\n"

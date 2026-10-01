@@ -1,5 +1,7 @@
 # Local runtime without previewctl
 
+For an Airgoods cloud session, follow [setup-cloud-env](../../setup-cloud-env/SKILL.md) for Neon handoff resolution and server commands. An explicit cloud setup request authorizes its repo-managed bootstrap. Verification alone reuses the provisioned child and starts missing required apps; it does not authorize a replacement database. The local dotenv commands and local provisioning restrictions below apply to local sessions.
+
 These verification skills use the current Airgoods checkout and its existing development configuration. The user explicitly does not want previewctl in this workflow. Do not invoke previewctl, the `provision-local-worktree-environment` skill, or its helper; do not create, reset, or delete databases, Redis containers, branches, worktrees, or preview environments as verification setup or cleanup. This applies even when general repository guidance recommends managed worktree provisioning.
 
 ## Resolve the existing environment
