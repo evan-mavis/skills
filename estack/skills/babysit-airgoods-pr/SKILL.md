@@ -11,7 +11,7 @@ This is a thin adapter over pstack's Babysit playbook.
 
 Before acting, read `../poteto-mode/playbooks/babysit.md` and `../poteto-mode/references/bugbot-triage.md` in full from this package. Follow them verbatim except for the overrides below. Keep their merge-frontier order, fix/dismiss/ask rubric, CI handling, verification, batching, watcher, no-merge boundary, and reporting.
 
-Do not copy the base workflow here. Future non-conflicting pstack changes apply automatically.
+Do not copy the base workflow here. Future non-conflicting changes to the bundled playbook apply automatically.
 
 ## Overrides
 
@@ -137,4 +137,4 @@ Behavior-preserving fixes use the narrowest proof required by the base Babysit p
 
 ## Compatibility rule
 
-When the base Babysit playbook conflicts with an override, use the override only for that conflict. Everything else comes from pstack. If the base playbook or required GitHub/Linear access is unavailable, report the exact limitation instead of reconstructing or bypassing it.
+When the base Babysit playbook conflicts with an override, use the override only for that conflict. Everything else comes from the bundled playbook. If the base playbook or required GitHub/Linear access is unavailable, report the exact limitation instead of reconstructing or bypassing it.

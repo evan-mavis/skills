@@ -1,7 +1,8 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildEstack } from './build-estack.mjs';
+
+if (process.argv.length > 2) throw new Error('Usage: bun scripts/check-estack.mjs');
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const root = path.join(repo, 'estack');
@@ -17,8 +18,6 @@ async function filesAt(directory) {
   return files;
 }
 const report = (file, message) => errors.push(`${path.relative(repo, file)}: ${message}`);
-const build = await buildEstack(repo, root, { check: true });
-errors.push(...build.drift);
 const files = await filesAt(root);
 const skillFiles = files.filter(file => /^skills\/[^/]+\/SKILL\.md$/.test(path.relative(root, file)));
 const supported = new Set(['name', 'description', 'license', 'allowed-tools', 'metadata']);
@@ -61,34 +60,6 @@ for (const file of files.filter(file => file.endsWith('.md'))) {
       }
     } catch { report(file, `missing reference: ${destination}`); }
   }
-}
-const args = process.argv.slice(2);
-if (args.length && (args.length !== 2 || args[0] !== '--upstream')) throw new Error('Usage: bun scripts/check-estack.mjs [--upstream /path/to/cursor/plugins]');
-if (args.length) {
-  const upstream = path.resolve(args[1], 'pstack');
-  const config = JSON.parse(await readFile(path.join(repo, 'scripts/estack/upstream-source.json'), 'utf8'));
-  let compared = 0;
-  const upstreamFiles = new Set();
-  for (const file of (await filesAt(upstream)).filter(file => /^(skills|agents)\//.test(path.relative(upstream, file)))) {
-    const relative = path.relative(upstream, file);
-    upstreamFiles.add(relative);
-    if (config.omissions.includes(relative)) continue;
-    let expected = await readFile(file);
-    for (const replacement of config.replacements.filter(entry => entry.path === relative)) {
-      const text = expected.toString('utf8');
-      if (text.split(replacement.from).length !== 2) throw new Error(`Upstream adaptation needs review: ${relative}`);
-      expected = Buffer.from(text.replace(replacement.from, replacement.to));
-    }
-    const local = path.join(repo, 'pstack', relative);
-    try { if (!(await readFile(local)).equals(expected)) report(local, 'differs from upstream beyond recorded source adaptations'); }
-    catch { report(local, 'missing upstream source'); }
-    compared++;
-  }
-  for (const local of (await filesAt(path.join(repo, 'pstack'))).filter(file => /^(skills|agents)\//.test(path.relative(path.join(repo, 'pstack'), file)))) {
-    const relative = path.relative(path.join(repo, 'pstack'), local);
-    if (!upstreamFiles.has(relative) && !config.additions.includes(relative)) report(local, 'unrecorded upstream source addition');
-  }
-  console.log(`Compared ${compared} upstream skill and agent files.`);
 }
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }
 else console.log(`Verified ${skillFiles.length} Codex skills, UI metadata, and ${links} bundled references.`);

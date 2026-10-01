@@ -1,4 +1,0 @@
-interface:
-  display_name: "Principle Model the Domain"
-  short_description: "Represent domain state in explicit types and structures"
-  default_prompt: "Use $principle-model-the-domain to represent domain state in explicit types and structures."

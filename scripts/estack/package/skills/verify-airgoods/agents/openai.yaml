@@ -1,4 +1,0 @@
-interface:
-  display_name: "Verify Airgoods"
-  short_description: "Choose the Airgoods verifier for the affected app"
-  default_prompt: "Use $verify-airgoods to choose the Airgoods verifier for the affected app."

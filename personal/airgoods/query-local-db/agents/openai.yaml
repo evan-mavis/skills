@@ -1,4 +1,0 @@
-interface:
-  display_name: "Query Development Database"
-  short_description: "Query verified Neon development branches read-only"
-  default_prompt: "Use $query-local-db to inspect the explicitly verified Airgoods Neon development branch read-only."

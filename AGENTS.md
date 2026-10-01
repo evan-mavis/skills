@@ -2,14 +2,13 @@
 
 ## Repository purpose
 
-This repository contains reusable skills and agent instructions for Cursor, Factory, Codex, and Devin. It also contains the installer that links those files into the host-specific directories.
+This repository contains the Estack Codex plugin, reusable skills, and agent instructions. It also contains the installer that links those files into local skill directories.
 
-This repository is not a deployable application. The executable code is limited to the installer, helper scripts, and the TypeScript tools under `pstack/skills/poteto-mode/scripts`.
+This repository is not a deployable application. The executable code is limited to the installer, helper scripts, and the TypeScript tools under `estack/skills/poteto-mode/scripts`.
 
 ## Repository layout
 
-- `pstack/` contains the shared pstack plugin, its skills, playbooks, agents, documentation, and local adaptations.
-- `personal/` contains personal instructions and Airgoods-specific skills. Treat these files as private workflow content.
+- `estack/` is the sole editable plugin source, including skills, playbooks, agents, personal defaults, and Airgoods workflows. Treat personal and Airgoods workflow content as private.
 - `deprecated/` contains archived workflows kept for reference. Do not edit it unless the task is an intentional migration.
 - `scripts/install.sh` installs the managed skills and host instructions.
 
@@ -32,7 +31,7 @@ To inspect installation drift without changing the host:
 The TypeScript tools have their own package directory:
 
 ```sh
-cd pstack/skills/poteto-mode/scripts
+cd estack/skills/poteto-mode/scripts
 bun install --frozen-lockfile
 ```
 
@@ -41,7 +40,7 @@ bun install --frozen-lockfile
 Run the checks that cover the files you changed:
 
 ```sh
-cd pstack/skills/poteto-mode/scripts
+cd estack/skills/poteto-mode/scripts
 bun run typecheck
 bun test
 ```

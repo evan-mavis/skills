@@ -1,4 +1,0 @@
-interface:
-  display_name: "Verify Airgoods Warehouse"
-  short_description: "Verify Warehouse operator workflows in the running app"
-  default_prompt: "Use $verify-airgoods-warehouse to verify Warehouse operator workflows in the running app."

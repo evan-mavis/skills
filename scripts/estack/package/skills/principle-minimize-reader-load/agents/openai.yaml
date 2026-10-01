@@ -1,4 +1,0 @@
-interface:
-  display_name: "Principle Minimize Reader Load"
-  short_description: "Simplify code so readers can trace its behavior"
-  default_prompt: "Use $principle-minimize-reader-load to simplify code so readers can trace its behavior."

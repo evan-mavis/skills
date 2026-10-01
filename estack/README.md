@@ -2,20 +2,16 @@
 
 Evan's Codex plugin, built from pstack and personal skills. Invoke the estack plugin to route through `skills/estack/SKILL.md`, or invoke an individual bundled skill.
 
-This directory is generated. Edit `pstack/`, `personal/`, or the templates and exact replacements under `scripts/estack/`, then run these commands from the skills repository:
+This directory is the sole editable plugin source. Edit its skills, references, agents, and metadata directly, then run these commands from the skills repository:
 
 ```sh
-bun scripts/build-estack.mjs
-bun scripts/build-estack.mjs --check
 bun scripts/check-estack.mjs
 bun scripts/check-estack-loader.mjs
 ```
 
-To compare against a fresh checkout of `cursor/plugins`, run `bun scripts/check-estack.mjs --upstream /path/to/cursor/plugins`. The check flags source drift beyond the recorded name, host-adapter, and PR-convention changes. Cursor-only automations are excluded.
-
 Codex invocation policy comes from `agents/openai.yaml`; Cursor-only frontmatter is omitted. Routed pstack skills remain discoverable, and their bodies and references load only when needed.
 
-The entry skill loads personal defaults from the package; installing the plugin does not install global `AGENTS.md` instructions. Skills and playbooks use Codex tools and workflows. Exact replacements under `scripts/estack/` adapt tools, models, scheduling, transcripts, and verification while preserving pstack's workflows.
+The entry skill loads personal defaults from the package; installing the plugin does not install global `AGENTS.md` instructions. Skills and playbooks use Codex tools and workflows. The bundled guidance adapts tools, models, scheduling, transcripts, and verification for Codex while preserving the workflows derived from pstack.
 
 Airgoods verification and babysitting use bundled sibling skills. Verification preserves feature maps, recorded evidence, cleanup, and the no-previewctl policy. Babysitting preserves the shared pstack workflow and applies the personal Airgoods overrides.
 

@@ -1,6 +1,6 @@
 # pstack source history
 
-This file records the original pstack source snapshot and its historical adaptations. The generated estack package uses Codex instructions directly; the source adaptation log below does not describe its current runtime. Estack adaptations are maintained as exact replacements under `scripts/estack/` in the skills repository.
+This file records the original pstack source snapshot and its historical adaptations. Estack uses Codex instructions directly and is the sole editable source in this repository. The adaptation log below preserves its source history.
 
 ## Snapshot
 
@@ -12,8 +12,8 @@ This file records the original pstack source snapshot and its historical adaptat
 
 ## Source adaptations
 
-- Estack skills and playbooks target Codex. The shared source history remains in `pstack/UPSTREAM.md` in the skills repository.
+- Estack skills and playbooks target Codex. This file preserves the shared source history.
 - `skills/poteto-mode/SKILL.md` uses the lowercase skill name `poteto-mode`.
 - PR titles and branch names follow the bundled personal defaults.
 - `skills/deslop/` is vendored from the source snapshot and runs before commits.
-- Estack packaging preserves the source license and adapts runtime tools through `scripts/estack/`.
+- Estack preserves the source license and includes the Codex runtime adaptations directly.

@@ -1,4 +1,0 @@
-interface:
-  display_name: "Principle Boundary Discipline"
-  short_description: "Validate boundaries and keep internal business logic simple"
-  default_prompt: "Use $principle-boundary-discipline to validate boundaries and keep internal business logic simple."

@@ -5,19 +5,17 @@ usage() {
   cat <<'EOF'
 Usage: install.sh [--check]
 
-Link pstack and personal skills, agents, and personal instructions into
-Cursor, Codex, Factory, and Devin. Edits in this repository are live after linking.
-Rerun after adding, removing, or renaming a skill, or after editing
-personal/AGENTS.md (the Factory and Cursor copies are generated, not linked).
+Link Estack skills, agents, and bundled defaults into Cursor, Codex, Factory,
+and Devin. Edits in this repository are live after linking.
+Rerun after adding, removing, or renaming a skill, or editing the bundled defaults.
 
-  ~/.agents/skills/<skill>     -> every pstack and personal skill (read by all hosts)
-  ~/.cursor/agents/<agent>.md  -> pstack agents
-  ~/.cursor/rules/pstack-models.mdc -> personal/cursor/pstack-models.mdc
-  ~/.codex/AGENTS.md           -> personal/AGENTS.md
-  ~/.factory/AGENTS.md            copied from personal/AGENTS.md
-  ~/.cursor/rules/personal.mdc    generated from personal/AGENTS.md
-  Factory plugins                 core, debugging, droid-control, typescript
-                                  from Factory-AI/factory-plugins (when droid is installed)
+  ~/.agents/skills/<skill>        -> estack/skills/<skill>
+  ~/.cursor/agents/<agent>.md     -> estack/agents/<agent>.md
+  ~/.codex/AGENTS.md              -> estack/skills/estack/references/personal-defaults.md
+  ~/.factory/AGENTS.md            copied from the bundled defaults
+  ~/.cursor/rules/personal.mdc    generated from the bundled defaults
+  Factory plugins                core, debugging, droid-control, typescript
+                                 from Factory-AI/factory-plugins (when droid is installed)
 
 Former ai-dev-workflow skills, and copies of managed skills in host-specific
 skill folders, are moved to ~/.skills-backup/<timestamp>/ rather than deleted.
@@ -59,8 +57,7 @@ while IFS= read -r skill_file; do
   managed_names+=("$name")
   managed_sources+=("$source_dir")
 done < <(
-  find "$repo_root/pstack/skills" -mindepth 2 -maxdepth 2 -name SKILL.md
-  find "$repo_root/personal" -mindepth 3 -maxdepth 3 -name SKILL.md
+  find "$repo_root/estack/skills" -mindepth 2 -maxdepth 2 -name SKILL.md
 )
 
 is_managed() {
@@ -136,15 +133,17 @@ for root in "${host_skill_roots[@]}"; do
   done
 done
 
-for agent in "$repo_root"/pstack/agents/*.md; do
+for agent in "$repo_root"/estack/agents/*.md; do
   ensure_link "$agent" "$HOME/.cursor/agents/$(basename "$agent")"
 done
 
-ensure_link "$repo_root/personal/cursor/pstack-models.mdc" "$HOME/.cursor/rules/pstack-models.mdc"
-ensure_link "$repo_root/personal/AGENTS.md" "$HOME/.codex/AGENTS.md"
-# Factory ignores a symlinked personal AGENTS.md, so it gets a copy.
-ensure_file "$HOME/.factory/AGENTS.md" "$(cat "$repo_root/personal/AGENTS.md")"
-ensure_file "$HOME/.cursor/rules/personal.mdc" "$(printf -- '---\ndescription: Personal defaults generated from personal/AGENTS.md by scripts/install.sh\nalwaysApply: true\n---\n'; cat "$repo_root/personal/AGENTS.md")"
+if [[ -L "$HOME/.cursor/rules/pstack-models.mdc" && "$(readlink "$HOME/.cursor/rules/pstack-models.mdc")" == "$repo_root/personal/cursor/pstack-models.mdc" ]]; then
+  retire "$HOME/.cursor/rules/pstack-models.mdc"
+fi
+ensure_link "$repo_root/estack/skills/estack/references/personal-defaults.md" "$HOME/.codex/AGENTS.md"
+# Factory requires a copy of the bundled defaults.
+ensure_file "$HOME/.factory/AGENTS.md" "$(cat "$repo_root/estack/skills/estack/references/personal-defaults.md")"
+ensure_file "$HOME/.cursor/rules/personal.mdc" "$(printf -- '---\ndescription: Personal defaults generated from Estack bundled defaults by scripts/install.sh\nalwaysApply: true\n---\n'; cat "$repo_root/estack/skills/estack/references/personal-defaults.md")"
 
 factory_marketplace=factory-plugins
 factory_plugins=(core debugging droid-control typescript)
@@ -162,7 +161,7 @@ if command -v droid >/dev/null; then
   done
 fi
 
-scripts_dir="$repo_root/pstack/skills/poteto-mode/scripts"
+scripts_dir="$repo_root/estack/skills/poteto-mode/scripts"
 if [[ ! -d "$scripts_dir/node_modules" ]]; then
   report "install: bun dependencies in $scripts_dir"
   if [[ "$mode" == apply ]]; then

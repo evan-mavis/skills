@@ -1,4 +1,0 @@
-interface:
-  display_name: "Unslop"
-  short_description: "Remove filler and artificial phrasing from writing"
-  default_prompt: "Use $unslop to remove filler and artificial phrasing from writing."

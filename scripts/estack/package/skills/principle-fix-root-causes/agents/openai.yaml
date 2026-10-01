@@ -1,4 +1,0 @@
-interface:
-  display_name: "Principle Fix Root Causes"
-  short_description: "Reproduce symptoms and trace them to their root causes"
-  default_prompt: "Use $principle-fix-root-causes to reproduce symptoms and trace them to their root causes."

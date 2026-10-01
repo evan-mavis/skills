@@ -25,18 +25,18 @@ in an airgoods codex cloud session, use `@estack setup cloud`. it installs missi
 
 ## what's here
 
-- [pstack/](pstack/) has shared workflows for cursor, factory, codex, and devin.
-- [personal/](personal/) has my defaults, planning, and airgoods skills.
-- [estack/](estack/) is the combined codex plugin.
+- [estack/](estack/) is the editable codex plugin, including shared workflows, my defaults, planning, and airgoods skills.
 - [deprecated/](deprecated/) has archived workflows.
 
-for the original host setup, run `./scripts/install.sh`. replaced files are backed up to `~/.skills-backup/`; `--check` reports drift.
+for local skill installation, run `./scripts/install.sh`. replaced files are backed up to `~/.skills-backup/`; `--check` reports drift.
 
 ## make it yours
 
-edit `pstack/`, `personal/`, or [scripts/estack/](scripts/estack/), then rebuild:
+edit [estack/](estack/) directly, then validate:
 
 ```sh
-bun scripts/build-estack.mjs
-bun scripts/build-estack.mjs --check
+bun scripts/check-estack.mjs
+bun scripts/check-estack-loader.mjs
 ```
+
+repository edits do not update the private plugin release. to release changes, bump the version in both `estack/plugin.json` and `estack/.codex-plugin/plugin.json`, then publish an update to the existing private plugin.

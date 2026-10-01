@@ -1,4 +1,0 @@
-interface:
-  display_name: "Babysit Airgoods PR"
-  short_description: "Keep an Airgoods PR merge-ready with pstack Babysit"
-  default_prompt: "Use $babysit-airgoods-pr to get this Airgoods pull request merge-ready."

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { mkdtemp, mkdir, writeFile, utimes, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { tmpdir } from 'node:os';
-import { latestWorktreeSession } from './estack/package/skills/poteto-mode/scripts/latest-worktree-session.mjs';
+import { latestWorktreeSession } from '../estack/skills/poteto-mode/scripts/latest-worktree-session.mjs';
 
 test('latest chat uses recorded Codex cwd, not unrelated messages or path prefixes', async () => {
   const root = await mkdtemp(path.join(tmpdir(), 'estack-sessions-'));
