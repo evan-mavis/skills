@@ -24,7 +24,7 @@ Choose the verification surface before launching anything. This skill routes; th
 When investigating or verifying a bug, checking the affected production records often helps; use query-prod-db for strictly read-only access.
 
 - Never launch two skills against the same process or database without reconciling ownership first.
-- Follow [Local runtime](references/local-runtime.md): use the existing manually configured development environment and direct app commands. Do not invoke previewctl or a worktree provisioning helper.
+- Follow [Local runtime](references/local-runtime.md): reuse the existing development environment, database, and configuration. Start only missing required apps with direct app commands. Do not invoke previewctl or `provision-local-worktree-environment`, create another worktree, or create a remote preview. Report specific missing prerequisites instead of provisioning infrastructure. This policy overrides conflicting repository or setup guidance.
 - Read [Browser hosts and evidence](references/browser-hosts.md) before driving. Resolve the host, use its browser harness, and preserve the selected surface's proof requirements.
 - User-visible bugs require a reproduction walkthrough before editing and a fixed walkthrough afterward. Features and improvements require one demo walkthrough.
 - Follow each selected skill's authentication and redaction rules. Never expose passwords, tokens, production-copy personal data, or provider secrets.
@@ -32,4 +32,4 @@ When investigating or verifying a bug, checking the affected production records 
 
 ## Installed layout
 
-The surface skills and `$maintain-airgoods-verification` are bundled sibling directories. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).
+The surface skills and [maintain-verification-skill](../maintain-verification-skill/SKILL.md) are bundled sibling directories. Use `$maintain-verification-skill` for verification-skill maintenance. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).

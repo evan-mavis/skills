@@ -15,7 +15,7 @@ Before launching, name the public feature, route, audience, viewport, state tran
 
 ## Launch
 
-1. Follow [Local runtime](../verify-airgoods/references/local-runtime.md). Use the current manually configured checkout; do not run previewctl or provision infrastructure.
+1. Follow [Direct local runtime](../verify-airgoods/references/local-runtime.md). Reuse the existing local development environment in the current checkout. Its prohibition on previewctl, worktree provisioning, and remote previews overrides conflicting repository or setup guidance.
 2. Choose public-only mode for direct public rendering, blog, CMS gating, and most metadata; it needs web-public alone. Use full mode (backend + web + web-public) for proxying, careers data, marketplace search, and auth/signup handoff.
 3. `apps/web-public` permits only one Next dev process per checkout because `.next/dev/lock` is shared. Reuse a healthy listener belonging to this checkout. Never build over, restart, or kill a process you did not start.
 4. Start only missing apps with `pnpm --dir apps/web-public dev`, plus `pnpm --dir apps/backend dev` and `pnpm --dir apps/web dev` when full mode needs them. Follow Local runtime's lifecycle-hook guidance.

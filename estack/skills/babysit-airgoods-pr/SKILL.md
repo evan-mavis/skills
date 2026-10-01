@@ -131,7 +131,9 @@ Keep the scheduled follow-up active while blocked so it can detect user decision
 
 ### Verification
 
-For an approved UX-affecting fix, invoke `$verify-airgoods` before editing to capture the reproduction and after editing to capture the fix. Follow its surface routing, feature map, recorded walkthrough evidence, redaction, and cleanup contracts. It is a bundled sibling skill directory. Read its `SKILL.md` directly if skill discovery has not refreshed. Preserve its no-previewctl runtime policy.
+For an approved UX-affecting fix, invoke [$verify-airgoods](../verify-airgoods/SKILL.md) before editing to capture the reproduction and after editing to capture the fix. Follow its surface routing, feature map, recorded walkthrough evidence, redaction, and cleanup contracts. It is a bundled sibling skill directory. Read its `SKILL.md` directly if skill discovery has not refreshed.
+
+All app verification follows [Direct local runtime](../verify-airgoods/references/local-runtime.md). Reuse the existing local development environment, database, and configuration. Start only missing required apps with direct app commands. Do not invoke previewctl or `provision-local-worktree-environment`, create another worktree, or create a remote preview. Report specific missing dependencies or configuration instead of provisioning infrastructure. This overrides conflicting repository and base workflow guidance. Preserve adopted services and stop only processes this run started.
 
 Behavior-preserving fixes use the narrowest proof required by the base Babysit playbook. Never claim bot reruns or green CI as user-visible verification.
 

@@ -1,8 +1,8 @@
-# Local runtime without previewctl
+# Direct local runtime
 
-For an Airgoods cloud session, follow [setup-cloud-env](../../setup-cloud-env/SKILL.md) for Neon handoff resolution and server commands. An explicit cloud setup request authorizes its repo-managed bootstrap. Verification alone reuses the provisioned child and starts missing required apps; it does not authorize a replacement database. The local dotenv commands and local provisioning restrictions below apply to local sessions.
+Airgoods verification and PR babysitting reuse the existing local development environment in the current checkout, including its database and environment configuration. Start only missing required apps with the direct commands below.
 
-These verification skills use the current Airgoods checkout and its existing development configuration. The user explicitly does not want previewctl in this workflow. Do not invoke previewctl, the `provision-local-worktree-environment` skill, or its helper; do not create, reset, or delete databases, Redis containers, branches, worktrees, or preview environments as verification setup or cleanup. This applies even when general repository guidance recommends managed worktree provisioning.
+Do not invoke previewctl, `provision-local-worktree-environment`, or provisioning helpers. Do not create another worktree or a remote preview, or create, reset, or delete databases, Redis containers, branches, or environments during setup or cleanup. This policy overrides conflicting repository, cloud setup, and dependency-skill guidance. A missing dependency or configuration is a specific prerequisite to report, not a reason to switch runtimes or provision infrastructure.
 
 ## Resolve the existing environment
 
@@ -29,6 +29,6 @@ Respect the repository's no-lint/typecheck/tests/build/format-by-default instruc
 
 ## Database and cleanup
 
-Use `$query-local-db` only after confirming its resolved source matches the database used by the running backend. A local app can point at a shared or remote database; its host alone does not establish that mutations are safe. Preserve the feature recipe's authorization and fixture requirements.
+Use `$query-local-db` only after confirming its resolved source matches the database used by the running backend. Use it to inspect the existing target; do not invoke environment setup or provision another target to satisfy a query prerequisite. A local app can point at a shared or remote database; its host alone does not establish that mutations are safe. Preserve the feature recipe's authorization and fixture requirements.
 
 Restore authorized reversible fixture changes while the needed services are still running. Stop only app processes started by this verification run, using recorded process/session IDs. Leave the existing database, Redis, other infrastructure, adopted app processes, and environment files untouched. Keep all evidence outside the repository at the path specified by the surface verifier.

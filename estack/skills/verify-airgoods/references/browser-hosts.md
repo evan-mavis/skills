@@ -19,12 +19,13 @@ or conflicting-account proof. Use only documented browser operations.
 Do not install tools while maintaining skills. Read bundled sibling skills through the Codex skill
 interface or their `SKILL.md` paths.
 
-## Cloud
+## Runtime
 
-Follow [setup-cloud-env](../../setup-cloud-env/SKILL.md) before startup or database queries. Reuse the
-verified Neon handoff and start missing required servers through repository commands. Only explicit
-setup provisions a missing database. Check fixtures, authentication, isolation, and recording before
-driving. Report missing prerequisites as blocked proof.
+Follow [Direct local runtime](local-runtime.md) for startup and database checks. Reuse the existing
+local development environment and configuration; start only missing required apps with direct app
+commands. Do not invoke previewctl or `provision-local-worktree-environment`, create another worktree,
+or create a remote preview. Check fixtures, authentication, isolation, and recording before driving.
+Report specific missing prerequisites as blocked proof instead of provisioning infrastructure.
 
 ## Proof and cleanup
 

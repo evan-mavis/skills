@@ -15,7 +15,7 @@ Before launch, name the feature, route, audience, state transition, side effect,
 
 ## Launch
 
-1. Follow [Local runtime](../verify-airgoods/references/local-runtime.md). Use the current manually configured checkout; do not run previewctl or provision infrastructure.
+1. Follow [Direct local runtime](../verify-airgoods/references/local-runtime.md). Reuse the existing local development environment in the current checkout. Its prohibition on previewctl, worktree provisioning, and remote previews overrides conflicting repository or setup guidance.
 2. Reuse healthy backend/web processes belonging to this checkout. Start only a missing app with `pnpm --dir apps/backend dev` or `pnpm --dir apps/web dev`, subject to the lifecycle-hook guidance in Local runtime.
 3. Use the existing configured database, Redis, ports, and API origins. If a required prerequisite is unavailable, report it instead of generating an environment.
 4. Start `pnpm --dir apps/backend dev:queue` only when the selected recipe needs asynchronous behavior and the worker is missing. Record process/session IDs and ownership.

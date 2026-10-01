@@ -15,7 +15,7 @@ Before launching, name the operator job, route, account, state transition, side 
 
 ## Launch
 
-1. Follow [Local runtime](../verify-airgoods/references/local-runtime.md). Use the current manually configured checkout; do not run previewctl or provision infrastructure.
+1. Follow [Direct local runtime](../verify-airgoods/references/local-runtime.md). Reuse the existing local development environment in the current checkout. Its prohibition on previewctl, worktree provisioning, and remote previews overrides conflicting repository or setup guidance.
 2. Reuse healthy backend and Warehouse processes belonging to this checkout. Start only missing apps with `pnpm --dir apps/backend dev` or `pnpm --dir apps/warehouse dev`, subject to Local runtime's lifecycle-hook guidance.
 3. Use the existing configured database, Redis, ports, and API origin. Report missing prerequisites instead of generating an environment.
 4. Allow for a cold Next compile before declaring Warehouse unhealthy. Start `pnpm --dir apps/backend dev:queue` only for recipes that enqueue work and when the worker is missing. Record process/session IDs and ownership.
