@@ -3,10 +3,12 @@
 Resolve routes, actions, and pass conditions from the selected Airgoods feature map. Resolve ports
 from the active checkout. Repository paths in a feature map refer to that checkout.
 
+When using a skill reader, resolve the registered `poteto-mode` skill and read its `references/video-recording.md` resource. Do not use the plugin root as a skill package.
+
 ## Browser
 
 Honor the user's browser choice. For video walkthroughs, use `agent-browser` with `--cursor` per
-[Record a demo](../../references/video-recording.md). For other driving, prefer available
+[Record a demo](../../poteto-mode/references/video-recording.md). For other driving, prefer available
 `mcp__cua_repl` tools and read their returned documentation before continuing.
 
 Create a run-owned tab or session and record its origin, viewport, account, and driver. Use observed

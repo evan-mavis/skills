@@ -100,7 +100,7 @@ exist only in the original child.
 - Use unique child-branch role credentials returned by Neon.
 - Prefer environment-scoped secrets and restricted egress. For hosted agents handling raw data,
   prefer a self-hosted or tightly scoped environment per
-  [host surfaces](../references/host-surfaces.md#security-posture-for-raw-production-copy-data).
+  [host surfaces](../poteto-mode/references/host-surfaces.md#security-posture-for-raw-production-copy-data).
 
 Return `blocked` if the parent cannot be identified exactly, the parent is unprotected, expiration cannot be set, credentials would be exposed, or the caller cannot prove the application uses the child.
 

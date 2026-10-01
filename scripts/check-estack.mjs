@@ -20,6 +20,13 @@ async function filesAt(directory) {
 const report = (file, message) => errors.push(`${path.relative(repo, file)}: ${message}`);
 const files = await filesAt(root);
 const skillFiles = files.filter(file => /^skills\/[^/]+\/SKILL\.md$/.test(path.relative(root, file)));
+const skillDirectories = new Set(skillFiles.map(file => path.dirname(file)));
+for (const file of files) {
+  const relative = path.relative(root, file).split(path.sep);
+  if (relative[0] === 'skills' && !skillDirectories.has(path.join(root, 'skills', relative[1]))) {
+    report(file, 'supporting file has no registered skill owner');
+  }
+}
 const supported = new Set(['name', 'description', 'license', 'allowed-tools', 'metadata']);
 const minorWords = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'nor', 'of', 'on', 'or', 'the', 'to', 'with']);
 const specialWords = { apis: 'APIs', pr: 'PR', tdd: 'TDD', typescript: 'TypeScript' };

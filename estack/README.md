@@ -15,7 +15,7 @@ the entry skill loads personal defaults from the package; installing the plugin 
 
 airgoods verification and babysitting use bundled sibling skills. verification preserves feature maps, recorded evidence, cleanup, and the no-previewctl policy. babysitting preserves the shared pstack workflow and applies the personal airgoods overrides.
 
-for automated web demos, use the [codex recording recipe](skills/references/video-recording.md). it uses agent-browser with a visible cursor, checks the installed version, and covers cloud prerequisites and artifact delivery.
+for automated web demos, use the [codex recording recipe](skills/poteto-mode/references/video-recording.md). it uses agent-browser with a visible cursor, checks the installed version, and covers cloud prerequisites and artifact delivery.
 
 workflows require the services and tools named by their skills. cloud availability, plugin-mention routing, browser recording, github authentication, and scheduled follow-ups require verification in the target session. a local installation does not prove cloud support.
 

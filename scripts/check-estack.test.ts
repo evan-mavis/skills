@@ -53,3 +53,14 @@ test('rejects the obsolete upstream comparison option', async () => {
   expect(result.code).toBe(1);
   expect(result.stderr).toContain('Usage: bun scripts/check-estack.mjs');
 });
+
+test('rejects references outside a registered skill even when their links resolve', async () => {
+  const { root } = await fixture('[Recording](../references/video-recording.md)\n');
+  const references = path.join(root, 'estack/skills/references');
+  await mkdir(references);
+  await writeFile(path.join(references, 'video-recording.md'), '# Recording\n');
+  const result = await check(root);
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain('supporting file has no registered skill owner');
+  expect(result.stderr).not.toContain('missing reference');
+});

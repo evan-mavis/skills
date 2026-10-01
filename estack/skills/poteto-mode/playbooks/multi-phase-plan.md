@@ -121,7 +121,7 @@ Each live lane runs in an isolated checkout at the PR head; use a separate cloud
 **Review gate.** The operator reviews before merge.
 
 - [ ] Copy lane <n> screenshots into `<media path>/<pr-id>-review-<slug>.png`.
-- [ ] Record a 30 to 60 second video of the change in the verified Codex browser session using [Record a demo](../../references/video-recording.md). Save `<media path>/<pr-id>-review.mp4`, converting from WebM when required.
+- [ ] Record a 30 to 60 second video of the change in the verified Codex browser session using [Record a demo](../references/video-recording.md). Save `<media path>/<pr-id>-review.mp4`, converting from WebM when required.
 - [ ] Post the screenshots and the video in chat. Stop at merge-ready. Wait for the operator's click.
 
 **Merge.**

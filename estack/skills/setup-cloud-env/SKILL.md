@@ -9,6 +9,8 @@ Make the current cloud checkout ready for development. A bare setup request star
 
 When this skill is used only to prepare verification, reuse the existing provisioned child and start missing required apps. Provision a child only for an explicit cloud setup request. Do not run this cloud bootstrap on a local desktop checkout.
 
+When using a skill reader, resolve the registered `poteto-mode` skill and read its `references/video-recording.md` resource. Do not use the plugin root as a skill package.
+
 ## Read the repository setup
 
 Resolve the current Airgoods Git root and read its applicable instructions, `.cursor/README.md`, `.cursor/environment.json`, `.cursor/Dockerfile`, and the scripts named by its `install`, `start`, and `terminals` entries. These are repo-managed setup commands even when the host is Codex. Codex may not have run the repository bootstrap or launched its configured services. Their presence alone does not establish a running environment.
@@ -27,7 +29,7 @@ If dependencies, app env files, or required workspace build outputs are missing,
 
 An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.
 
-For video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites.
+For video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../poteto-mode/references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites.
 
 ## Resolve the per-run Neon handoff
 
