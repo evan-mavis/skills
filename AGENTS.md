@@ -1,66 +1,27 @@
 # Agent instructions
 
-## Repository purpose
+`estack/` is the sole source of truth. Edit it directly.
 
-This repository contains the Estack Codex plugin, reusable skills, and agent instructions. It also contains the installer that links those files into local skill directories.
+## Edit skills
 
-This repository is not a deployable application. The executable code is limited to the installer, helper scripts, and the TypeScript tools under `estack/skills/poteto-mode/scripts`.
+- Read the target skill and relevant references first. Make surgical, minimal, concise edits. Preserve pstack's intent, workflow, and safeguards. Avoid unrelated rewrites.
+- Use `/unslop` when writing new skills or changing prose. Read `estack/skills/unslop/SKILL.md` and apply it.
+- Preserve valid skill frontmatter and working links. Keep supporting files with their skill. Leave `deprecated/` alone unless requested.
+- Check `git status --short` before editing. Run `bun scripts/check-estack.mjs`, the narrowest relevant tests, and `git diff --check`. For shell edits, run `bash -n`.
+- Never commit credentials, host files, dependencies, or logs. Never weaken checks to make them pass.
 
-## Repository layout
+## Release and update
 
-- `estack/` is the sole editable plugin source, including skills, playbooks, agents, personal defaults, and Airgoods workflows. Treat personal and Airgoods workflow content as private.
-- `deprecated/` contains archived workflows kept for reference. Do not edit it unless the task is an intentional migration.
-- `scripts/install.sh` installs the managed skills and host instructions.
+Repository edits and plugin publication are separate. Publish only when the task includes a plugin update or release.
 
-## Setup
+1. Bump the version in both `estack/plugin.json` and `estack/.codex-plugin/plugin.json`. Preserve plugin identity, permissions, and metadata.
+2. Validate, commit, and push. Use a lowercase subject beginning with `feat:`, `fix:`, `tech:`, `refactor:`, or `maintenance:`.
+3. If installed through the Git marketplace, pushing to `main` updates its source. Refresh that installation with:
 
-Use Bash, Git, and Bun for the local checks. Run the installer from the repository root when you need to update the host installation:
+   ```sh
+   codex plugin marketplace upgrade evan-skills
+   codex plugin add estack@evan-skills
+   ```
 
-```sh
-./scripts/install.sh
-```
-
-The installer changes files under the home directory, can install Factory plugins, and backs up replaced files under `~/.skills-backup/`. Do not run it from an unattended task unless the task explicitly includes host installation.
-
-To inspect installation drift without changing the host:
-
-```sh
-./scripts/install.sh --check
-```
-
-The TypeScript tools have their own package directory:
-
-```sh
-cd estack/skills/poteto-mode/scripts
-bun install --frozen-lockfile
-```
-
-## Validation
-
-Run the checks that cover the files you changed:
-
-```sh
-cd estack/skills/poteto-mode/scripts
-bun run typecheck
-bun test
-```
-
-For shell changes, run `bash -n` on every changed shell script. The installer is the highest-risk script because it writes outside the repository.
-
-There is no repository-wide build command. Documentation-only and skill-only changes do not need a build, but they must preserve valid paths, commands, and skill frontmatter.
-
-## Skill changes
-
-Each active skill lives in a directory with a `SKILL.md` file. Keep the YAML frontmatter valid, including `name` and `description`. Keep references and scripts inside the skill directory unless a shared dependency is intentional.
-
-When you add, remove, rename, or move a skill, run `./scripts/install.sh --check` after the change. Run the installer only when you intend to update the local host installation.
-
-## Change workflow
-
-1. Check `git status --short` before editing.
-2. Read the target skill, its references, and the relevant host-runtime guidance before changing behavior.
-3. Make the smallest change that satisfies the request.
-4. Run the narrowest relevant validation from this file.
-5. Inspect `git diff --check` and the final diff before reporting completion.
-
-Do not commit secrets, tokens, credentials, generated host files, `node_modules`, or local logs. Do not weaken validation, delete tests, or change installer backup behavior to make a check pass.
+4. If installed through the private published plugin, use Plugin Creator's `update-plugin` skill. Inspect plugin `plugins_6abd8639d7348191b31c1430745b5d94`, package the changed Estack files with their relative paths, and call `update_plugin` with the observed current release ID. Read back the release to verify it. Uploads overlay existing files and cannot delete them.
+5. Codex downloads private plugin updates automatically. Verify the local plugin version and changed files against the release. Report publication and local installation separately if Codex has not downloaded it yet. Never edit plugin caches or install standalone skill links. Start a new chat to load updated guidance.
