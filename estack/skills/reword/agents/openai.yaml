@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reword"
+  short_description: "Rewrite in evan's warm, clear, lowercase voice"
+  default_prompt: "Use $reword to rewrite this text in my voice."

@@ -1,4 +1,4 @@
-# AI Development Workflow
+# ai development workflow
 
 ```mermaid
 %%{init: {"flowchart": {"nodeSpacing": 40, "rankSpacing": 48, "padding": 14}}}%%
@@ -81,49 +81,49 @@ flowchart TB
   class YOU human
 ```
 
-## Glossary
+## glossary
 
-### Plan
+### plan
 
-| Skill       | One-liner                                                                                    |
+| skill       | one-liner                                                                                    |
 | ----------- | -------------------------------------------------------------------------------------------- |
-| `to-prd`    | Turn approved context into `specs/<slug>/PRD.md` on the feature branch.                      |
-| `to-slices` | Split a PRD into `specs/<slug>/issues/`, commit/push, optional archive.                      |
-| `to-linear` | Sync the monorepo `specs/<slug>/` plan and slice graph to Linear.                            |
+| `to-prd`    | turn approved context into `specs/<slug>/PRD.md` on the feature branch.                      |
+| `to-slices` | split a prd into `specs/<slug>/issues/`, commit/push, optional archive.                      |
+| `to-linear` | sync the monorepo `specs/<slug>/` plan and slice graph to linear.                            |
 
-### Orchestration
+### orchestration
 
-| Skill         | One-liner                                                                                    |
+| skill         | one-liner                                                                                    |
 | ------------- | -------------------------------------------------------------------------------------------- |
-| `forge-issue` | Deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
-| `forge-build` | Execute an approved multi-slice plan from `specs/<slug>/` for larger features that needed planning first. |
+| `forge-issue` | deliver one bug, improvement, or small feature — skips planning, goes straight to preflight. |
+| `forge-build` | execute an approved multi-slice plan from `specs/<slug>/` for larger features that needed planning first. |
 
-### Implement
+### implement
 
-| Skill                 | One-liner                                                            |
+| skill                 | one-liner                                                            |
 | --------------------- | -------------------------------------------------------------------- |
-| `implement-slice`     | Implement one scoped change and leave the diff uncommitted.          |
-| `deslop`              | Remove mechanical AI slop from the current diff.                     |
-| `refactor-structure`  | Improve folder layout, naming, and file cohesion in scope.           |
-| `harden-architecture` | Independently review and fix architectural or control-flow problems. |
+| `implement-slice`     | implement one scoped change and leave the diff uncommitted.          |
+| `deslop`              | remove mechanical ai slop from the current diff.                     |
+| `refactor-structure`  | improve folder layout, naming, and file cohesion in scope.           |
+| `harden-architecture` | independently review and fix architectural or control-flow problems. |
 
-### Verify
+### verify
 
-| Skill    | One-liner                                                                 |
+| skill    | one-liner                                                                 |
 | -------- | ------------------------------------------------------------------------- |
-| `run-ci` | Run the repository's relevant CI-equivalent checks without changing code. |
+| `run-ci` | run the repository's relevant ci-equivalent checks without changing code. |
 
-Browser QA and evidence capture are orchestrated inside `forge-issue` and `forge-build`, not separate skills.
+browser qa and evidence capture are orchestrated inside `forge-issue` and `forge-build`, not separate skills.
 
-### Deliver
+### deliver
 
-| Skill     | One-liner                                                                 |
+| skill     | one-liner                                                                 |
 | --------- | ------------------------------------------------------------------------- |
-| `to-pr`   | Create or update one draft PR with verification summary and evidence.     |
-| `babysit` | Keep an existing draft PR clean, green, and mergeable without merging it. |
+| `to-pr`   | create or update one draft pr with verification summary and evidence.     |
+| `babysit` | keep an existing draft pr clean, green, and mergeable without merging it. |
 
-### Cleanup
+### cleanup
 
-Agent teardown after delivery: delete Neon branches, stop services, clear temp credentials. Preserve local-preview stacks by default.
+agent teardown after delivery: delete neon branches, stop services, clear temp credentials. preserve local-preview stacks by default.
 
-**Human step (outside skills):** review the draft PR and merge when ready — orchestrators never mark ready or merge.
+**human step (outside skills):** review the draft pr and merge when ready — orchestrators never mark ready or merge.
