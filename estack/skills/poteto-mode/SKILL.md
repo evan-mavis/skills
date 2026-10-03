@@ -1,5 +1,5 @@
 ---
-{name: poteto-mode,description: "poteto's agent style for concise, detailed responses, deliberate subagents, unslopped prose, simple code, and verified work. Use for poteto, $poteto-mode, or requests to work in this style."}
+{name: poteto-mode,description: "Run engineering playbooks for bug fixes, features, refactors, architecture, technical investigations, and PR work. Use for substantive tasks or explicit poteto-mode requests. Skip casual turns and user opt-outs."}
 ---
 
 # Poteto mode

@@ -11,12 +11,13 @@
     "logo": "./assets/maul-mandalorian-avatar.png"
   },
   "name": "estack",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "adapted from lauren tan’s pstack for codex. includes personal defaults and airgoods workflows.",
   "author": {
     "name": "Evan Mavis"
   },
   "keywords": [],
   "repository": "https://github.com/evan-mavis/skills",
-  "skills": "./skills"
+  "skills": "./skills",
+  "hooks": "./hooks/hooks.json"
 }

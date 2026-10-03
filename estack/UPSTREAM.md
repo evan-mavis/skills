@@ -17,3 +17,4 @@ This file records the original pstack source snapshot and its historical adaptat
 - PR titles and branch names follow the bundled personal defaults.
 - `skills/deslop/` is vendored from the source snapshot and runs before commits.
 - Estack preserves the source license and includes the Codex runtime adaptations directly.
+- Session hooks adapt [Aqua's Codex port](https://github.com/Aqua-123/pstack-for-codex/tree/main/hooks), with Estack activation forms and state isolated by chat and project. `NOTICE-hooks` preserves the source license. Generic Codex subagents continue to use the bundled poteto-agent prompt; no custom agent profile is installed.

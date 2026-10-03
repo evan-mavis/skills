@@ -13,6 +13,10 @@ codex invocation policy comes from `agents/openai.yaml`; cursor-only frontmatter
 
 the entry skill loads personal defaults from the package; installing the plugin does not install global `AGENTS.md` instructions. skills and playbooks use codex tools and workflows. the bundled guidance adapts tools, models, scheduling, transcripts, and verification for codex while preserving the workflows derived from pstack.
 
+substantive engineering requests can select estack or poteto-mode automatically. bundled hooks also remember an explicit `$estack`, `$poteto-mode`, or `@Estack` activation for the current chat and project. they repeat a short routing reminder on later prompts and after resume or compaction. say `disable $estack` or `disable $poteto-mode` to clear that state. casual turns and user opt-outs skip the playbook.
+
+review and trust the plugin's hook definitions through codex's `/hooks` interface before relying on them. hooks require node.js and a supported execution environment; web installation alone does not deploy scripts. without a confirmed hook receipt, skill use is limited to the current turn. hook reminders do not prove playbook completion. no target-repository or global instruction changes are required. the adapted hooks' license is preserved in `NOTICE-hooks`.
+
 airgoods verification and babysitting use bundled sibling skills. verification preserves feature maps, recorded evidence, cleanup, and the no-previewctl policy. babysitting preserves the shared pstack workflow and applies the personal airgoods overrides.
 
 for automated web demos, use the [codex recording recipe](skills/poteto-mode/references/video-recording.md). it uses agent-browser with a visible cursor, checks the installed version, and covers cloud prerequisites and artifact delivery.

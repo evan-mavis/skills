@@ -1,13 +1,15 @@
 ---
 name: estack
-description: Use when the user invokes the estack plugin or asks for estack. Route setup cloud to the Airgoods cloud environment workflow. Apply poteto-mode with Evan's personal defaults, Airgoods verification, and PR babysitting preferences.
+description: Route substantive engineering tasks through poteto-mode with Evan's defaults. Use for bug fixes, features, refactors, architecture, technical investigations, PR work, or an explicit Estack request. Skip casual turns and user opt-outs.
 ---
 
 # estack
 
-When the estack plugin is invoked, read [Personal defaults](references/personal-defaults.md) and [poteto-mode](../poteto-mode/SKILL.md) in full. Follow poteto-mode for the requested task. Repository instructions and explicit user requests take precedence.
+For a substantive engineering task or explicit Estack request, read [Personal defaults](references/personal-defaults.md) and [poteto-mode](../poteto-mode/SKILL.md) in full. Open the matched playbook and track its steps before task-specific work. Skip casual turns and user opt-outs. Host instructions, repository instructions, and explicit user requests take precedence.
 
 This plugin runs in Codex.
+
+Bundled hooks remember explicit Estack or poteto-mode activation for the current chat and project. Say `disable $estack` or `disable $poteto-mode` to clear it. Hooks require runtime support and trust through Codex's `/hooks` interface. Without evidence that the current session's hook ran, apply the selected skill for this turn and do not claim persistence.
 
 Write ordinary responses in lowercase, clear, warm prose. Preserve case-sensitive technical text and exact required report prefixes. For rewriting text in Evan's voice, use [reword](../reword/SKILL.md).
 
