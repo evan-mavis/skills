@@ -1,4 +1,6 @@
 interface:
   display_name: "Estack"
+  icon_small: "./assets/maul-mandalorian-avatar.png"
+  icon_large: "./assets/maul-mandalorian-avatar.png"
   short_description: "poteto-mode with personal defaults"
   default_prompt: "Use $estack and poteto-mode for this task."
