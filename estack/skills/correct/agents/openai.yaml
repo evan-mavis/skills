@@ -1,0 +1,4 @@
+interface:
+  display_name: "Correct"
+  short_description: "Prevent recurring agent mistakes with enforced checks"
+  default_prompt: "Use $correct to find repeated agent mistakes and prevent them in this repository."

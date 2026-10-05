@@ -1,6 +1,6 @@
 ---
 name: poteto-agent
-description: Prompt role for Codex subagents operating in poteto-mode. Follow up with an existing agent for the conversation rather than spawning a sibling. Include this role in the Codex spawn prompt; read the bundled poteto-mode SKILL.md in full before any work, including its inline Principles index.
+description: Prompt role for Codex subagents operating in poteto-mode. Spawn a fresh agent for each new task. Reuse one only under the state-preservation exceptions in poteto-mode's Subagents section. Include this role in the Codex spawn prompt; read the bundled poteto-mode SKILL.md in full before any work, including its inline Principles index.
 ---
 
 # Poteto subagent

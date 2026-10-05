@@ -1,0 +1,4 @@
+interface:
+  display_name: "Poteto Help"
+  short_description: "Choose an Estack skill or playbook for your task"
+  default_prompt: "Use $poteto-help to choose the Estack workflow that fits my task."
