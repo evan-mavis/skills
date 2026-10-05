@@ -1,0 +1,4 @@
+interface:
+  display_name: "Benchmark Checklist"
+  short_description: "Check whether a performance number measures real work"
+  default_prompt: "Use $benchmark-checklist to vet the measured speedup before reporting it."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Principle Explain the Number"
+  short_description: "Find the limiter and evidence behind a measured number"
+  default_prompt: "Use $principle-explain-the-number to check what the measured result means."
