@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Review"
+  short_description: "Capture UI review rounds and apply Notion feedback"
+  default_prompt: "Use $ui-review to capture this UI in the existing Notion review database, or address its feedback and add the next round."
