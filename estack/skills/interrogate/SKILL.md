@@ -37,11 +37,11 @@ Omit `model` and reasoning overrides to inherit the parent. Only select a model 
 
 Label them Reviewer A/B/C and record the actual models. Keep all three independent passes even when they inherit the same model; do not claim cross-model agreement.
 
-Read `references/reviewer-prompt.md` and fill in the template with:
+Read [`references/reviewer-prompt.md`](references/reviewer-prompt.md) and fill in the template with:
 1. The stated intent
 2. The diff or file contents
-3. The review rubric from `references/rubric.md`
-4. The code-quality lens from `references/code-quality-review.md`
+3. The review rubric from [`references/rubric.md`](references/rubric.md)
+4. The code-quality lens from [`references/code-quality-review.md`](references/code-quality-review.md)
 
 The same filled template goes to all reviewers, so every model applies the code-quality lens.
 
@@ -59,7 +59,7 @@ As results come back, build a unified picture:
 
 You are the lead reviewer, a pragmatic senior engineer, not a neutral aggregator.
 
-Read `references/lead-judgment.md` for the full framework.
+Read [`references/lead-judgment.md`](references/lead-judgment.md) for the full framework.
 
 Categorize every finding using these buckets:
 

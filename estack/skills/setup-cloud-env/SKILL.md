@@ -9,7 +9,7 @@ Make the current cloud checkout ready for development. A bare setup request star
 
 When this skill is used only to prepare verification, reuse the existing provisioned child and start missing required apps. Provision a child only for an explicit cloud setup request. Do not run this cloud bootstrap on a local desktop checkout.
 
-When using a skill reader, resolve the registered `poteto-mode` skill and read its `references/video-recording.md` resource. Do not use the plugin root as a skill package.
+When using a skill reader, resolve the registered `poteto-mode` skill and read its [video-recording resource](../poteto-mode/references/video-recording.md). Do not use the plugin root as a skill package.
 
 ## Read the repository setup
 

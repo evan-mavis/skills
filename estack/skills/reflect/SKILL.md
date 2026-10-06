@@ -26,15 +26,15 @@ Omit `model` and reasoning overrides to inherit the parent. Only select a model 
 
 | Lens | Prompt template |
 |---|---|
-| Judgment | `references/judgment-reviewer.md` |
-| Tooling | `references/tooling-reviewer.md` |
-| Divergent | `references/divergent-reviewer.md` |
+| Judgment | [`references/judgment-reviewer.md`](references/judgment-reviewer.md) |
+| Tooling | [`references/tooling-reviewer.md`](references/tooling-reviewer.md) |
+| Divergent | [`references/divergent-reviewer.md`](references/divergent-reviewer.md) |
 
 Pass each template verbatim, substituting the transcript path or digest where marked. Reviewers return findings in their response bodies. Report their actual models; three independent passes on one model do not provide model diversity.
 
 ### 3. Synthesize
 
-Spawn one Codex synthesizer subagent inheriting the parent model unless the user explicitly requests an available selection. Tell it not to edit files; its quality check spot-verifies citations using available MCP tools. Use `references/synthesizer.md` verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
+Spawn one Codex synthesizer subagent inheriting the parent model unless the user explicitly requests an available selection. Tell it not to edit files; its quality check spot-verifies citations using available MCP tools. Use [`references/synthesizer.md`](references/synthesizer.md) verbatim, with each reviewer's full output inlined where marked. The synthesizer returns a structured Accepted / Rejected / Backlog list.
 
 ### 4. Structural enforcement check
 

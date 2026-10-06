@@ -52,7 +52,14 @@ for (const file of skillFiles) {
   if (!ui?.default_prompt?.includes(`$${frontmatter.name}`)) report(file, 'default prompt must invoke this skill');
 }
 for (const file of files.filter(file => file.endsWith('.md'))) {
-  const text = (await readFile(file, 'utf8')).replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '').replace(/`[^`\n]+`/g, '');
+  const body = (await readFile(file, 'utf8')).replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '');
+  if (skillFiles.includes(file)) {
+    const unlinked = body.replace(/\[[^\]\n]*\]\([^\s)]+\)/g, '');
+    for (const match of unlinked.matchAll(/`(references\/[^`\s<>*]+\.md(?:#[^`\s]+)?)`/g)) {
+      report(file, `supporting reference must be a Markdown link: ${match[1]}`);
+    }
+  }
+  const text = body.replace(/`[^`\n]+`/g, '');
   for (const match of text.matchAll(/\[[^\]\n]*\]\(([^\s)]+)\)/g)) {
     const [destination, anchor] = match[1].split('#');
     if (!destination || /^(?:\w+:|\/|~|<)/.test(destination) || ['url', '…'].includes(destination)) continue;

@@ -12,7 +12,7 @@ Omit `model` and reasoning overrides to inherit the parent. Only select a model 
 
 ## Operating Posture
 
-Operate as a **careful, cautious, and precise investigator**. Be honest about what you know vs what you're inferring. Read `references/epistemics.md` for the full confidence framework and phrasing guide. The synthesizer must follow it.
+Operate as a **careful, cautious, and precise investigator**. Be honest about what you know vs what you're inferring. Read [`references/epistemics.md`](references/epistemics.md) for the full confidence framework and phrasing guide. The synthesizer must follow it.
 
 ## Step 1. Understand the Target and the Question
 
@@ -82,9 +82,9 @@ Subagent config (each):
 - Investigators need the available MCP tools for context lookups. Tell them not to write anything; do not assume a readonly parameter exists or changes MCP access.
 
 Each investigator gets:
-1. The base prompt from `references/investigator-prompt.md`
-2. The category playbook `references/sources/<source>.md` for the selected MCP, adapted from the examples in `references/source-playbook.md`
-3. The cross-cutting `references/sources/incident-postmortem.md` **if the target code looks defensive** (null checks, retry logic, timeout handling, rate limiting, feature flags, egress guards, OOM handlers)
+1. The base prompt from [`references/investigator-prompt.md`](references/investigator-prompt.md)
+2. The category playbook `references/sources/<source>.md` for the selected MCP, adapted from the examples in [`references/source-playbook.md`](references/source-playbook.md)
+3. The cross-cutting [`references/sources/incident-postmortem.md`](references/sources/incident-postmortem.md) **if the target code looks defensive** (null checks, retry logic, timeout handling, rate limiting, feature flags, egress guards, OOM handlers)
 4. The code anchor from Step 2 (file paths, symbols, commit hashes, PR numbers, ticket IDs)
 5. The user's original question
 
@@ -128,8 +128,8 @@ The synthesizer gets:
 1. The investigator findings, including any null results and any categories skipped with justification
 2. The code anchor from Step 2 (file paths, symbols, commit hashes, PR numbers, ticket IDs)
 3. The user's original question
-4. The epistemics framework from `references/epistemics.md`
-5. The synthesizer prompt template from `references/synthesizer-prompt.md`
+4. The epistemics framework from [`references/epistemics.md`](references/epistemics.md)
+5. The synthesizer prompt template from [`references/synthesizer-prompt.md`](references/synthesizer-prompt.md)
 
 ## Step 5. Present
 
@@ -137,7 +137,7 @@ Take the synthesizer's output and present it to the user. You may lightly edit f
 
 ## Output Format
 
-The output structure is the one in `references/synthesizer-prompt.md`: The Question, The Code in Question, What We Found, What We Can Reasonably Infer, Competing Hypotheses, What We Don't Know, Sources Consulted, Confidence Summary. Adapt as needed, but keep the confidence separation intact, and keep Sources Consulted as one line per investigator, including the ones that returned nothing or were skipped, with the reason.
+The output structure is the one in [`references/synthesizer-prompt.md`](references/synthesizer-prompt.md): The Question, The Code in Question, What We Found, What We Can Reasonably Infer, Competing Hypotheses, What We Don't Know, Sources Consulted, Confidence Summary. Adapt as needed, but keep the confidence separation intact, and keep Sources Consulted as one line per investigator, including the ones that returned nothing or were skipped, with the reason.
 
 After the Sources Consulted block, if the user's `why` question is a precursor to actually changing this code, convert the lineage findings into a Preserve / Change / Avoid / Risk constraint set suitable for planning the change.
 
@@ -147,8 +147,8 @@ After the Sources Consulted block, if the user's `why` question is a precursor t
 
 ## Reference Files
 
-- `references/epistemics.md`. Confidence tiers and phrasing guide. The synthesizer must follow it.
-- `references/investigator-prompt.md`. Base prompt template for investigator subagents.
-- `references/source-playbook.md`. Index pointing at the category playbooks below.
+- [`references/epistemics.md`](references/epistemics.md). Confidence tiers and phrasing guide. The synthesizer must follow it.
+- [`references/investigator-prompt.md`](references/investigator-prompt.md). Base prompt template for investigator subagents.
+- [`references/source-playbook.md`](references/source-playbook.md). Index pointing at the category playbooks below.
 - `references/sources/*.md`. One self-contained example playbook per category, plus cross-cutting `incident-postmortem.md`. Give an investigator the single file that matches its category and adapt it to the available MCP.
-- `references/synthesizer-prompt.md`. Prompt template for the synthesizer subagent, including the output format.
+- [`references/synthesizer-prompt.md`](references/synthesizer-prompt.md). Prompt template for the synthesizer subagent, including the output format.

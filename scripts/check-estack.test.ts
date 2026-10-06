@@ -39,12 +39,18 @@ test.each([
   ['[Missing](references/missing.md)\n', '', 'missing reference: references/missing.md'],
   ['[Outside](../../../outside.md)\n', '', 'reference escapes plugin: ../../../outside.md'],
   ['[Proof](references/proof.md#missing)\n', '', 'missing heading: references/proof.md#missing'],
+  ['Read `references/proof.md`.\n', '', 'supporting reference must be a Markdown link: references/proof.md'],
   ['[Proof](references/proof.md)\n', 'mode: true\n', 'unsupported frontmatter field mode'],
 ])('rejects invalid direct-source references and metadata (%s)', async (body, extraFrontmatter, diagnostic) => {
   const { root } = await fixture(body, extraFrontmatter);
   const result = await check(root);
   expect(result.code).toBe(1);
   expect(result.stderr).toContain(diagnostic);
+});
+
+test('accepts linked path labels and skips reference examples and templates', async () => {
+  const { root } = await fixture('[`references/proof.md`](references/proof.md)\n```markdown\nRead `references/example.md`.\n```\nUse `references/<source>.md` or `references/*.md`.\n');
+  expect(await check(root)).toEqual({ stdout: 'Verified 1 Codex skills, UI metadata, and 1 bundled references.\n', stderr: '', code: 0 });
 });
 
 test('rejects the obsolete upstream comparison option', async () => {
