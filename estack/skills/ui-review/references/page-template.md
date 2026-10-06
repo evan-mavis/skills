@@ -18,18 +18,28 @@ Use this body structure. Replace bracketed examples with real content and upload
 
 ## Round 1 {toggle="true"}
 	### 1. Propose three times
-	[uploaded screenshot]
+	Before
+	[uploaded screenshot of the pre-change baseline]
+	After
+	[uploaded screenshot of the current branch]
 	[optional supporting caption]
 	### Feedback
 	<empty-block/>
 	---
 	### 2. Review before submitting
-	[uploaded screenshot]
+	Before
+	[uploaded screenshot of the pre-change baseline]
+	After
+	[uploaded screenshot of the current branch]
 	### Feedback
 	<empty-block/>
 	---
 	### 3. Retailer selects a proposed time
-	[uploaded screenshot or video]
+	Before
+	[uploaded screenshot of the pre-change baseline]
+	After
+	[uploaded screenshot of the current branch]
+	[optional uploaded video of the flow]
 	[optional supporting caption]
 	### Feedback
 	<empty-block/>
@@ -37,4 +47,6 @@ Use this body structure. Replace bracketed examples with real content and upload
 
 Repeat the media section for every covered screen or action. Use descriptive headings for distinct states, such as `Submit a request with missing times` or `Reschedule on mobile`. A caption can identify a role or fixture condition that the heading and media do not explain. For a video, include timestamps only when they help locate the relevant action.
 
-For subsequent rounds, use the same section pattern under `## Round N {toggle="true"}`. Keep all older round toggles below it with their media and feedback intact. Do not add a table of contents or tracking sections.
+Round 1 always includes Before and After screenshots. A video can supplement them. For entirely new UI, Before shows the previous entry point or surrounding screen with a brief caption explaining that the new UI did not exist.
+
+For subsequent rounds, use `## Round N {toggle="true"}` and include only items still awaiting review. Each section needs its current screenshot or video and Feedback area. Do not carry forward sections or media the user marked "approved" or "omit". Keep all older round toggles below the newest round with their media and feedback intact. Do not add a table of contents or tracking sections.
