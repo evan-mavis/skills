@@ -2,7 +2,7 @@
 
 Resolve shell, browser, recording, and service access from the current Devin session. Read the selected tool's current instructions before using it. If a required capability is unavailable, report the exact blocker rather than sending work to another host or substituting weaker proof.
 
-For recorded walkthroughs, read [Record a video demo in Devin](video-recording.md). It covers the agent-browser lifecycle, version differences, artifact checks, and delivery in chat or a PR.
+For recorded walkthroughs, read [Record a video demo in Devin](video-recording.md). It covers GUI Chrome on display `:0`, computer-use, native recording and annotations, video review, and delivery in chat or a PR.
 
 Follow the selected project context and verifier for environment ownership, evidence, and cleanup. Packaging a skill does not provision an environment.
 

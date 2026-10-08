@@ -21,9 +21,14 @@ Use the checked-out versions as command and port truth. Inspect existing listene
 
 Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Devin.
 
-Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
-
-Before driving a video demo, run [Record a demo preflight](../poteto-mode/references/video-recording.md#preflight) for the browser CLI, compatible installed browser, `ffmpeg`, `ffprobe`, encoders, and cursor recording. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser documentation. Explicit cloud setup includes missing recorder prerequisites; verification alone reports them with `I RAN INTO AN ISSUE:` and continues work that does not depend on them. Do not assume a browser download is needed.
+For video demos, run [Record a demo preflight](../poteto-mode/references/video-recording.md#preflight).
+Confirm GUI Chrome on `DISPLAY=:0`, `ffmpeg`, `ffprobe`, and Devin's built-in `computer`,
+`recording_start`, `annotate_recording`, `recording_stop`, and `describe_video` tools are available.
+Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md).
+Explicit cloud setup includes installing missing recorder dependencies such as `ffmpeg` and `ffprobe`.
+Verification alone reports missing prerequisites with `I RAN INTO AN ISSUE:` and continues work
+that does not depend on them. Report unavailable native browser or recording tools the same way.
+Do not install another browser driver.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
