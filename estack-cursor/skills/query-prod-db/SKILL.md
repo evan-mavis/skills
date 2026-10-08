@@ -1,9 +1,11 @@
 ---
 name: "query-prod-db"
-description: "Run strictly read-only queries against Airgoods production stack_anry through Render query_render_postgres. Use for production records, schema discovery, and debugging without modifying data."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Run strictly read-only queries against Airgoods production stack_anry through Render query_render_postgres. Use for production records, schema discovery, and debugging without modifying data."
 ---
 
 # Query Airgoods production
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 ## Verify the fixed Render target
 

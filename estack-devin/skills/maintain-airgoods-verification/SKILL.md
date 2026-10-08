@@ -1,10 +1,12 @@
 ---
 name: maintain-airgoods-verification
-description: "Maintains the Airgoods surface verifiers and router in the canonical skills repository by applying the bundled maintain-verification-skill workflow with local overrides. Use when the user asks to audit, refresh, or maintain Airgoods verification maps."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Maintains the Airgoods surface verifiers and router in the canonical skills repository by applying the bundled maintain-verification-skill workflow with local overrides. Use when the user asks to audit, refresh, or maintain Airgoods verification maps."
 triggers: [user]
 ---
 
 # Maintain Airgoods verification
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 This is a thin adapter over the bundled `/estack-devin:maintain-verification-skill`, derived from pstack.
 

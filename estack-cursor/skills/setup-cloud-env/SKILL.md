@@ -1,9 +1,11 @@
 ---
 name: "setup-cloud-env"
-description: "Set up or resume the Airgoods cloud development environment in Cursor. Use for setup cloud, boot the cloud environment, or missing cloud dev servers. Reuse the provisioned Neon child, install missing dependencies, start dev servers, and verify readiness."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Set up or resume the Airgoods cloud development environment in Cursor. Use for setup cloud, boot the cloud environment, or missing cloud dev servers. Reuse the provisioned Neon child, install missing dependencies, start dev servers, and verify readiness."
 ---
 
 # Set up Airgoods cloud
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Make the current cloud checkout ready for development. A bare setup request starts the services listed in `.cursor/environment.json`. A request for one surface starts its required services. Leave them running for the task.
 

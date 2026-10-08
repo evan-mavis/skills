@@ -1,9 +1,11 @@
 ---
 name: "query-local-db"
-description: "Query Airgoods Neon development branches read-only, including local development and verified cloud child branches. Use for schema discovery, records, and development data checks."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Query Airgoods Neon development branches read-only, including local development and verified cloud child branches. Use for schema discovery, records, and development data checks."
 ---
 
 # Query Airgoods Development PostgreSQL
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Development databases use Neon branches, including local development. Evan's default local branch is `evanmavis-local-dev`. Factory Droid Computers use their durable child branch resolved from verified computer ownership metadata, not Evan's branch or the production parent.
 

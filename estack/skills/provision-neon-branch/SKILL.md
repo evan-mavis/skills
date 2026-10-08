@@ -1,9 +1,11 @@
 ---
 name: provision-neon-branch
-description: "Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Use only when the user explicitly requests a disposable Neon child. Enforce expiration and cleanup without exposing credentials."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Use only when the user explicitly requests a disposable Neon child. Enforce expiration and cleanup without exposing credentials."
 ---
 
 # Provision Neon Branch
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Create one disposable, freely mutable child branch from the configured Airgoods Neon production-copy parent. Keep actual production read-only and keep connection credentials out of conversation and repository state.
 

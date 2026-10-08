@@ -18,6 +18,7 @@ Edit their files directly. There are no generated variants or overrides.
 - Read the target skill and relevant references first. Make surgical, minimal, concise edits. Preserve pstack's intent, workflow, and safeguards. Avoid unrelated rewrites.
 - Match the language, tone, and structure of neighboring skills. Use plain, concise instructions. Cut filler and repeated guidance; add only what the task needs.
 - Use `/unslop` when writing new skills or changing prose. Read the target variant's `skills/unslop/SKILL.md` and apply it.
+- For project-specific skills, state the scope in both the description and opening instructions: "Use only for work in <owner/repo> or when the user explicitly targets <project>. Otherwise, do not use this skill." Use the actual repository identity and project name.
 - Preserve valid skill frontmatter and working links. Keep supporting files with their skill. Leave `deprecated/` alone unless requested.
 - Check `git status --short` before editing. Run `bun scripts/check-estack.mjs`, `bun scripts/check-estack.mjs devin`, `bun scripts/check-estack.mjs factory`, `bun scripts/check-estack.mjs cursor`, the narrowest relevant tests, and `git diff --check`. For shell edits, run `bash -n`.
 - Never commit credentials, host files, dependencies, or logs. Never weaken checks to make them pass.

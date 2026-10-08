@@ -1,9 +1,11 @@
 ---
 name: "verify-airgoods-web-public"
-description: "Verify Airgoods public web, landing, editorial, CMS, and SEO behavior through the host's browser automation with recorded walkthrough evidence. Use for apps/web-public, public chrome/auth, blog, Sanity Studio, marketing routes, careers, brand resources, metadata, redirects, or web-to-public proxy behavior."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Verify Airgoods public web, landing, editorial, CMS, and SEO behavior through the host's browser automation with recorded walkthrough evidence. Use for apps/web-public, public chrome/auth, blog, Sanity Studio, marketing routes, careers, brand resources, metadata, redirects, or web-to-public proxy behavior."
 ---
 
 # Verify Airgoods web-public
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 

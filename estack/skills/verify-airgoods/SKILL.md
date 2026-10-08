@@ -1,9 +1,11 @@
 ---
 name: verify-airgoods
-description: Route Airgoods live verification to the correct project-specific skill. Use whenever a task asks to verify, reproduce, demo, or prove behavior in marketplace web, public web, Warehouse, or backend behavior consumed by those surfaces.
+description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Route Airgoods live verification to the correct project-specific skill. Use whenever a task asks to verify, reproduce, demo, or prove behavior in marketplace web, public web, Warehouse, or backend behavior consumed by those surfaces.
 ---
 
 # Verify Airgoods
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Choose the verification surface before launching anything. This skill routes; the selected surface skill owns runtime, authentication, feature recipes, evidence, video, and cleanup.
 

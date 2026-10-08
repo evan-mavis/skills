@@ -1,9 +1,11 @@
 ---
 name: "verify-airgoods-web"
-description: "Verify the Airgoods marketplace web app through the host's browser automation with recorded walkthrough evidence. Use for apps/web marketplace, buyer/seller account, commerce, growth, payments, integrations, or backend behavior consumed by those routes."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Verify the Airgoods marketplace web app through the host's browser automation with recorded walkthrough evidence. Use for apps/web marketplace, buyer/seller account, commerce, growth, payments, integrations, or backend behavior consumed by those routes."
 ---
 
 # Verify Airgoods marketplace web
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 

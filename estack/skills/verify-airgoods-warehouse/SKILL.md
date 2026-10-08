@@ -1,9 +1,11 @@
 ---
 name: verify-airgoods-warehouse
-description: Verify the Airgoods Warehouse operator app through the host's browser automation with recorded walkthrough evidence for user-visible changes. Use for apps/warehouse routes, internal operations, catalog, industry data, observability, admin authentication, or backend/API behavior consumed by Warehouse.
+description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Verify the Airgoods Warehouse operator app through the host's browser automation with recorded walkthrough evidence for user-visible changes. Use for apps/warehouse routes, internal operations, catalog, industry data, observability, admin authentication, or backend/API behavior consumed by Warehouse.
 ---
 
 # Verify Airgoods Warehouse
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 

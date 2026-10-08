@@ -1,9 +1,11 @@
 ---
 name: setup-droid
-description: Set up or resume Airgoods on a persistent Factory Droid Computer. Use for setup droid or an explicit Factory computer setup request. Reuse one durable Neon child per computer, install missing prerequisites, start services, and verify readiness.
+description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Set up or resume Airgoods on a persistent Factory Droid Computer. Use for setup droid or an explicit Factory computer setup request. Reuse one durable Neon child per computer, install missing prerequisites, start services, and verify readiness.
 ---
 
 # Set up an Airgoods Droid Computer
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Prepare the selected persistent Factory computer. Run this workflow on that computer, not on the caller's desktop or an ephemeral Cursor, Codex, or Devin session. Creating a computer is a separate request. If using a remote control tool, verify the target and working directory before any command.
 

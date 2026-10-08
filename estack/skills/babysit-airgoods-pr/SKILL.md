@@ -1,9 +1,11 @@
 ---
 name: babysit-airgoods-pr
-description: Loops until an Airgoods GitHub pull request is green and merge-ready, using Codex follow-ups every 10 minutes, linked Linear intent, autonomous UX fixes with decision reports, Codex review as evan-mavis, and attributed thread replies. Use for Airgoods PR babysitting, review-comment cleanup, or merge-ready requests.
+description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Loops until an Airgoods GitHub pull request is green and merge-ready, using Codex follow-ups every 10 minutes, linked Linear intent, autonomous UX fixes with decision reports, Codex review as evan-mavis, and attributed thread replies. Use for Airgoods PR babysitting, review-comment cleanup, or merge-ready requests.
 ---
 
 # Babysit Airgoods PR
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 This is a thin adapter over pstack's Babysit playbook.
 

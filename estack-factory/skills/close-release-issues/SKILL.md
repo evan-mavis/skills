@@ -1,9 +1,11 @@
 ---
 name: "close-release-issues"
-description: "After a dev-to-main release, audit Linear \"Ready for Testing\" and \"Ready to Ship\" issues and present a linked closeout list for user verification. Only mark issues Done after the user confirms the list. Use when closing out a release, closing release issues, triaging Ready for Testing, or finding Linear issues for a deploy."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. After a dev-to-main release, audit Linear \"Ready for Testing\" and \"Ready to Ship\" issues and present a linked closeout list for user verification. Only mark issues Done after the user confirms the list. Use when closing out a release, closing release issues, triaging Ready for Testing, or finding Linear issues for a deploy."
 ---
 
 # Close Release Issues
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 Deterministic release closeout for Linear issues. **Audit first, close only after user verification.**
 

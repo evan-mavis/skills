@@ -1,9 +1,11 @@
 ---
 name: "refresh-local-db"
-description: "Refresh the developer's local Airgoods application database from the personal Neon dev branch parent, or optionally from a local Render export."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Refresh the developer's local Airgoods application database from the personal Neon dev branch parent, or optionally from a local Render export."
 ---
 
 # Refresh the Developer's Local Application Database
+
+Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
 This skill refreshes the database connected to the developer's local Airgoods application environment.
 
