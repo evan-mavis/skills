@@ -1,9 +1,9 @@
 ---
 name: setup-pstack
-description: Explain or select Cursor subagent models for pstack workflows. Use for /setup-pstack, pstack budget, or changing pstack model choices.
+description: Explain or select Cursor subagent models for Estack workflows. Use for /setup-pstack, Estack budget, or changing Estack model choices.
 ---
 
-# Setup pstack
+# Setup Estack
 
 Bundled custom agents use `model: inherit`. Omit a Task model override to keep the parent model. Built-in Explore, Bash, and Browser agents may select their own models.
 

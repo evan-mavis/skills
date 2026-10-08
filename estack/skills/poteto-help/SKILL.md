@@ -13,7 +13,7 @@ Infer the need from the message and conversation. Ask one short question only wh
 
 Read the [Estack README](../../README.md) for installation and runtime requirements. This plugin runs in Codex. Do not recommend Cursor Custom Modes, per-role model rules, or `/loop`.
 
-[Setup pstack](../setup-pstack/SKILL.md) explains model and reasoning choices. Subagents inherit the parent model by default. Use another model only when the user requests one that the current tools expose. Independent passes on one model do not establish model diversity. Fewer delegates cost fewer tokens. Save the full playbook for work that needs it.
+[Setup Estack](../setup-pstack/SKILL.md) explains model and reasoning choices. Subagents inherit the parent model by default. Use another model only when the user requests one that the current tools expose. Independent passes on one model do not establish model diversity. Fewer delegates cost fewer tokens. Save the full playbook for work that needs it.
 
 Start a task with `$estack` or `$poteto-mode`, the goal, and a check that can pass or fail. The playbook tracks its steps and records a reason for each skip.
 

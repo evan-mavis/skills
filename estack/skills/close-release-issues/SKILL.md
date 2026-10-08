@@ -1,6 +1,6 @@
 ---
 name: close-release-issues
-description: After a dev-to-main release, audit Linear "Ready for Testing" and "Ready to Ship" issues and present a linked closeout list for user verification. Only mark issues Done after the user confirms the list. Use when closing out a release, closing release issues, triaging Ready to Test, or finding Linear issues for a deploy.
+description: After a dev-to-main release, audit Linear "Ready for Testing" and "Ready to Ship" issues and present a linked closeout list for user verification. Only mark issues Done after the user confirms the list. Use when closing out a release, closing release issues, triaging Ready for Testing, or finding Linear issues for a deploy.
 ---
 
 # Close Release Issues
@@ -12,7 +12,7 @@ Deterministic release closeout for Linear issues. **Audit first, close only afte
 ## When to use
 
 - After `development` is merged to `main` and render / vercel deployments have completed
-- User asks to mark release issues done, close Ready to Test, or find Linear issues for a deploy
+- User asks to mark release issues done, close Ready for Testing, or find Linear issues for a deploy
 
 ## Linear states (both in scope)
 
@@ -218,7 +218,7 @@ When the user explicitly wants to clear **all** Ready for Testing + Ready to Shi
 
 ## PR without Linear issue
 
-If a merged-to-dev PR has an AIR id in the title but no Ready to Test issue (or no attachment), report it — do not invent Done status.
+If a merged-to-dev PR has an AIR id in the title but no Ready for Testing issue (or no attachment), report it — do not invent Done status.
 
 ## Output
 

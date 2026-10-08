@@ -1,4 +1,4 @@
 interface:
-  display_name: "Setup Pstack"
+  display_name: "Setup Estack"
   short_description: "Select available Codex models and reasoning settings"
   default_prompt: "Use $setup-pstack to select available Codex models and reasoning settings."

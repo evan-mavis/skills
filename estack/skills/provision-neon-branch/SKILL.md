@@ -1,6 +1,6 @@
 ---
 name: provision-neon-branch
-description: Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Standalone skill — forge-issue/forge-build do not auto-invoke it (cloud uses host-provided DATABASE_URL; local forge prefers local-preview or durable local DB). Use when the user explicitly wants a disposable Neon child. Uses the Neon CLI, returns branch metadata without exposing credentials, enforces expiration, and deletes the branch after use.
+description: "Provision, safely rebind, and clean up one short-lived Neon Postgres child branch containing raw Airgoods production-copy data for isolated development and verification. Use only when the user explicitly requests a disposable Neon child. Enforce expiration and cleanup without exposing credentials."
 ---
 
 # Provision Neon Branch
@@ -30,7 +30,7 @@ Require:
 
 Default `NEON_BRANCH_TTL_HOURS` to `24`. Accept an explicit shorter duration. Never create an unexpiring branch.
 
-Do not treat the Airgoods production Postgres MCP as a branch-management or bulk-copy tool. It remains read-only evidence access; Neon owns disposable database lifecycle.
+Use [query-prod-db](../query-prod-db/SKILL.md) through Render for strictly read-only production evidence. Neon owns disposable database lifecycle.
 
 ## Provision
 
@@ -53,7 +53,7 @@ Do not treat the Airgoods production Postgres MCP as a branch-management or bulk
 5. Retrieve the direct branch connection string for `NEON_DB_NAME` (default `neondb`) using
    the CLI. Never print it, paste it into chat, store it in git, or place it in shell history.
 6. Bind it to the repository's canonical database environment variable, usually `DATABASE_URL`,
-   without exposing the value. For a multi-process or orchestrated caller such as `forge-build`,
+   without exposing the value. For a multi-process or orchestrated caller,
    create a mode-0600 sourceable temporary environment file outside the repository and return
    only its path plus the variable name. A session-scoped secret injection with
    equivalent isolation is also acceptable. Use a direct process export only when every
@@ -62,9 +62,7 @@ Do not treat the Airgoods production Postgres MCP as a branch-management or bulk
 7. Run a minimal connectivity check and verify that the connected branch ID or endpoint differs from the parent.
 8. Return non-secret branch metadata to the caller.
 
-For local worktree dev that needs Redis, ports, and generated `.env.local` files, use the repo's
-`provision-local-worktree-environment` skill instead. Never delete or reuse previewctl-owned
-branches during agent cleanup.
+This skill does not provision local app environments, Redis, ports, or dotenv files. Reuse the configured environment and report missing prerequisites. Never delete or reuse previewctl-owned branches during agent cleanup.
 
 The child contains raw production-copy data and may be freely mutated. Never run an application, migration, worker, or test against the parent connection string.
 

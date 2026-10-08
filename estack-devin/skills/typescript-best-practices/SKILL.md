@@ -14,7 +14,7 @@ Apply the **type-system-discipline** principle skill first.
 | Simplest total type | Keep `T[]` while every operation on it stays total. Strengthen to `NonEmpty<T>` only where the loose type forces `!`, a cast, or a "should never happen" throw. |
 | `unknown` over `any` | External data is `unknown`. |
 | Schemas before guards | Before hand-writing a property-by-property type guard, use the repository's runtime schema library and infer the type from the schema, such as `z.infer`. |
-| No `as` casts | Every `as` is a runtime crash waiting. Cast only after validation. |
+| Avoid unchecked `as` casts | Prefer schema-derived types and narrowing. Use an assertion only when runtime validation proves the exact claimed type and TypeScript cannot express that proof. Keep it at the validated boundary. `as const` is allowed for literal inference. |
 | Narrowing hierarchy | Discriminant switch > `in` operator > `typeof`/`instanceof` > user-defined type guard > `as`. |
 | Type guards | Must verify the claim. A lying guard is worse than `as` because the bug hides behind a name that says it's safe. Name them `isX` or `hasX`. |
 | Exhaustiveness | Inline `const _exhaustive: never = x;` in default arms so the compiler errors when a new variant is added. |

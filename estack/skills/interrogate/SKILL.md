@@ -13,7 +13,7 @@ The deliverable is a synthesized verdict. Do NOT auto-apply changes.
 Identify what to review from context:
 
 - If the user points at specific files or a diff, use that
-- If on a feature branch, run `git diff main...HEAD` (or the appropriate base branch) for the full changeset
+- If on a feature branch, use the caller's explicit base, or resolve it with `git symbolic-ref --quiet refs/remotes/origin/HEAD`. Run `git diff "${base_ref}...HEAD"` for the full changeset. If the default ref is missing, verify and set `origin/HEAD` before continuing; do not assume a branch name.
 - If the user's message references recent work, gather the relevant files
 
 Package the diff (or file contents) plus any surrounding context files the reviewers need to understand the code.

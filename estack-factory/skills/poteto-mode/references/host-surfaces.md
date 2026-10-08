@@ -14,4 +14,4 @@ Keep credentials and raw production-copy data out of chat, logs, screenshots, re
 
 Resolve automation operations through the available Factory tools and their current schemas. Discover the exposed create, list, read, and update operations before use. A confirmed automation runs a new session on its configured computer, so persist scoped state and verify target access. Without those capabilities, use bounded waits in this active session and report that no wake survives it. Store goal predicates in the decision trail; Factory does not promise a separate goal tool.
 
-Only the root can call Task. Background tasks need explicit TaskOutput collection and run-owned stop handling. Child droids cannot ask the user or delegate, so return required review or help briefs to the root.
+Only the root can call Task. Background Task calls use `await: false` and deliver completion results automatically. Use TaskOutput `block=false` only for progress peeks; keep stop handling scoped to this run. Child droids cannot ask the user or delegate, so return required review or help briefs to the root.

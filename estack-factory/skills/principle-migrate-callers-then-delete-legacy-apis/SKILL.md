@@ -19,3 +19,5 @@ When we decide a new API is the right design, migrate callers and remove the old
 - The new API is part of a simplification or refactor initiative
 
 Keeping both old and new APIs creates dual-path complexity, slows cleanup, and makes the codebase feel append-only.
+
+Use the [laziness protocol tiebreaker](../principle-laziness-protocol/SKILL.md) when design completeness conflicts with diff size.

@@ -1,6 +1,6 @@
 ---
 name: "to-linear-spec"
-description: "Create or update a Linear feature spec with a parent issue, outcome-focused subissues, and optional technical handoffs. Use for direct Linear authoring from context or an existing issue; use to-linear for syncing local specs files."
+description: "Create or update a Linear feature spec with a parent issue, outcome-focused subissues, and optional technical handoffs. Use for direct Linear authoring from context or an existing issue."
 disable-model-invocation: true
 ---
 

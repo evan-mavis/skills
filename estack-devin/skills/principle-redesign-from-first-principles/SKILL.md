@@ -12,3 +12,5 @@ When integrating a change, don't bolt it onto the existing design. Redesign as i
 - Think about the whole redesign, then deliver it incrementally
 
 This is the method for preserving option value when integrating changes into an existing design.
+
+Use the [laziness protocol tiebreaker](../principle-laziness-protocol/SKILL.md) when design completeness conflicts with diff size.

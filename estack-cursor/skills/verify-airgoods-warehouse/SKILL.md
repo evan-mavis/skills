@@ -7,7 +7,7 @@ description: "Verify the Airgoods Warehouse operator app through the host's brow
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 
-Drive the internal Next.js Warehouse app in `apps/warehouse`. Warehouse is an authenticated operator surface backed by the Airgoods backend and shared API package. Marketplace and public-web behavior belongs to `/verify-airgoods-web`.
+Drive the internal Next.js Warehouse app in `apps/warehouse`. Warehouse is an authenticated operator surface backed by the Airgoods backend and shared API package. Marketplace behavior belongs to `/verify-airgoods-web`; public-web behavior belongs to `/verify-airgoods-web-public`.
 
 ## Coverage gate
 
@@ -66,7 +66,7 @@ Keep before/after accessibility snapshots, screenshots, relevant responses, read
 
 ## Cleanup
 
-1. Finalize the proof recording and confirm its artifact exists. While the services and temporary session are still available, restore authorized reversible branch-local mutations through supported product or cleanup paths and confirm the restored state. Never delete shared production-copy fixtures or claim to undo sent emails, external provider actions, CMS publications, or applications.
+1. Finalize the proof recording and confirm its artifact exists. While the services and temporary session are still available, restore authorized reversible mutations made by this run through supported product or cleanup paths and confirm the restored state. Never delete shared production-copy fixtures or claim to undo sent emails, external provider actions, CMS publications, or applications.
 2. End only the temporary authentication session this run owns and close its verification tab/session; never sign out or clear another session.
 3. Stop only processes this run started, using recorded process/session IDs. Leave adopted services running; never kill by process name.
 4. Leave the existing database, Redis, infrastructure, environment files, and checkout untouched. This workflow does not provision or tear down environments.

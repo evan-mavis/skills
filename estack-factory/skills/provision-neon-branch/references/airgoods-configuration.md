@@ -39,8 +39,10 @@ previews) and longer TTLs. Never delete or reuse branches from another namespace
 
 Before every provision operation, confirm through Neon that the project and parent IDs still resolve and that the parent is the root/default branch named `production`. If any identity differs, return `blocked`; do not discover a replacement and mutate it automatically.
 
-The parent is a raw copy of production. It is not the actual production database. Actual production remains available only through the read-only Airgoods Postgres MCP during this workflow.
+The parent is a raw copy of production. It is not the actual production database. Query actual production only through Render using [query-prod-db](../../query-prod-db/SKILL.md).
 
 Require the parent to be protected before creating a raw-data child. Protection makes Neon generate new role passwords for child branches. The skill must report an unprotected parent as a setup blocker rather than changing protection itself.
 
 Do not refresh the parent, change project settings, protect or unprotect branches, configure integrations, or clean up unrelated archived branches from this skill.
+
+Persistent Factory branches use `factory-droid-<computer-id>` without expiration under [setup-droid](../../setup-droid/SKILL.md). Their state belongs to the computer, not a session. This disposable lifecycle must not adopt or clean them up.

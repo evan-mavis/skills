@@ -39,6 +39,9 @@ Confirm visible outcomes with a second user-facing read and required side effect
 API or database evidence. A loaded route or success toast alone does not prove completion. Internal
 setters are not user actions.
 
+Define `<evidence-root>` as the absolute, home-expanded path to `~/.local/share/estack-devin/verification`.
+Create a private run directory below it with permissions restricted to the current user.
+
 Save snapshots, screenshots, video, redacted state evidence, and run notes under an absolute
 `~/.local/share/estack-devin/verification/<surface-skill>/<run-id>/` directory. Keep artifacts outside the repository.
 Finalize and inspect video before closing the run-owned session. Preserve evidence and adopted

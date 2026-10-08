@@ -5,7 +5,7 @@ this directory is the maintained source for verifying the internal warehouse ope
 ## baseline preconditions
 
 - read `../SKILL.md`, select the owned local runtime, and pass doctor.
-- authenticate with an active admin user selected from the verified isolated database.
+- authenticate with an active admin user selected from the verified configured database.
 - use browser handles and recorded walkthrough artifacts following the shared browser host guide.
 - default to read-only navigation, filtering, and dialog inspection.
 - record exact starting state and cleanup before any financial, customer-visible, queued, bulk, or external mutation.

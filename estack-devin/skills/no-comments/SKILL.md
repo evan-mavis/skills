@@ -12,7 +12,7 @@ Defer to Comment Sicko's fresh perspective.
 
 ## Scope
 
-Use the caller's files or diff. Otherwise use the current diff against the base branch, default `main`, including the working tree.
+Use the caller's files or diff. Otherwise use the current diff against the resolved default base, including the working tree. Resolve the default base with `git symbolic-ref --quiet refs/remotes/origin/HEAD` and use that remote-tracking ref. If it is missing, verify the remote default branch and set `origin/HEAD` before continuing; do not assume a branch name.
 
 ## Steps
 

@@ -1,6 +1,6 @@
 {
   "name": "estack-factory",
-  "version": "0.1.24",
+  "version": "0.1.26",
   "description": "Lauren Tan's pstack adapted for Factory, with Evan's defaults and Airgoods workflows.",
   "author": {
     "name": "Evan Mavis"

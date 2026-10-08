@@ -25,9 +25,11 @@ Use the repository's direct app commands from the Git root, each in a tracked te
 
 Start only the services needed by the selected surface and absent from the existing environment. Do not use the root start-everything command. Let the selected surface's Doctor checks establish readiness before driving.
 
-Respect the repository's no-lint/typecheck/tests/build/format-by-default instruction. Inspect lifecycle hooks before starting: the current backend `predev` removes its build directory and builds email templates. If that build is not authorized, reuse an already-running backend or report the missing startup prerequisite rather than silently running the hook. Verification-skill installation or maintenance does not itself authorize starting the app.
+Read the current repository instructions for required or restricted checks. Inspect lifecycle hooks before starting: the current backend `predev` removes its build directory and builds email templates. If that build is not authorized, reuse an already-running backend or report the missing startup prerequisite rather than silently running the hook. Verification-skill installation or maintenance does not itself authorize starting the app.
 
 ## Database and cleanup
+
+Feature recipes that require isolated or branch-local fixtures apply only after proving that isolation for the configured database. Otherwise use authorized fixtures in the existing target or report the mutation proof blocked. Never infer isolation from a local app URL or provision a new database to satisfy a recipe.
 
 Use `/query-local-db` only after confirming its resolved source matches the database used by the running backend. Use it to inspect the existing target; do not invoke environment setup or provision another target to satisfy a query prerequisite. A local app can point at a shared or remote database; its host alone does not establish that mutations are safe. Preserve the feature recipe's authorization and fixture requirements.
 

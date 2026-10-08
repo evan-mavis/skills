@@ -25,8 +25,10 @@ For video demos, run [Record a demo preflight](../poteto-mode/references/video-r
 Confirm GUI Chrome on `DISPLAY=:0`, `ffmpeg`, `ffprobe`, and Devin's built-in `computer`,
 `recording_start`, `annotate_recording`, `recording_stop`, and `describe_video` tools are available.
 Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md).
-Report `I RAN INTO AN ISSUE:` for missing native browser, recording tools, or recording dependencies,
-and continue setup work that does not depend on them. Do not install another browser driver.
+Explicit cloud setup includes installing missing recorder dependencies such as `ffmpeg` and `ffprobe`.
+Verification alone reports missing prerequisites with `I RAN INTO AN ISSUE:` and continues work
+that does not depend on them. Report unavailable native browser or recording tools the same way.
+Do not install another browser driver.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 

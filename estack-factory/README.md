@@ -18,9 +18,11 @@ Open `/skills` and `/droids` to verify discovery, and `/diagnostics` for invalid
 
 ## Runtime
 
-Native profiles live in `droids/` and use `model: inherit`. Only the root can call Task; child droids return delegation requests, and the root runs independent reviews as siblings. TaskOutput collects background results. Workspaces and worktrees need explicit ownership; this plugin does not provision them.
+Native profiles live in `droids/` and use `model: inherit`. Only the root can call Task; child droids return delegation requests, and the root runs independent reviews as siblings. Task with `await: false` runs background work and delivers completion results automatically. TaskOutput with `block=false` is only a progress peek. Workspaces and worktrees need explicit ownership; this plugin does not provision them.
 
 This package does not ship the original activation hooks or session parser. Invoke the skill for each task. History workflows use accessible, workspace-scoped Factory history when available and report gaps otherwise. The worktree audit marks session ownership unverified until independently checked.
+
+For Airgoods on a persistent Droid Computer, invoke `/setup-droid`. It reuses one durable Neon child per computer and starts missing services. `/setup-cloud-env` routes to that workflow. Cursor and Codex per-run provisioning scripts must not run on this computer.
 
 Scheduled workflows resolve the live Factory automation tools and verify the target computer, identity, durable ledger, cadence, and state. Automations start separate sessions. Without scheduling access, monitoring stays in the active session. Airgoods still uses the external GitHub `@codex review` service and the required `evan-mavis` identity.
 

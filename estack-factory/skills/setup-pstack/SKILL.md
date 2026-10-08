@@ -1,9 +1,9 @@
 ---
 name: "setup-pstack"
-description: "Explain or select Factory droid model and reasoning choices for pstack workflows. Use for /setup-pstack, pstack budget, or changing pstack model choices."
+description: "Explain or select Factory droid model and reasoning choices for Estack workflows. Use for /setup-pstack, Estack budget, or changing Estack model choices."
 ---
 
-# Setup pstack
+# Setup Estack
 
 Factory custom droids use `model: inherit`. Omit Task `complexity` to inherit the parent model and reasoning. Built-in `worker` and `explorer` have default complexity tiers that can select a different model through configured routing.
 

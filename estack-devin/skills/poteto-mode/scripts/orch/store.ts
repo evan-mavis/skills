@@ -1034,6 +1034,7 @@ function parseGtPullRequest({
   );
 }
 
+// The Orchestrate stacker owns Graphite tracking; GitHub base refs drift during restacks.
 function parseGtBranches(raw: string): readonly string[] {
   const branches: string[] = [];
   const lines = raw.replace(/\r/g, "").split("\n");

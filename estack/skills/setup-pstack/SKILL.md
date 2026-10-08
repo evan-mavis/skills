@@ -1,9 +1,9 @@
 ---
 name: setup-pstack
-description: Explain or select Codex model and reasoning choices for this session's pstack workflows. Use for $setup-pstack, "configure pstack models", "pstack budget", or changing pstack's model choices.
+description: Explain or select Codex model and reasoning choices for this session's Estack workflows. Use for $setup-pstack, "configure Estack models", "Estack budget", or changing Estack's model choices.
 ---
 
-# Setup pstack
+# Setup Estack
 
 Codex workflows inherit the parent model and reasoning effort by default.
 

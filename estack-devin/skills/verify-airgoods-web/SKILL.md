@@ -37,7 +37,7 @@ Use this setup for buyer, seller, cart, checkout, account, and signed-in home ve
 4. Open `/products?auth=sign-in` and sign in with the selected email plus configured `ADMIN_PASSWORD` (`123` by default unless overridden).
 5. Require admin impersonation and expected buyer/seller chrome. Never record passwords, tokens, session storage, or private account data.
 
-Admin impersonation proves permitted UI and reversible branch-local state. It is not proof for analytics, notifications, feedback, provider calls, or behavior intentionally suppressed for impersonated sessions.
+Admin impersonation proves permitted UI and authorized reversible state in the verified configured database. It is not proof for analytics, notifications, feedback, provider calls, or behavior intentionally suppressed for impersonated sessions.
 
 ## Drive
 
@@ -63,7 +63,7 @@ Keep before/after accessibility snapshots, screenshots, relevant network/API evi
 
 ## Cleanup
 
-1. Finalize the proof recording and confirm its artifact exists. While the services and temporary session are still available, restore authorized reversible branch-local mutations through supported product or cleanup paths and confirm the restored state. Never delete shared production-copy fixtures or claim to undo sent emails, external provider actions, CMS publications, or applications.
+1. Finalize the proof recording and confirm its artifact exists. While the services and temporary session are still available, restore authorized reversible mutations made by this run through supported product or cleanup paths and confirm the restored state. Never delete shared production-copy fixtures or claim to undo sent emails, external provider actions, CMS publications, or applications.
 2. End only the temporary authentication session this run owns and close its verification tab/session; never sign out or clear another session.
 3. Stop only processes this run started, using recorded process/session IDs. Leave adopted services running; never kill by process name.
 4. Leave the existing database, Redis, infrastructure, environment files, and checkout untouched. This workflow does not provision or tear down environments.
