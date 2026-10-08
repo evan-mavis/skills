@@ -7,9 +7,12 @@ When using a skill reader, resolve the registered `poteto-mode` skill and read i
 
 ## Browser
 
-Honor the user's browser choice. For video walkthroughs, use `agent-browser` with `--cursor` per
-[Record a demo](../../poteto-mode/references/video-recording.md). For other driving, prefer available
-the browser tools exposed by the active Devin session, or an already installed browser driver. Read their current documentation before continuing.
+Honor the user's browser choice. Drive GUI Chrome on `DISPLAY=:0` with Devin's built-in
+`computer` tool. Use `browser_console` only for read-only DOM inspection. For video walkthroughs,
+use `recording_start`, `annotate_recording`, and `recording_stop`, then review the finished video
+with `describe_video` per [Record a demo](../../poteto-mode/references/video-recording.md).
+Prefer `testing_agent` to own the UI test and recording when the user has asked for or approved testing.
+Read the active tools' current schemas before continuing. Do not install a browser driver.
 
 Create a run-owned tab or session and record its origin, viewport, account, and driver. Use observed
 roles, labels, and refs. Re-read after page changes. Do not alter the user's tabs, profile, cookies,

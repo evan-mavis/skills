@@ -21,15 +21,16 @@ Use the checked-out versions as command and port truth. Inspect existing listene
 
 Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Devin.
 
-Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
-
-Before driving a video demo, verify an available compatible browser, `ffmpeg`, `ffprobe`, the required encoders, and cursor recording support. Use an installed compatible browser when available; do not assume a browser download is needed. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser skill's current documentation for usage and recording details. Report missing prerequisites with `I RAN INTO AN ISSUE:` and continue setup work that does not depend on them.
+For video demos, run [Record a demo preflight](../poteto-mode/references/video-recording.md#preflight).
+Confirm GUI Chrome on `DISPLAY=:0`, `ffmpeg`, `ffprobe`, and Devin's built-in `computer`,
+`recording_start`, `annotate_recording`, `recording_stop`, and `describe_video` tools are available.
+Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md).
+Report `I RAN INTO AN ISSUE:` for missing native browser, recording tools, or recording dependencies,
+and continue setup work that does not depend on them. Do not install another browser driver.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
 An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.
-
-For video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../poteto-mode/references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites.
 
 ## Resolve the per-run Neon handoff
 
