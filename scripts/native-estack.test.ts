@@ -29,3 +29,38 @@ test('latest chat uses recorded Codex cwd, not unrelated messages or path prefix
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test.each(['devin', 'factory'])('%s audit requires ownership verification when usage history is unavailable', async platform => {
+  const root = await mkdtemp(path.join(tmpdir(), 'estack native audit-'));
+  try {
+    const bin = path.join(root, 'bin');
+    await mkdir(bin);
+    await mkdir(path.join(root, 'main'));
+    await mkdir(path.join(root, 'worker'));
+    await writeFile(path.join(bin, 'git'), `#!/usr/bin/env bash
+case "$*" in
+  'worktree list --porcelain') printf 'worktree %s/main\\n\\nworktree %s/worker\\n' "$AUDIT_FIXTURE" "$AUDIT_FIXTURE" ;;
+  *'rev-parse HEAD'*) echo abc123 ;;
+  *'log -1 --format=%ct'*) echo 1 ;;
+  *'merge-base'*) exit 0 ;;
+  *'status --porcelain'*) exit 0 ;;
+  *'symbolic-ref'*) echo fixture-branch ;;
+  *'show-ref'*) exit 1 ;;
+  *) exit 0 ;;
+esac
+`, { mode: 0o755 });
+    await writeFile(path.join(bin, 'gh'), '#!/usr/bin/env bash\nexit 1\n', { mode: 0o755 });
+    const audit = new URL(`../estack-${platform}/skills/poteto-mode/scripts/worktree-audit.sh`, import.meta.url).pathname;
+    const process = Bun.spawn(['bash', audit, path.join(root, 'main')], {
+      env: { ...Bun.env, PATH: `${bin}:${Bun.env.PATH}`, AUDIT_FIXTURE: root },
+      stdout: 'pipe', stderr: 'pipe',
+    });
+    const [stdout, code] = await Promise.all([new Response(process.stdout).text(), process.exited]);
+    expect(code).toBe(0);
+    expect(stdout).toContain('unavailable\tverify-usage\t');
+    expect(stdout).not.toContain('\tsafe\t');
+    expect(stdout).toContain(`\t${path.join(root, 'worker')}\n`);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

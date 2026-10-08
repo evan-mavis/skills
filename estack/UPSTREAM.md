@@ -1,6 +1,6 @@
 # pstack source history
 
-This file records the pstack snapshot reviewed for Estack and its source adaptations. Estack uses Codex instructions directly and is the sole editable source in this repository.
+This file records the pstack snapshot reviewed for Estack and its source adaptations. This variant uses Codex instructions directly. Devin and Factory have separate editable variants in the same repository, with shared changes kept in sync through `AGENTS.md`.
 
 ## Snapshot
 

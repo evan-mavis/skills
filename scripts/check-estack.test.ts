@@ -28,6 +28,26 @@ async function check(root: string, args: string[] = []) {
   return { stdout, stderr, code };
 }
 
+async function nativeFixture(platform: 'devin' | 'factory') {
+  const { root } = await fixture();
+  const variant = path.join(root, `estack-${platform}`);
+  const skill = path.join(variant, 'skills/example');
+  await mkdir(path.join(variant, `.${platform}-plugin`), { recursive: true });
+  await cp(path.join(root, 'estack/skills/example'), skill, { recursive: true });
+  await rm(path.join(skill, 'agents'), { recursive: true });
+  await writeFile(path.join(variant, `.${platform}-plugin/plugin.json`), JSON.stringify({
+    name: `estack-${platform}`, version: '0.1.22', description: 'Native Estack variant',
+  }));
+  if (platform === 'factory') {
+    await mkdir(path.join(root, '.factory-plugin'));
+    await writeFile(path.join(root, '.factory-plugin/marketplace.json'), JSON.stringify({
+      name: 'evan-skills',
+      plugins: [{ name: 'estack-factory', source: './estack-factory' }],
+    }));
+  }
+  return { root, variant, skill };
+}
+
 test('validates editable estack directly without source trees or generation', async () => {
   const { root, skill } = await fixture();
   const before = await readFile(path.join(skill, 'SKILL.md'), 'utf8');
@@ -69,4 +89,63 @@ test('rejects references outside a registered skill even when their links resolv
   expect(result.code).toBe(1);
   expect(result.stderr).toContain('supporting file has no registered skill owner');
   expect(result.stderr).not.toContain('missing reference');
+});
+
+test.each(['devin', 'factory'] as const)('validates the standalone %s package without Codex UI metadata', async platform => {
+  const { root } = await nativeFixture(platform);
+  const result = await check(root, [platform]);
+  expect(result.code).toBe(0);
+  expect(result.stdout).toContain('1 bundled references');
+});
+
+test.each(['devin', 'factory'] as const)('rejects a missing shared skill in %s', async platform => {
+  const { root, skill } = await nativeFixture(platform);
+  await rm(skill, { recursive: true });
+  const result = await check(root, [platform]);
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain('missing corresponding skill: example');
+});
+
+test.each(['devin', 'factory'] as const)('preserves explicit-only skill policy in %s', async platform => {
+  const { root, skill } = await nativeFixture(platform);
+  const sourceMetadata = path.join(root, 'estack/skills/example/agents/openai.yaml');
+  await writeFile(sourceMetadata, (await readFile(sourceMetadata, 'utf8')) + 'policy:\n  allow_implicit_invocation: false\n');
+  const rejected = await check(root, [platform]);
+  expect(rejected.code).toBe(1);
+  expect(rejected.stderr).toContain('must preserve explicit-only invocation policy');
+  const entry = path.join(skill, 'SKILL.md');
+  const policy = platform === 'devin' ? 'triggers: [user]' : 'disable-model-invocation: true';
+  await writeFile(entry, (await readFile(entry, 'utf8')).replace('name: example', `name: example\n${policy}`));
+  expect((await check(root, [platform])).code).toBe(0);
+});
+
+test.each(['devin', 'factory'] as const)('rejects broken bundled links and Codex runtime dependencies in %s', async platform => {
+  const { root, skill } = await nativeFixture(platform);
+  const entry = path.join(skill, 'SKILL.md');
+  await writeFile(entry, (await readFile(entry, 'utf8')) + '[Missing](references/missing.md)\nRead ~/.codex/sessions.\n');
+  const result = await check(root, [platform]);
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain('missing reference: references/missing.md');
+  expect(result.stderr).toContain('unsupported Codex runtime dependency');
+});
+
+test('rejects incorrect native identity and stale Factory marketplace sources', async () => {
+  const { root, variant } = await nativeFixture('factory');
+  await writeFile(path.join(variant, '.factory-plugin/plugin.json'), JSON.stringify({ name: 'estack', version: '0.1.22' }));
+  await writeFile(path.join(root, '.factory-plugin/marketplace.json'), '{"plugins":[]}');
+  const result = await check(root, ['factory']);
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain('invalid plugin identity');
+  expect(result.stderr).toContain('missing Factory plugin source');
+});
+
+test('rejects a Factory marketplace without its required name', async () => {
+  const { root } = await nativeFixture('factory');
+  const catalogFile = path.join(root, '.factory-plugin/marketplace.json');
+  const catalog = JSON.parse(await readFile(catalogFile, 'utf8'));
+  delete catalog.name;
+  await writeFile(catalogFile, JSON.stringify(catalog));
+  const result = await check(root, ['factory']);
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain('invalid Factory marketplace name');
 });

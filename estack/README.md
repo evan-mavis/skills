@@ -2,7 +2,7 @@
 
 evan's codex plugin, built from pstack and personal skills. invoke the estack plugin to route through `skills/estack/SKILL.md`, or invoke an individual bundled skill. use `/reword` to rewrite text in your warm, clear, lowercase voice.
 
-this directory is the sole editable plugin source. edit its skills, references, agents, and metadata directly, then run these commands from the skills repository:
+this directory is the editable codex plugin. `estack-devin/` and `estack-factory/` are separate editable variants in the same repository. keep shared workflow changes in sync according to the repository's `AGENTS.md`. edit skills, references, agents, and metadata directly, then run these commands from the skills repository:
 
 ```sh
 bun scripts/check-estack.mjs

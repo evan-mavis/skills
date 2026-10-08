@@ -1,0 +1,13 @@
+{
+  "name": "evan-skills",
+  "owner": {
+    "name": "Evan Mavis"
+  },
+  "plugins": [
+    {
+      "name": "estack-factory",
+      "description": "pstack for Factory with Evan's defaults and Airgoods workflows",
+      "source": "./estack-factory"
+    }
+  ]
+}

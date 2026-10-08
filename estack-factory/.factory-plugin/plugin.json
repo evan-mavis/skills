@@ -1,0 +1,10 @@
+{
+  "name": "estack-factory",
+  "version": "0.1.22",
+  "description": "Lauren Tan's pstack adapted for Factory, with Evan's defaults and Airgoods workflows.",
+  "author": {
+    "name": "Evan Mavis"
+  },
+  "repository": "https://github.com/evan-mavis/skills",
+  "license": "MIT"
+}
