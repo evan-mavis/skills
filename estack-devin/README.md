@@ -1,6 +1,6 @@
 # estack for devin
 
-Evan's pstack workflows and Airgoods skills, maintained directly in `estack-devin/`. This is a complete editable package. Shared changes also belong in the Codex and Factory variants, following the repository's `AGENTS.md`.
+Evan's pstack workflows and Airgoods skills, maintained directly in `estack-devin/`. This is a complete editable package. Shared changes also belong in the Codex, Factory, and Cursor variants, following the repository's `AGENTS.md`.
 
 Install from this checkout:
 

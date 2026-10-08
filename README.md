@@ -59,3 +59,11 @@ bun scripts/check-estack.mjs factory
 ```
 
 `scripts/install.sh` is the legacy shared-skill installer. it exposes codex skills through `.agents/skills`, which other tools can also discover. use native plugin installation for these variants. existing global links may need removal to avoid loading both versions.
+
+## Cursor variant
+
+`estack-cursor/` is a complete, directly editable Cursor plugin with the same 68 skills, personal defaults, Airgoods workflows, and verification maps. Its native agents and Custom Modes use Cursor's runtime. The manifest includes the Estack logo.
+
+Import `https://github.com/evan-mavis/skills` from Cursor Customize using **From GitHub Repository**, then install `estack-cursor` from `evan-skills`. The root `.cursor-plugin/marketplace.json` registers it. Disable the separate pstack plugin to avoid overlapping skills. For local installation and runtime limits, read [the Cursor README](estack-cursor/README.md). Validate with `bun scripts/check-estack.mjs cursor`.
+
+`AGENTS.md` requires shared workflow edits in all four variants while preserving platform-specific runtime differences.

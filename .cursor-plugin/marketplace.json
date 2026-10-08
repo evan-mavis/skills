@@ -1,0 +1,13 @@
+{
+  "name": "evan-skills",
+  "owner": {
+    "name": "Evan Mavis"
+  },
+  "plugins": [
+    {
+      "name": "estack-cursor",
+      "source": "estack-cursor",
+      "description": "Evan's pstack workflows and Airgoods skills for Cursor."
+    }
+  ]
+}

@@ -3,8 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const platform = process.argv[2] ?? 'codex';
-if (process.argv.length > 3 || !['codex', 'devin', 'factory'].includes(platform)) {
-  throw new Error('Usage: bun scripts/check-estack.mjs [codex|devin|factory]');
+if (process.argv.length > 3 || !['codex', 'devin', 'factory', 'cursor'].includes(platform)) {
+  throw new Error('Usage: bun scripts/check-estack.mjs [codex|devin|factory|cursor]');
 }
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -31,6 +31,23 @@ if (platform !== 'codex') {
   if (manifest.name !== `estack-${platform}`) report(manifestFile, 'invalid plugin identity');
   if (!/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(manifest.version ?? '')) report(manifestFile, 'invalid plugin version');
   if (typeof manifest.description !== 'string' || !manifest.description.trim()) report(manifestFile, 'missing plugin description');
+  if (platform === 'cursor') {
+    for (const field of ['skills', 'agents', 'logo']) {
+      for (const relative of [].concat(manifest[field] ?? [])) {
+        if (typeof relative !== 'string' || path.isAbsolute(relative) || relative.split('/').includes('..')) {
+          report(manifestFile, `invalid ${field} path`); continue;
+        }
+        try { await stat(path.join(root, relative)); }
+        catch { report(manifestFile, `missing ${field} path: ${relative}`); }
+      }
+    }
+    const catalogFile = path.join(repo, '.cursor-plugin/marketplace.json');
+    const catalog = JSON.parse(await readFile(catalogFile, 'utf8'));
+    if (catalog.name !== 'evan-skills' || !catalog.owner?.name) report(catalogFile, 'invalid Cursor marketplace identity');
+    if (!catalog.plugins?.some(plugin => plugin.name === 'estack-cursor' && plugin.source === 'estack-cursor')) {
+      report(catalogFile, 'missing Cursor plugin source');
+    }
+  }
   const sourceSkills = (await readdir(path.join(repo, 'estack/skills'), { withFileTypes: true }))
     .filter(entry => entry.isDirectory()).map(entry => entry.name);
   const nativeSkills = skillFiles.map(file => path.basename(path.dirname(file)));
@@ -44,6 +61,9 @@ if (platform !== 'codex') {
       const text = await readFile(file, 'utf8');
       if (/mcp__codex_app|mcp__cua_repl|\bCODEX_HOME\b|~\/\.codex|collaboration\.(?:spawn_agent|wait_agent|send_message)/.test(text)) {
         report(file, 'unsupported Codex runtime dependency');
+      }
+      if (platform === 'cursor' && /\b(?:TaskOutput|TaskStop|CreateAutomation|EditAutomation|ReadAutomation|ListAutomations)\b|\.factory\/|\.devin\//.test(text)) {
+        report(file, 'unsupported non-Cursor runtime dependency');
       }
     }
   }
@@ -71,7 +91,8 @@ for (const file of files) {
 }
 const supported = new Set(['name', 'description', 'license', 'allowed-tools', 'metadata']);
 if (platform === 'devin') supported.add('triggers');
-if (platform === 'factory') supported.add('disable-model-invocation');
+if (['factory', 'cursor'].includes(platform)) supported.add('disable-model-invocation');
+if (platform === 'cursor') for (const field of ['paths', 'icon', 'color']) supported.add(field);
 const minorWords = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'nor', 'of', 'on', 'or', 'the', 'to', 'with']);
 const specialWords = { apis: 'APIs', pr: 'PR', tdd: 'TDD', typescript: 'TypeScript' };
 let links = 0;
@@ -87,7 +108,7 @@ for (const file of skillFiles) {
       (!Array.isArray(frontmatter.triggers) || !frontmatter.triggers.length || frontmatter.triggers.some(trigger => !['user', 'model'].includes(trigger)))) {
     report(file, 'invalid native skill triggers');
   }
-  if (platform === 'factory' && frontmatter['disable-model-invocation'] !== undefined && typeof frontmatter['disable-model-invocation'] !== 'boolean') {
+  if (['factory', 'cursor'].includes(platform) && frontmatter['disable-model-invocation'] !== undefined && typeof frontmatter['disable-model-invocation'] !== 'boolean') {
     report(file, 'invalid model invocation policy');
   }
   if (platform !== 'codex') {
@@ -141,4 +162,4 @@ for (const file of files.filter(file => file.endsWith('.md'))) {
 }
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }
 else if (platform === 'codex') console.log(`Verified ${skillFiles.length} Codex skills, UI metadata, and ${links} bundled references.`);
-else console.log(`Verified ${skillFiles.length} ${platform === 'devin' ? 'Devin' : 'Factory'} skills, native metadata, and ${links} bundled references.`);
+else console.log(`Verified ${skillFiles.length} ${{devin: 'Devin', factory: 'Factory', cursor: 'Cursor'}[platform]} skills, native metadata, and ${links} bundled references.`);

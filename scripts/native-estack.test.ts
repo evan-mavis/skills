@@ -30,7 +30,7 @@ test('latest chat uses recorded Codex cwd, not unrelated messages or path prefix
   }
 });
 
-test.each(['devin', 'factory'])('%s audit requires ownership verification when usage history is unavailable', async platform => {
+test.each(['devin', 'factory', 'cursor'])('%s audit requires ownership verification when usage history is unavailable', async platform => {
   const root = await mkdtemp(path.join(tmpdir(), 'estack native audit-'));
   try {
     const bin = path.join(root, 'bin');

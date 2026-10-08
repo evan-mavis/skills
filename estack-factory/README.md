@@ -1,6 +1,6 @@
 # estack for Factory
 
-Evan's Factory plugin, adapted from Lauren Tan's pstack with personal defaults and Airgoods workflows. This is a complete editable package. It has no overrides, generated layers, or symlinks. Shared changes must be carried into the Codex and Devin variants under the repository's `AGENTS.md` rules.
+Evan's Factory plugin, adapted from Lauren Tan's pstack with personal defaults and Airgoods workflows. This is a complete editable package. It has no overrides, generated layers, or symlinks. Shared changes must be carried into the Codex, Devin, and Cursor variants under the repository's `AGENTS.md` rules.
 
 ## Install
 

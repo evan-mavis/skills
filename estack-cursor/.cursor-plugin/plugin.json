@@ -1,0 +1,21 @@
+{
+  "name": "estack-cursor",
+  "displayName": "Estack",
+  "version": "0.1.23",
+  "description": "Evan's pstack workflows and Airgoods skills for Cursor.",
+  "author": {
+    "name": "Evan Mavis"
+  },
+  "repository": "https://github.com/evan-mavis/skills",
+  "license": "MIT",
+  "logo": "assets/maul-mandalorian-avatar.png",
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "keywords": [
+    "estack",
+    "pstack",
+    "airgoods",
+    "verification"
+  ],
+  "category": "developer-tools"
+}
