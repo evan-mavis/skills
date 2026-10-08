@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "estack",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "description": "adapted from lauren tan’s pstack for codex. includes personal defaults and airgoods workflows.",
   "author": {
     "name": "Evan Mavis"

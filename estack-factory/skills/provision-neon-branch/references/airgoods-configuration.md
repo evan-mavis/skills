@@ -44,3 +44,5 @@ The parent is a raw copy of production. It is not the actual production database
 Require the parent to be protected before creating a raw-data child. Protection makes Neon generate new role passwords for child branches. The skill must report an unprotected parent as a setup blocker rather than changing protection itself.
 
 Do not refresh the parent, change project settings, protect or unprotect branches, configure integrations, or clean up unrelated archived branches from this skill.
+
+Persistent Factory branches use `factory-droid-<computer-id>` without expiration under [setup-droid](../../setup-droid/SKILL.md). Their state belongs to the computer, not a session. This disposable lifecycle must not adopt or clean them up.

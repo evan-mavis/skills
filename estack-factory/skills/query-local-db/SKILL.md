@@ -5,7 +5,7 @@ description: "Query Airgoods Neon development branches read-only, including loca
 
 # Query Airgoods Development PostgreSQL
 
-Development databases use Neon branches, including local development. Evan's default local branch is `evanmavis-local-dev`. Cloud agents use their own child branch resolved from verified current-run handoff metadata, not Evan's branch or the production parent.
+Development databases use Neon branches, including local development. Evan's default local branch is `evanmavis-local-dev`. Factory Droid Computers use their durable child branch resolved from verified computer ownership metadata, not Evan's branch or the production parent.
 
 The configured production parent is refreshed daily from a production dump by GitHub Actions. Development copies are generally current but can lag. A child can diverge through development changes and later production updates. Record the dump/snapshot timestamp when available separately from branch creation time. Never infer freshness from creation time or invent a timestamp.
 
@@ -13,7 +13,7 @@ The configured production parent is refreshed daily from a production dump by Gi
 
 Prefer the Neon plugin. Resolve the intended project, branch ID, and database explicitly through trusted repo configuration and Neon project/branch/database inspection. For local development, resolve `evanmavis-local-dev` within that verified project. A familiar name, endpoint hostname, or plugin default is insufficient verification. Never omit `project_id`, `branch_id`, or `database_name` from a query tool call.
 
-In a cloud session, use [setup-cloud-env](../setup-cloud-env/SKILL.md) to verify the current handoff's project, parent, child, endpoint, and expiration. A query-only request does not require servers or another branch. If provisioning is incomplete, wait for the existing operation. Missing, failed, expired, or inconsistent handoffs are blockers.
+On a Droid Computer, read [setup-droid](../setup-droid/SKILL.md) to verify its computer/repository ownership, project, parent, durable child, endpoint, and absent expiration. Validation does not authorize provisioning. A query-only request does not require servers or another branch. If provisioning is incomplete, wait for the existing operation. Missing, failed, expiring, or inconsistent durable bindings are blockers.
 
 Keep this skill read-only even though a development branch can support separately authorized mutations. Validate user-provided SQL before execution. Reject writes, schema changes, migrations, backfills, mutating functions, and statements that disable read-only protections. Execute only clearly read-only SQL. Use Neon's `run_sql_transaction` with all three verified target arguments and these SQL statements in the same transaction:
 
@@ -30,13 +30,13 @@ Require the verification result to match the intended database and return `read_
 
 Use [the bundled helper](scripts/query-airgoods-local.sh), not an ad hoc query script. Run it from an Airgoods package with `@neondatabase/serverless` and `ws` already installed. It reads credentials from one explicitly named environment variable and requires the verified project ID, branch ID, endpoint host, and database. It never reads dotenv files or selects a fallback target. Endpoint-to-branch verification remains the caller's responsibility.
 
-For cloud queries, confirm the credential handoff path against the current repo scripts, source the verified file and invoke the helper in the same Bash process with tracing off. Do not print the file or use `cloud-agent-run-with-db.sh` for queries, since that wrapper can remove backend dotenv overrides. Repeat sourcing in each fresh process. For local queries, load the verified branch credential through the existing trusted local configuration without printing it.
+For Droid Computer queries, resolve the durable database.env path from verified setup-droid state, source the verified file and invoke the helper in the same Bash process with tracing off. Do not print the file or use `cloud-agent-run-with-db.sh` for queries, since that wrapper can remove backend dotenv overrides. Repeat sourcing in each fresh process. For local queries, load the verified branch credential through the existing trusted local configuration without printing it.
 
 ```bash
 SKILL_DIR="<absolute directory containing this SKILL.md>"
 set +x
-# Cloud only, after verifying the current handoff.
-source /tmp/airgoods-cloud-agent-neon.env
+# Droid Computer only, after verifying the durable binding.
+source "<verified-state-directory>/database.env"
 bash "$SKILL_DIR/scripts/query-airgoods-local.sh" \
   --database-url-env DATABASE_URL \
   --project-id '<verified-project-id>' --branch-id '<verified-branch-id>' \

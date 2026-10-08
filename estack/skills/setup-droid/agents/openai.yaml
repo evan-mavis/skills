@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup Droid"
+  short_description: "Prepare Airgoods on a persistent Factory computer"
+  default_prompt: "Use $setup-droid to prepare the selected Factory Droid Computer for Airgoods."

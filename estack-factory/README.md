@@ -22,6 +22,8 @@ Native profiles live in `droids/` and use `model: inherit`. Only the root can ca
 
 This package does not ship the original activation hooks or session parser. Invoke the skill for each task. History workflows use accessible, workspace-scoped Factory history when available and report gaps otherwise. The worktree audit marks session ownership unverified until independently checked.
 
+For Airgoods on a persistent Droid Computer, invoke `/setup-droid`. It reuses one durable Neon child per computer and starts missing services. `/setup-cloud-env` routes to that workflow. Cursor and Codex per-run provisioning scripts must not run on this computer.
+
 Scheduled workflows resolve the live Factory automation tools and verify the target computer, identity, durable ledger, cadence, and state. Automations start separate sessions. Without scheduling access, monitoring stays in the active session. Airgoods still uses the external GitHub `@codex review` service and the required `evan-mavis` identity.
 
 Browser and app proof require available control tools, configuration, and synthetic fixtures. Recorded walkthroughs follow [the recording recipe](skills/poteto-mode/references/video-recording.md), with agent-browser, cursor evidence, and artifact inspection. Missing capabilities are blocked proof. Installation does not install browser dependencies or start app services.

@@ -4,7 +4,7 @@ Apply this context only to work targeting `github.com/Airgoods-Inc/airgoods`, in
 
 ## Environment, verification, and PR work
 
-For an Airgoods cloud setup request, including `@estack setup cloud`, read [setup-cloud-env](../../../setup-cloud-env/SKILL.md) and carry it through database and server readiness. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that Factory executed the repository bootstrap automatically. Documentation-only work does not need app startup.
+For an Airgoods cloud setup request, including `@estack setup cloud`, read [setup-droid](../../../setup-droid/SKILL.md) and carry it through database and server readiness. Before work requiring a running Airgoods app on a Droid Computer, use that skill to verify its durable branch binding and start missing required services. Do not assume dependency installation started the dev servers or that Factory executed the repository bootstrap automatically. Documentation-only work does not need app startup.
 
 For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or outstanding PR work, read [babysit-airgoods-pr](../../../babysit-airgoods-pr/SKILL.md) and use its overrides. Opening a PR alone does not trigger babysitting.
 
@@ -12,7 +12,7 @@ For Airgoods verification, read [verify-airgoods](../../../verify-airgoods/SKILL
 
 Airgoods PR babysitting supersedes generic pstack and host babysitting for that task. Preserve its external GitHub Codex reviewer, required identity, review receipts, and no-merge limits. Green CI alone does not satisfy independent verification.
 
-For verification and PR babysitting, follow [Local runtime](../../../verify-airgoods/references/local-runtime.md) and [Browser hosts and evidence](../../../verify-airgoods/references/browser-hosts.md). Reuse the configured checkout's environment and start only missing authorized app processes. Their prohibition on provisioning, previewctl, and environment teardown takes precedence over conflicting setup guidance. Do not invoke cloud setup merely to satisfy a verification prerequisite. Explicit cloud setup follows its own lifecycle skill.
+For verification and PR babysitting, follow [Local runtime](../../../verify-airgoods/references/local-runtime.md) and [Browser hosts and evidence](../../../verify-airgoods/references/browser-hosts.md). Reuse the configured checkout's environment and start only missing authorized app processes. Their prohibition on provisioning, previewctl, and environment teardown takes precedence over conflicting setup guidance. Do not invoke cloud setup merely to satisfy a verification prerequisite. Explicit Droid Computer setup follows setup-droid and may create its durable child when none exists.
 
 The selected verifier owns the surface, feature recipe, synthetic fixtures, pass predicates, evidence path, recording, and cleanup. Read it before editing. Pass this context and the affected verifier pointers to delegates. Preserve mandatory live proof and independent review gates when tools are unavailable; report the blocker.
 

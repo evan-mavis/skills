@@ -13,7 +13,9 @@ The configured production parent is refreshed daily from a production dump by Gi
 
 Prefer the Neon plugin. Resolve the intended project, branch ID, and database explicitly through trusted repo configuration and Neon project/branch/database inspection. For local development, resolve `evanmavis-local-dev` within that verified project. A familiar name, endpoint hostname, or plugin default is insufficient verification. Never omit `project_id`, `branch_id`, or `database_name` from a query tool call.
 
-In a cloud session, use [setup-cloud-env](../setup-cloud-env/SKILL.md) to verify the current handoff's project, parent, child, endpoint, and expiration. A query-only request does not require servers or another branch. If provisioning is incomplete, wait for the existing operation. Missing, failed, expired, or inconsistent handoffs are blockers.
+When the target is a persistent Factory Droid Computer, follow [setup-droid](../setup-droid/SKILL.md) only to validate its durable computer/repository binding and exact branch. Source its verified `database.env` on that computer for the fallback instead of the temporary handoff below. Require no expiration and never provision from this read-only skill. This target-specific rule takes precedence over the ephemeral cloud path.
+
+In this host's ephemeral cloud session, use [setup-cloud-env](../setup-cloud-env/SKILL.md) to verify the current handoff's project, parent, child, endpoint, and expiration. A query-only request does not require servers or another branch. If provisioning is incomplete, wait for the existing operation. Missing, failed, expired, or inconsistent handoffs are blockers.
 
 Keep this skill read-only even though a development branch can support separately authorized mutations. Validate user-provided SQL before execution. Reject writes, schema changes, migrations, backfills, mutating functions, and statements that disable read-only protections. Execute only clearly read-only SQL. Use Neon's `run_sql_transaction` with all three verified target arguments and these SQL statements in the same transaction:
 
