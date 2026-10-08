@@ -51,6 +51,12 @@ use the registered marketplace name shown by `list` if it differs from `evan-ski
 
 see [the factory readme](estack-factory/README.md) for activation and runtime limits.
 
+## routing
+
+invoke or pin Estack using your tool's native syntax. it reads personal defaults, the matching project context, and then poteto-mode in full. the selected playbook and applicable principles still govern the work.
+
+project context lives in [estack's references](estack/skills/estack/references/projects/). Airgoods is matched by repository identity, including worktrees and explicitly targeted PRs. other repositories use the generic workflow. add another project's context and a row in each variant's Estack project table to extend routing. project context is a reference, not another skill to invoke.
+
 ## what's here
 
 - [estack/](estack/) is the editable codex plugin, including shared workflows, my defaults, planning, and airgoods skills.

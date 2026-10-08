@@ -1,6 +1,6 @@
 ### Babysit
 
-**You own the merge frontier. Declare a mode, clear one PR at a time, stop where the human's call begins.** For Airgoods, read `../../babysit-airgoods-pr/SKILL.md` first; its overrides take precedence over this playbook. A request to land or ship is `playbooks/shipping.md`, which begins where this playbook ends.
+**You own the merge frontier. Declare a mode, clear one PR at a time, stop where the human's call begins.** Apply the selected project context's PR requirements throughout this playbook. A request to land or ship is `playbooks/shipping.md`, which begins where this playbook ends.
 
 Babysitting starts when the user asks for it, which is normally once a phase or a whole stack is built, not when a PR opens. Finish the stack, get it green here, then land it through Shipping.
 

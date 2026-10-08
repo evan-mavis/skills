@@ -4,7 +4,7 @@ Resolve shell, browser, recording, and service access from the current Factory s
 
 For recorded walkthroughs, read [Record a video demo in Factory](video-recording.md). It covers the agent-browser lifecycle, version differences, artifact checks, and delivery in chat or a PR.
 
-Airgoods verification follows [Browser hosts and evidence](../../verify-airgoods/references/browser-hosts.md) and [Local runtime](../../verify-airgoods/references/local-runtime.md). Packaging a skill does not provision an environment.
+Follow the selected project context and verifier for environment ownership, evidence, and cleanup. Packaging a skill does not provision an environment.
 
 ## Security posture for raw production-copy data
 

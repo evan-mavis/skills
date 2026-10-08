@@ -5,19 +5,29 @@ description: Route substantive engineering tasks through poteto-mode with Evan's
 
 # estack
 
-For a substantive engineering task or explicit Estack request, read [Personal defaults](references/personal-defaults.md) and [poteto-mode](../poteto-mode/SKILL.md) in full. Open the matched playbook and track its steps before task-specific work. Skip casual turns and user opt-outs. Host instructions, repository instructions, and explicit user requests take precedence.
+For a substantive engineering task or explicit Estack request:
+
+1. Read [Personal defaults](references/personal-defaults.md).
+2. Match the target repository using the project table below. Read its context when matched; otherwise use the generic workflow. Resolve the target from its Git remote or an explicit repository or PR supplied by the user. Normalize SSH and HTTPS forms, optional `.git`, and GitHub owner/repository case. Worktrees use their repository's identity. A folder name or similar app layout is not a match. If the task targets multiple repositories, apply each context only to its own work.
+3. Always read [poteto-mode](../poteto-mode/SKILL.md) in full, then open the matched playbook and track its steps. Read the applicable principle skills in full. Project context supplies requirements and task skills; it never replaces the playbook or its independent proof gates.
+
+Skip casual turns and user opt-outs. Host instructions, repository instructions, and explicit user requests take precedence.
+
+## Project context
+
+| Target repository | Read before task-specific work |
+| --- | --- |
+| `github.com/Airgoods-Inc/airgoods` | [Airgoods](references/projects/airgoods.md) |
+
+To add a project, add its context under `references/projects/` and one row here. Keep project rules out of generic playbooks. Pass the selected context's file pointer and target repository to delegates, including independent reviewers and scheduled runs. Re-resolve the context when the target repository changes.
+
+## Host and personal guidance
 
 This plugin runs in Codex.
 
 Bundled hooks remember explicit Estack or poteto-mode activation for the current chat and project. Say `disable $estack` or `disable $poteto-mode` to clear it. Hooks require runtime support and trust through Codex's `/hooks` interface. Without evidence that the current session's hook ran, apply the selected skill for this turn and do not claim persistence.
 
 Write ordinary responses in lowercase, clear, warm prose. Preserve case-sensitive technical text and exact required report prefixes. For rewriting text in Evan's voice, use [reword](../reword/SKILL.md).
-
-For an Airgoods cloud setup request, including `@estack setup cloud`, read [setup-cloud-env](../setup-cloud-env/SKILL.md) and carry it through database and server readiness. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that Codex executed the repository bootstrap automatically. Documentation-only work does not need app startup.
-
-For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or outstanding PR work, read [babysit-airgoods-pr](../babysit-airgoods-pr/SKILL.md) and use its overrides. Opening a PR alone does not trigger babysitting.
-
-For Airgoods verification, read [verify-airgoods](../verify-airgoods/SKILL.md) and invoke the affected surface skills. User-visible bugs need a reproduction before editing and verification afterward. Features and improvements need a demo. Read the verifier before starting the work so its proof requirements guide the change.
 
 Resolve bundled skills through the current skill catalog when their workflow applies. With a skill-resource reader, select the target skill and use its returned resource identifier; do not pass a sibling filesystem path as a resource of this entry skill. With filesystem tools, sibling paths are relative to the containing file. Preserve their supporting references and scripts. Report missing capabilities without claiming the workflow completed.
 

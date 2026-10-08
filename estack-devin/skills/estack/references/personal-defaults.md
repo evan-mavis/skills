@@ -37,7 +37,3 @@ Titles use the commit prefix, stay lowercase except for Linear issue IDs and cas
 - `feat: add retailer workflows (ENG-123, ENG-456)`
 
 Before creating or updating a pull request, read the repository's PR template if one exists. Its structure wins over pstack's default description sections.
-
-## Airgoods
-
-For an Airgoods GitHub pull request, when I ask to babysit it, get it green, make it merge-ready, address review comments, or check outstanding PR work, use the `babysit-airgoods-pr` skill. It supersedes generic pstack and host babysitting for Airgoods PRs. Do not invoke it merely because a PR was opened.

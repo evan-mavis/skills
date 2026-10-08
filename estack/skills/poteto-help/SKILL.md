@@ -25,7 +25,7 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 
 | Goal | Skill |
 |---|---|
-| Run engineering work with Evan's defaults and Airgoods overrides | [Estack](../estack/SKILL.md) |
+| Run engineering work with personal defaults and matching project context | [Estack](../estack/SKILL.md) |
 | Trace what code does | [How](../how/SKILL.md) |
 | Find why code has its current shape | [Why](../why/SKILL.md) |
 | Understand a change in plain words | [Teach](../teach/SKILL.md) |
@@ -38,7 +38,7 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 | Vet a measured performance number | [Benchmark checklist](../benchmark-checklist/SKILL.md) |
 | Prevent repeated agent mistakes | [Correct](../correct/SKILL.md) |
 
-For other goals, inspect sibling skills' frontmatter and route by their descriptions. Use [Create verification skill](../create-verification-skill/SKILL.md) when the project lacks a way to drive the real app. For Airgoods proof, read [Verify Airgoods](../verify-airgoods/SKILL.md). For Airgoods PR status or review cleanup, read [Babysit Airgoods PR](../babysit-airgoods-pr/SKILL.md).
+For other goals, inspect sibling skills' frontmatter and route by their descriptions. Use [Create verification skill](../create-verification-skill/SKILL.md) when the project lacks a way to drive the real app. For project requirements, use [Estack's project table](../estack/SKILL.md#project-context) and read the matching context. Estack always continues through poteto-mode, its selected playbook, and applicable principles.
 
 ## Playbooks and principles
 

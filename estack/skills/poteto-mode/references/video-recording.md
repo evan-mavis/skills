@@ -18,8 +18,8 @@ See [installation](https://agent-browser.dev/installation) and [recording](https
 
 Resolve the route and actions from the project's verifier. Authenticate and prepare synthetic
 fixtures before recording. Keep account, route, data, viewport, and action identical for bug proof.
-Use a unique session and an absolute evidence directory outside the repository. Airgoods uses
-`~/.codex/verification/<surface-skill>/<run-id>/`.
+Use a unique session and an absolute evidence directory outside the repository. Resolve its
+location from the selected project verifier, or use a run-specific directory outside the checkout.
 
 Set `demo_session` and `demo_dir` for this run. Open and prepare the route in that session, then:
 
