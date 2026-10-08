@@ -2,7 +2,7 @@
 
 these are the skills i use to get work done with agents :)
 
-built on lauren tan's [pstack](https://github.com/cursor/plugins/tree/main/pstack), with my personal defaults and airgoods workflows. estack has separate editable plugins for codex, devin, and factory.
+built on lauren tan's [pstack](https://github.com/cursor/plugins/tree/main/pstack), with my personal defaults and airgoods workflows. estack has separate editable plugins for codex, cursor, devin, and factory.
 
 ## install codex
 
@@ -12,6 +12,14 @@ install the private [estack plugin](https://chatgpt.com/plugins/plugins_6abd8639
 codex plugin marketplace add evan-mavis/skills --ref main
 codex plugin add estack@evan-skills
 ```
+
+## install cursor
+
+import `https://github.com/evan-mavis/skills` from Cursor Customize using **From GitHub Repository**, then install `estack-cursor` from `evan-skills`. disable the separate pstack plugin to avoid overlapping skills.
+
+pin `/estack` as a Custom Mode to keep it active throughout the chat. this variant includes the same skills, airgoods workflows, verification maps, and logo, with native Cursor agents.
+
+see [the cursor readme](estack-cursor/README.md) for local installation and runtime limits.
 
 ## install devin
 
@@ -46,24 +54,18 @@ see [the factory readme](estack-factory/README.md) for activation and runtime li
 ## what's here
 
 - [estack/](estack/) is the editable codex plugin, including shared workflows, my defaults, planning, and airgoods skills.
+- [estack-cursor/](estack-cursor/) is the editable cursor plugin.
 - [estack-devin/](estack-devin/) is the editable devin plugin.
 - [estack-factory/](estack-factory/) is the editable factory plugin.
 - [deprecated/](deprecated/) has archived workflows.
 
-keep shared changes in sync across all three plugins according to [AGENTS.md](AGENTS.md). there are no generated packages, override layers, or shared symlinks.
+keep shared changes in sync across all four plugins according to [AGENTS.md](AGENTS.md). there are no generated packages, override layers, or shared symlinks.
 
 ```sh
 bun scripts/check-estack.mjs
+bun scripts/check-estack.mjs cursor
 bun scripts/check-estack.mjs devin
 bun scripts/check-estack.mjs factory
 ```
 
 `scripts/install.sh` is the legacy shared-skill installer. it exposes codex skills through `.agents/skills`, which other tools can also discover. use native plugin installation for these variants. existing global links may need removal to avoid loading both versions.
-
-## Cursor variant
-
-`estack-cursor/` is a complete, directly editable Cursor plugin with the same 68 skills, personal defaults, Airgoods workflows, and verification maps. Its native agents and Custom Modes use Cursor's runtime. The manifest includes the Estack logo.
-
-Import `https://github.com/evan-mavis/skills` from Cursor Customize using **From GitHub Repository**, then install `estack-cursor` from `evan-skills`. The root `.cursor-plugin/marketplace.json` registers it. Disable the separate pstack plugin to avoid overlapping skills. For local installation and runtime limits, read [the Cursor README](estack-cursor/README.md). Validate with `bun scripts/check-estack.mjs cursor`.
-
-`AGENTS.md` requires shared workflow edits in all four variants while preserving platform-specific runtime differences.
