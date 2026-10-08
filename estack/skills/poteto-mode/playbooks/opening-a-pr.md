@@ -2,7 +2,7 @@
 
 Invoked at the end of every other playbook.
 
-**Worktree.** Work from a git worktree off main. Subagents inherit it. Multiple Codex subagent spawns on the same branch each get their own worktree, or `git fetch && git reset --hard origin/<branch>` between them. Dirty branch with unrelated work: patch out, fresh worktree, apply. Snarled worktree: reset from main, redo minimally.
+**Worktree.** Resolve the default base with `git symbolic-ref --quiet refs/remotes/origin/HEAD` and use that remote-tracking ref. If it is missing, verify the remote default branch and set `origin/HEAD` before continuing; do not assume a branch name. Work from a git worktree off that base. Subagents inherit it. Multiple Codex subagent spawns on the same branch each get their own worktree. Before any `git reset --hard`, inspect `git status --short`; it discards uncommitted tracked work. Preserve unrelated edits in a patch or another worktree and never reset an active worker's checkout. For a reusable clean worktree, fetch and verify its exact remote branch before resetting to it. For a snarled worktree, preserve wanted edits and recreate it from the resolved base.
 
 **Commits.** Commit liberally. Rebase into small, ordered commits before opening PRs. Each commit is a future PR: landable, ordered to tell the story. Amend when the fix belongs in a just-made commit. New commit when separable.
 
@@ -16,16 +16,16 @@ Invoked at the end of every other playbook.
 
 Read the repository's PR template first. Its structure wins. Otherwise put each section under a `##` heading in this order. Drop a section when it has nothing to say, except Scope.
 
-- `## Why`. State the problem and approach in one to three short sentences. Do not list SHAs or rebase genealogy. Do not add a "based on main" preamble.
+- `## Why`. State the problem and approach in one to three short sentences. Do not list SHAs or rebase genealogy. Do not add a "based on the default branch" preamble.
 - `## What changed`. Use one to three short bullets. Name a symbol or path when it carries the change. Name both sides of a rename or retarget.
 - `## Scope`. Always name what the PR covers and what it leaves out, such as a follow-up or a known gap. Use one to three short items. Do not write a file-by-file essay.
 - `## Tradeoffs`. Name only rejected alternatives that a reviewer would otherwise ask about. Skip this section when there was no real choice.
-- `## Blast Radius`. In one or two sentences, name who or what the change touches and why the change is safe or risky. State the continuing cost if main stays red without the fix.
+- `## Blast Radius`. In one or two sentences, name who or what the change touches and why the change is safe or risky. State the continuing cost if the default branch stays red without the fix.
 - `## Verification`. Use one to three bullets that name real run paths and their outcomes. For a performance change, report one primary number with its unit in `before → after` form. Link the arena or swarm directory for the remaining evidence. Do not include sample-size methodology, swarm recitals, or metric tables.
 
 After these sections, attach videos or screenshots when they prove a claim. For video capture and delivery, follow [Record a demo](../references/video-recording.md). Do not paste full SHAs, swarm or arena lane recitals, lever-correction essays, file-by-file checklists, or "CLEAN" verdicts. Put these details in a linked artifact. A commit body does not restate its subject.
 
-**Forge.** Resolve the forge before the first PR operation and keep that choice for create, edit, view, watch, and merge. GitHub CLI (`gh`) is the default. If `command -v origin` succeeds and Origin can resolve the repository, prefer `origin pr ...`. If Origin is absent or cannot resolve the repository, stay on `gh` and record the fallback. Do not require Graphite (`gt`).
+**Forge.** Resolve the forge before the first PR operation and keep that choice for create, edit, view, watch, and merge. GitHub CLI (`gh`) is the default. If `command -v origin` succeeds and Origin can resolve the repository, prefer `origin pr ...`. If Origin is absent or cannot resolve the repository, stay on `gh` and record the fallback. Do not require Graphite (`gt`) outside the Orchestrate stacker role, which owns stack tracking and frontier recomputation.
 
 **Built-in PR tool.** When a purpose-built PR tool is available, use it for creation, edits, retargeting, and readiness according to its instructions. Use the resolved forge for operations the tool does not cover. Attach every created PR to the Codex task with the app's attachment tool when available.
 

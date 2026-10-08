@@ -12,8 +12,21 @@ cd "$repo" || exit 1
 # Main worktree is the first entry; everything else is a candidate.
 main_wt=$(git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')
 
-# origin/main drives the merge check. Best-effort; stale is fine for a first pass.
-git fetch origin main --quiet 2>/dev/null || echo "warn: could not fetch origin/main; merged column may be stale" >&2
+default_ref=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || {
+	echo "cannot resolve origin/HEAD; verify the remote default branch and set origin/HEAD before auditing" >&2
+	exit 1
+}
+case "$default_ref" in
+	refs/remotes/origin/?*) default_branch=${default_ref#refs/remotes/origin/} ;;
+	*) echo "invalid origin/HEAD target: $default_ref" >&2; exit 1 ;;
+esac
+
+# A stale remote-tracking ref can support a first pass, but a missing ref cannot.
+git fetch origin "$default_branch" --quiet 2>/dev/null || echo "warn: could not fetch origin/$default_branch; merged column may be stale" >&2
+git rev-parse --verify "${default_ref}^{commit}" >/dev/null 2>&1 || {
+	echo "cannot verify $default_ref; fetch the remote default branch before auditing" >&2
+	exit 1
+}
 
 # PR state by branch, fetched once. Empty if gh is unavailable.
 prs=$(mktemp)
@@ -32,9 +45,9 @@ git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print}'
 	head_ts=$(git -C "$wt" log -1 --format='%ct' HEAD 2>/dev/null || echo 0)
 	age=$([ "$head_ts" -gt 0 ] 2>/dev/null && echo "$(( (now - head_ts) / 86400 ))d" || echo "?")
 
-	# Squash-merged branches are not ancestors of main, so PR state is the
+	# Squash-merged branches are not ancestors of the default branch, so PR state is the
 	# real signal; merge-base only catches fast-forward/rebase merges.
-	git merge-base --is-ancestor "$head" origin/main 2>/dev/null && merged=YES || merged=no
+	git merge-base --is-ancestor "$head" "$default_ref" 2>/dev/null && merged=YES || merged=no
 
 	# Distinguish real WIP (tracked edits) from disposable untracked scratch.
 	porcelain=$(git -C "$wt" status --porcelain 2>/dev/null)

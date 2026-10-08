@@ -23,13 +23,11 @@ Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `ps
 
 Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
 
-Before driving a video demo, verify an available compatible browser, `ffmpeg`, `ffprobe`, the required encoders, and cursor recording support. Use an installed compatible browser when available; do not assume a browser download is needed. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser skill's current documentation for usage and recording details. Report missing prerequisites with `I RAN INTO AN ISSUE:` and continue setup work that does not depend on them.
+Before driving a video demo, run [Record a demo preflight](../poteto-mode/references/video-recording.md#preflight) for the browser CLI, compatible installed browser, `ffmpeg`, `ffprobe`, encoders, and cursor recording. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser documentation. Explicit cloud setup includes missing recorder prerequisites; verification alone reports them with `I RAN INTO AN ISSUE:` and continues work that does not depend on them. Do not assume a browser download is needed.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
 An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.
-
-For video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../poteto-mode/references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites.
 
 ## Resolve the per-run Neon handoff
 

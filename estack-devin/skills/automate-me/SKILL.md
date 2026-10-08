@@ -26,7 +26,7 @@ Update mode changes the rest of the flow:
 
 Use accessible Devin conversation history or a user-provided transcript. Confirm its repository, workspace, session, and topic before reading relevant excerpts. Do not scan unrelated chats or assume a local transcript path or schema. If no history source is available, use the current conversation and durable branch or task reports, and report the history gap.
 
-Survey recent agent conversations within that scope for recurring patterns. Run multiple parallel subagents across slices of history (e.g. last 2-4 weeks, split into 3 slices so each has enough material). Each slice mining subagent reads transcripts from the workspace-scoped path the parent provides, looks for the signals below, and returns a short structured list of patterns it saw with evidence pointers. Default signals worth hunting:
+Survey recent agent conversations within that scope for recurring patterns. When the scoped history is accessible to delegates, run parallel subagents across slices of history, such as the last 2-4 weeks. Give each source references or scoped excerpts, and local paths only for verified exports. Each subagent reads its assigned records, looks for the signals below, and returns patterns with evidence pointers. If delegates cannot access history, mine it in the parent. If only the current conversation is available, use it without pretending to have sampled other sessions. Default signals worth hunting:
 
 - Response preferences (length, tone, format, "dumb it down" corrections)
 - Delegation habits (subagents, models, specialized workflows, parallelism)
@@ -78,7 +78,7 @@ Show the draft to the user and take feedback. Expect multiple iterations. Cut ru
 
 ### 6. Land it
 
-Work in a worktree off main. Commit and open a PR. Don't push to main directly.
+Resolve the default base with `git symbolic-ref --quiet refs/remotes/origin/HEAD` and use that remote-tracking ref. If it is missing, verify the remote default branch and set `origin/HEAD` before continuing; do not assume a branch name. Work in a worktree off that base. Commit and open a PR. Don't push directly to the default branch.
 
 ## Guardrails
 

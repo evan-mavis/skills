@@ -5,7 +5,7 @@ description: Set up or resume the Airgoods cloud development environment in Code
 
 # Set up Airgoods cloud
 
-Make the current cloud checkout ready for development. A bare setup request starts the services listed in `.cursor/environment.json`. A request for one surface starts its required services. Leave them running for the task.
+Make the current cloud checkout ready for development. A bare Codex cloud setup request uses `scripts/cloud-agent/start.sh` to start the repository cloud stack. A request for one surface starts its required services. Leave them running for the task.
 
 When this skill is used only to prepare verification, reuse the existing provisioned child and start missing required apps. Provision a child only for an explicit cloud setup request. Do not run this cloud bootstrap on a local desktop checkout.
 
@@ -15,6 +15,8 @@ When using a skill reader, resolve the registered `poteto-mode` skill and read i
 
 Resolve the current Airgoods Git root and read its applicable instructions, `.cursor/README.md`, `.cursor/environment.json`, `.cursor/Dockerfile`, and the scripts named by its `install`, `start`, and `terminals` entries. These are repo-managed setup commands even when the host is Codex. Codex may not have run the repository bootstrap or launched its configured services. Their presence alone does not establish a running environment.
 
+For Codex cloud, the canonical setup and start commands are `bash scripts/cloud-agent/setup.sh` and `bash scripts/cloud-agent/start.sh`, as documented in the repository AGENTS.md and `.cursor/README.md`. The start wrapper calls `.cursor/scripts/cloud-agent-start.sh`, adds Codex provider attribution, starts the six services, and checks readiness. Cursor uses the `start` and terminal entries in `.cursor/environment.json`.
+
 Use the checked-out versions as command and port truth. Inspect existing listeners and process ownership before starting anything. Reuse healthy processes belonging to this checkout. Do not adopt another checkout's services.
 
 ## Install missing prerequisites
@@ -23,13 +25,11 @@ Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `ps
 
 Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
 
-Before driving a video demo, verify an available compatible browser, `ffmpeg`, `ffprobe`, the required encoders, and cursor recording support. Use an installed compatible browser when available; do not assume a browser download is needed. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser skill's current documentation for usage and recording details. Report missing prerequisites with `I RAN INTO AN ISSUE:` and continue setup work that does not depend on them.
+Before driving a video demo, run [Record a demo preflight](../poteto-mode/references/video-recording.md#preflight) for the browser CLI, compatible installed browser, `ffmpeg`, `ffprobe`, encoders, and cursor recording. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser documentation. Explicit cloud setup includes missing recorder prerequisites; verification alone reports them with `I RAN INTO AN ISSUE:` and continues work that does not depend on them. Do not assume a browser download is needed.
 
-If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
+If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. For Codex this is `bash scripts/cloud-agent/setup.sh`. It prepares cached cloud tools, copies missing `.env.example` files, installs locked dependencies, and builds shared packages. The start wrapper rechecks and rebuilds required packages for checkout changes. The setup command does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
 An explicit cloud setup request includes these dependency builds and the dev commands' startup hooks. Install only additional workspace dependencies required by a requested surface, such as Warehouse, using the current repo scripts.
-
-For video demos, check the CLI, browser, encoders, and cursor recording per [Record a demo](../poteto-mode/references/video-recording.md#preflight). Explicit cloud setup includes missing recorder prerequisites. Verification alone reports missing prerequisites.
 
 ## Resolve the per-run Neon handoff
 
@@ -37,10 +37,10 @@ The current scripts use `/tmp/airgoods-cloud-agent-neon.env`, its `.status` file
 
 - `ready` with a credential file and matching metadata. Reuse it after checking the child is unexpired, differs from the configured parent, and belongs to the expected project and parent. Match the credential URL's endpoint to the exact child through the Neon API or trusted current-run provisioning evidence. A familiar hostname or branch-name prefix alone is insufficient.
 - `provisioning`. Wait for the current startup operation with a bounded timeout, defaulting to the wrapper's 180 seconds. Do not launch a second provisioner. On timeout, report the status and blocker.
-- No handoff and no startup operation. Check that `NEON_API_KEY`, `NEON_PROJECT_ID`, and `NEON_PARENT_BRANCH_ID` are present without displaying values. Run the configured start command once, currently `bash .cursor/scripts/cloud-agent-start.sh`. It starts Redis and creates an expiring child from the protected parent. Wait for `ready` and validate the handoff before starting database consumers.
+- No handoff and no startup operation. Check that `NEON_API_KEY`, `NEON_PROJECT_ID`, and `NEON_PARENT_BRANCH_ID` are present without displaying values. Run `bash scripts/cloud-agent/start.sh` once. It starts Redis, creates an expiring child from the protected parent, launches the cloud stack, and checks HTTP readiness. It blocks on a partial existing stack. Read back handoff metadata, process IDs, and health results before starting any additional process.
 - `failed:*`, inconsistent metadata, or an expired child. Report the specific blocker. Do not silently provision a replacement for a resumed task that may depend on the previous child's data.
 
-The start script clears the existing handoff and provisions a new child on every invocation. Never rerun it merely to restart Redis or apps. If a valid child exists but Redis is down, start Redis using the checked-out script's Redis configuration without executing its provisioning step.
+The inner `.cursor/scripts/cloud-agent-start.sh` clears the existing handoff and provisions a new child. The Codex wrapper preserves a healthy stack and refuses a partial stack. Never rerun it merely to restart Redis or apps. If a valid child exists but Redis is down, start Redis using the checked-out script's Redis configuration without executing its provisioning step.
 
 Use this repo lifecycle rather than `$provision-neon-branch` for normal cloud setup. Do not point apps at localhost Postgres or the parent. Do not create a second branch when one is already provisioned.
 
@@ -49,6 +49,8 @@ The configured production parent is refreshed daily from a production dump by Gi
 Record the verified project, parent, and child identifiers with the source dump or snapshot timestamp and refresh evidence when available. Keep the child creation time separate. Resolve freshness from trusted metadata or refresh evidence; if unavailable, report it as unknown and never infer a freshness timestamp from branch creation.
 
 ## Start the dev servers
+
+If the Codex start wrapper already launched a required service, adopt its verified process ID and log path. For a valid existing handoff with a missing service, read `scripts/cloud-agent/start.sh` and use its matching launch command without rerunning provisioning. Codex backend, queue, and webhook launches use `scripts/cloud-agent/run-backend.cjs` for the Neon WebSocket driver. The table below describes Cursor terminal commands; do not substitute them for the Codex backend launcher.
 
 Run each missing configured terminal command from the Git root in its own persistent terminal/process session. Record session IDs and log locations outside the repository. Source the handoff in each database-consuming process through the repo wrapper. Exporting `DATABASE_URL` in a previous tool call does not carry it into a later command.
 
@@ -64,7 +66,7 @@ The current commands are:
 
 The wrapper waits for the handoff and removes a stale backend `.env.local` `DATABASE_URL` override so the child connection wins. Use it for every backend process. Restart a process belonging to this task if evidence shows it started with a different database; a listening port alone does not prove the right connection.
 
-Warehouse is not a configured terminal. When requested, prepare its workspace dependencies and run `pnpm --dir apps/warehouse dev`, currently on port 3005. Marketplace requires public web for its proxied anonymous and marketing routes.
+The Codex wrapper includes Warehouse. Warehouse is not a configured Cursor terminal. When requested and missing, prepare its workspace dependencies and run `pnpm --dir apps/warehouse dev`, currently on port 3005. Marketplace requires public web for its proxied anonymous and marketing routes.
 
 ## Verify and report
 

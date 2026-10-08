@@ -1,9 +1,9 @@
 ---
 name: setup-pstack
-description: Explain or select available Devin subagent profiles and model choices for pstack workflows. Use for setup-pstack, "configure pstack models", "pstack budget", or changing pstack's model choices.
+description: Explain or select available Devin subagent profiles and model choices for Estack workflows. Use for setup-pstack, "configure Estack models", "Estack budget", or changing Estack's model choices.
 ---
 
-# Setup pstack
+# Setup Estack
 
 Use `subagent_general` with the required role prompt to inherit the parent model. Explore and custom profiles use Devin's router unless a model is pinned. `run_subagent` selects a profile, not a model slug. Do not assume per-spawn reasoning controls or visible worker model identities.
 

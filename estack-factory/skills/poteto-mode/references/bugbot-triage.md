@@ -8,9 +8,9 @@ Classify each Bugbot thread before acting:
 
 - `fix`: The comment identifies a plausible correctness, security, privacy, data loss, auth, billing, migration, idempotency, race, or shipped-behavior issue. Fix it in the lowest owning PR, then reply with the commit SHA and resolve the thread.
 - `dismiss`: The comment matches a documented low-risk noisy pattern, and the current code/context proves the concern does not need a code change. Reply with a short reason and resolve the thread.
-- `ask`: The comment is novel, high-severity, security/privacy/data-related, or ambiguous. Ask the user instead of guessing.
+- `ask`: Evidence cannot settle the comment or its fix requires a product decision or action outside existing authority. In interactive runs, ask the user. In autonomous runs, record the gate, leave the thread open, and continue unblocked work.
 
-When in doubt, ask. Skipping a noisy code-quality comment is cheap; skipping a real data or security bug is not.
+Investigate uncertainty first. In interactive runs, ask when evidence cannot settle it. Autonomous and orchestrated runs follow their human-gate rules: act and log for reversible triage within scope; escalate unresolved product decisions, missing authority, or a genuine dead end. Never dismiss an unproven security or data concern.
 
 ## Learned pattern format
 
@@ -72,7 +72,7 @@ Use `candidate` for one or two examples. Use `recurring` after multiple real dis
 - Do not skip when: The only evidence is a human saying "false positive" on a high-risk issue without explanation.
 - Example signal: A file-naming rule comment whose body says the file is already compliant.
 
-## Ask by default
+## Investigate before dismissal
 
 Do not auto-skip these categories, even if a previous PR dismissed something similar:
 

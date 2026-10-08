@@ -5,7 +5,7 @@ description: "Remove AI-generated code slop and clean up code style"
 
 # Remove AI code slop
 
-Check the diff against main and remove AI-generated slop introduced in the branch.
+Resolve the default base with `git symbolic-ref --quiet refs/remotes/origin/HEAD` and use that remote-tracking ref. If it is missing, verify the remote default branch and set `origin/HEAD` before continuing; do not assume a branch name. Check the diff against that base and remove AI-generated slop introduced in the branch.
 
 ## Focus Areas
 

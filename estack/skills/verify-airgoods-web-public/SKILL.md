@@ -37,7 +37,7 @@ Anonymous public proof needs a clean browser context and must not clear a user's
 4. Return through the intended public route and require the correct authenticated CTA/account chrome.
 5. Never capture or record the password, token, cookie, private account data, or session storage.
 
-Admin impersonation proves permitted UI and branch-local state, not analytics or behavior intentionally suppressed for impersonated sessions. CMS Studio has a separate password and Sanity authentication boundary defined in its feature recipe.
+Admin impersonation proves permitted UI and authorized state in the verified configured database, not analytics or behavior intentionally suppressed for impersonated sessions. CMS Studio has a separate password and Sanity authentication boundary defined in its feature recipe.
 
 ## Drive
 
@@ -65,7 +65,7 @@ Keep before/after accessibility snapshots, screenshots, HTTP/head/JSON-LD eviden
 
 ## Cleanup
 
-1. Finalize the proof recording and confirm its artifact exists. While the services and temporary session are still available, restore authorized reversible branch-local mutations through supported product or cleanup paths and confirm the restored state. Never delete shared production-copy fixtures or claim to undo sent emails, external provider actions, CMS publications, or applications.
+1. Finalize the proof recording and confirm its artifact exists. While the services and temporary session are still available, restore authorized reversible mutations made by this run through supported product or cleanup paths and confirm the restored state. Never delete shared production-copy fixtures or claim to undo sent emails, external provider actions, CMS publications, or applications.
 2. End only the temporary authentication session this run owns and close its verification tab/session; never sign out or clear another session.
 3. Stop only processes this run started, using recorded process/session IDs. Leave adopted services running; never kill by process name.
 4. Leave the existing database, Redis, infrastructure, environment files, and checkout untouched. This workflow does not provision or tear down environments.

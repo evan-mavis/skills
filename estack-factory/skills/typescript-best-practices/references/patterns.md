@@ -148,9 +148,9 @@ function parseUser(input: unknown): User {
 
 Use `safeParse` when failure is an expected branch. Use the equivalent inference helper when the repository uses another schema library. Do not add a new schema dependency for one guard. This rule prefers the schema system the codebase already trusts.
 
-## No `as` casts
+## Avoid unchecked `as` casts
 
-Every `as` is a potential runtime crash. Cast only after the type system has verified the claim.
+Prefer schema-derived types and narrowing. Use an assertion only when runtime validation proves the exact claimed type and TypeScript cannot express that proof. Keep it at the validated boundary. `as const` is allowed for literal inference.
 
 ```ts
 import { z } from "zod";
@@ -195,7 +195,7 @@ From best to last-resort:
 2. **`in` operator.** `"key" in obj` narrows to variants containing that key.
 3. **`typeof` / `instanceof`.** For primitives and class instances.
 4. **User-defined type guard.** When the above aren't enough.
-5. **`as` cast.** Only after validation.
+5. **`as` cast.** Only at a boundary after runtime validation proves the exact claim and narrowing cannot express it.
 
 ```ts
 function area(s: Shape): number {

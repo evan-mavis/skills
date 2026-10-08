@@ -32,4 +32,4 @@ When investigating or verifying a bug, checking the affected production records 
 
 ## Installed layout
 
-The surface skills and [maintain-verification-skill](../maintain-verification-skill/SKILL.md) are bundled sibling directories. Use `/estack-devin:maintain-verification-skill` for verification-skill maintenance. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).
+The surface skills and [maintain-airgoods-verification](../maintain-airgoods-verification/SKILL.md) are bundled sibling directories. Use `/estack-devin:maintain-airgoods-verification` for verification-skill maintenance. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).

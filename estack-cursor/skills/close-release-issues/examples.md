@@ -2,7 +2,7 @@
 
 ## Example 1: Standard closeout after PR #798
 
-**User:** "We just merged dev to main — mark Ready to Test issues done."
+**User:** "We just merged dev to main — mark Ready for Testing issues done."
 
 **Agent steps:**
 1. `gh pr list --base main --head development --state merged --limit 2` → window: after #793 (Jun 19) through #798 (Jun 23)
