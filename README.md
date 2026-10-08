@@ -59,7 +59,7 @@ project context lives in [estack's references](estack/skills/estack/references/p
 
 ## skill tree
 
-each directory contains a `SKILL.md`. all four variants share these skill names; tools and runtime instructions differ by platform. supporting files are omitted here.
+skills live directly under `skills/`, with no separate `personal/` or `airgoods/` skill directories. personal defaults and airgoods project context live in the nested references shown below. all four variants share these skill names; tools and runtime instructions differ by platform. other supporting files are omitted.
 
 ```text
 estack/
@@ -76,6 +76,10 @@ estack/
     ├── create-verification-skill/                           # Build a project verification skill that exercises real behavior.
     ├── deslop/                                              # Remove AI-generated code clutter and clean up style.
     ├── estack/                                              # Route engineering work through poteto-mode with Evan's defaults.
+    │   └── references/
+    │       ├── personal-defaults.md                         # Evan's working preferences and writing defaults.
+    │       └── projects/
+    │           └── airgoods.md                              # Airgoods-specific routing, verification, and PR requirements.
     ├── figure-it-out/                                       # Design an auditable playbook when no narrower workflow fits.
     ├── grill-me/                                            # Stress-test a plan or idea through a structured interview.
     ├── how/                                                 # Explain a subsystem's architecture and runtime behavior.
