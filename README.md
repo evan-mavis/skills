@@ -84,6 +84,7 @@ estack/
     ├── grill-me/                                            # Stress-test a plan or idea through a structured interview.
     ├── how/                                                 # Explain a subsystem's architecture and runtime behavior.
     ├── interrogate/                                         # Have independent reviewers challenge code and design decisions.
+    ├── ketchup/                                             # Catch up on this chat and decisions waiting on the user.
     ├── maintain-airgoods-verification/                      # Maintain Airgoods verification skills and feature maps.
     ├── maintain-verification-skill/                         # Audit a project's verification skill against source and live behavior.
     ├── no-comments/                                         # Review code comments and fix accepted findings.

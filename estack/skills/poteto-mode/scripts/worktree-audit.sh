@@ -4,8 +4,19 @@
 # operated in it. Emits a table sorted by size with a suggested bucket. Never
 # deletes anything; deletion stays a human-gated step in the playbook.
 #
-# Usage: worktree-audit.sh [repo-path]   (defaults to the current repo)
+# Usage: worktree-audit.sh [-b|--base <ref>] [repo-path]
+# The repository defaults to the current checkout. The base defaults to origin/HEAD.
 set -u
+
+base=""
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-b|--base) [ $# -ge 2 ] || { echo "error: $1 needs a ref" >&2; exit 2; }; base="$2"; shift 2 ;;
+	-h|--help) sed -n '2,/^set -u/p' "$0" | sed '$d; s/^# \{0,1\}//'; exit 0 ;;
+	-*) echo "error: unknown option: $1" >&2; exit 2 ;;
+	*) break ;;
+	esac
+done
 
 repo="${1:-$(git rev-parse --show-toplevel 2>/dev/null)}"
 [ -z "$repo" ] && { echo "not in a git repo; pass a repo path" >&2; exit 1; }
@@ -14,19 +25,25 @@ cd "$repo" || exit 1
 # Main worktree is the first entry; everything else is a candidate.
 main_wt=$(git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print; exit}')
 
-default_ref=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || {
-	echo "cannot resolve origin/HEAD; verify the remote default branch and set origin/HEAD before auditing" >&2
-	exit 1
-}
-case "$default_ref" in
-	refs/remotes/origin/?*) default_branch=${default_ref#refs/remotes/origin/} ;;
-	*) echo "invalid origin/HEAD target: $default_ref" >&2; exit 1 ;;
-esac
+if [ -z "$base" ]; then
+	default_ref=$(git symbolic-ref --quiet refs/remotes/origin/HEAD 2>/dev/null) || {
+		echo "cannot resolve origin/HEAD; verify the remote default branch and set origin/HEAD before auditing" >&2
+		exit 1
+	}
+	case "$default_ref" in
+		refs/remotes/origin/?*) base=${default_ref#refs/remotes/} ;;
+		*) echo "invalid origin/HEAD target: $default_ref" >&2; exit 1 ;;
+	esac
+else
+	default_ref=$base
+fi
 
-# A stale remote-tracking ref can support a first pass, but a missing ref cannot.
-git fetch origin "$default_branch" --quiet 2>/dev/null || echo "warn: could not fetch origin/$default_branch; merged column may be stale" >&2
+case "$base" in
+	origin/*) git fetch origin "+refs/heads/${base#origin/}:refs/remotes/$base" --quiet 2>/dev/null \
+		|| echo "warn: could not fetch $base; merged column may be stale" >&2 ;;
+esac
 git rev-parse --verify "${default_ref}^{commit}" >/dev/null 2>&1 || {
-	echo "cannot verify $default_ref; fetch the remote default branch before auditing" >&2
+	echo "cannot verify $default_ref; fetch the base branch before auditing" >&2
 	exit 1
 }
 
@@ -39,6 +56,7 @@ audit_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 transcripts="${CODEX_HOME:-$HOME/.codex}/sessions"
 now=$(date +%s)
 
+echo "# base: $base"
 printf "SIZE\tAGE\tMERGED\tDIRTY\tREMOTE\tPR\tLAST_CHAT\tBUCKET\tWORKTREE\n"
 
 git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print}' | while IFS= read -r wt; do
@@ -49,7 +67,7 @@ git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print}'
 	head_ts=$(git -C "$wt" log -1 --format='%ct' HEAD 2>/dev/null || echo 0)
 	age=$([ "$head_ts" -gt 0 ] 2>/dev/null && echo "$(( (now - head_ts) / 86400 ))d" || echo "?")
 
-	# Squash-merged branches are not ancestors of the default branch, so PR state is the
+	# Squash-merged branches are not ancestors of the base, so PR state is the
 	# real signal; merge-base only catches fast-forward/rebase merges.
 	git merge-base --is-ancestor "$head" "$default_ref" 2>/dev/null && merged=YES || merged=no
 

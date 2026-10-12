@@ -90,9 +90,9 @@ async function auditFixture(defaultBranch: string) {
   return { root, repo, env, git };
 }
 
-async function runAudit(variant: string, fixture: Awaited<ReturnType<typeof auditFixture>>) {
+async function runAudit(variant: string, fixture: Awaited<ReturnType<typeof auditFixture>>, args: string[] = []) {
   const audit = new URL(`../${variant}/skills/poteto-mode/scripts/worktree-audit.sh`, import.meta.url).pathname;
-  const result = Bun.spawn(['bash', audit, fixture.repo], { env: fixture.env, stdout: 'pipe', stderr: 'pipe' });
+  const result = Bun.spawn(['bash', audit, ...args, fixture.repo], { env: fixture.env, stdout: 'pipe', stderr: 'pipe' });
   const [stdout, stderr, code] = await Promise.all([
     new Response(result.stdout).text(), new Response(result.stderr).text(), result.exited,
   ]);
@@ -133,6 +133,56 @@ test.each(auditVariants)('%s audit rejects a dangling default branch ref', async
     expect(result.code).toBe(1);
     expect(result.stdout).toBe('');
     expect(result.stderr).toContain('cannot verify refs/remotes/origin/trunk');
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test.each(auditVariants)('%s audit accepts an explicit base without origin/HEAD', async variant => {
+  const fixture = await auditFixture('main');
+  try {
+    fixture.git('symbolic-ref', '--delete', 'refs/remotes/origin/HEAD');
+    const result = await runAudit(variant, fixture, ['--base', 'main']);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toStartWith('# base: main\n');
+    expect(result.stdout).toContain('\tYES\tclean\t');
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test.each(auditVariants)('%s audit fetches a base absent from a single-branch clone', async variant => {
+  const fixture = await auditFixture('main');
+  try {
+    const remote = path.join(fixture.root, 'remote.git');
+    fixture.git('init', '--bare', remote);
+    fixture.git('remote', 'add', 'origin', remote);
+    fixture.git('config', 'remote.origin.fetch', '+refs/heads/main:refs/remotes/origin/main');
+    fixture.git('push', 'origin', 'HEAD:refs/heads/release');
+    fixture.git('update-ref', '-d', 'refs/remotes/origin/release');
+    const result = await runAudit(variant, fixture, ['-b', 'origin/release']);
+    expect(result.code).toBe(0);
+    expect(result.stdout).toStartWith('# base: origin/release\n');
+    expect(result.stdout).toContain('\tYES\tclean\t');
+    expect(fixture.git('rev-parse', 'origin/release')).toBe(fixture.git('rev-parse', 'HEAD'));
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
+
+test.each(auditVariants)('%s audit handles help and invalid options', async variant => {
+  const fixture = await auditFixture('main');
+  try {
+    const help = await runAudit(variant, fixture, ['--help']);
+    expect(help.code).toBe(0);
+    expect(help.stdout).toContain('Usage: worktree-audit.sh [-b|--base <ref>] [repo-path]');
+    const unknown = await runAudit(variant, fixture, ['--unknown']);
+    expect(unknown.code).toBe(2);
+    expect(unknown.stderr).toContain('unknown option');
+    const missing = await runAudit(variant, fixture, ['--base', 'origin/missing']);
+    expect(missing.code).toBe(1);
+    expect(missing.stderr).toContain('cannot verify origin/missing');
+    expect(missing.stdout).toBe('');
   } finally {
     await rm(fixture.root, { recursive: true, force: true });
   }
