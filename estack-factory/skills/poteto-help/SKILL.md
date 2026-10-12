@@ -30,6 +30,7 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 | Find why code has its current shape | [Why](../why/SKILL.md) |
 | Understand a change in plain words | [Teach](../teach/SKILL.md) |
 | Recover recent working context | [Recall](../recall/SKILL.md) |
+| Catch up on this chat and pending decisions | [Ketchup](../ketchup/SKILL.md) |
 | Settle types and module boundaries | [Architect](../architect/SKILL.md) |
 | Review a diff independently | [Interrogate](../interrogate/SKILL.md) |
 | Find breakage outside a diff | [Blast radius](../blast-radius/SKILL.md) |

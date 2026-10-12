@@ -87,7 +87,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
-**Use the [poteto-agent prompt](../../agents/poteto-agent.md) for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). Poteto-mode and its subagents follow the same skill. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own prompts for independent review. Respect those roles. If delegation is unavailable, perform the work directly and report the review limitation.
+**Use the [poteto-agent prompt](../../agents/poteto-agent.md) for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). The chat that receives poteto-mode owns the playbook, its progress, and delegation. Do not hand the whole playbook to a subagent. Poteto-mode and its delegates follow the same skill. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own prompts for independent review. Respect those roles. If delegation is unavailable, perform the work directly and report the review limitation.
 
 **Defaults for every subagent.** Use the available Codex subagent tools. Launch independent work together and collect results later. Give file pointers rather than inlined context. Inherit the parent model unless the user requests an available model. Fresh reviewers on that model provide independent passes, not multi-model review. Give each role its scoped task and required tools; a read-only review means no writes, not removal of MCP access. Use nested delegation only when supported. Keep concurrent writers in separate worktrees and cap them at the current environment's capacity.
 

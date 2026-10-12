@@ -31,3 +31,41 @@ test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s pla
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s plan checker respects Markdown fences', async variant => {
+  const directory = await mkdtemp(path.join(tmpdir(), 'estack-plan-fences-'));
+  try {
+    const scripts = path.resolve(import.meta.dir, '..', variant, 'skills/poteto-mode/scripts');
+    const source = await readFile(path.join(scripts, '../playbooks/multi-phase-plan.md'), 'utf8');
+    const template = source.match(/````markdown\n([\s\S]*?)\n````/);
+    expect(template).not.toBeNull();
+    const plan = template![1].replace(/<[^>\n]+>/g, 'verified-example');
+    const examples: [string, number][] = [
+      ['```markdown\n## Example only\n````\n', 0],
+      ['   ```markdown\n## Example only\n   ```\n', 0],
+      ['````markdown\n```markdown\n## Example only\n```\n````\n', 0],
+      ['~~~markdown `info`\n## Example only\n ~~~\n', 0],
+      ['````markdown\n~~~\n## Example only\n````\n', 0],
+      ['````markdown\n```\n## Example only\n````\n', 0],
+      ['````markdown\n``` info\n## Example only\n````\n', 0],
+      ['```markdown\n## Example only\n```  \n## Example only\n', 1],
+      ['```markdown\nA colon: inside code\n```\nA colon: outside code\n', 1],
+      ['```markdown `invalid`\n## Example only\n```\n', 1],
+    ];
+    for (const [example, expected] of examples) {
+      const file = path.join(directory, 'plan.md');
+      await writeFile(file, plan + '\n' + example);
+      const process = Bun.spawn(['node', path.join(scripts, 'check-plan.mjs'), file], { stdout: 'pipe', stderr: 'pipe' });
+      const [stdout, stderr, code] = await Promise.all([new Response(process.stdout).text(), new Response(process.stderr).text(), process.exited]);
+      expect(code).toBe(expected);
+      if (expected === 0) {
+        expect(stderr).toBe('');
+        expect(stdout).toContain('1 PR sections, 0 problems');
+      } else {
+        expect(stderr).toMatch(/not an appendix|mid-sentence colon/);
+      }
+    }
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

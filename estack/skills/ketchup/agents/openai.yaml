@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ketchup"
+  short_description: "Catch up on this chat and pending decisions"
+  default_prompt: "Use $ketchup to catch me up on this chat and decisions waiting on me."
