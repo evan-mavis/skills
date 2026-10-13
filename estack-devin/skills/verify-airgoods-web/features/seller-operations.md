@@ -24,7 +24,7 @@ Seller operations lets a brand complete onboarding, maintain its catalog, review
 Preconditions:
 
 - Full mode doctor passes and `Authenticated setup` selected a seller with a non-null supplier.
-- Use `/estack-devin:query-local-db` to choose branch-local products and orders whose state matches the target path.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to choose branch-local products and orders whose state matches the target path.
 - Queue is healthy for asynchronous catalog/media and fulfillment work. Shipping-label purchase also requires configured test-safe carrier integration.
 
 - **Onboarding.** Open `/account/seller/onboarding`. Require heading `Onboarding`, progress `N / 5 steps completed`, and `Brand Information`, `Product Set Up`, `Payment Connection`, `Shipping Rates`, and `Request Launch`. Verify one open/close or next-step transition. Do not connect payouts, change rates, mark admin completion, or request launch unless explicitly scoped.

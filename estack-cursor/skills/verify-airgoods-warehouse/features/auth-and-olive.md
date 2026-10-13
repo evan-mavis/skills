@@ -23,7 +23,7 @@ Warehouse authentication restricts operator access to admins, while Warehouse Ol
 Preconditions:
 
 - Runtime doctor passes.
-- Use `/query-local-db` to select an active Admin account. Buyer or seller accounts must be rejected even when using the admin password bypass.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select an active Admin account. Buyer or seller accounts must be rejected even when using the admin password bypass.
 - Use read-only conversation fixtures. Never expose authentication tokens, API keys, user prompts, or private conversation content.
 
 - **Login validation.** Open `/login`; require `Email`, `Password`, and `Sign In`. Exercise malformed email or too-short password and require validation without submitting real credentials.

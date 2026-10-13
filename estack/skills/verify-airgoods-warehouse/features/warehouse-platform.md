@@ -19,7 +19,7 @@ Warehouse platform tools lets operators control marketplace integration availabi
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `$query-local-db` to record current integration rows and any target brands/locations.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to record current integration rows and any target brands/locations.
 - Queue and external provider configuration are required for applied upload/enrichment work. Use only synthetic files and branch-local records.
 
 - **Integrations.** Require `Integrations`, `Add integration`, availability/provider/coming-soon filters, and columns including display name and provider key. Open one edit dialog and cancel. Saving changes marketplace-facing provider availability and requires cross-surface proof.

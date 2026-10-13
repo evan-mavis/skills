@@ -20,7 +20,7 @@ The selected verifier owns the surface, feature recipe, synthetic fixtures, pass
 
 Use the task skill only when its workflow is requested or required by the authorized task:
 
-- [Query local DB](../../../query-local-db/SKILL.md) and [Query production DB](../../../query-prod-db/SKILL.md) for read-only database evidence. Verify the target and keep credentials out of output.
+- Read `.agents/skills/query-local/SKILL.md` in the Airgoods checkout for development queries or `.agents/skills/query-prod/SKILL.md` in the Airgoods checkout for production queries. Follow the repo skill for read-only database evidence. Verify the target and keep credentials out of output. If the repo skill is missing, stop database querying and report the missing prerequisite.
 - [Refresh local DB](../../../refresh-local-db/SKILL.md) for an authorized local refresh.
 - [Provision Neon branch](../../../provision-neon-branch/SKILL.md) only for an explicit disposable-branch request. It is not normal cloud setup or verification provisioning.
 - [Close release issues](../../../close-release-issues/SKILL.md) for release closeout. Preserve its audit and user-confirmation gate before changing issue states.

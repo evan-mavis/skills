@@ -22,7 +22,7 @@ Sample-box operations lets operators review box cycles and applications, inspect
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `$query-local-db` to select an isolated box cycle, application, inventory row, or product group matching the requested state.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select an isolated box cycle, application, inventory row, or product group matching the requested state.
 - Queue health is required for autopick and inventory imports. Record box phase, assignments, inventory, and group state before any mutation.
 
 - **Boxes.** Require heading `Sample Boxes`, phase badges, and cards or `Error loading boxes`. Open a box and require its title, `Stores eligible`, and `Bulk Autopick`. Do not ship, upload buyers/addresses, change dates, reshuffle, or bulk-edit suppliers unless explicitly scoped.

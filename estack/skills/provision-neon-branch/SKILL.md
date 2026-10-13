@@ -32,7 +32,7 @@ Require:
 
 Default `NEON_BRANCH_TTL_HOURS` to `24`. Accept an explicit shorter duration. Never create an unexpiring branch.
 
-Use [query-prod-db](../query-prod-db/SKILL.md) through Render for strictly read-only production evidence. Neon owns disposable database lifecycle.
+Read and follow `.agents/skills/query-prod/SKILL.md` in the Airgoods checkout for strictly read-only production evidence. Neon owns disposable database lifecycle.
 
 ## Provision
 

@@ -23,7 +23,7 @@ Warehouse payments lets operators inspect orders and transactions, manage market
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `/estack-devin:query-local-db` to select the smallest isolated order, invoice, transaction, case, or audit fixture matching the requested state.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select the smallest isolated order, invoice, transaction, case, or audit fixture matching the requested state.
 - Record all payment, payout, invoice, reconciliation, and audit state before opening mutation controls.
 
 - **Orders.** Require heading `Orders`; exercise `Status`, `Payment Status`, `Paid`, `Paid Out`, `Needs Transaction`, or `Candidates` when applicable. Open one row and require its order heading, badges, transaction events, cases, matches, and balance. Open `Link Transactions` and cancel. Do not choose `Mark as Paid`, `Mark as Paid Out`, or `Retry Refund`.

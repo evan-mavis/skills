@@ -27,7 +27,7 @@ Buyer lists and rewards let an authenticated retailer save products and brands, 
 Preconditions:
 
 - Full mode doctor passes. Referral sends and other queued side effects also require a healthy queue worker.
-- Follow `Authenticated setup` in `../SKILL.md` and use `$query-local-db` to select an active buyer with a non-null store. Confirm the selected isolated database before reading or changing data.
+- Follow `Authenticated setup` in `../SKILL.md` and use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select an active buyer with a non-null store. Confirm the selected isolated database before reading or changing data.
 - Discover the current schema before querying. Record the buyer's store ID and initial rows relevant to `wishlist`, `wishlist_item`, and `buyer_brand`; for rewards also record the store's credit balance, loyalty and volume-pricing eligibility, and any volume-pricing relationships. Never print credentials or tokens.
 - For a populated success drive, choose live products and brands visible in the current catalog. For a true loyalty-history state, select a loyalty-enabled store with qualifying order history. For a true volume-pricing state, select a store with enabled, non-disabled relationships to live brands.
 - `buyer-loyalty` requires the selected store to have loyalty enabled.

@@ -50,6 +50,6 @@ Keep logs and process records outside the repository. Restart only processes own
 
 ## Verify and report
 
-Require Redis PONG, a read-only connectivity check through [query-local-db](../query-local-db/SKILL.md) against the exact verified child, startup evidence for each required service, and HTTP readiness. Verify the running backend uses the durable connection, not an unrelated per-run handoff. A listening port alone is insufficient.
+Require Redis PONG, a read-only connectivity check through the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout against the exact verified child, startup evidence for each required service, and HTTP readiness. Verify the running backend uses the durable connection, not an unrelated per-run handoff. A listening port alone is insufficient.
 
 Report the computer ID, branch ID/name, persistence and ownership, state file paths, source freshness evidence or unknown freshness, service URLs, and blockers. Omit credentials and customer records. Leave the branch and required services available. Verification alone may validate this state and start missing authorized processes, but must not create or repair infrastructure.

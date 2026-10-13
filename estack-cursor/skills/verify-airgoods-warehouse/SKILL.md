@@ -37,7 +37,7 @@ Re-run doctor before the first drive, after surprising state, after a failed act
 
 ## Authentication
 
-1. Read and invoke `/query-local-db` from its installed skill directory against the verified configured development database.
+1. Resolve the current Airgoods Git root and read `.agents/skills/query-local/SKILL.md` there. If it is missing, stop database querying and report the missing prerequisite. Follow it against the verified configured development database.
 2. Discover the `"user"` schema, then select an active `Admin` user appropriate to the task. Do not use a buyer or seller account: Warehouse rejects non-admin users after login.
 3. Open `/login`, fill `Email` and `Password`, and use the selected admin email with the backend's configured `ADMIN_PASSWORD` (`123` in standard local configuration, unless overridden).
 4. Require final navigation to `/home` and authenticated Warehouse navigation. Do not accept `/` as the pass predicate if competing login redirects race. Never put the password, token, personal data, or session storage in evidence.

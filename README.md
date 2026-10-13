@@ -115,8 +115,6 @@ estack/
     ├── principle-test-behavior-not-implementation/          # Test observable behavior against explicit expected results.
     ├── principle-type-system-discipline/                    # Use types to represent valid states and enforce domain constraints.
     ├── provision-neon-branch/                               # Manage an explicitly requested disposable Neon child with expiration and cleanup.
-    ├── query-local-db/                                      # Query Airgoods development databases read-only.
-    ├── query-prod-db/                                       # Query Airgoods production data read-only through Render.
     ├── recall/                                              # Reconstruct recent work from history and current state.
     ├── reflect/                                             # Review the active transcript and turn lessons into skill edits.
     ├── refresh-local-db/                                    # Refresh the local Airgoods database from a development parent or export.

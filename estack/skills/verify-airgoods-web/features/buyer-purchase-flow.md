@@ -22,7 +22,7 @@ The buyer purchase flow opens a live product, adds a sellable variant to the car
 Preconditions:
 
 - Full mode doctor passes and the isolated Neon branch contains a live, in-stock product.
-- Follow `Authenticated setup` in `../SKILL.md`: use `$query-local-db` to select an eligible buyer, fall back to the confirmed `sara@butterfieldmarket.com` row, and use local admin impersonation rather than the user's real credentials.
+- Follow `Authenticated setup` in `../SKILL.md`: use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select an eligible buyer, fall back to the confirmed `sara@butterfieldmarket.com` row, and use local admin impersonation rather than the user's real credentials.
 - Record the initial cart so cleanup can restore it.
 
 - **Open product.** From `/products`, choose a visible product result. Require `/product/<id-slug>` and a heading matching the chosen product.

@@ -23,7 +23,7 @@ Choose the verification surface before launching anything. This skill routes; th
 
 ## Rules
 
-When investigating or verifying a bug, checking the affected production records often helps; use query-prod-db for strictly read-only access.
+When investigating or verifying an Airgoods bug, read and follow `.agents/skills/query-prod/SKILL.md` in the Airgoods checkout for strictly read-only production evidence.
 
 - Never launch two skills against the same process or database without reconciling ownership first.
 - Follow [Local runtime](references/local-runtime.md): reuse the existing development environment, database, and configuration. Start only missing required apps with direct app commands. Do not invoke previewctl or `provision-local-worktree-environment`, create another worktree, or create a remote preview. Report specific missing prerequisites instead of provisioning infrastructure. This policy overrides conflicting repository or setup guidance.

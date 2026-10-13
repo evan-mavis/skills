@@ -23,7 +23,7 @@ Warehouse growth programs lets operators manage promotional events, retailer pla
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `$query-local-db` to select isolated event, placement, and demo fixtures matching the requested lifecycle states.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select isolated event, placement, and demo fixtures matching the requested lifecycle states.
 - Queue and test-safe email configuration are required before proving notifications. Record all status, date, location, participant, and notification settings before mutation.
 
 - **Promo events.** Require `Promo Events`, `Create Promo Event`, filters `All`, `Upcoming`, `Active`, and `Past`, plus event cards or `Error loading promo events`. Open an event and verify its identity, window, participation, coverage, and status. Open create and cancel by default.

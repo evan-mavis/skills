@@ -43,7 +43,7 @@ Account settings lets buyers and sellers manage personal details, shared busines
 Preconditions:
 
 - Full mode doctor passes. Follow `Authenticated setup` in `../SKILL.md` separately for a buyer with a non-null store and a seller with a non-null supplier.
-- Use `/query-local-db` and require the selected user to be non-deleted, have the expected buyer or seller user type, and belong to the store or supplier under test. Record user ID, account type (`Primary` or `Secondary`), store or supplier ID, and seller onboarding/live state.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout and require the selected user to be non-deleted, have the expected buyer or seller user type, and belong to the store or supplier under test. Record user ID, account type (`Primary` or `Secondary`), store or supplier ID, and seller onboarding/live state.
 - Use only the isolated local database. Snapshot every field, default, preference, user, address, location, and package that a reversible check may change.
 - For shared-data checks, choose an account whose other users and active orders will not be disrupted. For permission checks, select both a `Primary` and `Secondary` user from the same account.
 - Prefer read-only navigation. When a mutation is required, use a unique `Agent QA` marker, verify the result in the UI and with a read-only database query, restore the original value, and verify the restoration before cleanup.

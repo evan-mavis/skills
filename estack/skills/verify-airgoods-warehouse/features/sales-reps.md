@@ -21,7 +21,7 @@ Sales reps lets operators inspect team membership, retailer assignments, relatio
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `$query-local-db` to choose representative rep, retailer, assignment, override, commission, and order states.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to choose representative rep, retailer, assignment, override, commission, and order states.
 - Record all current assignments, rates, active status, and override values before opening mutation controls.
 
 - **Overview.** Require `Reps`, summary state, and cards for Team, Assignments, Overrides, Commissions, and Orders.

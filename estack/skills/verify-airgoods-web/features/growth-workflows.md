@@ -23,7 +23,7 @@ Growth workflows connect retailers and sellers through samples, curated sample b
 Preconditions:
 
 - Full mode doctor and `Authenticated setup` pass for the audience under test.
-- Use `$query-local-db` to select accounts with the required sample, box, placement, demo, or conversation state. Cross-audience proof needs both buyer and seller fixtures for the same entity.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select accounts with the required sample, box, placement, demo, or conversation state. Cross-audience proof needs both buyer and seller fixtures for the same entity.
 - Sample Box requires `sampleBoxEligible`. Placements and demos require the audience's resolved feature flag; seller navigation also requires its availability response.
 - Queue is healthy for asynchronous notifications, media, and lifecycle work. Live message delivery may require additional realtime infrastructure.
 

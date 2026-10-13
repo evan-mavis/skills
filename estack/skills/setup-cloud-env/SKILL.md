@@ -72,6 +72,6 @@ The Codex wrapper includes Warehouse. Warehouse is not a configured Cursor termi
 
 ## Verify and report
 
-Require Redis `PONG`, a read-only database connectivity check through [query-local-db](../query-local-db/SKILL.md), startup evidence for each required process, and HTTP readiness of the requested apps. Allow cold compiles and inspect logs on failure. Match the query target to the same verified handoff used by backend processes. Use a repo health route or bounded HTTP request; an open port alone is insufficient.
+Require Redis `PONG`, a read-only database connectivity check through the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout, startup evidence for each required process, and HTTP readiness of the requested apps. Allow cold compiles and inspect logs on failure. Match the query target to the same verified handoff used by backend processes. Use a repo health route or bounded HTTP request; an open port alone is insufficient.
 
 Report the child branch ID/name and expiration, source and freshness evidence or unknown freshness, service URLs, process/session IDs, and any blockers. Omit credentials and customer records. Leave the branch, handoff, Redis, and dev servers available for the task; do not delete them as setup cleanup. For browser verification, continue with [verify-airgoods](../verify-airgoods/SKILL.md) after startup.

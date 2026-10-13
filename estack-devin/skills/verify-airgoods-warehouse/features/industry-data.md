@@ -22,7 +22,7 @@ Industry data lets operators inspect and reconcile retailers, brands, products, 
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `/estack-devin:query-local-db` to select the smallest matching industry entity, run, or match fixture.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select the smallest matching industry entity, run, or match fixture.
 - Queue/provider health is required for scraping, imports, retries, review apply, and pipeline work. Default to read-only.
 
 - **Hub.** Require `Industry Data` and its domain cards. Open one domain and preserve return state.

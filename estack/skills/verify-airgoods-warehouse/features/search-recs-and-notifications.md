@@ -21,7 +21,7 @@ These observability surfaces let operators inspect marketplace search and recomm
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `$query-local-db` only when a specific query, retailer, notification, or request fixture is needed.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout only when a specific query, retailer, notification, or request fixture is needed.
 - Queue and delivery-provider health are required before proving notification send/delivery. Analytics dashboards are read-oriented.
 
 - **Search and recommendations.** Require `Search & Recommendations Analytics` and applicable KPI, Search, Filters, Sliders & Recs, Engagement, ATC, Order Data, Representation, or Data Gaps tabs. Exercise two relevant tabs and require charts/tables or an explicit empty/error state.

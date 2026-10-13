@@ -33,7 +33,7 @@ Use ports from the existing app configuration and verified listeners. Re-run doc
 
 Anonymous public proof needs a clean browser context and must not clear a user's existing auth state. When authenticated public chrome or handoff is required:
 
-1. Read and invoke `$query-local-db` from its installed skill directory against the verified configured development database.
+1. Resolve the current Airgoods Git root and read `.agents/skills/query-local/SKILL.md` there. If it is missing, stop database querying and report the missing prerequisite. Follow it against the verified configured development database.
 2. Select an eligible buyer or seller email; use `sara@butterfieldmarket.com` only as a confirmed fallback buyer.
 3. In full mode, open `/products?auth=sign-in` on main web and sign in with the configured local `ADMIN_PASSWORD` (`123` by default unless overridden).
 4. Return through the intended public route and require the correct authenticated CTA/account chrome.

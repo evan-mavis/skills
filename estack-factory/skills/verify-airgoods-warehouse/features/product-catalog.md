@@ -24,7 +24,7 @@ Product catalog lets operators inspect catalog health, review products and enric
 Preconditions:
 
 - Warehouse doctor and admin authentication pass.
-- Use `/query-local-db` to select product, review, enrichment, filter, attribute, or category fixtures matching the requested state.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select product, review, enrichment, filter, attribute, or category fixtures matching the requested state.
 - Queue/provider health is required for enrichment, indexing, cleanup apply, scrape, or retry actions. Record initial state before opening mutation controls.
 
 - **Hub.** Require heading `Catalog` and cards for Products, Filters & Taxonomies, Attribute Browser, Categories, Enrichment Runs, and Review Queue. `Refresh metrics` is a mutation; avoid it unless scoped.

@@ -33,8 +33,8 @@ Use the existing app configuration and verified listener ports; confirm the list
 
 Use this setup for buyer, seller, cart, checkout, account, and signed-in home verification:
 
-1. Read and invoke `/estack-devin:query-local-db` from its installed skill directory against the verified configured backend environment.
-2. Run `--show-source`, discover schema, and select a small set of active users with the required `user_type` and non-null buyer `store_id` or seller `supplier_id`.
+1. Resolve the current Airgoods Git root and read `.agents/skills/query-local/SKILL.md` there. If it is missing, stop database querying and report the missing prerequisite. Follow it against the verified configured backend environment.
+2. Verify the query source through the repo skill, discover schema, and select a small set of active users with the required `user_type` and non-null buyer `store_id` or seller `supplier_id`.
 3. If no better feature-specific buyer exists, confirm and use `sara@butterfieldmarket.com`.
 4. Open `/products?auth=sign-in` and sign in with the selected email plus configured `ADMIN_PASSWORD` (`123` by default unless overridden).
 5. Require admin impersonation and expected buyer/seller chrome. Never record passwords, tokens, session storage, or private account data.

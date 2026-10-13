@@ -22,7 +22,7 @@ Buyer post-purchase lets a retailer browse past orders, inspect deliveries and t
 Preconditions:
 
 - Full mode doctor passes. Follow `Authenticated setup` in `../SKILL.md` for an eligible buyer.
-- Use `$query-local-db` to select the smallest matching order: shipping labels for tracking; shipped, delivered, or partially fulfilled with no parent order for damage reporting; delivered history for reorder.
+- Use the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout to select the smallest matching order: shipping labels for tracking; shipped, delivered, or partially fulfilled with no parent order for damage reporting; delivered history for reorder.
 - Record the starting cart and order status before any mutation. Queue must be healthy for tracking refreshes and asynchronous follow-up.
 
 - **Orders list.** Open `/account/buyer/orders`. Require heading `Orders`. Accept only a settled row set, `No results found`, or an explicit error after loading. Exercise applicable status filters and order type filters, then open a row and require `/account/buyer/orders/<id>`.
