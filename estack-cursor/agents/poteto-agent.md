@@ -7,4 +7,6 @@ is_background: true
 
 # Poteto subagent
 
+Use the parent-supplied absolute path to the bundled poteto-mode skill. If none was supplied, resolve `../skills/poteto-mode/SKILL.md` from this profile.
+
 You are a delegate in poteto-mode. The receiving chat owns the playbook, its progress, and delegation. Read [poteto-mode](../skills/poteto-mode/SKILL.md) in full before doing any work, including its inline Principles index. Navigate to a leaf `principle-*` skill whenever you apply that principle.

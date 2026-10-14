@@ -1,14 +1,14 @@
 # pstack source history
 
-This file records the pstack snapshot reviewed for Estack and its source adaptations. This variant uses native Cursor metadata, agents, and Custom Modes. Codex, Devin, and Factory have separate editable variants in the same repository. Shared changes stay in sync through `AGENTS.md`.
+This file records the pstack snapshot reviewed for Estack and its source adaptations. This editable Cursor variant is maintained with the other three variants under `AGENTS.md`. Historical entries describe the original Codex adaptation.
 
 ## Snapshot
 
-- Version: `0.15.20`
-- Commit: [`1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def`](https://github.com/cursor/plugins/commit/1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def)
-- Retrieved and compared: 2026-10-12
+- Version: `0.15.24`
+- Commit: [`1e5c90a4b6f249917bd21fe361b3a2a7deb741b8`](https://github.com/cursor/plugins/commit/1e5c90a4b6f249917bd21fe361b3a2a7deb741b8)
+- Retrieved and compared: 2026-10-14
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.10` at [`4e5b1cf2ccb0ea3716f08c8ee0a5856b5ab93536`](https://github.com/cursor/plugins/commit/4e5b1cf2ccb0ea3716f08c8ee0a5856b5ab93536), compared 2026-10-05.
+- Previous snapshot: `0.15.20` at [`1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def`](https://github.com/cursor/plugins/commit/1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def), compared 2026-10-12.
 
 ## Shared source history
 
@@ -37,12 +37,29 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - The plan checker tracks fence character and length, so nested backticks, tilde fences, and indented fences cannot expose example headings as plan sections. Estack's verification markers and audit cadence remain unchanged.
 - Worktree audits accept `--base <ref>`, fetch the selected origin branch with an explicit refspec before validating it, and print the checked base. Estack already resolves `origin/HEAD`. Keep its refusal to guess and each host's usage-ownership safeguards.
 
-### Not adopted from this comparison
+### Not adopted from 0.15.11 through 0.15.20
 
 - Skip Cursor model defaults, model-rule setup prompts, typed-only help, and the root manifest. Estack already has native manifests and its own model and invocation policy.
 - Skip broad prompt distillation, guide expansion, and copied help recipes. They remove useful workflow constraints or repeat existing guidance without proof of a benefit on Estack's hosts.
 - Keep Unslop's existing description and discovery policy. Its automatic use is intentional in Estack. The Cursor-specific agent-name workaround is already covered by Estack's lowercase `comment-sicko` identifier.
 - `cursor-team-kit/skills/deslop/` has no changes since the previous snapshot. Account release IDs, personal defaults, Airgoods overrides, artwork, licenses, and runtime safeguards stay unchanged. No plugin is published or installed by this sync.
+
+### Adopted from 0.15.21 through 0.15.24
+
+- The PR watcher classifies an owner-approval `ACTION_REQUIRED` Code Review Gate as its distinct gate kind on both read paths. Other CI checks in that state still fail. Behavior and regression tests match upstream. The classifier has an explicit name and no redundant comment.
+- Worktree audits prefer readable Origin PR data and fall back to GitHub. Normalize open and draft PRs into protected buckets. Adapt upstream to fall back on malformed data as well as CLI failures. Keep each host's session and ownership checks.
+- `in-your-own-words` restates the user's goals and problem. `sharpen` improves a task's approach and keeps an independent check. Both require explicit invocation through native metadata. Sharpen preserves user constraints and leaves product choices with the user.
+- Delegate prompts include the resolved bundled poteto-mode path. Root-cause investigations propose a cheap persistent signal when finding the decisive fact took a deep investigation.
+- Ketchup reports changes that matter to the user, checks numbers, avoids invented decisions, and aims for a brief reply without dropping decision context. Comparisons remain flexible and use existing evidence.
+- Autopilot rebase pushes pin the lease to the expected remote SHA and stop on unexpected remote writes. Audits distinguish a pending decision from a stall. Autopilot-stack reserves rebases and PR topology for the root. Orchestrate workers and verifiers cannot retarget or merge. Shipping confirms that a merge landed on trunk.
+
+### Skipped from 0.15.21 through 0.15.24
+
+- Keep Graphite's tracked stack as Orchestrate's authority. Upstream's forge-base-chain replacement can use drifting PR bases and guesses `main` when default-branch resolution fails. Its CLI and store rewrite is not imported.
+- Keep native model inheritance and reasoning defaults. Skip upstream model-family aliases, adaptive effort, and fast-mode policy.
+- Keep detailed per-round proof, CI, patch-id, merge-prep, and bottom-frontier safeguards. Skip broad playbook cuts and weaker minor-fix review rules. Keep the 30-minute audits and native scheduling.
+- Skip mandatory Ketchup pictures and fixed box limits. Keep evidence-based tables and diagrams. Do not make a quiet audit produce a routine status message.
+- Cursor slash-menu instructions and Cursor-specific discovery paths do not apply to the other hosts. Existing native invocation and profile metadata already omit retired fields. Deslop has no changes since the previous snapshot.
 
 ### Deliberately retained or skipped
 

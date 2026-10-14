@@ -88,6 +88,8 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
+Include this file's resolved absolute path in every poteto-agent prompt. Bundled sibling skills live at `../<name>/SKILL.md` from this file.
+
 **Use the native `poteto-agent` droid from [its profile](../../droids/poteto-agent.md) for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). The chat that receives poteto-mode owns the playbook, its progress, and delegation. Do not hand the whole playbook to a subagent. Poteto-mode and its delegates follow the same skill. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own prompts for independent review. Respect those roles. If delegation is unavailable, perform the work directly and report the review limitation.
 
 **Defaults for every subagent.** Dispatch with Factory `Task`, using `subagent_type`, `description`, and a scoped `prompt`. Set `await: true` when the next step needs the result, or `await: false` for independent background work. Keep each returned task ID; background completion results are delivered automatically. Use `TaskOutput` with `block=false` only for a read-only progress peek, not a completion polling loop. Use `TaskStop` for a required stop. Inspect the live schema before dispatching; do not send `run_in_background`. Use the native custom profiles with `model: inherit` and omit `complexity`; verify any user-requested model through the existing droid or configured tier. Keep writers in separate worktrees with explicit paths. A read-only review forbids writes while retaining required MCP context access.

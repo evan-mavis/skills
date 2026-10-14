@@ -5,15 +5,17 @@ description: "Catch the user up on this chat since their last message, with curr
 
 # Ketchup
 
-Catch the user up on this chat since their last message before this request. Notifications and subagent results do not count as user messages. Use [Bro's plain voice](../bro/SKILL.md), without its restatement step. Use names the user knows for PRs, branches, and agents.
+Catch the user up on this chat since their last message before this request. Notifications and subagent results do not count as user messages. Use [Bro's plain voice](../bro/SKILL.md), without its restatement step. Use names the user knows for PRs, branches, and agents. Describe what changed for the user. Omit hashes, paths, commands, and test counts unless the user needs them to act.
 
 ## Gather what changed
 
-Keep this turn read-only, except for reply visuals made from existing evidence. Do not change code, start apps or jobs, or post material to create visuals. Collect the work and reports since that message. Check current PR, CI, and agent state through available tools. Say what is still running and what you could not check.
+Keep this turn read-only, except for reply visuals made from existing evidence. Do not change code, start apps or jobs, or post material to create visuals. Collect the work and reports since that message. Check current PR, CI, and agent state through available tools. Say what is still running and what you could not check. Check each reported number against its source, and state any correction.
 
-An action item is a decision or step only the user can take. Include pending items from before their last message. Work you can complete yourself is not an action item.
+An action item is a decision or step only the user can take. Include pending items from before their last message. Work you can complete yourself is not an action item. Do not invent decisions or add steps the task does not need.
 
 ## Write the reply
+
+Keep the reply brief, aiming for fewer than 150 words when that leaves enough context for pending decisions. Do not repeat a fact in both text and a visual. Cut routine status before decision context.
 
 Open with the number of action items, or say there are none. If nothing changed and nothing waits on the user, say so and stop.
 

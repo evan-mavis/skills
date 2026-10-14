@@ -90,6 +90,8 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 ## Subagents
 
+Include this file's resolved absolute path in every poteto-agent prompt. Bundled sibling skills live at `../<name>/SKILL.md` from this file.
+
 **Use the native `poteto-agent` agent from [its profile](../../agents/poteto-agent.md) for any subagent you spawn inside a playbook step** (code-writing delegates, ad-hoc helpers). The chat that receives poteto-mode owns the playbook, its progress, and delegation. Do not hand the whole playbook to a subagent. Poteto-mode and its delegates follow the same skill. Routed workflow skills (`how`, `why`, `interrogate`, `reflect`, `swarm`) set their own prompts for independent review. Respect those roles. If delegation is unavailable, perform the work directly and report the review limitation.
 
 **Defaults for every subagent.** Use Cursor's native Task with `subagent_type: "poteto-agent"`, a scoped prompt, and background execution where supported. Resolve the actual Task schema before dispatch. Custom profiles use `model: inherit`; omit a model override unless the user requests an available selection. Retain every returned agent ID, collect every background result through its returned handle, and stop only tasks owned by this run. Keep writers in isolated worktrees with explicit paths. Read-only reviewers need access to the context tools their scope requires.
