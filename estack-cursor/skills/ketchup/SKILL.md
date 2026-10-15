@@ -5,7 +5,7 @@ description: "Catch the user up on this chat since their last message, with curr
 
 # Ketchup
 
-Catch the user up on this chat since their last message before this request. Notifications and subagent results do not count as user messages. Use [Bro's plain voice](../bro/SKILL.md), without its restatement step. Use names the user knows for PRs, branches, and agents. Describe what changed for the user. Omit hashes, paths, commands, and test counts unless the user needs them to act.
+Catch the user up on this chat since their last message before this request. Notifications and subagent results do not count as user messages. Use [Bro's plain voice](../bro/SKILL.md), without its restatement step. Use names the user knows for PRs, branches, and agents. Describe what changed for the user and help them understand each change. Omit hashes, paths, commands, and test counts unless the user needs them to act.
 
 ## Gather what changed
 
@@ -23,4 +23,4 @@ Give the results and their meaning, most important first. Skip steps that change
 
 For each action item, explain the decision, why it matters now, the options and their costs, your recommendation, and what happens without an answer. State unknowns. Link existing detail, but make the summary sufficient to decide.
 
-Compare the current state and the options side by side. Use captured screenshots or video for visible changes, or a table, diff, or diagram. Make a comparison from existing evidence when useful. If no visual is possible, say so. Never invent numbers, screen captures, or artifact links.
+Compare the current state and the options side by side when useful. Embed existing screenshots or video inline when they help explain a visible change. Use a diagram for relationships or flows, or a table or diff for comparisons. Keep action items in plain text. Skip pictures that only repeat status. If useful visual evidence is missing, say so. Never invent numbers, screen captures, or artifact links.

@@ -76,7 +76,7 @@ async function auditFixture(defaultBranch: string) {
   await mkdir(repo);
   await mkdir(bin);
   await writeFile(path.join(bin, 'gh'), '#!/usr/bin/env bash\nexit 1\n', { mode: 0o755 });
-  const env = { ...Bun.env, PATH: `${bin}:${Bun.env.PATH}`, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null' };
+  const env = { ...Bun.env, CODEX_HOME: path.join(root, 'codex'), PATH: `${bin}:${Bun.env.PATH}`, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null' };
   const git = (...args: string[]) => {
     const result = Bun.spawnSync(['git', ...args], { cwd: repo, env });
     if (result.exitCode !== 0) throw new Error(result.stderr.toString());

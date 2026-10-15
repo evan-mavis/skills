@@ -4,11 +4,11 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.24`
-- Commit: [`1e5c90a4b6f249917bd21fe361b3a2a7deb741b8`](https://github.com/cursor/plugins/commit/1e5c90a4b6f249917bd21fe361b3a2a7deb741b8)
-- Retrieved and compared: 2026-10-14
+- Version: `0.15.25`
+- Commit: [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05)
+- Retrieved and compared: 2026-10-15
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.20` at [`1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def`](https://github.com/cursor/plugins/commit/1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def), compared 2026-10-12.
+- Previous snapshot: `0.15.24` at [`1e5c90a4b6f249917bd21fe361b3a2a7deb741b8`](https://github.com/cursor/plugins/commit/1e5c90a4b6f249917bd21fe361b3a2a7deb741b8), compared 2026-10-14.
 
 ## Source adaptations
 
@@ -60,6 +60,18 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Keep detailed per-round proof, CI, patch-id, merge-prep, and bottom-frontier safeguards. Skip broad playbook cuts and weaker minor-fix review rules. Keep the 30-minute audits and native scheduling.
 - Skip mandatory Ketchup pictures and fixed box limits. Keep evidence-based tables and diagrams. Do not make a quiet audit produce a routine status message.
 - Cursor slash-menu instructions and Cursor-specific discovery paths do not apply to the other hosts. Existing native invocation and profile metadata already omit retired fields. Deslop has no changes since the previous snapshot.
+
+### Adopted from 0.15.25 and the following principle revision
+
+- Attack-the-premise tests the shared assumption directly instead of requiring an actor census. Failed fixes are evidence to check, not proof that the premise is false. Fix-root-causes distinguishes legitimate states from invalid states before deciding whether a guard is the fix. Reproduction, pattern searches, and cheap diagnostic signals remain.
+- Make-operations-idempotent derives each step from current state and requires evidence of stale artifacts instead of prescribing PID locks. Test-behavior-not-implementation tests observable contracts, including external effects, against broken behavior and harmless internal refactors. Keep exact error-message checks when wording is part of the contract. Correct and the principle index agree.
+- Ketchup explains each change and embeds existing screenshots or video inline when useful. Diagrams explain relationships and flows. Keep action items in text, brief replies, and read-only evidence gathering. Skip mandatory pictures, fixed box counts, and a separate visual word allowance.
+- Deslop has no changes since the previous snapshot. Upstream README and guide summaries are covered by the updated principle index and skill descriptions; Estack's native README layouts remain.
+
+### Estack review fixes
+
+- PR #7 review found the approval-gate exception stopped at check parsing. Carry it through the aggregate merge assessment so an owner-approval gate can explain `BLOCKED` with rollup `FAILURE`. Preserve real CI failures and unexplained refusals. Snapshot and classifier tests cover both read paths.
+- Isolate the audit test's `CODEX_HOME` in its temporary fixture. Tests must not scan the host's real session tree. Production Codex session checks and the other hosts' ownership safeguards remain unchanged.
 
 ### Deliberately retained or skipped
 
