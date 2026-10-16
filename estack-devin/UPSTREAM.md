@@ -5,10 +5,10 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 ## Snapshot
 
 - Version: `0.15.25`
-- Commit: [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05)
-- Retrieved and compared: 2026-10-15
+- Commit: [`f713f14203cd6420cec13cd7c55c32d598dbab68`](https://github.com/cursor/plugins/commit/f713f14203cd6420cec13cd7c55c32d598dbab68)
+- Retrieved and compared: 2026-10-16
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.24` at [`1e5c90a4b6f249917bd21fe361b3a2a7deb741b8`](https://github.com/cursor/plugins/commit/1e5c90a4b6f249917bd21fe361b3a2a7deb741b8), compared 2026-10-14.
+- Previous snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
 
 ## Historical Codex source adaptations
 
@@ -67,6 +67,11 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Make-operations-idempotent derives each step from current state and requires evidence of stale artifacts instead of prescribing PID locks. Test-behavior-not-implementation tests observable contracts, including external effects, against broken behavior and harmless internal refactors. Keep exact error-message checks when wording is part of the contract. Correct and the principle index agree.
 - Ketchup explains each change and embeds existing screenshots or video inline when useful. Diagrams explain relationships and flows. Keep action items in text, brief replies, and read-only evidence gathering. Skip mandatory pictures, fixed box counts, and a separate visual word allowance.
 - Deslop has no changes since the previous snapshot. Upstream README and guide summaries are covered by the updated principle index and skill descriptions; Estack's native README layouts remain.
+
+### Reviewed after 0.15.25
+
+- Adopt upstream `99743e9`'s removal of the suggestion that more than five actionable findings means poor filtering. Judge each finding by evidence and impact. Keep reviewer context, security scrutiny, and reasons for dismissed findings.
+- Keep the rules for complete migrations, type-system examples, bounded worker count, and explicit result gaps. Skip broad deletions that remove useful guidance and minor cuts with no clear workflow gain. Native tools and invocation policies stay unchanged. Deslop has no changes since the previous snapshot.
 
 ### Estack review fixes
 
