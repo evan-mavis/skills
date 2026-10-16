@@ -8,8 +8,24 @@ import { nonEmpty } from "./types.ts";
 export function assessGitHubMerge(args: {
   readonly mergeStateStatus: T.MergeStateStatus;
   readonly headRollupState: T.RollupState;
+  readonly checks: readonly T.Check[];
 }): T.GitHubMergeAssessment {
   if (args.mergeStateStatus === "BLOCKED") {
+    if (
+      args.headRollupState === "FAILURE" &&
+      !args.checks.some((check) => check.kind === "failed") &&
+      args.checks.some(
+        (check) =>
+          check.kind === "code-review-gate" &&
+          check.reportedState === "ACTION_REQUIRED"
+      )
+    )
+      return {
+        kind: "allowed",
+        basis: "code-review-gate",
+        mergeStateStatus: args.mergeStateStatus,
+        headRollupState: args.headRollupState,
+      };
     if (args.headRollupState === "ERROR" || args.headRollupState === "FAILURE")
       return {
         kind: "refused",
@@ -32,7 +48,8 @@ export function assessGitHubMerge(args: {
 }
 async function mergeAssessment(
   reader: T.GitHubReader,
-  facts: T.PullRequestFacts
+  facts: T.PullRequestFacts,
+  checks: readonly T.Check[]
 ) {
   const commits = await reader.commitRollups(facts.context);
   const headRollupState =
@@ -47,6 +64,7 @@ async function mergeAssessment(
     github: assessGitHubMerge({
       mergeStateStatus: facts.mergeStateStatus,
       headRollupState,
+      checks,
     }),
   };
 }
@@ -90,7 +108,7 @@ export async function readSnapshot(args: {
       hadPreviousPassingCi: false,
     };
   else {
-    const merge = await mergeAssessment(args.reader, facts);
+    const merge = await mergeAssessment(args.reader, facts, checks.checks);
     const base = {
       source: checks.source,
       all: checks.checks,

@@ -111,6 +111,12 @@ export type GitHubMergeAllowed =
       readonly basis: "rollup";
       readonly mergeStateStatus: "BLOCKED";
       readonly headRollupState: Exclude<RollupState, "ERROR" | "FAILURE">;
+    }
+  | {
+      readonly kind: "allowed";
+      readonly basis: "code-review-gate";
+      readonly mergeStateStatus: "BLOCKED";
+      readonly headRollupState: "FAILURE";
     };
 export type GitHubMergeAssessment = GitHubMergeAllowed | GitHubMergeRefusal;
 interface CiBase {
