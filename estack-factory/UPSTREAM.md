@@ -4,11 +4,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.25`
-- Commit: [`f713f14203cd6420cec13cd7c55c32d598dbab68`](https://github.com/cursor/plugins/commit/f713f14203cd6420cec13cd7c55c32d598dbab68)
-- Retrieved and compared: 2026-10-16
+- Version: `0.15.26`
+- Commit: [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34)
+- Retrieved and compared: 2026-10-18
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
+- Previous snapshot: `0.15.25` at [`f713f14203cd6420cec13cd7c55c32d598dbab68`](https://github.com/cursor/plugins/commit/f713f14203cd6420cec13cd7c55c32d598dbab68), compared 2026-10-16.
+- Earlier snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
 
 ## Historical Codex source adaptations
 
@@ -72,6 +73,14 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 - Adopt upstream `99743e9`'s removal of the suggestion that more than five actionable findings means poor filtering. Judge each finding by evidence and impact. Keep reviewer context, security scrutiny, and reasons for dismissed findings.
 - Keep the rules for complete migrations, type-system examples, bounded worker count, and explicit result gaps. Skip broad deletions that remove useful guidance and minor cuts with no clear workflow gain. Native tools and invocation policies stay unchanged. Deslop has no changes since the previous snapshot.
+
+### Reviewed through 0.15.26
+
+- Add `create-formal-verification-skill` and its help route. Preserve code-to-proof mapping, actual atomic operations, explicit bounds and assumptions, broken-variant checks, unchanged findings, and one rerunnable command with a reproducible tool version. Generated skills use each host's project skill directory and name their real project scope in the description and opening instructions.
+- Preserve the new skill's explicit-only policy through Codex `agents/openai.yaml`, Devin `triggers: [user]`, and Factory and Cursor `disable-model-invocation`. Invocation syntax stays native to each host.
+- Ketchup lists every pending item with its meaning, evidence, risk, link when available, and recommendation. Unknown facts remain explicit. The reply can grow beyond a word budget. Keep the main story brief, read-only gathering, normal discovery, and optional visuals from existing evidence. Skip mandatory pictures and fixed box counts.
+- Adopt the TypeScript brand example's verifying type guard and remove its assertion. Keep existing schema and boundary rules.
+- Skip Claude packaging, generated harness trees, root manifest changes, broad guide rewrites, and name-only fixes already satisfied here. Skip upstream `scripts/check-pstack-docs.mjs`, which checks its guide, Custom Modes, and model setup. Native inventory, reference, and metadata checks cover the applicable package rules. The `make-bot-ui` change only renames a skill Estack does not ship and adds no workflow. Native metadata, runtime safeguards, personal defaults, Airgoods overrides, artwork, licenses, and account release IDs stay intact. Deslop has no changes since the previous snapshot.
 
 ### Estack review fixes
 

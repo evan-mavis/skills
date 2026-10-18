@@ -1,0 +1,6 @@
+interface:
+  display_name: "Create Formal Verification Skill"
+  short_description: "Verify a code property and create a rerunnable skill"
+  default_prompt: "Use $create-formal-verification-skill to verify a code property and create a project-local skill to check it again."
+policy:
+  allow_implicit_invocation: false
