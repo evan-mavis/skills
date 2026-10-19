@@ -56,7 +56,7 @@ Tests alone are not sufficient verification. A PR is verified only when its unit
 
 ### PR mechanics, for every PR
 
-- [ ] Resolve the forge once. Default to `gh`; if `command -v origin` succeeds and Origin can resolve the repository, use `origin pr` for every PR operation. Record any fallback to `gh`. Require `gt` only for the Orchestrate stacker's tracking, restacking, and frontier recomputation.
+- [ ] Resolve the forge once. Default to `gh`; if `command -v origin` succeeds and Origin can resolve the repository, use `origin pr` for every PR operation. Record any fallback to `gh`. Use native GitHub stack metadata for membership and order. Only the root or assigned stacker changes stack topology.
 - [ ] Open the PR ready, never draft, per **Opening a PR**. Use the run's built-in PR tool when available, otherwise create with `origin pr create --status open --base <base-branch>` or `gh pr create --base <base-branch>` according to the resolved forge. A stack child targets its parent branch.
 - [ ] Run the repo's lint and typecheck once before the PR-facing push. Push with hooks on.
 - [ ] Run the bundled **deslop** skill (`../../deslop/SKILL.md`) before each commit and **no-comments** (`../../no-comments/SKILL.md`) before review.

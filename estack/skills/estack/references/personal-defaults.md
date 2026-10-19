@@ -30,6 +30,8 @@ With a Linear issue ID, use `feat/<ID>-short-kebab-case` for features and enhanc
 
 ## Pull requests
 
+Use GitHub native PR stacks. Do not require Graphite. Read membership and order from GitHub's native stack metadata. Keep stack topology changes with the root or assigned stacker.
+
 Titles use the commit prefix, stay lowercase except for Linear issue IDs and case-sensitive names, and end with the Linear issue IDs in parentheses:
 
 - `feat: add order filtering (ENG-123)`

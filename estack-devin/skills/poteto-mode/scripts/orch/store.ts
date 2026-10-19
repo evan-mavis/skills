@@ -167,6 +167,7 @@ export interface ResolveGateParams {
 
 export interface SetFrontierParams {
   readonly repo: string;
+  readonly stack: number;
   readonly prs?: readonly number[];
 }
 
@@ -967,203 +968,117 @@ function countLine(value: Counts): string {
     : entries.map(([name, count]) => `${name}=${count}`).join(", ");
 }
 
-const OPEN_GT_PR_STATUSES = new Set([
-  "Trunk branch locked",
-  "Changes requested",
-  "Waiting on PRs in this stack to merge",
-  "Waiting on downstack merge state",
-  "Draft",
-  "Required checks failed",
-  "Undergoing failure detection",
-  "Merge queue failed on current head commit",
-  "Handed off to merge queue...",
-  "Waiting on downstack",
-  "Merge conflicts",
-  "Needs reviewers",
-  "Needs approvals",
-  "Needs restack",
-  "Queued to merge...",
-  "Ready to merge",
-  "Ready to merge as stack",
-  "Rebasing...",
-  "Waiting on CI...",
-  "Stale, needs rebase onto trunk",
-  "Unresolved comments",
-  "Waiting on required CI",
-  "Waiting to merge...",
-]);
-
-interface GtPullRequest {
-  readonly pr: number;
-  readonly state: FrontierPrState;
-}
-
-interface GtFrontierEntry extends GtPullRequest {
-  readonly branches: string;
-}
-
-function parseGtPullRequest({
-  branch,
-  detail,
-}: {
-  branch: string;
-  detail: string;
-}): GtPullRequest {
-  const match =
-    /^(?:\[origin\] )?PR #([1-9]\d*)(?: \(([^)\r\n]+)\))?(?: .+)?$/.exec(
-      detail
-    );
-  const pr = Number(match?.[1] ?? 0);
-  if (match === null || !Number.isSafeInteger(pr)) {
-    throw new UserError(
-      `gt info output has an invalid PR row for branch ${branch}: ${detail}`
-    );
-  }
-  const status = match[2];
-  if (status === "Merged") {
-    return { pr, state: "MERGED" };
-  }
-  if (status === "Closed") {
-    return { pr, state: "CLOSED" };
-  }
-  if (status === undefined || OPEN_GT_PR_STATUSES.has(status)) {
-    return { pr, state: "OPEN" };
-  }
-  throw new UserError(
-    `gt info output has an unknown PR state for branch ${branch}: ${status}`
+function isBranchRef(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.length > 0 &&
+    !/[\s\x00-\x1f\x7f]/.test(value)
   );
 }
 
-// The Orchestrate stacker owns Graphite tracking; GitHub base refs drift during restacks.
-function parseGtBranches(raw: string): readonly string[] {
-  const branches: string[] = [];
-  const lines = raw.replace(/\r/g, "").split("\n");
-  for (const [index, line] of lines.entries()) {
-    if (line.length === 0) {
-      continue;
-    }
-    const branchMatch =
-      /^(?:│ )*[◯◉] +([^\s]+)((?: \([^()\r\n]*\))*)$/.exec(line);
-    if (branchMatch === null) {
-      throw new UserError(
-        `gt log short output has an unparseable line ${index + 1}: ${JSON.stringify(line)}`
-      );
-    }
-    const branch = branchMatch[1] ?? "";
-    if (branches.includes(branch)) {
-      throw new UserError(
-        `gt log short output contains duplicate branch ${branch}`
-      );
-    }
-    branches.push(branch);
-  }
-  const trunk = branches[0];
-  if (trunk === undefined) {
-    throw new UserError("gt log short output did not contain a stack");
-  }
-  return branches.slice(1);
-}
-
-function graphitePullRequest({
-  branch,
-  repo,
+function parseGithubStack({
+  value,
+  stack,
 }: {
-  branch: string;
-  repo: string;
-}): GtPullRequest {
-  let raw: string;
-  try {
-    raw = execFileSync("gt", ["--no-interactive", "info", branch], {
-      cwd: repo,
-      encoding: "utf8",
-      env: { ...process.env, NO_COLOR: "1" },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-  } catch (error) {
+  value: unknown;
+  stack: number;
+}): readonly FrontierPr[] {
+  if (
+    !isRecord(value) ||
+    value.number !== stack ||
+    !isRecord(value.base) ||
+    !isBranchRef(value.base.ref) ||
+    !isUnknownArray(value.pull_requests) ||
+    value.pull_requests.length === 0
+  ) {
     throw new UserError(
-      `gt info ${branch} failed: ${errorMessage(error)}`
+      `GitHub stack ${stack} has an invalid identity, base, or pull request list`
     );
   }
-  const rows = raw
-    .replace(/\r/g, "")
-    .split("\n")
-    .filter(
-      (line) =>
-        line.startsWith("PR #") || line.startsWith("[origin] PR #")
-    );
-  if (rows.length === 0) {
-    throw new UserError(
-      `gt info output branch ${branch} has no pull request; this clone's gt metadata may predate the submit, so resolve the frontier from the stacker's clone or after gt sync`
-    );
-  }
-  if (rows.length > 1) {
-    throw new UserError(
-      `gt info output contains multiple PRs for branch ${branch}`
-    );
-  }
-  return parseGtPullRequest({ branch, detail: rows[0] ?? "" });
+  const prs = new Set<number>();
+  const branches = new Set<string>();
+  return value.pull_requests.map((row): FrontierPr => {
+    if (
+      !isRecord(row) ||
+      typeof row.number !== "number" ||
+      !Number.isSafeInteger(row.number) ||
+      row.number <= 0 ||
+      !isRecord(row.head) ||
+      !isBranchRef(row.head.ref) ||
+      typeof row.head.sha !== "string" ||
+      !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/i.test(row.head.sha) ||
+      (row.state !== "open" && row.state !== "closed") ||
+      (row.merged_at !== null &&
+        (typeof row.merged_at !== "string" ||
+          row.merged_at.trim().length === 0 ||
+          !Number.isFinite(Date.parse(row.merged_at)))) ||
+      (row.state === "open" && row.merged_at !== null)
+    ) {
+      throw new UserError(
+        `GitHub stack ${stack} has an invalid pull request row`
+      );
+    }
+    if (prs.has(row.number) || branches.has(row.head.ref)) {
+      throw new UserError(
+        `GitHub stack ${stack} has duplicate pull requests or head branches`
+      );
+    }
+    prs.add(row.number);
+    branches.add(row.head.ref);
+    return {
+      pr: row.number,
+      branches: row.head.ref,
+      sha: row.head.sha,
+      state:
+        row.state === "open"
+          ? "OPEN"
+          : row.merged_at === null
+            ? "CLOSED"
+            : "MERGED",
+    };
+  });
 }
 
-function graphiteFrontier(repo: string): readonly GtFrontierEntry[] {
+function resolveFrontier({
+  repo,
+  stack,
+}: {
+  repo: string;
+  stack: number;
+}): readonly FrontierPr[] {
+  const env = { ...process.env };
+  delete env.GH_REPO;
   let raw: string;
   try {
     raw = execFileSync(
-      "gt",
-      ["--no-interactive", "log", "short", "--stack", "--reverse"],
+      "gh",
+      [
+        "api",
+        `repos/{owner}/{repo}/stacks/${stack}`,
+        "-H",
+        "Accept: application/vnd.github+json",
+        "-H",
+        "X-GitHub-Api-Version: 2026-03-10",
+      ],
       {
         cwd: repo,
         encoding: "utf8",
-        env: { ...process.env, NO_COLOR: "1" },
+        env,
         stdio: ["ignore", "pipe", "pipe"],
       }
     );
   } catch (error) {
     throw new UserError(
-      `gt log short --stack --reverse failed: ${errorMessage(error)}`
+      `GitHub stack ${stack} lookup failed; check its number and repository access: ${errorMessage(error)}`
     );
   }
-  const result = parseGtBranches(raw).map((branch) => ({
-    branches: branch,
-    ...graphitePullRequest({ branch, repo }),
-  }));
-  if (new Set(result.map((row) => row.pr)).size !== result.length) {
-    throw new UserError("gt info output contains duplicate pull requests");
-  }
-  return result;
-}
-
-function branchSha({
-  branch,
-  repo,
-}: {
-  branch: string;
-  repo: string;
-}): string {
-  let raw: string;
+  let value: unknown;
   try {
-    raw = execFileSync("git", ["rev-parse", branch], {
-      cwd: repo,
-      encoding: "utf8",
-      env: process.env,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-  } catch (error) {
-    throw new UserError(
-      `git rev-parse ${branch} failed: ${errorMessage(error)}`
-    );
+    value = JSON.parse(raw);
+  } catch {
+    throw new UserError(`GitHub stack ${stack} response is not valid JSON`);
   }
-  const sha = raw.trim();
-  if (!/^[0-9a-f]{40,64}$/i.test(sha)) {
-    throw new UserError(`git rev-parse ${branch} returned an invalid SHA`);
-  }
-  return sha;
-}
-
-function resolveFrontier(repo: string): readonly FrontierPr[] {
-  return graphiteFrontier(repo).map((row) => ({
-    ...row,
-    sha: branchSha({ branch: row.branches, repo }),
-  }));
+  return parseGithubStack({ value, stack });
 }
 
 function validateFrontierPin({
@@ -1185,14 +1100,14 @@ function validateFrontierPin({
   const extra = actual.filter((pr) => !expectedSet.has(pr));
   const drift: string[] = [];
   if (missing.length > 0) {
-    drift.push(`missing from gt: ${missing.join(",")}`);
+    drift.push(`missing from GitHub stack: ${missing.join(",")}`);
   }
   if (extra.length > 0) {
-    drift.push(`extra in gt: ${extra.join(",")}`);
+    drift.push(`extra in GitHub stack: ${extra.join(",")}`);
   }
   if (missing.length === 0 && extra.length === 0) {
     drift.push(
-      `order differs: expected ${expected.join(",")}; gt ${actual.join(",")}`
+      `order differs: expected ${expected.join(",")}; GitHub stack ${actual.join(",")}`
     );
   }
   throw new UserError(`frontier pin mismatch: ${drift.join("; ")}`);
@@ -1485,6 +1400,7 @@ export function openStore(
       set: async (params) => {
         await beginWrite();
         const repo = resolve(requiredLine(params.repo, "repo directory"));
+        const stack = positiveInteger(params.stack, "stack");
         const pin =
           params.prs === undefined
             ? undefined
@@ -1493,7 +1409,7 @@ export function openStore(
           throw new UserError("--prs must not contain duplicates");
         }
         const old = await readFrontier(store);
-        const prs = resolveFrontier(repo);
+        const prs = resolveFrontier({ repo, stack });
         if (pin !== undefined) {
           validateFrontierPin({
             actual: prs.map((row) => row.pr),
