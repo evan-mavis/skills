@@ -11,5 +11,6 @@ Factory custom droids use `model: inherit`. Omit Task `complexity` to inherit th
 2. For an explicit user model request, verify an existing droid or complexity tier selects that available model. Task accepts `complexity`, not arbitrary model or reasoning overrides. Do not edit global settings or plugin profiles unless the request authorizes that scope. Report unavailable choices and inherit the parent.
 3. Report the effective selection and scope. Independent passes still need separate reviewers; one inherited model does not establish model diversity. A Task selection does not change the parent chat's model.
 4. Check for a project `verify-*` skill or executable app driver. If absent, offer the project-local [verification skill workflow](../create-verification-skill/SKILL.md) once.
+5. Check for a project skill that runs formal verification against named code. If absent, offer the [formal verification skill workflow](../create-formal-verification-skill/SKILL.md) once. Run it only if the user accepts. On no, continue.
 
 See [Factory custom droids](https://docs.factory.com/harness/subagents) for model resolution and [plugins](https://docs.factory.com/harness/plugins) for profile packaging.

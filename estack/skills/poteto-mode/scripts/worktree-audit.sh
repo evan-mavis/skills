@@ -47,10 +47,19 @@ git rev-parse --verify "${default_ref}^{commit}" >/dev/null 2>&1 || {
 	exit 1
 }
 
-# PR state by branch, fetched once. Empty if gh is unavailable.
 prs=$(mktemp)
-gh pr list --author "@me" --state all --limit 1000 \
-	--json number,state,headRefName 2>/dev/null > "$prs" || echo "[]" > "$prs"
+one_list='if length == 1 and (.[0] | type == "array") then .[0] else error("expected one PR array") end'
+valid_prs='if all(.[]; (.number | type == "number") and (.head | type == "string") and (.state == "open" or .state == "draft" or .state == "closed" or .state == "merged")) then . else error("invalid PR list") end'
+if command -v origin >/dev/null 2>&1 \
+	&& raw=$(origin pr list --author "@me" --state all --limit 1000 --json number,status,headRef 2>/dev/null) \
+	&& printf '%s' "$raw" | jq -se "$one_list | map({number, state: .status, head: .headRef}) | $valid_prs" > "$prs" 2>/dev/null; then
+	:
+elif raw=$(gh pr list --author "@me" --state all --limit 1000 --json number,state,headRefName 2>/dev/null) \
+	&& printf '%s' "$raw" | jq -se "$one_list | map({number, state: (.state | ascii_downcase), head: .headRefName}) | $valid_prs" > "$prs" 2>/dev/null; then
+	:
+else
+	echo "[]" > "$prs"
+fi
 
 audit_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)
 transcripts="${CODEX_HOME:-$HOME/.codex}/sessions"
@@ -87,7 +96,7 @@ git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print}'
 	else remote=no-remote; fi
 
 	pr=$([ -n "$branch" ] && jq -r --arg b "$branch" \
-		'.[] | select(.headRefName==$b) | "#\(.number)/\(.state)"' "$prs" 2>/dev/null | head -1)
+		'.[] | select(.head==$b) | "#\(.number)/\(.state)"' "$prs" 2>/dev/null | head -1)
 	[ -z "$pr" ] && pr="-"
 
 	last="-"; last_ts=0
@@ -98,7 +107,7 @@ git worktree list --porcelain | awk '/^worktree /{sub(/^worktree /, ""); print}'
 	recent=$([ "$last_ts" -gt 0 ] 2>/dev/null && [ $(( (now - last_ts) / 86400 )) -le 4 ] && echo yes || echo no)
 
 	case "$dirty" in wip:*) bucket=hold-wip ;; *)
-		case "$pr" in *OPEN*) bucket=hold-open-pr ;; *)
+		case "$pr" in */open|*/draft) bucket=hold-open-pr ;; *)
 			if [ "$recent" = yes ]; then bucket=verify-recent-chat
 			elif [ "$merged" = YES ] || [ "$pr" != "-" ]; then bucket=safe
 			else bucket=review; fi ;;

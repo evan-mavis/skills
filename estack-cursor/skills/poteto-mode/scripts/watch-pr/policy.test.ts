@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { WatcherQueryError } from "./github.ts";
+import { mapRollupNode, parseFastCheck, WatcherQueryError } from "./github.ts";
 import {
   applyQueueSnapshot,
   assessGitHubMerge,
@@ -63,7 +63,7 @@ describe("readiness truth table", () => {
     ];
     for (const [mergeStateStatus, headRollupState, expected] of cases) {
       expect(
-        assessGitHubMerge({ mergeStateStatus, headRollupState }).kind
+        assessGitHubMerge({ mergeStateStatus, headRollupState, checks: [] }).kind
       ).toBe(expected);
     }
   });
@@ -87,6 +87,147 @@ describe("readiness truth table", () => {
       kind: "blocker",
       blocker: { kind: "failing-checks" },
     });
+  });
+});
+
+describe("owner approval gate snapshots", () => {
+  const gateInputs = [
+    {
+      source: "gh-pr-checks",
+      check: parseFastCheck({
+        name: "Code Review Gate",
+        state: "ACTION_REQUIRED",
+        bucket: "fail",
+      }),
+    },
+    {
+      source: "graphql-rollup",
+      check: mapRollupNode({
+        __typename: "CheckRun",
+        name: "Code Review Gate",
+        status: "COMPLETED",
+        conclusion: "ACTION_REQUIRED",
+      }),
+    },
+  ] as const;
+
+  for (const { source, check } of gateInputs) {
+    if (check === null) throw new Error("expected Code Review Gate check");
+    const checks = [passingCheck("build"), check];
+    const checkOptions =
+      source === "gh-pr-checks"
+        ? { fastPath: { kind: "checks" as const, checks } }
+        : {
+            fastPath: { kind: "unusable" as const, exitCode: 8, stderr: "" },
+            rollupPages: [{ checks, endCursor: null }],
+          };
+
+    it(`keeps owner approval outside CI failures through ${source}`, async () => {
+      const snapshot = await readSnapshot({
+        reader: fakeReader({
+          ...checkOptions,
+          facts: {
+            mergeStateStatus: "BLOCKED",
+            reviewDecision: "REVIEW_REQUIRED",
+          },
+          commitRollups: [{ oid: "head", state: "FAILURE" }],
+        }),
+        context: context(1),
+        pendingHistory: "include",
+        allowDraft: false,
+      });
+      expect(snapshot).toMatchObject({
+        kind: "open",
+        facts: { reviewDecision: "REVIEW_REQUIRED", mergeStateStatus: "BLOCKED" },
+        ci: {
+          kind: "ci-clean",
+          source,
+          github: {
+            kind: "allowed",
+            basis: "code-review-gate",
+            headRollupState: "FAILURE",
+          },
+          all: [
+            { kind: "passed", name: "build" },
+            { kind: "code-review-gate", reportedState: "ACTION_REQUIRED" },
+          ],
+        },
+      });
+      expect(classifyPr(snapshot)).toMatchObject({
+        kind: "ready",
+        pr: { proof: { gate: { reviewDecision: "REVIEW_REQUIRED" } } },
+      });
+    });
+  }
+
+  it("keeps real check failures blocked beside an owner approval gate", async () => {
+    const snapshot = await readSnapshot({
+      reader: fakeReader({
+        facts: { mergeStateStatus: "BLOCKED" },
+        fastPath: {
+          kind: "checks",
+          checks: [
+            parseFastCheck({
+              name: "Code Review Gate",
+              state: "ACTION_REQUIRED",
+              bucket: "fail",
+            }),
+            parseFastCheck({
+              name: "build",
+              state: "ACTION_REQUIRED",
+              bucket: "fail",
+            }),
+          ],
+        },
+        commitRollups: [{ oid: "head", state: "FAILURE" }],
+      }),
+      context: context(1),
+      pendingHistory: "include",
+      allowDraft: false,
+    });
+    expect(classifyPr(snapshot)).toMatchObject({
+      kind: "blocker",
+      blocker: {
+        kind: "failing-checks",
+        ci: {
+          kind: "ci-failing",
+          github: { kind: "refused" },
+          failed: [{ name: "build", reportedState: "ACTION_REQUIRED" }],
+        },
+      },
+    });
+  });
+
+  it("keeps aggregate errors and actual Code Review Gate failures blocked", async () => {
+    for (const [gateState, rollupState] of [
+      ["ACTION_REQUIRED", "ERROR"],
+      ["FAILURE", "FAILURE"],
+      ["PENDING", "FAILURE"],
+    ] as const) {
+      const snapshot = await readSnapshot({
+        reader: fakeReader({
+          facts: { mergeStateStatus: "BLOCKED" },
+          fastPath: {
+            kind: "checks",
+            checks: [
+              parseFastCheck({
+                name: "Code Review Gate",
+                state: gateState,
+                bucket: gateState === "PENDING" ? "pending" : "fail",
+              }),
+            ],
+          },
+          commitRollups: [{ oid: "head", state: rollupState }],
+        }),
+        context: context(1),
+        pendingHistory: "include",
+        allowDraft: false,
+      });
+      expect(classifyPr(snapshot)).toMatchObject({
+        kind: "blocker",
+        blocker: { kind: "failing-checks" },
+      });
+    }
   });
 });
 

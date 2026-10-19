@@ -76,7 +76,7 @@ async function auditFixture(defaultBranch: string) {
   await mkdir(repo);
   await mkdir(bin);
   await writeFile(path.join(bin, 'gh'), '#!/usr/bin/env bash\nexit 1\n', { mode: 0o755 });
-  const env = { ...Bun.env, PATH: `${bin}:${Bun.env.PATH}`, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null' };
+  const env = { ...Bun.env, CODEX_HOME: path.join(root, 'codex'), PATH: `${bin}:${Bun.env.PATH}`, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null' };
   const git = (...args: string[]) => {
     const result = Bun.spawnSync(['git', ...args], { cwd: repo, env });
     if (result.exitCode !== 0) throw new Error(result.stderr.toString());
@@ -98,6 +98,54 @@ async function runAudit(variant: string, fixture: Awaited<ReturnType<typeof audi
   ]);
   return { stdout, stderr, code };
 }
+
+test.each(auditVariants)('%s audit holds Origin open and draft PRs and falls back to GitHub', async variant => {
+  const fixture = await auditFixture('master');
+  const bin = path.join(fixture.root, 'bin');
+  const origin = path.join(bin, 'origin');
+  const gh = path.join(bin, 'gh');
+  const ghCalled = path.join(fixture.root, 'gh-called');
+  const forge = (rows: unknown) => '#!/usr/bin/env bash\ncat <<\'JSON\'\n' + JSON.stringify(rows) + '\nJSON\n';
+  try {
+    await writeFile(gh, `#!/usr/bin/env bash\ntouch '${ghCalled}'\ncat <<'JSON'\n[{"number":42,"state":"OPEN","headRefName":"audit-worker"}]\nJSON\n`, { mode: 0o755 });
+    for (const status of ['open', 'draft']) {
+      await writeFile(origin, forge([{ number: 41, status, headRef: 'audit-worker' }]), { mode: 0o755 });
+      const result = await runAudit(variant, fixture);
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain(`#41/${status}\t`);
+      expect(result.stdout).toContain('\thold-open-pr\t');
+      expect(await Bun.file(ghCalled).exists()).toBe(false);
+    }
+    for (const originReply of [
+      '#!/usr/bin/env bash\nexit 1\n',
+      '#!/usr/bin/env bash\nexit 0\n',
+      '#!/usr/bin/env bash\necho invalid-json\n',
+      forge({}),
+      '#!/usr/bin/env bash\nprintf \'[]\\n[]\\n\'\n',
+      forge([{ number: 41, status: 'unknown', headRef: 'audit-worker' }]),
+      forge([{ number: 41, status: 'open' }]),
+    ]) {
+      await writeFile(origin, originReply, { mode: 0o755 });
+      const result = await runAudit(variant, fixture);
+      expect(result.code).toBe(0);
+      expect(result.stdout).toContain('#42/open\t');
+      expect(result.stdout).toContain('\thold-open-pr\t');
+      expect(await Bun.file(ghCalled).exists()).toBe(true);
+      await rm(ghCalled);
+    }
+    await writeFile(origin, forge([]), { mode: 0o755 });
+    const emptyList = await runAudit(variant, fixture);
+    expect(emptyList.code).toBe(0);
+    expect(emptyList.stdout).not.toContain('#42/open\t');
+    expect(await Bun.file(ghCalled).exists()).toBe(false);
+    await rm(origin);
+    const githubOnly = await runAudit(variant, fixture);
+    expect(githubOnly.stdout).toContain('#42/open\t');
+    expect(githubOnly.stdout).toContain('\thold-open-pr\t');
+  } finally {
+    await rm(fixture.root, { recursive: true, force: true });
+  }
+});
 
 test.each(auditVariants)('%s audit resolves a non-main default branch', async variant => {
   const fixture = await auditFixture('master');

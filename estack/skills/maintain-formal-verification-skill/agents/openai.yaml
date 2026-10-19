@@ -1,0 +1,6 @@
+interface:
+  display_name: "Maintain Formal Verification Skill"
+  short_description: "Update formal checks after covered code changes"
+  default_prompt: "Use $maintain-formal-verification-skill to update project verification and distinguish drift from code bugs."
+policy:
+  allow_implicit_invocation: false

@@ -26,20 +26,26 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 | Goal | Skill |
 |---|---|
 | Run engineering work with personal defaults and matching project context | [Estack](../estack/SKILL.md) |
+| Check that the agent understood the goal and problem | [In your own words](../in-your-own-words/SKILL.md) |
+| Improve a task approach before work starts | [Sharpen](../sharpen/SKILL.md) |
 | Trace what code does | [How](../how/SKILL.md) |
 | Find why code has its current shape | [Why](../why/SKILL.md) |
 | Understand a change in plain words | [Teach](../teach/SKILL.md) |
 | Recover recent working context | [Recall](../recall/SKILL.md) |
-| Catch up on this chat and pending decisions | [Ketchup](../ketchup/SKILL.md) |
+| Catch up on this chat with every pending item explained for a decision | [Ketchup](../ketchup/SKILL.md) |
 | Settle types and module boundaries | [Architect](../architect/SKILL.md) |
 | Review a diff independently | [Interrogate](../interrogate/SKILL.md) |
 | Find breakage outside a diff | [Blast radius](../blast-radius/SKILL.md) |
 | Compare attempts at one brief | [Arena](../arena/SKILL.md) |
 | Divide parallel work into slices or a race | [Swarm](../swarm/SKILL.md) |
+| Formally verify a race or invariant that tests rarely reach | [Create formal verification skill](../create-formal-verification-skill/SKILL.md) |
+| Bring formal checks back in line after covered code changes | [Maintain formal verification skill](../maintain-formal-verification-skill/SKILL.md) |
 | Vet a measured performance number | [Benchmark checklist](../benchmark-checklist/SKILL.md) |
 | Prevent repeated agent mistakes | [Correct](../correct/SKILL.md) |
 
 For other goals, inspect sibling skills' frontmatter and route by their descriptions. Use [Create verification skill](../create-verification-skill/SKILL.md) when the project lacks a way to drive the real app. For project requirements, use [Estack's project table](../estack/SKILL.md#project-context) and read the matching context. Estack always continues through poteto-mode, its selected playbook, and applicable principles.
+
+When a question concerns a race or invariant, check for a project formal verification skill. If none exists, mention Create formal verification skill. If covered code changed after its recorded sync commit, mention Maintain formal verification skill. Read the relevant skill before recommending it.
 
 ## Playbooks and principles
 
