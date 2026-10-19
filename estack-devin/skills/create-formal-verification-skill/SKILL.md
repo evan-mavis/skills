@@ -16,7 +16,7 @@ A good target is a promise the code makes, where a break harms users and tests r
 
 ## Let the question choose the tool
 
-Pick the tool that answers the question at the lowest cost. Consider a model checker, a proof assistant, or an SMT-backed verifier. Whether events can happen in a bad order usually suits a model checker over a small model of the design. Whether the code itself behaves for every input, as with memory safety, overflow, or a data-structure invariant, usually suits a verifier that runs on the code. A property that must hold at every size, where a bound is not enough, can need a proof. For concurrent and distributed designs, TLA+ is often the most useful place to start. Prefer a tool that the repo's developers can install and run, and tell the user why you chose it.
+Pick the tool that answers the question at the lowest cost. Consider a model checker, a proof assistant, or an SMT-backed verifier. Whether events can happen in a bad order usually suits a model checker over a small model of the design. Start with TLA+ unless the repo already has a suitable checker. Whether the code itself behaves for every input, as with memory safety, overflow, or a data-structure invariant, usually suits a verifier that runs on the code. If no verifier runs on this language, say so and test the real code with generated inputs. Describe that fallback as testing, with no exhaustive claim. A property that must hold at every size, where a bound is not enough, can need a proof. Prefer a tool that the repo's developers can install and run, and tell the user why you chose it.
 
 ## What makes it good
 
@@ -26,11 +26,11 @@ Pick the tool that answers the question at the lowest cost. Consider a model che
 - **Honest about scope.** Say what is verified, under which bounds and assumptions, and what is left out. A pass covers the model or the bound, not the whole system.
 - **Readable without the tool.** State the property and the harm in one plain sentence each. Tell a counterexample as a short sequence of steps in the code's words.
 - **Cheap to rerun.** One command, a reproducible tool version, and a run short enough that the next agent will use it on every relevant change.
-- **Kept in step with the code.** When verified code changes, something tells the next agent that the verification needs another look.
+- **Kept in step with the code.** Record which files and functions each check covers and the commit at which you confirmed that it describes them. Changes after that commit tell the next agent to recheck the verification.
 
 ## Generate the verify skill
 
-Write a project-local skill under `.agents/skills/`, with a name based on the verified area and a `SKILL.md` containing `name` and `description` frontmatter. State its project scope in both the description and opening instructions. Name the actual owner/repository and project, limit it to work in that repository or an explicit request for that project, and exclude all other work. From the skill alone, the next agent must be able to tell whether a change touches the verified code, run the check, tell a real bug from a modeling error, and update the verification when a change is intended. Use this repo's real commands, paths, and nouns, and leave no placeholders.
+Write a project-local skill under `.agents/skills/`, with a name based on the verified area and a `SKILL.md` containing `name` and `description` frontmatter. State its project scope in both the description and opening instructions. Name the actual owner/repository and project, limit it to work in that repository or an explicit request for that project, and exclude all other work. From the skill alone, the next agent must be able to tell whether a change touches the verified code, run the check, tell a real bug from a modeling error, and update the verification when a change is intended. Put the coverage record and sync commit in the skill. Move the sync commit forward only after confirming that the verification describes that committed revision. Record uncommitted covered changes separately until verified at a commit. Use this repo's real commands, paths, and nouns, and leave no placeholders.
 
 ## Prove it before you hand off
 
@@ -38,4 +38,4 @@ Use an isolated temporary checkout for scratch changes. Preserve the user's work
 
 ## Hand off
 
-Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one.
+Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one. Use [/estack-devin:maintain-formal-verification-skill](../maintain-formal-verification-skill/SKILL.md) after covered code changes without rechecking it.

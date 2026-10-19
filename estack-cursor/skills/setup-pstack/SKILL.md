@@ -11,5 +11,6 @@ Bundled custom agents use `model: inherit`. Omit a Task model override to keep t
 2. For an explicit user model request, use an available Task model override or an authorized profile edit. Do not change global settings without that scope. Report unavailable choices and inherit the parent.
 3. Verify the effective model from the subagent task card. Admin restrictions or plan limitations can cause fallback. Independent passes still need separate reviewers; one model does not establish model diversity. A subagent selection does not change the parent chat's model.
 4. Check for a project `verify-*` skill or executable app driver. If absent, offer the project-local [verification skill workflow](../create-verification-skill/SKILL.md) once.
+5. Check for a project skill that runs formal verification against named code. If absent, offer the [formal verification skill workflow](../create-formal-verification-skill/SKILL.md) once. Run it only if the user accepts. On no, continue.
 
 See [Cursor subagents](https://prod.cursor.com/docs/subagents) and [plugins](https://prod.cursor.com/docs/plugins).

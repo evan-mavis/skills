@@ -4,11 +4,11 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.26`
-- Commit: [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34)
-- Retrieved and compared: 2026-10-18
+- Version: `0.15.28`
+- Commit: [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0)
+- Retrieved and compared: 2026-10-19
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.25` at [`f713f14203cd6420cec13cd7c55c32d598dbab68`](https://github.com/cursor/plugins/commit/f713f14203cd6420cec13cd7c55c32d598dbab68), compared 2026-10-16.
+- Previous snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
 - Earlier snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
 
 ## Shared source history
@@ -81,6 +81,13 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Ketchup lists every pending item with its meaning, evidence, risk, link when available, and recommendation. Unknown facts remain explicit. The reply can grow beyond a word budget. Keep the main story brief, read-only gathering, normal discovery, and optional visuals from existing evidence. Skip mandatory pictures and fixed box counts.
 - Adopt the TypeScript brand example's verifying type guard and remove its assertion. Keep existing schema and boundary rules.
 - Skip Claude packaging, generated harness trees, root manifest changes, broad guide rewrites, and name-only fixes already satisfied here. Skip upstream `scripts/check-pstack-docs.mjs`, which checks its guide, Custom Modes, and model setup. Native inventory, reference, and metadata checks cover the applicable package rules. The `make-bot-ui` change only renames a skill Estack does not ship and adds no workflow. Native metadata, runtime safeguards, personal defaults, Airgoods overrides, artwork, licenses, and account release IDs stay intact. Deslop has no changes since the previous snapshot.
+
+### Reviewed through 0.15.28
+
+- Add `maintain-formal-verification-skill` to trace covered changes, update verification from the code, and separate stale checks from code bugs. Preserve atomicity, bounds, counterexample replay, broken-code checks, and findings. Use isolated scratch checkouts. Record uncommitted covered changes without advancing the sync commit. Maintain generated-input fallbacks too, preserving their testing label and input limits. Preserve each host's explicit invocation metadata.
+- Creation records covered files, functions, and a verified sync commit, then routes later drift to maintenance. Start ordering models with TLA+ unless a suitable checker already exists. If no code verifier fits, test real code with generated inputs and label the result as testing rather than proof.
+- Setup offers formal verification once when absent and runs it only on acceptance. Help routes missing or stale checks to the matching workflow. Sharpen drops the rewritten-prompt ban while retaining actual task execution and user constraints.
+- Skip upstream guide expansion, copied recipes, Claude installation instructions, and model-rule setup. Native setup, help, and manifests already cover those needs. Deslop has no changes since the previous snapshot. Personal defaults, Airgoods overrides, native tools, scheduling, hooks, session safeguards, artwork, licenses, and account release IDs stay intact.
 
 ### Estack review fixes
 
