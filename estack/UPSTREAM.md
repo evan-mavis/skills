@@ -89,6 +89,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Setup offers formal verification once when absent and runs it only on acceptance. Help routes missing or stale checks to the matching workflow. Sharpen drops the rewritten-prompt ban while retaining actual task execution and user constraints.
 - Skip upstream guide expansion, copied recipes, Claude installation instructions, and model-rule setup. Native setup, help, and manifests already cover those needs. Deslop has no changes since the previous snapshot. Personal defaults, Airgoods overrides, native tools, scheduling, hooks, session safeguards, artwork, licenses, and account release IDs stay intact.
 
+### Native GitHub stack correction
+
+- The user uses GitHub native PR stacks. This supersedes the earlier decision to retain Graphite. Replace the orchestration helper's Graphite text parsing and local branch SHA reads with native GitHub stack membership, server order, and submitted head SHAs.
+- Require an explicit native stack number for refresh. Keep ordered PR pins, atomic generation writes, exact-head verification, one topology owner, and refusal to infer membership from drifting base refs. API or metadata errors preserve the prior snapshot. All four variants use the same runtime behavior and retain native delegation and session rules.
+- Ordinary PR operations keep their existing native tools. This correction does not advance the reviewed upstream snapshot.
+
 ### Estack review fixes
 
 - PR #7 review found the approval-gate exception stopped at check parsing. Carry it through the aggregate merge assessment so an owner-approval gate can explain `BLOCKED` with rollup `FAILURE`. Preserve real CI failures and unexplained refusals. Snapshot and classifier tests cover both read paths.

@@ -81,6 +81,7 @@ interface GateResolveOptions {
 
 interface FrontierSetOptions {
   readonly repo?: string;
+  readonly stack: number;
   readonly prs?: readonly number[];
 }
 
@@ -472,15 +473,16 @@ function createProgram(io: Io): Command {
 
   const frontier = program
     .command("frontier")
-    .description("manage the Orchestrate stacker's Graphite frontier")
+    .description("manage the Orchestrate stacker's GitHub stack frontier")
     .action(() => requireSubcommand(program));
-  leaf(frontier, "set", "stacker only: discover its tracked Graphite stack and set the frontier")
+  leaf(frontier, "set", "stacker only: snapshot a native GitHub stack frontier")
     .addOption(
       new Option(
         "--repo <dir>",
         "repository directory (or ORCH_REPO)"
       ).env("ORCH_REPO")
     )
+    .requiredOption("--stack <number>", "native GitHub stack number", positiveInteger)
     .option(
       "--prs <n,...>",
       "optional expected pull request order pin",
@@ -493,6 +495,7 @@ function createProgram(io: Io): Command {
         (store) =>
           store.frontier.set({
             repo: frontierRepo(options),
+            stack: options.stack,
             prs: options.prs,
           }),
         frontierLine

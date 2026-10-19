@@ -73,8 +73,6 @@ function git({
 
 async function makeGitStack(directory: string): Promise<{
   readonly repo: string;
-  readonly mergedSha: string;
-  readonly closedSha: string;
   readonly openSha: string;
 }> {
   const repo = join(directory, "repo");
@@ -96,8 +94,6 @@ async function makeGitStack(directory: string): Promise<{
 
   return {
     repo,
-    mergedSha: git({ repo, args: ["rev-parse", "stack/merged"] }),
-    closedSha: git({ repo, args: ["rev-parse", "stack/closed"] }),
     openSha: git({ repo, args: ["rev-parse", "stack/open"] }),
   };
 }
@@ -152,6 +148,10 @@ if [ "$(pwd -P)" != "${realpathSync(join(directory, "repo"))}" ]; then
   printf 'gh ran outside the fixture repo: %s\\n' "$(pwd -P)" >&2
   exit 2
 fi
+if [ -n "\${GH_REPO:-}" ]; then
+  printf 'gh inherited an unrelated repository override\\n' >&2
+  exit 2
+fi
 if [ "$*" != "api repos/{owner}/{repo}/stacks/42 -H Accept: application/vnd.github+json -H X-GitHub-Api-Version: 2026-03-10" ]; then
   printf 'unexpected gh arguments: %s\\n' "$*" >&2
   exit 2
@@ -166,10 +166,17 @@ cat "${outputPath}"
   await chmod(gh, 0o755);
 
   const originalPath = process.env.PATH;
+  const originalRepo = process.env.GH_REPO;
+  process.env.GH_REPO = "unrelated/repository";
   process.env.PATH = `${bin}:${originalPath ?? ""}`;
   try {
     return await operation(outputPath);
   } finally {
+    if (originalRepo === undefined) {
+      delete process.env.GH_REPO;
+    } else {
+      process.env.GH_REPO = originalRepo;
+    }
     if (originalPath === undefined) {
       delete process.env.PATH;
     } else {
@@ -435,28 +442,113 @@ describe("Store", () => {
       operation: async () => {
         for (const [index, checkout] of ["main", "--detach"].entries()) {
           git({ repo: stack.repo, args: ["checkout", checkout] });
-          expect(await store.frontier.set({ repo: stack.repo, stack: 42 })).toEqual({
+          expect(
+            await store.frontier.set({ repo: stack.repo, stack: 42 })
+          ).toEqual({
             generation: index + 1,
             prs: [
-              { pr: 10, branches: "stack/merged", sha: "a".repeat(40), state: "MERGED" },
-              { pr: 13, branches: "stack/closed", sha: "b".repeat(40), state: "CLOSED" },
-              { pr: 11, branches: "stack/open", sha: "c".repeat(40), state: "OPEN" },
+              {
+                pr: 10,
+                branches: "stack/merged",
+                sha: "a".repeat(40),
+                state: "MERGED",
+              },
+              {
+                pr: 13,
+                branches: "stack/closed",
+                sha: "b".repeat(40),
+                state: "CLOSED",
+              },
+              {
+                pr: 11,
+                branches: "stack/open",
+                sha: "c".repeat(40),
+                state: "OPEN",
+              },
             ],
             lowestUnmerged: 11,
           });
         }
-        git({ repo: stack.repo, args: ["branch", "-D", "stack/merged", "stack/closed", "stack/open"] });
-        expect((await store.frontier.set({ repo: stack.repo, stack: 42, prs: [10, 13, 11] })).generation).toBe(3);
+        git({
+          repo: stack.repo,
+          args: ["branch", "-D", "stack/merged", "stack/closed", "stack/open"],
+        });
+        expect(
+          (await store.frontier.set({
+            repo: stack.repo,
+            stack: 42,
+            prs: [10, 13, 11],
+          })).generation
+        ).toBe(3);
         const saved = await readFile(join(directory, "frontier.json"), "utf8");
         for (const [prs, message] of [
-          [[10, 11, 12], "frontier pin mismatch: missing from GitHub stack: 12; extra in GitHub stack: 13"],
-          [[13, 10, 11], "frontier pin mismatch: order differs: expected 13,10,11; GitHub stack 10,13,11"],
+          [
+            [10, 11, 12],
+            "frontier pin mismatch: missing from GitHub stack: 12; extra in GitHub stack: 13",
+          ],
+          [
+            [13, 10, 11],
+            "frontier pin mismatch: order differs: expected 13,10,11; GitHub stack 10,13,11",
+          ],
           [[10, 10], "--prs must not contain duplicates"],
         ] satisfies readonly (readonly [readonly number[], string])[]) {
-          await expect(store.frontier.set({ repo: stack.repo, stack: 42, prs })).rejects.toThrow(message);
-          expect(await readFile(join(directory, "frontier.json"), "utf8")).toBe(saved);
+          await expect(
+            store.frontier.set({ repo: stack.repo, stack: 42, prs })
+          ).rejects.toThrow(message);
+          expect(
+            await readFile(join(directory, "frontier.json"), "utf8")
+          ).toBe(saved);
           expect((await store.frontier.show()).generation).toBe(3);
         }
+      },
+    });
+  });
+
+  it("requires fresh verification after submitted heads change and resolves a completed stack", async () => {
+    const { directory, store } = await initializedStore();
+    const stack = await makeGitStack(directory);
+    await withFakeGh({
+      directory,
+      operation: async (outputPath) => {
+        await store.frontier.set({ repo: stack.repo, stack: 42 });
+        await store.ledger.record({
+          pr: 11,
+          sha: "c".repeat(40),
+          verdict: "unit-test-verified",
+          evidence: "reports/verify.md",
+        });
+        const changed = nativeStack();
+        const open = changed.pull_requests.find((row) => row.number === 11);
+        if (open === undefined) {
+          throw new Error("missing fixture row");
+        }
+        open.head.sha = "d".repeat(40);
+        await writeFile(outputPath, JSON.stringify(changed));
+        const refreshed = await store.frontier.set({
+          repo: stack.repo,
+          stack: 42,
+        });
+        expect(refreshed.generation).toBe(2);
+        expect(refreshed.prs.find((row) => row.pr === 11)?.sha).toBe(
+          "d".repeat(40)
+        );
+        await expect(
+          store.ledger.check({ pr: 11, sha: "d".repeat(40) })
+        ).rejects.toBeInstanceOf(NotFoundError);
+        open.state = "closed";
+        await writeFile(outputPath, JSON.stringify(changed));
+        const completed = await store.frontier.set({
+          repo: stack.repo,
+          stack: 42,
+        });
+        expect(completed.generation).toBe(3);
+        expect(completed.lowestUnmerged).toBeNull();
+        expect(completed.prs.find((row) => row.pr === 11)).toEqual({
+          pr: 11,
+          branches: "stack/open",
+          sha: "d".repeat(40),
+          state: "CLOSED",
+        });
       },
     });
   });
@@ -470,7 +562,9 @@ describe("Store", () => {
         await store.frontier.set({ repo: stack.repo, stack: 42 });
         const saved = await readFile(join(directory, "frontier.json"), "utf8");
         const first = nativeStack().pull_requests[0];
-        if (first === undefined) throw new Error("missing fixture row");
+        if (first === undefined) {
+          throw new Error("missing fixture row");
+        }
         const malformed: readonly unknown[] = [
           null,
           [],
@@ -497,23 +591,51 @@ describe("Store", () => {
             { ...first, merged_at: undefined },
           ].map((row) => ({ ...nativeStack(), pull_requests: [row] })),
           { ...nativeStack(), pull_requests: [first, first] },
+          {
+            ...nativeStack(),
+            pull_requests: [
+              first,
+              { ...first, head: { ...first.head, ref: "duplicate-pr" } },
+            ],
+          },
           { ...nativeStack(), pull_requests: [first, { ...first, number: 12 }] },
         ];
-        for (const response of ["not JSON", ...malformed.map((value) => JSON.stringify(value))]) {
+        for (const response of [
+          "not JSON",
+          ...malformed.map((value) => JSON.stringify(value)),
+        ]) {
           await writeFile(outputPath, response);
-          await expect(store.frontier.set({ repo: stack.repo, stack: 42 })).rejects.toThrow("GitHub stack");
-          expect(await readFile(join(directory, "frontier.json"), "utf8")).toBe(saved);
+          await expect(
+            store.frontier.set({ repo: stack.repo, stack: 42 })
+          ).rejects.toThrow("GitHub stack");
+          expect(
+            await readFile(join(directory, "frontier.json"), "utf8")
+          ).toBe(saved);
           expect((await store.frontier.show()).generation).toBe(1);
         }
-        for (const error of ["HTTP 404: Not Found", "HTTP 403: Forbidden", "network connection failed"]) {
+        for (const error of [
+          "HTTP 404: Not Found",
+          "HTTP 403: Forbidden",
+          "network connection failed",
+        ]) {
           await writeFile(`${outputPath}.error`, error);
-          await expect(store.frontier.set({ repo: stack.repo, stack: 42 })).rejects.toThrow(error);
-          expect(await readFile(join(directory, "frontier.json"), "utf8")).toBe(saved);
+          await expect(
+            store.frontier.set({ repo: stack.repo, stack: 42 })
+          ).rejects.toThrow(error);
+          expect(
+            await readFile(join(directory, "frontier.json"), "utf8")
+          ).toBe(saved);
           expect((await store.frontier.show()).generation).toBe(1);
         }
-        for (const invalid of [0, -1, 1.5, Number.NaN, Number.MAX_SAFE_INTEGER + 1]) {
-          await expect(store.frontier.set({ repo: stack.repo, stack: invalid })).rejects.toThrow("stack must be a positive integer");
-          expect(await readFile(join(directory, "frontier.json"), "utf8")).toBe(saved);
+        for (const invalid of [
+          0, -1, 1.5, Number.NaN, Number.MAX_SAFE_INTEGER + 1,
+        ]) {
+          await expect(
+            store.frontier.set({ repo: stack.repo, stack: invalid })
+          ).rejects.toThrow("stack must be a positive integer");
+          expect(
+            await readFile(join(directory, "frontier.json"), "utf8")
+          ).toBe(saved);
         }
       },
     });
@@ -597,14 +719,31 @@ describe("orch CLI", () => {
     await withFakeGh({
       directory,
       operation: async () => {
-        const result = runCli([...args, "--stack", "42", "--prs", "10,13,11", "--json"]);
+        const result = runCli([
+          ...args, "--stack", "42", "--prs", "10,13,11", "--json",
+        ]);
         expect(result.code).toBe(0);
         expect(JSON.parse(result.stdout)).toEqual({
           generation: 1,
           prs: [
-            { pr: 10, branches: "stack/merged", sha: "a".repeat(40), state: "MERGED" },
-            { pr: 13, branches: "stack/closed", sha: "b".repeat(40), state: "CLOSED" },
-            { pr: 11, branches: "stack/open", sha: "c".repeat(40), state: "OPEN" },
+            {
+              pr: 10,
+              branches: "stack/merged",
+              sha: "a".repeat(40),
+              state: "MERGED",
+            },
+            {
+              pr: 13,
+              branches: "stack/closed",
+              sha: "b".repeat(40),
+              state: "CLOSED",
+            },
+            {
+              pr: 11,
+              branches: "stack/open",
+              sha: "c".repeat(40),
+              state: "OPEN",
+            },
           ],
           lowestUnmerged: 11,
         });
