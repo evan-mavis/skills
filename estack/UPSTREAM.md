@@ -4,11 +4,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.28`
-- Commit: [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0)
-- Retrieved and compared: 2026-10-19
+- Version: `0.15.29`
+- Commit: [`88d47514b82e7c44f00f2b2a72ff6dd12158038c`](https://github.com/cursor/plugins/commit/88d47514b82e7c44f00f2b2a72ff6dd12158038c)
+- Retrieved and compared: 2026-10-20
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
+- Previous snapshot: `0.15.28` at [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0), compared 2026-10-19.
+- Earlier snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
 - Earlier snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
 
 ## Source adaptations
@@ -88,6 +89,11 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Creation records covered files, functions, and a verified sync commit, then routes later drift to maintenance. Start ordering models with TLA+ unless a suitable checker already exists. If no code verifier fits, test real code with generated inputs and label the result as testing rather than proof.
 - Setup offers formal verification once when absent and runs it only on acceptance. Help routes missing or stale checks to the matching workflow. Sharpen drops the rewritten-prompt ban while retaining actual task execution and user constraints.
 - Skip upstream guide expansion, copied recipes, Claude installation instructions, and model-rule setup. Native setup, help, and manifests already cover those needs. Deslop has no changes since the previous snapshot. Personal defaults, Airgoods overrides, native tools, scheduling, hooks, session safeguards, artwork, licenses, and account release IDs stay intact.
+
+### Reviewed through 0.15.29
+
+- Sharpen now returns a rewritten prompt without executing the task. It names the expert approach, raw sources, specific methods and tools, and independent evidence before the rewrite. Preserve explicit user constraints, product and preference choices, and each host's explicit invocation metadata. This supersedes the earlier execute-after-framing behavior.
+- Update the help route and Codex UI prompt to describe the rewrite. Skip upstream README and guide expansion, copied recipes, and upstream manifest changes. Estack's native help and metadata cover the behavior. Deslop is unchanged. Native tools, delegation, scheduling, hooks, session safeguards, personal defaults, Airgoods overrides, artwork, licenses, and account release IDs stay intact.
 
 ### Native GitHub stack correction
 

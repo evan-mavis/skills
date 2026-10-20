@@ -27,7 +27,7 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 |---|---|
 | Run engineering work with personal defaults and matching project context | [Estack](../estack/SKILL.md) |
 | Check that the agent understood the goal and problem | [In your own words](../in-your-own-words/SKILL.md) |
-| Improve a task approach before work starts | [Sharpen](../sharpen/SKILL.md) |
+| Rewrite a prompt with an expert approach and an independent check, without executing the task | [Sharpen](../sharpen/SKILL.md) |
 | Trace what code does | [How](../how/SKILL.md) |
 | Find why code has its current shape | [Why](../why/SKILL.md) |
 | Understand a change in plain words | [Teach](../teach/SKILL.md) |
