@@ -1,235 +1,136 @@
 ---
 name: "close-release-issues"
-description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. After a dev-to-main release, audit Linear \"Ready for Testing\" and \"Ready to Ship\" issues and present a linked closeout list for user verification. Only mark issues Done after the user confirms the list. Use when closing out a release, closing release issues, triaging Ready for Testing, or finding Linear issues for a deploy."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Audit the selected production release against Linear issue scope, including stacked or consolidated PRs and previously shipped stale issues. Present linked evidence and mark issues Done only after explicit user confirmation. Use for release closeout or finding issues covered by a deploy."
 ---
 
-# Close Release Issues
+# Close release issues
 
 Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
-Deterministic release closeout for Linear issues. **Audit first, close only after user verification.**
-
-> Move to **Done** issues that have a GitHub PR attached and the PR is merged into `development`. Scan **Ready for Testing** and **Ready to Ship**. **Never** update an issue to Done until the user has reviewed the audit list and explicitly confirmed.
-
-## When to use
-
-- After `development` is merged to `main` and render / vercel deployments have completed
-- User asks to mark release issues done, close Ready for Testing, or find Linear issues for a deploy
-
-## Linear states (both in scope)
-
-| Linear state | Meaning |
-|--------------|---------|
-| **Ready for Testing** | On `development`; needs QA on dev/preview |
-| **Ready to Ship** | QA passed; approved for prod; waiting for dev→main deploy |
-
-## Release modes
-
-**Release window (default):** only close issues whose qualifying PR merged into `development` **after the previous dev→main release** and **on or before the latest dev→main release**.
-
-**Backlog cleanup (optional):** user explicitly wants *all* Ready for Testing + Ready to Ship items with merged-to-dev PRs — drop the date window; still require merged + `baseRefName === development`.
+Audit what shipped in the user-selected production release. Discover issues regardless of Linear status or PR merge method. Mark issues Done only after the user reviews and explicitly confirms the final list in a follow-up message.
 
 ## Tools
 
-- **Available Linear integration** — use the configured Linear plugin, connector, or MCP tools in this Factory session
-- `gh` — verify PR merge state and base branch
-
-Read the current Linear integration's callable schemas or skill instructions before calling; do not assume a host-specific tool name. Prefer `gh` over GitHub MCP.
+Use the configured Linear integration in this Factory session. Read its callable schemas before use. Prefer `gh` for GitHub metadata and local Git for history and released content. Scope GitHub calls to `Airgoods-Inc/airgoods`.
 
 ## Workflow
 
+### 1. Pin the selected release and snapshots
 
+Start with the release PR, commit, or deployment the user selected. Never silently substitute a newer release. If none was selected, establish the intended production release before auditing.
 
-### 1. Compute the release window (required unless backlog cleanup mode)
-
-Fetch the last two dev→main merges:
-
-```bash
-gh pr list --base main --head development --state merged --limit 2 \
-  --json number,title,mergedAt,url,mergeCommit
-```
-
-Define:
-
-
-| Boundary        | Source                                                          | Meaning                                                                                      |
-| --------------- | --------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `release_start` | `mergedAt` of the **second** PR (previous release)              | Cutoff — work merged to `development` before this already shipped in an earlier prod release |
-| `release_end`   | `mergedAt` of the **first** PR (latest / just-deployed release) | Upper bound for this closeout                                                                |
-
-
-**Eligible PR merge time:** `mergedAt` to `development` must satisfy `release_start < mergedAt <= release_end`.
-
-If only one dev→main merge exists in history, use its `mergedAt` as `release_start` and `release_end = now`, or ask the user for a start date.
-
-Show both boundaries in the audit header, e.g. “Release window: after [PR #793](…) (Jun 19) through [PR #798](…) (Jun 23).”
-
-Optional cross-check:
+For a selected release PR, inspect its metadata, for example:
 
 ```bash
-git log <PREV_MERGE_SHA>..<LATEST_MERGE_SHA> --oneline --no-merges
+gh pr view 1720 --repo Airgoods-Inc/airgoods \
+  --json number,title,body,state,baseRefName,headRefName,headRefOid,mergedAt,url,mergeCommit,commits
 ```
 
+Record the following immutable boundaries and their evidence:
 
+- `release_commit` is the selected production commit. Confirm the production deployment corresponds to it before proposing shipped closures.
+- `source_snapshot` is the exact source accepted by that release, usually its `development` parent for a normal dev-to-main merge. Resolve it from the merge parents and PR history. For squash or rebase merges, recover the accepted source and compare its changes with the production tree. Do not use today's branch tip.
+- `previous_release` is the preceding production release in this release's deployed history. Identify it relative to the selected release, rather than taking today's latest two PRs.
 
-### 2. List release-candidate issues (both QA states)
+Use deployment records, release PRs, and Git history to verify these boundaries. If the previous release is unavailable, report an incomplete baseline rather than inventing a date window. If the selected release or its source cannot be verified, report the gap and leave affected issues unresolved.
 
-Query **both** states and merge into one deduped list (same issue id only once):
-
-```text
-Linear integration: list issues
-  state: "Ready for Testing"
-  team: "Engineering & Product"   # if needed
-  limit: 250
-
-Linear integration: list issues
-  state: "Ready to Ship"
-  team: "Engineering & Product"
-  limit: 250
-```
-
-Paginate each query with the integration's pagination cursor until no next page remains.
-
-Record each issue’s current **Linear state** (`Ready for Testing` vs `Ready to Ship`) — include it in the audit table **State** column. **Ready to Ship** issues are usually the highest-confidence close candidates after a prod deploy.
-
-### 3. For each issue, collect GitHub PR attachments
-
-```text
-Linear integration: get issue
-  id: AIR-XXXX
-```
-
-From `attachments`, keep only GitHub PR links (`github.com/.../pull/N`). Ignore Slack, Notion, Intercom, etc.
-
-Extract PR number from URL: `.../pull/682` → `682`.
-
-**No GitHub PR attachment → skip** (report as `no_pr_attachment`).
-
-### 4. Verify PR is merged into development
-
-Run the helper script (batch) or `gh` per PR:
+Inspect the actual release delta and commit messages:
 
 ```bash
-bash "<resolved-close-release-issues-dir>/scripts/check-prs-merged-to-dev.sh" 682 661 262
+git log <previous_release>..<release_commit> --format='%H%n%B'
+git diff --name-status <previous_release> <release_commit>
+git diff <previous_release> <release_commit> -- <relevant-paths>
 ```
 
-Or manually:
+Use the pinned production tree for final evidence. Account for release conflict resolutions, reverts, and differences from the source snapshot. Dates help find PRs. They do not prove inclusion.
+
+### 2. Discover issues from released work without state filters
+
+Build the included PR list from the release delta, commit-to-PR associations, release notes, and source history. Paginate GitHub results. Inspect included PR titles, bodies, commit messages, stack links, and references to absorbed PRs.
+
+Resolve `AIR-` IDs from those sources, parent issue descriptions, and sub-issues. Fetch each issue's full description, acceptance criteria, relationships, attachments, canonical URL, and current state. Deduplicate by issue ID.
+
+Search Linear by relevant feature names and requested behavior without a state filter. Include clearly covered requests without direct PR links. Paginate searches and child-issue queries. Do not limit discovery to Ready for Testing or Ready to Ship. Backlog, In Progress, In Review, and other stale states remain in scope.
+
+Record how each issue was discovered. Use current states only to decide whether an update is necessary. Preserve existing Done, Duplicate, and Canceled states unless the user explicitly requests otherwise.
+
+### 3. Trace stacks and consolidated implementations
+
+Collect all relevant PRs for an issue, including attachments, parent stacks, and consolidation references. Do not choose only the newest attachment.
+
+- Trace a child PR through its parent PRs into the released source. A feature-branch target alone is not a reason to skip it.
+- For a PR closed without merging, locate the released PR that absorbed its implementation. Compare patches, changed symbols, and released behavior. A consolidation reference alone is insufficient.
+- Check commit reachability in the source and production histories. Squash merges can replace original SHAs. Negative ancestry alone does not establish that work was omitted.
+- Inspect the implementation at `release_commit`, including relevant deleted or renamed files. Existing ancestry or filenames alone do not establish that the behavior survived.
+
+Use the read-only [evidence helper](scripts/collect-release-evidence.sh) to collect PR metadata, commit ancestry, and changed-file presence in the previous and selected production snapshots:
 
 ```bash
-gh pr view 682 --json number,title,state,baseRefName,mergedAt,url
+bash "<resolved-close-release-issues-dir>/scripts/collect-release-evidence.sh" \
+  <previous_release> <release_commit> 1224 1139 1309 1716
 ```
 
-**Mark candidate only if ALL of:**
+The helper requires local Git objects, `gh`, and `jq`. It returns evidence, not completion verdicts. Investigate missing history, API failures, or incomplete file lists. Compare source history and inspect released file contents yourself, especially for squashed or absorbed changes.
 
-- `state` == `MERGED`
-- `baseRefName` == `development`
-- `mergedAt` is inside the release window: `release_start < mergedAt <= release_end` (skip with `outside_release_window`)
+### 4. Compare each issue's scope with the released behavior
 
-If an issue has **multiple** GitHub PR attachments, prefer the attachment whose PR passes all checks; if several qualify, use the **most recently merged** one.
+For every discovered issue, map the requested behavior and acceptance criteria to specific released changes. Record the PR chain and commit, patch, or file evidence that covers that scope.
 
-If merged to another branch (e.g. feature branch stack), **skip** (`wrong_base_branch`) even if the stack tip eventually merged to `development` later — the attached PR’s `baseRefName` and `mergedAt` are what count.
+An issue ID in a PR is a discovery clue. It can refer to a dependency, partial implementation, related request, or later follow-up. Propose closure only when the issue's full scope shipped. Leave partial, unrelated, unshipped, or uncertain work open with a concrete explanation of what is missing.
 
-### 5. Check sub-issues
+A missing PR attachment does not disqualify an issue. Parent-stack evidence and released implementation can prove a child request shipped. Apply the same scope check to issues found through search.
 
-For each parent issue marked as a candidate:
+Use the release delta for the main audit. If an open issue discovered during this audit already shipped in or before `previous_release`, verify its earlier release and that its behavior remains in the selected snapshot. Report it separately as previously shipped stale work. Do not discard it because its PR's `mergedAt` predates this release. Label uncertain earlier provenance as unresolved.
 
-```text
-Linear integration: list issues
-  parentId: AIR-XXXX
-```
+If the user requests a broader backlog cleanup, expand discovery across relevant earlier releases without state filters. Keep the selected release pinned and distinguish newly shipped work from previously shipped work. Keep the same evidence and confirmation requirements.
 
-Apply the same PR-attachment + merged-to-dev rules to each sub-issue. Include open sub-issues in the close list when they pass; report blocked parents whose sub-issues fail checks.
+### 5. Audit parents, sub-issues, and follow-ups by scope
 
-Epic parents (e.g. AIR-6564, AIR-4481): only mark Done if team convention is to close the epic when all sub-issues ship — **default: close leaf issues first; ask before closing epics**.
+Audit each sub-issue individually, including children without PR attachments. A shipped parent does not prove every child shipped.
 
-### 6. Present audit list — stop and wait for user
+An explicitly separate, unshipped follow-up stays open without automatically blocking closeout of the delivered parent feature. If the missing child is required by the parent's acceptance criteria, leave the parent open as partially shipped. Explain this distinction in the audit.
 
-**Always end the first turn with the audit only.** Do not update Linear in the same turn you produce the list.
+Do not close a broad epic because one part shipped. Default to leaf closures. Include an epic only when evidence covers its full scope and the user explicitly approves that epic in the final list.
 
-Show the full candidate + skipped tables, then ask the user to verify (e.g. “Confirm and I’ll mark these Done” / “Remove any you want to keep open”).
+### 6. Present the audit and wait for confirmation
 
-Accept confirmation phrasing like: “mark them done”, “looks good”, “confirmed”, or an edited subset the user approves.
+Always end the first closeout turn with the audit only. Do not change Linear statuses in the turn that produces or revises the proposed list.
 
-If the user removes items or asks questions, revise the list — still no `save_issue` until they confirm the final set.
+Show the selected release link, `release_commit`, `source_snapshot`, previous production release, and any deployment or evidence gaps. Describe discovery coverage and pagination limits.
 
-**Linking rules for the audit table:**
+Use separate tables for:
 
-- **Issue column:** markdown link on the identifier — `[AIR-6922](<linear-url>)`. Use the `url` field from `get_issue` / `list_issues` (do not guess the slug).
-- **PR column:** markdown link — `[#682](https://github.com/Airgoods-Inc/airgoods/pull/682)` (from attachment URL or `gh pr view … --json url`).
-- **Merged to dev:** use ✅ / ❌ (or yes/no) — keep scannable.
+- Work shipped in this release proposed for Done.
+- Previously shipped stale work proposed for Done, with its earlier release evidence.
+- Items left open or unchanged, with concrete reasons, including preserved terminal states.
 
-Use separate tables for **→ Done** candidates and **Skipped** issues (group skips by reason when helpful).
+Every issue row includes a linked issue ID, title, current state, release evidence, and proposed action or reason. Link issue IDs using the integration's canonical `url`. Link PRs and pinned source evidence using observed URLs. Never guess Linear slugs. Include PRs with no resolved issue as unresolved discovery items rather than inventing an issue.
 
-```markdown
-## Release closeout audit
+List the exact proposed closure set and counts for each table. Ask the user to confirm the final set or select a subset. Invoking this skill alone is not confirmation. If the user asks questions or changes the list, revise the audit and wait for confirmation of that final set.
 
-**Context:** Release window after [PR #793](https://github.com/…/pull/793) (Jun 19) through [PR #798](https://github.com/…/pull/798) (Jun 23). Scanned 27 Ready for Testing + 0 Ready to Ship (27 total).
+### 7. Mark only confirmed issues Done
 
-### → Done (3 issues)
+Only after explicit confirmation in a follow-up message, re-read the approved issues' states and any changed scope. Preserve Done, Duplicate, and Canceled unless the user explicitly approved changing those states. If scope or release evidence changed, return affected items for review.
 
-| Issue | State | Title | PR | Dev merge | In window |
-|-------|-------|-------|-----|-----------|-----------|
-| [AIR-6922](https://linear.app/airgoods/issue/AIR-6922/pos-import-functionaility) | Ready for Testing | POS import | [#682](https://github.com/Airgoods-Inc/airgoods/pull/682) | Jun 21 | ✅ |
+Update only the confirmed issues to Done using the current Linear integration. Process approved sub-issues before approved parents. Report successful updates, unchanged items, and failures.
 
-### Skipped (1 issue)
+## Audit reasons
 
-| Issue | Title | Reason |
-|-------|-------|--------|
-| [AIR-7127](https://linear.app/airgoods/issue/AIR-7127/…) | Square inventory | `outside_release_window` — [#762](https://github.com/…/pull/762) merged Jun 16 (prior release) |
-| [AIR-7020](https://linear.app/airgoods/issue/AIR-7020/…) | Year founded filter | `not_merged` — PR #688 closed |
+Use reasons tied to scope and evidence, for example:
 
-**Will close:** [AIR-6922](…), [AIR-6752](…), [AIR-6278](…)
-**Skipped:** 24 (14 `wrong_base_branch`, 2 `no_pr_attachment`, …)
-```
+| Reason | Evidence to report |
+| --- | --- |
+| `not_in_released_snapshot` | Implementation absent after checking history, consolidation, and released content. |
+| `partially_shipped` | Requested behavior or acceptance criteria still missing. |
+| `separate_follow_up` | Distinct future scope remains open. |
+| `related_reference_only` | Referenced ID has a different scope from the released change. |
+| `insufficient_evidence` | Specific missing history, content, or release provenance. |
+| `preserve_terminal_state` | Current Done, Duplicate, or Canceled state needs no change. |
 
+Previously shipped stale work is a separate proposal category, not a skip reason. PR state, target branch, merge date, and missing attachments cannot independently decide an issue's outcome.
 
+Do not run the Airgoods application lint, typecheck, or tests for release closeout. Do not merge PRs, push Git, or deploy.
 
-### 7. Mark Done (only after user verified the list)
+## Resources
 
-**Gate:** user explicitly confirmed the final close list in a follow-up message. Invoking the skill alone is not confirmation.
-
-Then, and only then:
-
-```text
-Linear integration: update issue
-  id: AIR-XXXX
-  state: "Done"
-```
-
-Process sub-issues before parents when both qualify. Report what was closed in a short summary.
-
-## Skip reasons (use in audit)
-
-
-| Reason                   | Meaning                                                                  |
-| ------------------------ | ------------------------------------------------------------------------ |
-| `no_pr_attachment`       | No GitHub PR linked on the issue                                         |
-| `not_merged`             | PR open or closed without merge                                          |
-| `wrong_base_branch`      | PR merged to a branch other than `development`                           |
-| `already_done`           | Issue already Done                                                       |
-| `sub_issue_open`         | Parent held back because a sub-issue failed checks                       |
-| `no_linear_id`           | PR merged but no corresponding issue in either QA state                  |
-| `outside_release_window` | PR merged to `development` before `release_start` or after `release_end` |
-
-
-
-
-## Backlog cleanup mode
-
-When the user explicitly wants to clear **all** Ready for Testing + Ready to Ship items (not just this release), skip the date check in step 4 but still require merged + `development` base. Report which items were included via backlog mode vs release window.
-
-## PR without Linear issue
-
-If a merged-to-dev PR has an AIR id in the title but no Ready for Testing issue (or no attachment), report it — do not invent Done status.
-
-## Output
-
-**First turn:** audit table(s) with linked issue IDs and PRs + counts + “awaiting your confirmation”. Do not mark Done.
-
-**After user confirms:** mark only the approved issues, then report what was closed vs skipped. If nothing qualifies, say why.
-
-Do not run lint/typecheck/tests. Do not merge PRs or push git.
-
-## Additional resources
-
-- Example audit output: [examples.md](examples.md)
+Read [examples.md](examples.md) for the release #1720 regression cases and audit format. For helper changes, run the offline [regression fixtures](scripts/test_release_evidence.py).
