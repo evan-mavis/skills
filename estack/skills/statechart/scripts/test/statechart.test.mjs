@@ -8,6 +8,7 @@ import {
   realpathSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -2786,3 +2787,125 @@ test(
     }
   },
 );
+
+
+test("unsafe TLA integers are refused before they can merge distinct states", () => {
+  for (const input of ["9007199254740992", "9007199254740993", "-9007199254740993", "<<1, 9007199254740993>>", "[id |-> 9007199254740993]"]) {
+    assert.throws(() => parseValue(input), /integer.*safe range/i, input);
+  }
+  assert.equal(parseValue("9007199254740991"), Number.MAX_SAFE_INTEGER);
+  assert.equal(parseValue("-9007199254740991"), Number.MIN_SAFE_INTEGER);
+});
+
+test("the chart CLI refuses an external graph with unsafe TLA integers", () => {
+  const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+  writeFileSync(join(dir, "large.dot"), 'strict digraph DiskGraph {\n1 [label="/\\\\ x = 9007199254740993",style = filled];\n}\n');
+  writeFileSync(join(dir, "large.map.mjs"), 'export const state = (v) => String(v.x);\n');
+  const r = node("tlc-to-chart.mjs", ["--dot", "large.dot", "--map", "large.map.mjs", "--highlight", "0", "--out", "chart.mmd"], dir);
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /integer.*safe range/i);
+  assert.equal(existsSync(join(dir, "chart.mmd")), false);
+});
+
+for (const suffix of ["cfg", "map.mjs"]) {
+  test(`from-chart preserves an existing ${suffix} when the spec is missing`, () => {
+    const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+    writeFileSync(join(dir, "sync.mmd"), fixture("sync.mmd"));
+    const saved = join(dir, `Sync.${suffix}`);
+    writeFileSync(saved, "hand edited\n");
+    const r = node("statechart.mjs", ["from-chart", "sync.mmd"], dir, noTlc);
+    assert.equal(r.status, 2);
+    assert.equal(readFileSync(saved, "utf8"), "hand edited\n");
+    assert.equal(existsSync(join(dir, "Sync.tla")), false);
+    assert.match(r.stderr, /already exists|refus/i);
+  });
+}
+
+for (const suffix of ["tla", "cfg", "map.mjs"]) {
+  test(`the scaffold command preserves an existing ${suffix} before writing any files`, () => {
+    const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+    writeFileSync(join(dir, "sync.mmd"), fixture("sync.mmd"));
+    const saved = join(dir, `Sync.${suffix}`);
+    writeFileSync(saved, "hand edited\n");
+    const r = node("chart-to-tla.mjs", ["sync.mmd", "--module", "Sync"], dir);
+    assert.notEqual(r.status, 0);
+    assert.equal(readFileSync(saved, "utf8"), "hand edited\n");
+    assert.deepEqual(readdirSync(dir).sort(), [`Sync.${suffix}`, "sync.mmd"].sort());
+  });
+}
+
+test("the scaffold command refuses a dangling generated-file symlink", () => {
+  const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+  writeFileSync(join(dir, "sync.mmd"), fixture("sync.mmd"));
+  symlinkSync("missing.cfg", join(dir, "Sync.cfg"));
+  const r = node("chart-to-tla.mjs", ["sync.mmd", "--module", "Sync"], dir);
+  assert.notEqual(r.status, 0);
+  assert.equal(existsSync(join(dir, "missing.cfg")), false);
+  assert.equal(existsSync(join(dir, "Sync.tla")), false);
+});
+
+for (const shape of ["nested notes", "nested output suffix", "tlc file", "tlc symlink", "chart directory", "chart symlink"]) {
+  test(`a rerun preserves foreign output content: ${shape}`, needsTlc, () => {
+    const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+    writeFileSync(join(dir, "upload.mmd"), fixture("upload.mmd"));
+    assert.equal(node("statechart.mjs", ["from-chart", "upload.mmd"], dir).status, 0);
+    const out = join(dir, "Upload-statechart");
+    let kept;
+    if (shape.startsWith("nested")) {
+      kept = join(out, "tlc", shape === "nested notes" ? "notes.md" : "notes.out");
+      writeFileSync(kept, "mine\n");
+    } else if (shape.startsWith("tlc")) {
+      rmSync(join(out, "tlc"), { recursive: true });
+      if (shape === "tlc file") {
+        kept = join(out, "tlc");
+        writeFileSync(kept, "mine\n");
+      } else {
+        mkdirSync(join(dir, "saved"));
+        kept = join(dir, "saved", "notes.md");
+        writeFileSync(kept, "mine\n");
+        symlinkSync(join(dir, "saved"), join(out, "tlc"));
+      }
+    } else {
+      rmSync(join(out, "chart.mmd"));
+      if (shape === "chart directory") {
+        mkdirSync(join(out, "chart.mmd"));
+        kept = join(out, "chart.mmd", "notes.md");
+        writeFileSync(kept, "mine\n");
+      } else {
+        kept = join(dir, "notes.md");
+        writeFileSync(kept, "mine\n");
+        symlinkSync(kept, join(out, "chart.mmd"));
+      }
+    }
+    const r = node("statechart.mjs", ["from-chart", "upload.mmd"], dir);
+    assert.equal(r.status, 2, r.stderr);
+    assert.equal(readFileSync(kept, "utf8"), "mine\n");
+  });
+}
+
+test("fixed and agreed models must check every current invariant", needsTlc, () => {
+  const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+  writeFileSync(join(dir, "sync.mmd"), fixture("sync.mmd"));
+  assert.equal(node("statechart.mjs", ["from-chart", "sync.mmd"], dir).status, 1);
+  writeFileSync(join(dir, "SyncOther.tla"), readFileSync(join(dir, "Sync.tla"), "utf8").replace("MODULE Sync", "MODULE SyncOther"));
+  writeFileSync(join(dir, "SyncOther.cfg"), "SPECIFICATION Spec\nINVARIANT TypeOK\n");
+  for (const flag of ["--fixed", "--against"]) {
+    const r = node("statechart.mjs", ["from-spec", "Sync.tla", flag, "SyncOther.tla", "--out", "comparison"], dir);
+    assert.equal(r.status, 2, r.stdout + r.stderr);
+    assert.match(r.stderr, /NeverSyncedWhileOffline/);
+    assert.equal(existsSync(join(dir, "comparison")), false);
+  }
+});
+
+test("the renderer refuses second-model logs that did not check a reported invariant", needsTlc, () => {
+  const dir = mkdtempSync(join(tmpdir(), "statechart-"));
+  writeFileSync(join(dir, "sync.mmd"), fixture("sync.mmd"));
+  assert.equal(node("statechart.mjs", ["from-chart", "sync.mmd"], dir).status, 1);
+  writeFileSync(join(dir, "SyncOther.tla"), readFileSync(join(dir, "Sync.tla"), "utf8").replace("MODULE Sync", "MODULE SyncOther"));
+  writeFileSync(join(dir, "SyncOther.cfg"), "SPECIFICATION Spec\nINVARIANT TypeOK\n");
+  assert.equal(tlc(dir, "SyncOther").status, 0);
+  const r = node("tlc-to-chart.mjs", ["--dot", "Sync-statechart/tlc/Sync.dot", "--map", "Sync.map.mjs", "--traces", "Sync-statechart/tlc/Sync-NeverSyncedWhileOffline.out", "--fixed-dot", "SyncOther.dot", "--fixed-traces", "SyncOther.out", "--out", "comparison.mmd"], dir);
+  assert.notEqual(r.status, 0);
+  assert.match(r.stderr, /NeverSyncedWhileOffline/);
+  assert.equal(existsSync(join(dir, "comparison.mmd")), false);
+});
