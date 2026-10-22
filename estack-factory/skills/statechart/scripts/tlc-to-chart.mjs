@@ -21,6 +21,7 @@ import {
   quote,
   ruleSentences,
   stateKey,
+  splitRules,
   wrap,
   STATUS_CLASSES,
 } from "./lib.mjs";
@@ -55,12 +56,12 @@ statechart.mjs runs it once for the overview and once for each bug chart.
                          an error other than a broken rule.
   --fixed-dot FILE       The state graph of the model with the open fix. Each bug's steps replay
                          on it.
-  --fixed-traces FILE    TLC output for the same invariants on the fixed model. Repeat it. It marks
+  --fixed-traces FILE    TLC output with its companion .cfg for the same invariants on the fixed model. Repeat it. It marks
                          states fixed or still wrong, and adds the bugs that only the fixed model
                          has after the current model's bugs.
   --against-dot FILE     The state graph of the spec that the current code must follow.
                          Each bug's steps replay on it. Do not use it with --fixed-dot.
-  --against-traces FILE  TLC output for the spec. Repeat it. Its bugs are drawn wrong, and the
+  --against-traces FILE  TLC output with its companion .cfg for the spec. Repeat it. Its bugs are drawn wrong, and the
                          bugs that only the spec has number after the code's bugs.
   --label TEXT           The name of the second model in the chart and the stories. Default:
                          "the fix" with --fixed-dot, "the spec" with --against-dot.
@@ -498,6 +499,17 @@ function firstBad(raw) {
 const rawTraces = readTraces(args.traces);
 const secondTraceFiles = role === "fix" ? args.fixedTraces : args.againstTraces;
 const rawSecondTraces = readTraces(secondTraceFiles, lacks);
+if (secondTraceFiles.length) {
+  const checked = new Set(secondTraceFiles.flatMap((file) => {
+    const cfg = file.replace(/\.out$/, ".cfg");
+    if (cfg === file || !fs.existsSync(cfg))
+      throw new Error(`${file}: cannot establish checked invariants without its companion .cfg file`);
+    return splitRules(fs.readFileSync(cfg, "utf8")).rules;
+  }));
+  const missing = [...new Set(rawTraces.map((trace) => trace.invariant))].filter((rule) => !checked.has(rule));
+  if (missing.length)
+    throw new Error(`the second model did not check reported invariants: ${missing.join(", ")}`);
+}
 const traces = firstBad(rawTraces);
 const secondTraces = firstBad(rawSecondTraces);
 function group(cuts, m) {

@@ -94,13 +94,18 @@ export function parseValue(text) {
     i += m[0].length;
     if (m[0] === "TRUE") return true;
     if (m[0] === "FALSE") return false;
-    return /^-?\d+$/.test(m[0]) ? Number(m[0]) : m[0];
+    if (!/^-?\d+$/.test(m[0])) return m[0];
+    const integer = Number(m[0]);
+    if (!Number.isSafeInteger(integer))
+      throw new RangeError(`TLA+ integer ${m[0]} is outside JavaScript's safe range`);
+    return integer;
   };
   try {
     const v = value();
     ws();
     return i === src.length ? v : src;
-  } catch {
+  } catch (error) {
+    if (error instanceof RangeError) throw error;
     return src;
   }
 }
@@ -720,4 +725,24 @@ export function groupClassDef(base, fill, border) {
     "#1b2631",
   ];
   return `classDef ${base}${border} fill:${fill},${stroke},color:${color}`;
+}
+
+const KEYWORD =
+  /^(SPECIFICATION|INIT|NEXT|CONSTANTS?|INVARIANTS?|PROPERTY|PROPERTIES|SYMMETRY|VIEW|CONSTRAINTS?|ACTION_CONSTRAINTS?|CHECK_DEADLOCK|POSTCONDITION|ALIAS)$/;
+
+export function splitRules(cfg) {
+  const words = cfg
+    .replace(/\(\*[^]*?\*\)/g, " ")
+    .replace(/\\\*.*/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+  const kept = [];
+  const rules = [];
+  let section = "";
+  for (const w of words) {
+    if (KEYWORD.test(w)) section = w;
+    if (!/^INVARIANTS?$/.test(section)) kept.push(KEYWORD.test(w) && kept.length ? `\n${w}` : w);
+    else if (w !== section && !rules.includes(w)) rules.push(w);
+  }
+  return { cfgWithoutRules: `${kept.join(" ")}\n`, rules };
 }

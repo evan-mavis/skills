@@ -24,7 +24,8 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ### Adopted from 0.15.30
 
-- Added `statechart` with upstream runtime scripts and fixtures unchanged. Adapted its tests to inject rename failures through Node on every platform and compare canonical Java temp paths. All rollback and isolation assertions remain. It draws user-visible states and numbered bug paths from TLA+ models, compares a fix or agreed spec, and generates a TLA+ skeleton from an agreed Mermaid chart.
+- Added `statechart` from the reviewed upstream snapshot, with local safety fixes at its input and output boundaries. Adapted its tests to inject rename failures through Node on every platform and compare canonical Java temp paths. All rollback and isolation assertions remain. It draws user-visible states and numbered bug paths from TLA+ models, compares a fix or agreed spec, and generates a TLA+ skeleton from an agreed Mermaid chart.
+- Added a generated-path inventory to preserve foreign output and reject unexpected paths, symlinks, and type changes. Refused partial scaffold targets and used exclusive writes for generated source files. Rejected TLA+ integers outside JavaScript's safe range. Required every current invariant in comparison configs and paired configs for renderer trace coverage.
 - Preserved code-linked model actions, unchanged invariants, real-code replay before reporting a bug, inspected PNGs, counts from `summary.json`, and explicit model limits. Output stays in a scratch folder outside the repository.
 - Adapted invocation metadata and help to this platform. Named the Node.js, Java, TLC, and PNG rendering prerequisites. The helpers use no Cursor APIs and have identical relative paths in all four packages.
 - Skipped upstream manifest and guide changes. Native manifests and the existing help table cover packaging and discovery without duplicating the upstream guide. Deslop has no changes since the previous snapshot.

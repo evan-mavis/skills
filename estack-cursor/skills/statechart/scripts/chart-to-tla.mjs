@@ -22,7 +22,7 @@ never line is a state, or a composite that stands for every state inside it.
   --dir OUT      The folder for the files. Default: the chart's folder.
   -h, --help     Print this help, and exit 0.
 
-Writes NAME.tla, NAME.cfg, and NAME.map.mjs into OUT, and replaces files with those names.
+Writes NAME.tla, NAME.cfg, and NAME.map.mjs into OUT, and refuses to replace any existing target. Choose a new module name to regenerate.
 NAME.cfg has SPECIFICATION Spec, INVARIANT TypeOK, and one INVARIANT per never line.
 NAME.map.mjs gives tlc-to-chart.mjs the reader's words: the region states joined by " | ".
 
@@ -227,10 +227,20 @@ const map = [
   "",
 ];
 
+const targets = ["tla", "cfg", "map.mjs"].map((suffix) => path.join(dir, `${args.module}.${suffix}`));
+for (const file of targets) {
+  try {
+    fs.lstatSync(file);
+  } catch (error) {
+    if (error.code === "ENOENT") continue;
+    throw error;
+  }
+  throw new Error(`${file} already exists; refusing to replace generated files. Use a new --module name.`);
+}
 fs.mkdirSync(dir, { recursive: true });
-fs.writeFileSync(path.join(dir, `${args.module}.tla`), out.join("\n"));
-fs.writeFileSync(path.join(dir, `${args.module}.cfg`), cfg.join("\n"));
-fs.writeFileSync(path.join(dir, `${args.module}.map.mjs`), map.join("\n"));
+fs.writeFileSync(path.join(dir, `${args.module}.tla`), out.join("\n"), { flag: "wx" });
+fs.writeFileSync(path.join(dir, `${args.module}.cfg`), cfg.join("\n"), { flag: "wx" });
+fs.writeFileSync(path.join(dir, `${args.module}.map.mjs`), map.join("\n"), { flag: "wx" });
 console.error(
   `${args.module}: ${vars.length} region variable(s), ${actions.length} action(s), rules ${rules.join(" ")} -> ${path.join(dir, args.module)}.{tla,cfg,map.mjs}`,
 );

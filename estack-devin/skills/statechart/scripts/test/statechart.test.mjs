@@ -737,7 +737,7 @@ test("statechart.mjs writes the spec next to the chart, keeps it on the next run
   const again = node("statechart.mjs", ["from-chart", "notes-app.mmd"], dir, noTlc);
   assert.equal(
     again.stdout,
-    "Kept NotesApp.tla. Delete it to write the spec again from notes-app.mmd.\n",
+    "Kept NotesApp.tla. Use a new --module name to regenerate from notes-app.mmd.\n",
   );
   const spec = node("statechart.mjs", ["from-spec", "NotesApp.tla"], dir, noTlc);
   assert.equal(spec.status, 2);
@@ -1114,7 +1114,7 @@ Wrote chart.mmd, bug-1.mmd, stories.md, summary.json in Sync-statechart.
   assert.equal(coded.status, 1, coded.stderr);
   assert.equal(
     coded.stdout,
-    `Kept Sync.tla. Delete it to write the spec again from sync.mmd.
+    `Kept Sync.tla. Use a new --module name to regenerate from sync.mmd.
 TLC on Sync.tla:
   TypeOK holds.
   NeverSyncedWhileOffline holds.
@@ -1138,6 +1138,7 @@ Wrote chart.mmd, stories.md, summary.json in Sync-statechart.
 `,
   );
   assert.deepEqual(readdirSync(join(dir, "Sync-statechart")).sort(), [
+    ".statechart-files.json",
     "chart.mmd",
     "stories.md",
     "summary.json",
@@ -1193,7 +1194,7 @@ echo png > "$png"
       );
       assert.deepEqual(
         readdirSync(join(dir, "Sync-statechart")).sort(),
-        [...written, "stories.md", "summary.json", "tlc"].sort(),
+        [...written, ".statechart-files.json", "stories.md", "summary.json", "tlc"].sort(),
       );
     }
   },
@@ -1366,6 +1367,7 @@ Wrote chart.mmd, bug-1.mmd, bug-1-developer.mmd, bug-1-layered.mmd, stories.md, 
       /state "Paying, charged twice" as g\d \{\n {4}state "charges = 2" as s\d\n/,
     );
     assert.deepEqual(readdirSync(join(dir, "Pay-statechart")).sort(), [
+      ".statechart-files.json",
       "bug-1-developer.mmd",
       "bug-1-layered.mmd",
       "bug-1.mmd",
