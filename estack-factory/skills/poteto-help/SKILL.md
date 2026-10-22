@@ -40,6 +40,7 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 | Divide parallel work into slices or a race | [Swarm](../swarm/SKILL.md) |
 | Formally verify a race or invariant that tests rarely reach | [Create formal verification skill](../create-formal-verification-skill/SKILL.md) |
 | Bring formal checks back in line after covered code changes | [Maintain formal verification skill](../maintain-formal-verification-skill/SKILL.md) |
+| Show user behavior and bug paths from a TLA+ model, or turn an agreed chart into a model | [Statechart](../statechart/SKILL.md) |
 | Vet a measured performance number | [Benchmark checklist](../benchmark-checklist/SKILL.md) |
 | Prevent repeated agent mistakes | [Correct](../correct/SKILL.md) |
 
