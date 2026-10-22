@@ -4,11 +4,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.29`
-- Commit: [`88d47514b82e7c44f00f2b2a72ff6dd12158038c`](https://github.com/cursor/plugins/commit/88d47514b82e7c44f00f2b2a72ff6dd12158038c)
-- Retrieved and compared: 2026-10-20
+- Version: `0.15.30`
+- Commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10)
+- Retrieved and compared: 2026-10-22
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
-- Previous snapshot: `0.15.28` at [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0), compared 2026-10-19.
+- Previous snapshot: `0.15.29` at [`88d47514b82e7c44f00f2b2a72ff6dd12158038c`](https://github.com/cursor/plugins/commit/88d47514b82e7c44f00f2b2a72ff6dd12158038c), compared 2026-10-20.
+- Earlier snapshot: `0.15.28` at [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0), compared 2026-10-19.
 - Earlier snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
 - Earlier snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
 
@@ -20,6 +21,14 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - `skills/deslop/` is vendored from the source snapshot and runs before commits.
 - The Codex variant preserves the source license and includes its runtime adaptations directly.
 - Codex session hooks adapt [Aqua's Codex port](https://github.com/Aqua-123/pstack-for-codex/tree/main/hooks), with Estack activation forms and state isolated by chat and project. `NOTICE-hooks` preserves the source license. Generic Codex subagents continue to use the bundled poteto-agent prompt; no custom agent profile is installed.
+
+### Adopted from 0.15.30
+
+- Added `statechart` with upstream runtime scripts and fixtures unchanged. Adapted its tests to inject rename failures through Node on every platform and compare canonical Java temp paths. All rollback and isolation assertions remain. It draws user-visible states and numbered bug paths from TLA+ models, compares a fix or agreed spec, and generates a TLA+ skeleton from an agreed Mermaid chart.
+- Preserved code-linked model actions, unchanged invariants, real-code replay before reporting a bug, inspected PNGs, counts from `summary.json`, and explicit model limits. Output stays in a scratch folder outside the repository.
+- Adapted invocation metadata and help to this platform. Named the Node.js, Java, TLC, and PNG rendering prerequisites. The helpers use no Cursor APIs and have identical relative paths in all four packages.
+- Skipped upstream manifest and guide changes. Native manifests and the existing help table cover packaging and discovery without duplicating the upstream guide. Deslop has no changes since the previous snapshot.
+- Preserved native tools, delegation, scheduling, session access, personal defaults, GitHub native stacks, Airgoods overrides, artwork, licenses, and account release IDs.
 
 ### Adopted from 0.15.6 through 0.15.10
 
