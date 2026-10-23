@@ -1,5 +1,11 @@
 # Review Site template
 
+## Approved visual reference
+
+![Approved Notion-style review layout](../assets/review-reference.jpg)
+
+Use this user-approved screenshot as the visual target. It shows a template fixture, not authenticated application evidence. Keep it with the skill as design guidance; do not substitute it for new captures or publish it as a reviewed screen.
+
 ## Minimal presentation
 
 Use a high-contrast, Notion-like style: a white page, warm off-white sidebar, dark charcoal headings, muted gray text and links, quiet borderless toolbar controls, thin gray image borders, and generous whitespace. Use a neutral gray active navigation row, without purple accents or an outlined selection. The primary content is a heading, one short subheading explaining the change, and paired images. Keep provenance and detailed coverage outside the main comparison, in source data. Show actual missing-capture or verification gaps as one plain sentence, without a banner. Do not display generic fixture warnings, capture-kind subtitles, a Screens heading, a sidebar divider, a repeated issue link above the title, or Review notes. Keep fixture provenance in the validation report; component previews still need a concise label.
