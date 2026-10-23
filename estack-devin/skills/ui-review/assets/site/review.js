@@ -6,7 +6,17 @@ const element = (tag, text, className) => {
   return node;
 };
 let review, round, comparisons, index, opener;
-const labels = { 'authenticated-app': 'Authenticated app', 'component-preview': 'Supplemental component preview', 'example-fixture': 'Example fixture · not authenticated app evidence' };
+function deviceIcon(variant) {
+  const mobile = /mobile|phone|compact/i.test(variant);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('class', 'device-icon');
+  svg.setAttribute('aria-hidden', 'true');
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  path.setAttribute('d', mobile ? 'M7 2h10v20H7z M10 18h4' : 'M2 3h20v14H2z M12 17v4 M7 21h10');
+  svg.append(path);
+  return svg;
+}
 function picture(image, side) {
   const wrapper = element('div', undefined, `image ${side}`);
   const img = element('img');
@@ -29,13 +39,13 @@ function card(image, side) {
   const caption = element('figcaption', name);
   figure.append(caption);
   if (!image) { figure.append(element('p', 'Capture unavailable. See the verification gap.', 'missing')); return figure; }
-  caption.append(element('span', labels[image.capture.kind], 'evidence-label'));
+  if (image.capture.kind === 'component-preview') caption.append(element('span', 'Component preview', 'evidence-label'));
   const button = element('button', undefined, 'image-button');
   button.setAttribute('aria-label', `Enlarge ${name} screenshot`);
   button.append(picture(image, side), element('span', 'Click to enlarge ↗', 'enlarge-hint'));
   button.onclick = () => {
     opener = button;
-    $('enlarged-label').textContent = `${name} · ${labels[image.capture.kind]}`;
+    $('enlarged-label').textContent = name;
     $('enlarged-image').replaceChildren(picture(image, side));
     $('enlargement').showModal();
   };
@@ -45,12 +55,8 @@ function card(image, side) {
 function setRoute(i) { location.hash = `${round.id}/${comparisons[i].id}`; }
 function render() {
   const item = comparisons[index];
-  const issue = review.issues.find((entry) => entry.id === item.issueId);
-  $('issue').replaceChildren();
-  const link = element('a', `${issue.id} · ${issue.title}`); link.href = issue.url; $('issue').append(link);
   $('title').textContent = item.title;
   $('explanation').textContent = item.explanation;
-  $('variant').textContent = item.variant;
   $('gap').hidden = !item.gap;
   $('gap').textContent = item.gap || '';
   $('position').textContent = `${index + 1} / ${comparisons.length}`;
@@ -61,11 +67,6 @@ function render() {
   $('diff').replaceChildren(...(item.copyDiff || []).map(({ type, text }) => element(type === 'remove' ? 'del' : type === 'add' ? 'ins' : 'span', text)));
   $('video').replaceChildren();
   if (item.video) { const video = element('video'); video.controls = true; video.src = item.video; $('video').append(video); }
-  $('notes').replaceChildren(...(item.feedback || []).map((note) => {
-    const p = element('p', `${note.disposition}: ${note.text} `);
-    const source = element('a', 'Source'); source.href = note.source; p.append(source); return p;
-  }));
-  $('feedback').hidden = !item.feedback?.length;
   for (const node of $('screens').querySelectorAll('[data-comparison]')) {
     if (node.dataset.comparison === item.id) node.setAttribute('aria-current', 'page'); else node.removeAttribute('aria-current');
   }
@@ -77,13 +78,20 @@ function route() {
   comparisons = review.issues.flatMap((issue) => round.comparisons.filter((item) => item.issueId === issue.id));
   index = Math.max(0, comparisons.findIndex((entry) => entry.id === comparisonId));
   $('round').value = round.id;
-  $('total').textContent = comparisons.length;
   $('screens').replaceChildren();
   for (const issue of review.issues) {
     const items = comparisons.filter((item) => item.issueId === issue.id);
     if (!items.length) continue;
     const heading = element('h3'); const issueLink = element('a', `${issue.id} · ${issue.title}`); issueLink.href = issue.url; heading.append(issueLink); $('screens').append(heading);
-    for (const item of items) { const link = element('a', `${item.title} · ${item.variant}`); link.href = `#${round.id}/${item.id}`; link.dataset.comparison = item.id; $('screens').append(link); }
+    for (const item of items) {
+      const link = element('a');
+      link.setAttribute('aria-label', `${item.title}, ${item.variant}`);
+      link.title = item.variant;
+      link.append(deviceIcon(item.variant), element('span', item.title));
+      link.href = `#${round.id}/${item.id}`;
+      link.dataset.comparison = item.id;
+      $('screens').append(link);
+    }
   }
   render();
 }

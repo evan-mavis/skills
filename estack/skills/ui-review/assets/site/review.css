@@ -1,17 +1,17 @@
 :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #202020; background: white; line-height: 1.5; }
 * { box-sizing: border-box; }
 body { margin: 0; display: grid; grid-template-columns: 235px minmax(0, 1fr); }
-aside { padding: 28px 22px; border-right: 1px solid #d8d8d8; min-height: 100vh; }
+aside { padding: 28px 22px; min-height: 100vh; }
 main { min-width: 0; padding: 30px 36px; }
 h1 { font-size: 30px; letter-spacing: -.04em; margin: 0; }
 h2 { font-size: 16px; margin: 0 0 12px; }
-aside h2 { display: flex; justify-content: space-between; }
+#round { margin-top: 32px; font-size: 12px; color: #555; }
+.device-icon { width: 18px; height: 18px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
 p { margin: 10px 0 24px; }
-#issue, #variant { font-size: 13px; color: #505050; }
 #explanation { max-width: 850px; }
 a { color: #4935b0; text-underline-offset: 3px; }
 nav h3 { font-size: 13px; margin: 26px 0 8px; }
-nav > a { display: block; color: #303030; padding: 9px; border-radius: 5px; text-decoration: none; font-size: 14px; }
+nav > a { display: flex; align-items: center; gap: 10px; color: #303030; padding: 9px; border-radius: 5px; text-decoration: none; font-size: 14px; }
 nav > a[aria-current] { background: #ede9ff; color: #39229b; outline: 2px solid #7258de; font-weight: 650; }
 button, select { font: inherit; border: 1px solid #bcbcbc; border-radius: 5px; background: white; color: #202020; padding: 6px 10px; }
 button:not(:disabled), select, input { cursor: pointer; }
@@ -19,7 +19,7 @@ button:disabled { opacity: .4; }
 :focus-visible { outline: 3px solid #7258de; outline-offset: 3px; }
 .heading, .toolbar, .controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .controls { flex-shrink: 0; font-size: 13px; }
-.toolbar { margin: 22px 0 12px; font-size: 14px; }
+.toolbar { justify-content: flex-end; margin: 22px 0 12px; font-size: 14px; }
 input { accent-color: #6045cf; }
 .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
 figure { margin: 0; border: 1px solid #d4d4d4; border-radius: 8px; overflow: hidden; }
@@ -36,11 +36,10 @@ body.hide-highlights .region { visibility: hidden; }
 #diff { white-space: pre-wrap; font-size: 17px; line-height: 1.8; }
 del { color: #a01637; background: #fce5eb; text-decoration: line-through; }
 ins { color: #075c38; background: #daf3e5; text-decoration: none; }
-#gap { padding: 12px; border-left: 3px solid #a86200; background: #fff4dc; }
+#gap { font-size: 13px; color: #555; }
 .missing { padding: 30px 15px; }
-details { margin-top: 26px; font-size: 14px; }
 video { margin-top: 20px; width: 100%; max-height: 600px; }
 dialog { width: min(1500px, 96vw); max-height: 96vh; padding: 18px; border: 1px solid #888; border-radius: 8px; }
 dialog::backdrop { background: #000b; }
 dialog .toolbar { margin-top: 0; }
-@media (max-width: 760px) { body { grid-template-columns: 1fr; } aside { min-height: auto; border-right: 0; border-bottom: 1px solid #ddd; padding: 18px; } nav { max-height: 180px; overflow: auto; } main { padding: 24px 18px; } .pair { grid-template-columns: 1fr; } h1 { font-size: 25px; } .heading { align-items: start; } }
+@media (max-width: 760px) { body { grid-template-columns: 1fr; } aside { min-height: auto; border-right: 0; padding: 18px; } nav { max-height: 180px; overflow: auto; } main { padding: 24px 18px; } .pair { grid-template-columns: 1fr; } h1 { font-size: 25px; } .heading { align-items: start; } }
