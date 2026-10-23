@@ -1,52 +1,36 @@
-# Review page template
+# Review Site template
 
-Use [UI reviews](https://app.notion.com/p/a0b35fbeb1ef41b3a1d707a4c79de4d1). Its data source is `collection://749d88fa-f258-464a-8a56-0a4f432d3508`. Fetch the current schema before writing.
+## Approved visual reference
 
-Set these database properties:
+![Approved Notion-style review layout](../assets/review-reference.jpg)
 
-- `Name` is `[feature name] ui review ([issue ID])`. Omit the issue suffix when there is no issue.
-- `Issue` is the issue URL when available.
-- `PR` is the PR URL when available.
-- `Latest round` is the newest published round number, stored as a number.
+Use this user-approved screenshot as the visual target. It shows a template fixture, not authenticated application evidence. Keep it with the skill as design guidance; do not substitute it for new captures or publish it as a reviewed screen.
 
-These properties are the page header. Do not repeat them in the body or add other properties. Leave unavailable links empty.
+## Minimal presentation
 
-Use this body structure. Replace bracketed examples with real content and uploaded media. Never publish scaffold placeholders. Use Notion's returned upload markup for the media block. Children of the round heading use tab indentation.
+Use a high-contrast, Notion-like style: a white page, warm off-white sidebar, dark charcoal headings, muted gray text and links, quiet borderless toolbar controls, thin gray image borders, and generous whitespace. Use a neutral gray active navigation row, without purple accents or an outlined selection. The primary content is a heading, one short subheading explaining the change, and paired images. Keep provenance and detailed coverage outside the main comparison, in source data. Show actual missing-capture or verification gaps as one plain sentence, without a banner. Do not display generic fixture warnings, capture-kind subtitles, a Screens heading, a sidebar divider, a repeated issue link above the title, or Review notes. Keep fixture provenance in the validation report; component previews still need a concise label.
 
-```markdown
-[one or two sentences summarizing the change]
+Use the bundled buildless template in `assets/site/` as a starting point. Copy its three files into the Site's static directory and add `review.json` plus durable screenshot assets. Do not publish template placeholders. Adapt an existing review rather than replacing its history or design wholesale.
 
-## Round 1 {toggle="true"}
-	### 1. Propose three times
-	Before
-	[uploaded screenshot of the pre-change baseline]
-	After
-	[uploaded screenshot of the current branch]
-	[optional supporting caption]
-	### Feedback
-	<empty-block/>
-	---
-	### 2. Review before submitting
-	Before
-	[uploaded screenshot of the pre-change baseline]
-	After
-	[uploaded screenshot of the current branch]
-	### Feedback
-	<empty-block/>
-	---
-	### 3. Retailer selects a proposed time
-	Before
-	[uploaded screenshot of the pre-change baseline]
-	After
-	[uploaded screenshot of the current branch]
-	[optional uploaded video of the flow]
-	[optional supporting caption]
-	### Feedback
-	<empty-block/>
-```
+- A narrow sidebar groups linked Linear subissues when available, otherwise clear feature or UI areas with descriptive headings. Beneath each group, list changed screens/states in agreed order, with a small outline monitor icon for desktop and a phone icon for mobile. Give icons accessible variant names, without visible desktop/mobile text. Do not sort by issue ID, title, or completion status. When specific issues are absent, split by meaningful feature or UI boundaries rather than putting unrelated screens under one PR heading. Links are optional for these groups. Never invent an issue or link.
+- The content shows one comparison at a time. A screen count, previous/next buttons, and hash links address each comparison. Count comparison entries in the selected round; desktop/mobile entries count separately. Collapse the sidebar above the content on small displays.
+- Label paired images Before and After. Use two columns when readable, stacked on narrow screens. Keep the entire image visible and preserve its aspect ratio. Click either image to open a keyboard-dismissible enlargement with the same overlays and checkbox state.
+- Highlight changes starts checked. Multiple translucent rectangles mark meaningful changes. Before uses red/pink borders and fills; After uses green. Never bake marks into the original image.
+- For changed copy, show the full readable sentence beneath the images. Unchanged words stay plain; removed words use red with strikethrough, added words use green. Supply ordered `equal`, `remove`, and `add` segments with their original whitespace; do not show escaped HTML or raw patch syntax.
+- Add video with native controls only when motion explains the interaction. Keep both static screenshots. Provide a brief gap note when evidence is incomplete.
 
-Repeat the media section for every covered screen or action. Use descriptive headings for distinct states, such as `Submit a request with missing times` or `Reschedule on mobile`. A caption can identify a role or fixture condition that the heading and media do not explain. For a video, include timestamps only when they help locate the relevant action.
+## Review data and history
 
-Round 1 always includes Before and After screenshots. A video can supplement them. For entirely new UI, Before shows the previous entry point or surrounding screen with a brief caption explaining that the new UI did not exist.
+`review.json` contains `title`, `summary`, ordered `issues` group records with `id`, `title`, optional `url`, and optional `kind`, and ordered `rounds`. Each round has a stable `id`, `label`, `summary`, and ordered `comparisons`. Each comparison has `id`, `issueId`, `title`, `variant`, `explanation`, optional `gap`, `before`, `after`, optional `copyDiff`, optional `video`, and `feedback`. Keep the existing `issues` and `issueId` field names for compatibility; they also represent feature or UI groups. Set `kind` to `linear`, `feature`, or `ui`. A Linear group requires its issue URL; feature and UI groups may omit the URL and display only their descriptive title. Without `kind`, existing records with a URL retain their issue heading, and records without a URL display as feature headings. See [capture metadata](capture-metadata.md) for each image's fields.
 
-For subsequent rounds, use `## Round N {toggle="true"}` and include only items still awaiting review. Each section needs its current screenshot or video and Feedback area. Do not carry forward sections or media the user marked "approved" or "omit". Keep all older round toggles below the newest round with their media and feedback intact. Do not add a table of contents or tracking sections.
+IDs are permanent and unique within the Site. The template uses `#round-id/comparison-id`; preserve old routes. Keep rounds oldest first in data; the template selects the newest by default and offers earlier rounds in a compact selector at the top right beside the previous/next controls. On narrow displays, keep those controls right-aligned above the title. Within a round, group order follows `issues`, and screen order follows `comparisons`. A later round includes only unresolved or reopened items and retains matched baseline/current pairs. Reuse the verified baseline asset when still applicable; explain any baseline change.
+
+Store feedback as records with `source`, `text`, `comparisonId`, and `disposition` such as `unresolved`, `approved`, `omitted`, or `reopened`. Record explicit acceptance with its source. Store review identity, issue/PR links, coverage gaps, and feedback in durable source or the existing Site's supported storage. A local-only comment box is not durable feedback. Keep saved feedback in the review data rather than the comparison UI; collect new feedback through the user's existing chat/issue channels unless the Site already supports durable submissions.
+
+Append rounds and assets, preserve existing feedback and media, and check historical links before publishing. If migrating an accessible legacy review, retain its source URL and earlier evidence; report inaccessible history. Do not create a fresh Site each round. Preserve the existing Site's audience through the current Sites skill. Use packaged local assets or supported durable storage, never local filesystem URLs or expiring capture links.
+
+## Validation
+
+Run `node <skill-directory>/scripts/validate-review.mjs <static-directory>` before publication. It checks local PNG/JPEG assets, hashes, capture dimensions, matching pair conditions, baseline/current provenance distinctions, rectangle bounds, IDs, and copy segments. It cannot prove a claimed capture came from the recorded build; verify Git and running-process provenance during capture.
+
+Exercise a small example with a text replacement, an added or moved region, and desktop/mobile captures. Open it in a real browser. Verify sidebar order and issue links, counts, previous/next boundaries, hash reload/back navigation, round history, red/green word diffs, default highlights, toggle behavior, both image enlargements, Escape/focus return, image aspect ratios, and rectangle alignment at inline and enlarged sizes. Check every asset loads and the page works at a narrow width. Test missing evidence as a visible gap, not a successful comparison. Record actual results and limits. Example or component captures are supplemental, never authenticated application evidence.
