@@ -82,7 +82,12 @@ function route() {
   for (const issue of review.issues) {
     const items = comparisons.filter((item) => item.issueId === issue.id);
     if (!items.length) continue;
-    const heading = element('h3'); const issueLink = element('a', `${issue.id} · ${issue.title}`); issueLink.href = issue.url; heading.append(issueLink); $('screens').append(heading);
+    const heading = element('h3');
+    const linear = issue.kind === 'linear' || (!issue.kind && issue.url);
+    const title = linear ? `${issue.id} · ${issue.title}` : issue.title;
+    if (issue.url) { const link = element('a', title); link.href = issue.url; heading.append(link); }
+    else heading.textContent = title;
+    $('screens').append(heading);
     for (const item of items) {
       const link = element('a');
       link.setAttribute('aria-label', `${item.title}, ${item.variant}`);

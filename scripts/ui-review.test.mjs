@@ -54,3 +54,14 @@ test('reports missing evidence even when the review is valid', () => withReview(
   c.before = null; c.gap = 'Baseline is blocked';
 }, async run => { const result = await run(); assert.equal(result.gaps, 1); assert.equal(result.missingCaptures, 1); }));
 test('rejects unrecognized screenshot bytes', () => assert.throws(() => imageDimensions(Buffer.from('not an image')), /PNG or JPEG/));
+
+for (const kind of ['feature', 'ui', undefined]) test(`accepts ${kind || 'implicit feature'} groups without issue links`, () => withReview((c,d) => {
+  d.issues = [{ id: 'checkout', title: 'Checkout', ...(kind ? { kind } : {}) }];
+  c.issueId = 'checkout';
+}, async run => assert.equal((await run()).comparisons, 1)));
+test('requires a URL for an explicit Linear group', () => withReview((c,d) => {
+  d.issues[0] = { id: 'EX-1', title: 'Example', kind: 'linear' };
+}, run => assert.rejects(run, /require an issue URL/)));
+test('rejects an unsafe group URL', () => withReview((c,d) => {
+  d.issues[0].url = 'javascript:alert(1)';
+}, run => assert.rejects(run, /Invalid group URL/)));

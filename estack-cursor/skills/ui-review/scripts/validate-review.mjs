@@ -55,7 +55,13 @@ export async function validateReview(directory) {
   };
   require(string(review.title) && string(review.summary) && review.issues?.length && review.rounds?.length, 'Missing review content');
   const issueIds = new Set();
-  for (const issue of review.issues) { require(string(issue.id) && !issueIds.has(issue.id) && string(issue.title) && /^https:\/\//.test(issue.url), 'Invalid issue'); issueIds.add(issue.id); }
+  for (const issue of review.issues) {
+    require(string(issue.id) && !issueIds.has(issue.id) && string(issue.title), 'Invalid group');
+    require(issue.kind === undefined || ['linear', 'feature', 'ui'].includes(issue.kind), 'Invalid group kind');
+    require(issue.url === undefined || /^https:\/\//.test(issue.url), 'Invalid group URL');
+    if (issue.kind === 'linear') require(string(issue.url), 'Linear groups require an issue URL');
+    issueIds.add(issue.id);
+  }
   let count = 0, gaps = 0, missingCaptures = 0;
   for (const round of review.rounds) {
     id(round.id);
