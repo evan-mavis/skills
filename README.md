@@ -129,7 +129,7 @@ estack/
     ├── technical-writing/                                   # Apply plain technical writing standards to documentation.
     ├── to-linear-spec/                                      # Create or update a Linear feature spec and outcome-focused subissues.
     ├── typescript-best-practices/                           # Apply TypeScript guidance when reading or editing TypeScript.
-    ├── ui-review/                                           # Capture UI evidence in Notion and apply review feedback.
+    ├── ui-review/                                           # Capture Before/After evidence in Sites and apply review feedback.
     ├── unslop/                                              # Remove AI writing patterns and filler from prose.
     ├── verify-airgoods/                                     # Route live Airgoods verification to the appropriate app skill.
     ├── verify-airgoods-warehouse/                           # Verify the Warehouse operator app with recorded browser evidence.
