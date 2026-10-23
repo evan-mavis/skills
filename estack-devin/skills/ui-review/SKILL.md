@@ -15,7 +15,7 @@ Read the current Sites skill when available and use its supported source and pub
 
 ## Capture real evidence
 
-Read [capture and highlight guidance](references/capture-metadata.md) before capturing. Verify the pre-change Git baseline before labeling any screenshot Before. Never relabel the changed implementation as Before. Match role, state, data, viewport, and scroll position across each pair. Keep screenshots intact and store highlight rectangles separately.
+Use [Capture](../capture/SKILL.md) for screenshots and interaction recordings, including screenshot-only reviews. Read [capture and highlight guidance](references/capture-metadata.md) before capturing. Verify the pre-change Git baseline before labeling any screenshot Before. Never relabel the changed implementation as Before. Match role, state, data, viewport, and scroll position across each pair. Keep screenshots intact and store highlight rectangles separately.
 
 Capture every materially changed screen and state, shared-component caller, dialog, menu, and relevant desktop/mobile variant through normal user actions in the running app. Use authenticated full-app captures as primary evidence. Report blocked captures; explicitly label component previews as supplemental. Keep execution-mode flags and product behavior unchanged to obtain evidence. Exclude credentials and sensitive account data. Keep static screenshots, adding video when an interaction needs it.
 

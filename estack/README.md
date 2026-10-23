@@ -21,7 +21,7 @@ airgoods verification and babysitting use bundled sibling skills. verification p
 
 use [poteto-help](skills/poteto-help/SKILL.md) to choose a workflow, [correct](skills/correct/SKILL.md) to prevent recurring agent mistakes, and [benchmark-checklist](skills/benchmark-checklist/SKILL.md) to vet performance claims.
 
-for automated web demos, use the [codex recording recipe](skills/poteto-mode/references/video-recording.md). it uses agent-browser with a visible cursor, checks the installed version, and covers cloud prerequisites and artifact delivery.
+use [capture](skills/capture/SKILL.md) for visual evidence in playbooks and verification skills, including screenshots, raw recordings, and polished walkthroughs. it preserves raw evidence, hashes, and provenance. see its [runtime requirements](skills/capture/references/runtime.md) before recording.
 
 workflows require the services and tools named by their skills. cloud availability, plugin-mention routing, browser recording, github authentication, and scheduled follow-ups require verification in the target session. a local installation does not prove cloud support.
 

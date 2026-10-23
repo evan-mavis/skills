@@ -57,6 +57,8 @@ invoke or pin Estack using your tool's native syntax. it reads personal defaults
 
 project context lives in [estack's references](estack/skills/estack/references/projects/). Airgoods is matched by repository identity, including worktrees and explicitly targeted PRs. other repositories use the generic workflow. add another project's context and a row in each variant's Estack project table to extend routing. project context is a reference, not another skill to invoke.
 
+use [capture](estack/skills/capture/SKILL.md) as the default visual evidence tool across playbooks and verification skills. screenshots, raw footage, and polished walkthroughs share one capture workflow. keep raw evidence, hashes, provenance, and nonvisual checks. installing estack does not install its [runtime dependencies](estack/skills/capture/references/runtime.md).
+
 ## skill tree
 
 skills live directly under `skills/`, with no separate `personal/` or `airgoods/` skill directories. personal defaults and airgoods project context live in the nested references shown below. all four variants share these skill names; tools and runtime instructions differ by platform. other supporting files are omitted.
@@ -71,6 +73,7 @@ estack/
     ├── benchmark-checklist/                                 # Check that performance measurements reflect real, repeatable work.
     ├── blast-radius/                                        # Find what a change could break and verify its safety.
     ├── bro/                                                 # Restate the last message in plain language.
+    ├── capture/                                             # Capture raw visual evidence and render polished walkthroughs.
     ├── close-release-issues/                                # Audit released Linear issues and close them after user confirmation.
     ├── correct/                                             # Prevent recurring agent mistakes with enforceable safeguards.
     ├── create-verification-skill/                           # Build a project verification skill that exercises real behavior.

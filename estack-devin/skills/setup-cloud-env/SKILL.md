@@ -11,7 +11,7 @@ Make the current cloud checkout ready for development. A bare setup request star
 
 When this skill is used only to prepare verification, reuse the existing provisioned child and start missing required apps. Provision a child only for an explicit cloud setup request. Do not run this cloud bootstrap on a local desktop checkout.
 
-When using a skill reader, resolve the registered `poteto-mode` skill and read its [video-recording resource](../poteto-mode/references/video-recording.md). Do not use the plugin root as a skill package.
+When using a skill reader, resolve the registered `capture` skill and read its `SKILL.md` and runtime reference. Do not use the plugin root as a skill package.
 
 ## Read the repository setup
 
@@ -25,7 +25,7 @@ Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `ps
 
 Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
 
-Before driving a video demo, run [Record a demo preflight](../poteto-mode/references/video-recording.md#preflight) for the browser CLI, compatible installed browser, `ffmpeg`, `ffprobe`, encoders, and cursor recording. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser documentation. Explicit cloud setup includes missing recorder prerequisites; verification alone reports them with `I RAN INTO AN ISSUE:` and continues work that does not depend on them. Do not assume a browser download is needed.
+Before capturing visual evidence, run [Capture preflight](../capture/SKILL.md) and check its [runtime requirements](../capture/references/runtime.md). Check Python 3.12, Pillow 12.3, numpy 2.3.5, FFmpeg 7.1.5 with libx264 and ffprobe, agent-browser 0.38.1, and Chrome 154.0.8037.92. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser documentation. Explicit cloud setup includes missing recorder prerequisites; verification alone reports them with `I RAN INTO AN ISSUE:` and continues work that does not depend on them. Do not assume a browser download is needed.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
