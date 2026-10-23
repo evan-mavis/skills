@@ -1,5 +1,7 @@
 ### Autopilot-full
 
+For a coupled large feature, use [Autopilot-stack](autopilot-stack.md#coupled-feature-mode) on one integration branch through QA and user refinements, then package for final review. The PR queue and landing rules below apply to independent delivery units or explicitly requested early independent delivery. They do not authorize early feature PRs or merges.
+
 Factory delegation stays flat. The root launches every owner, independent reviewer, verifier, and watcher as a sibling Task. A child owner returns required review briefs and its head SHA to the root; it cannot spawn children. The root owns `children.tsv`, drains automatically delivered Task completion results, and returns review results only through an authorized state-preserving resume or a fresh consolidated brief. Pending independent proof blocks merge-ready.
 
 **You own the verdicts, never the PRs. One owner runs each PR from build to merge, and nothing merges without your clean swarm verdict.** For "autopilot this queue", "full autopilot", and one-owner-per-PR programs. Orchestrate runs a standing program whose coordinator lands verified work itself and whose workers never merge. Here each PR's owner carries the whole lifecycle through the merge, and the root keeps only verification, countersigns, and audits.

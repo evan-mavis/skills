@@ -2,10 +2,9 @@
 import fs from "node:fs";
 import process from "node:process";
 
-const RULE =
+const PR_RULE =
 	"Tests alone are not sufficient verification. A PR is verified only when its unit, live, and perf boxes are all checked.";
-const LANES = /Ten lanes on `[^`<>]+` at the PR head/;
-const SUB_BLOCKS = [
+const PR_SUB_BLOCKS = [
 	"Depends on.",
 	"Files.",
 	"Build.",
@@ -16,14 +15,13 @@ const SUB_BLOCKS = [
 	"Review gate.",
 	"Merge.",
 ];
-const PROGRAM_H3 = ["Arm the program", "Spawn owners", "PR mechanics", "Verdict and merge", "Boot recipe"];
+const PR_PROGRAM_H3 = ["Arm the program", "Spawn owners", "PR mechanics", "Verdict and merge", "Boot recipe"];
 const PROGRAM_MARKERS = ["exit predicate", "bundled workflow", /30[- ]minute/, "status message"];
 const HOW_TO_READ_MARKERS = [
 	"One box is one unit of work",
 	"names the evidence",
 	"Check a box only when its evidence exists",
 	"playbooks/",
-	RULE,
 ];
 const PERF_ITEMS = ["Metric.", "Probe.", "Baseline.", "Rule."];
 const BOX = /^\s*- \[[ x]\] (.*)$/;
@@ -80,6 +78,24 @@ for (let i = start; i < raw.length; i++) {
 	if (/: \S/.test(prose)) fail(n, "mid-sentence colon");
 }
 
+const deliveryModes = lines.filter((l) => !l.code && l.text.startsWith("**Delivery mode.**"));
+if (deliveryModes.length > 1) fail(deliveryModes[1].n, "duplicate delivery mode");
+const deliveryMode = deliveryModes[0]?.text.slice("**Delivery mode.**".length).trim() ?? "independent-queue";
+if (!["coupled-feature", "independent-queue"].includes(deliveryMode)) {
+	fail(deliveryModes[0]?.n ?? 1, `unknown delivery mode "${deliveryMode}"`);
+}
+const coupled = deliveryMode === "coupled-feature";
+const subject = coupled ? "work unit" : "PR";
+const RULE = coupled ? PR_RULE.replace("A PR", "A work unit") : PR_RULE;
+const LANES = coupled
+	? /Ten lanes on `[^`<>]+` at the integration head/
+	: /Ten lanes on `[^`<>]+` at the PR head/;
+const SUB_BLOCKS = coupled ? [...PR_SUB_BLOCKS.slice(0, -1), "Integrate."] : PR_SUB_BLOCKS;
+const PROGRAM_H3 = coupled
+	? ["Arm the program", "Spawn owners", "Integration mechanics", "Verdict and integration", "Boot recipe", "Package for review"]
+	: PR_PROGRAM_H3;
+const CONTRACT_ITEMS = ["Integration branch.", "Readiness.", "Refinements.", "Packaging.", "Boundaries.", "Final tree.", "Landing."];
+
 const h2 = (l) => (!l.code && l.text.startsWith("## ") ? l.text.slice(3).trim() : null);
 const sections = [];
 for (const l of lines) {
@@ -98,7 +114,7 @@ if (!howToRead) fail(1, 'no "## How to read this" section');
 if (h1 !== -1 && howToRead) {
 	const intro = lines.slice(h1 + 1).filter((l) => l.n < howToRead.n && l.text.trim() !== "");
 	if (intro.length >= 10) fail(lines[h1].n, `intro is ${intro.length} lines, under ten required`);
-	for (const marker of HOW_TO_READ_MARKERS) {
+	for (const marker of [...HOW_TO_READ_MARKERS, RULE]) {
 		if (!bodyText(howToRead).includes(marker)) fail(howToRead.n, `How to read this lacks "${marker}"`);
 	}
 }
@@ -113,6 +129,17 @@ else {
 		if (at === -1) fail(program.n, `Program checklist lacks "### ${name}" in order`);
 		else cursor = at + 1;
 	}
+	if (coupled) {
+		const contract = boxes(program.body);
+		for (const item of CONTRACT_ITEMS) {
+			if (!contract.some((box) => box.text.startsWith(`${item} `) && box.text.slice(item.length).trim())) {
+				fail(program.n, `coupled-feature contract lacks "${item}" with its instructions`);
+			}
+		}
+		if (h3s.some((title) => title.startsWith("PR mechanics") || title.startsWith("Verdict and merge"))) {
+			fail(program.n, "coupled-feature plan uses an implementation PR lifecycle");
+		}
+	}
 	for (const marker of PROGRAM_MARKERS) {
 		const ok = marker instanceof RegExp ? marker.test(bodyText(program)) : bodyText(program).includes(marker);
 		if (!ok) fail(program.n, `Program checklist lacks "${marker}"`);
@@ -124,7 +151,7 @@ if (!close) fail(1, 'no "## Close the program" section');
 const programIndex = sections.indexOf(program);
 const closeIndex = sections.indexOf(close);
 const prSections = programIndex === -1 || closeIndex === -1 ? [] : sections.slice(programIndex + 1, closeIndex);
-if (prSections.length === 0) fail(1, "no PR sections between Program checklist and Close the program");
+if (prSections.length === 0) fail(1, `no ${subject} sections between Program checklist and Close the program`);
 
 const report = [];
 for (const pr of prSections) {
@@ -145,7 +172,7 @@ for (const pr of prSections) {
 
 	const depends = block("Depends on.");
 	if (depends && depends.rest === "") fail(depends.n, `${pr.title}: Depends on names nothing`);
-	for (const name of ["Files.", "Build.", "You see.", "Verify, unit.", "Merge."]) {
+	for (const name of ["Files.", "Build.", "You see.", "Verify, unit.", coupled ? "Integrate." : "Merge."]) {
 		const b = block(name);
 		if (b && boxes(b.lines).length === 0) fail(b.n, `${pr.title}: ${name} has no box`);
 	}
@@ -156,7 +183,7 @@ for (const pr of prSections) {
 
 	const live = block("Verify, live.");
 	if (live) {
-		if (!LANES.test(live.rest)) fail(live.n, `${pr.title}: Verify, live lacks "Ten lanes on \`<swarm workers model>\` at the PR head" with the model filled in`);
+		if (!LANES.test(live.rest)) fail(live.n, `${pr.title}: Verify, live lacks "Ten lanes on \`<swarm workers model>\` at the ${coupled ? "integration" : "PR"} head" with the model filled in`);
 		const lanes = boxes(live.lines).map((b) => ({ ...b, m: b.text.match(/^Lane (\d+)\. /) }));
 		const numbers = lanes.filter((b) => b.m).map((b) => Number(b.m[1])).sort((a, b) => a - b);
 		if (numbers.join(",") !== "1,2,3,4,5,6,7,8,9,10") fail(live.n, `${pr.title}: lanes are [${numbers.join(",")}], expected 1 to 10`);
@@ -201,6 +228,6 @@ if (closeIndex !== -1) {
 }
 
 for (const line of report) console.log(line);
-console.log(`${prSections.length} PR sections, ${problems.length} problems`);
+console.log(`${prSections.length} ${subject} sections, ${problems.length} problems`);
 for (const p of problems) console.error(p);
 process.exit(problems.length ? 1 : 0);
