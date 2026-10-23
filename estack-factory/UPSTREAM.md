@@ -5,9 +5,10 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 ## Snapshot
 
 - Version: `0.15.30`
-- Commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10)
-- Retrieved and compared: 2026-10-22
+- Commit: [`8b3326d99fd4b993cb33a24dad8af03175c642c5`](https://github.com/cursor/plugins/commit/8b3326d99fd4b993cb33a24dad8af03175c642c5)
+- Retrieved and compared: 2026-10-23
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
+- Previous reviewed commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10), version `0.15.30`, compared 2026-10-22.
 - Previous snapshot: `0.15.29` at [`88d47514b82e7c44f00f2b2a72ff6dd12158038c`](https://github.com/cursor/plugins/commit/88d47514b82e7c44f00f2b2a72ff6dd12158038c), compared 2026-10-20.
 - Earlier snapshot: `0.15.28` at [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0), compared 2026-10-19.
 - Earlier snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
@@ -21,6 +22,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - `skills/deslop/` is vendored from the source snapshot and runs before commits.
 - Estack preserves the source license and includes the Codex runtime adaptations directly.
 - Session hooks adapt [Aqua's Codex port](https://github.com/Aqua-123/pstack-for-codex/tree/main/hooks), with Estack activation forms and state isolated by chat and project. `NOTICE-hooks` preserves the source license. Generic Codex subagents continue to use the bundled poteto-agent prompt; no custom agent profile is installed.
+
+### Reviewed after 0.15.30
+
+- Adopt explicit model configs, shared-variable label validation, separate PROPERTY checks, parallel rule checks with single-worker counterexample replay, and partial-result warnings when TLC crashes while it reports a broken invariant. Record known bugs from agreed-spec configs and flag action conditions without code citations. Require replay through real entry points and distinguish runtime evidence from source inspection.
+- Retain strict invariant coverage checks instead of allowing an unchecked current invariant in a comparison. Keep generated-path ownership, exclusive chart scaffolds, safe integer parsing, native metadata, and portable rename-failure tests. Canonicalize test temp paths on macOS and pass explicit renderer rule lists so the coverage regression reaches its intended check. Share the config parser between the runner and renderer. The helpers and tests have identical relative paths in all four variants and use no Cursor APIs.
+- Skip the filesystem copy fallback. Its cleanup can delete a target another process creates before the copy fails. Keep rename failure and rollback behavior. Remove one redundant action-discovery comment. Deslop is unchanged. Upstream still reports version `0.15.30`; the reviewed commit records these later fixes.
 
 ### Adopted from 0.15.30
 
