@@ -355,7 +355,7 @@ export function parseDot(text) {
   for (const line of text.split("\n")) {
     let m = edgeRe.exec(line);
     if (m) {
-      const e = { from: m[1], to: m[2], action: m[3] ? unescapeDot(m[3]) : "" };
+      const e = { from: m[1], to: m[2], action: m[3] ? unescapeDot(m[3]).split("(")[0] : "" };
       const id = `${e.from} ${e.to} ${e.action}`;
       if (seen.has(id)) continue;
       seen.add(id);
@@ -413,8 +413,8 @@ export function parseTraces(text) {
     const [vars, end] = stateAt(i);
     i = end;
     if (head[1] === "1") {
-      current = { invariant, steps: [] };
-      traces.push(current);
+      current = invariant && { invariant, steps: [] };
+      if (current) traces.push(current);
     }
     current?.steps.push({ action: head[2] === "Initial" ? null : head[2], vars });
   }

@@ -255,6 +255,28 @@ x = 1
   ]);
 });
 
+test("parameterized DOT actions keep their mapping action name", () => {
+  const graph = parseDot(`strict digraph DiskGraph {
+1 [label="x = 0",style = filled]
+2 [label="x = 1"]
+1 -> 2 [label="Take(1)"];
+2 -> 2 [label="Wait(2)"];
+}`);
+  assert.deepEqual(graph.edges, [{ from: "1", to: "2", action: "Take" }]);
+  assert.deepEqual(graph.loops, [{ from: "2", to: "2", action: "Wait" }]);
+});
+
+test("unclassified TLC state dumps do not become invariant traces", () => {
+  assert.deepEqual(parseTraces(`Error: The error occurred when TLC was evaluating the nested
+expressions at the following positions:
+State 1: <Initial predicate>
+x = 0
+
+State 2: <Inc line 9, col 8 to line 9, col 20 of module M>
+x = 1
+`), []);
+});
+
 const done = "Model checking completed. No error has been found.\n";
 const evaluationError = `Error: Invariant NoLost is violated.
 Error: The behavior up to this point is:
@@ -325,7 +347,7 @@ test("TLC output from a run that failed or stopped early is refused", () => {
   );
   assert.deepEqual(
     parseTraces(evaluationError).map((t) => t.invariant),
-    ["NoLost", null],
+    ["NoLost"],
   );
 });
 

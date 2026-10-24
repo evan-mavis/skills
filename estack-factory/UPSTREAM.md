@@ -4,11 +4,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.30`
-- Commit: [`8b3326d99fd4b993cb33a24dad8af03175c642c5`](https://github.com/cursor/plugins/commit/8b3326d99fd4b993cb33a24dad8af03175c642c5)
-- Retrieved and compared: 2026-10-23
+- Version: `0.15.32`
+- Commit: [`9580c23696ac8d7abed0c166f2f9918800afb819`](https://github.com/cursor/plugins/commit/9580c23696ac8d7abed0c166f2f9918800afb819)
+- Retrieved and compared: 2026-10-24
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
 - Previous reviewed commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10), version `0.15.30`, compared 2026-10-22.
+- Previous reviewed snapshot: `0.15.30` at [`8b3326d99fd4b993cb33a24dad8af03175c642c5`](https://github.com/cursor/plugins/commit/8b3326d99fd4b993cb33a24dad8af03175c642c5), compared 2026-10-23 in PR #11.
 - Previous snapshot: `0.15.29` at [`88d47514b82e7c44f00f2b2a72ff6dd12158038c`](https://github.com/cursor/plugins/commit/88d47514b82e7c44f00f2b2a72ff6dd12158038c), compared 2026-10-20.
 - Earlier snapshot: `0.15.28` at [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0), compared 2026-10-19.
 - Earlier snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
@@ -28,6 +29,17 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Adopt explicit model configs, shared-variable label validation, separate PROPERTY checks, parallel rule checks with single-worker counterexample replay, and partial-result warnings when TLC crashes while it reports a broken invariant. Record known bugs from agreed-spec configs and flag action conditions without code citations. Require replay through real entry points and distinguish runtime evidence from source inspection.
 - Retain strict invariant coverage checks instead of allowing an unchecked current invariant in a comparison. Keep generated-path ownership, exclusive chart scaffolds, safe integer parsing, native metadata, and portable rename-failure tests. Canonicalize test temp paths on macOS and pass explicit renderer rule lists so the coverage regression reaches its intended check. Share the config parser between the runner and renderer. The helpers and tests have identical relative paths in all four variants and use no Cursor APIs.
 - Skip the filesystem copy fallback. Its cleanup can delete a target another process creates before the copy fails. Keep rename failure and rollback behavior. Remove one redundant action-discovery comment. Deslop is unchanged. Upstream still reports version `0.15.30`; the reviewed commit records these later fixes.
+
+### Reviewed through 0.15.32 on 2026-10-24
+
+- Reconstructed this run from the four provenance files and open upstream-sync PR #11. Old automation memory was unavailable. Retained that PR's Statechart fixes and brought in current main, including Capture and deferred feature packaging.
+- Adopt the watcher deadline cap for ordinary polls and query retries, and distinguish fork heads during stack discovery. Require parsed fork identity at the GitHub boundary. Keep native GitHub stack membership and exact-head orchestration unchanged.
+- Recognize matching multi-backtick inline code in plan checks. Preserve the newer coupled-feature plan contract and Markdown fence handling. Port the two Statechart parser fixes for parameterized DOT actions and unclassified error-state dumps, with regressions.
+- Generated TLA+ verification skills refer to Statechart by native skill name instead of embedding version-specific commands. Keep bounds, PROPERTY evidence, and real-code replay. Reflect identifies an editable destination and never changes installed caches. Explicitly authorized source PRs remain supported.
+- Skip the Statechart renderer and automatic mise tool installation rewrite. It loses Estack's generated-path inventory, nested foreign-file ownership, exclusive scaffold writes, safe-integer rejection, and strict comparison-rule coverage. Keep the existing rename rollback and rendering contract. Do not copy prose for unsupported commands, goal witnesses, or new colors. A future port must preserve these protections first.
+- Skip Ketchup-video for now. Its slide-video workflow has no shared renderer or verification helper. Keep evidence-based Ketchup and the native Capture pipeline without restoring the retired recorder.
+- The active-PR-over-history fix targets an upstream branch-to-PR resolver absent from Estack's native-stack store. The GNU stat/date change targets Cursor transcript scanning absent from these native audits. Codex already reads mtimes with Node; the other hosts keep their explicit ownership checks. Swarm already has consecutive phase steps and a concrete result table. Claude marketplace update notes do not apply.
+- Deslop is unchanged between the recorded snapshot and this review. Preserve native tools, metadata, agents, hooks, delegation, scheduling, session access, personal defaults, Airgoods overrides, artwork, licenses, and account release IDs. This run only updates the source PR. No merge, publication, installation, or refresh.
 
 ### Adopted from 0.15.30
 

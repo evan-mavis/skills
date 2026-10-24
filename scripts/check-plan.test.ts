@@ -51,6 +51,11 @@ test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s pla
       ['```markdown\n## Example only\n```  \n## Example only\n', 1],
       ['```markdown\nA colon: inside code\n```\nA colon: outside code\n', 1],
       ['```markdown `invalid`\n## Example only\n```\n', 1],
+      ['Use ``echo `x`: “quoted” — example``.\n', 0],
+      ['Use ```echo `x`: “quoted” — example```.\n', 0],
+      ['Use ````echo `x`: “quoted” — example````.\n', 0],
+      ['Use ``echo `x`: y``. Bad: prose.\n', 1],
+      ['Use ``unclosed: bad` here.\n', 1],
     ];
     for (const [example, expected] of examples) {
       const file = path.join(directory, 'plan.md');
