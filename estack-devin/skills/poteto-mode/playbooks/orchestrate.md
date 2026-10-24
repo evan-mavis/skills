@@ -1,5 +1,7 @@
 ### Orchestrate
 
+For a coupled large feature, use [Autopilot-stack](autopilot-stack.md#coupled-feature-mode) on one integration branch through QA and user refinements, then package for final review. The PR queue and landing rules below apply to independent delivery units or explicitly requested early independent delivery. They do not authorize early feature PRs or merges.
+
 Confirm required dispatch, status, nesting, resume, and cancellation capabilities before assigning durable ownership. Plugin custom profiles load only locally. Default Devin workers cannot nest; use a permitted local custom profile with `max-nesting` only when needed, and account for its router-selected model. If the host cannot support the program's required independent roles, report the specific blocker and preserve its gates.
 
 **You own the program, never the code. Author briefs, drain the queue, keep the frontier green, decide.** For a whole project handed to one standing coordinator chat: multi-day, many stacked PRs, dozens to hundreds of subagents, the human checking in twice a day instead of every five minutes. One task driven to a predicate is Autonomous run. One ambitious run needing a bespoke workflow is figure-it-out. Route here when the work outlives any single agent. Work one agent could finish inside the session's budget is not a program.

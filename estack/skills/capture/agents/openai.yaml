@@ -1,0 +1,4 @@
+interface:
+  display_name: "Capture"
+  short_description: "Record evidence and polished walkthroughs"
+  default_prompt: "Use $capture to record this scenario and preserve its raw evidence."

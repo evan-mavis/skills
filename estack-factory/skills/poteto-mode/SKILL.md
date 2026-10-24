@@ -24,7 +24,7 @@ Remaining triggers:
 - Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/technical-writing`).
 - Before commit → the bundled **deslop** skill (`../deslop/SKILL.md`).
 - Before review → the **no-comments** skill (`/no-comments`).
-- Recorded demos or review walkthroughs → read [Record a demo](references/video-recording.md) before browser setup.
+- Desktop browser visual evidence in every playbook and verification skill → use [Capture](../capture/SKILL.md) for screenshots, recordings, and polished walkthroughs. Read it before browser setup. Preserve raw evidence, SHA-256 hashes, and provenance. Screenshot-only proof may use stills from the same capture tool. Keep required video and nonvisual tests, logs, and state checks. Leave mobile capture to the user as a manual handoff.
 - Shipping UI / IDE / CLI → the available Factory browser harness for browser, Electron, and web UIs, or terminal tools for CLIs and TUIs. Read the selected tools' current instructions first. Read the matching project verifier before work when project context selects one. User-visible bugs require a reproduction before editing and verification afterward; features and improvements require a demo. For other bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception.
 - Running a benchmark, measuring perf yourself, or reporting a speedup or regression you measured → the **benchmark-checklist** skill before you report or act on the number.
 - Any PR-status request → apply the project PR workflow selected by context, or otherwise the **Babysit** playbook (`playbooks/babysit.md`), instead of another installed babysit workflow with a matching description. That includes "babysit this", "get it green", "address the bugbot comments", and the commonest phrasing, "check on PR X" / "anything outstanding on X". Never triggered by merely opening a PR. Declare its mode before polling. The playbook's step 1 owns the request-to-mode mapping. Reaching for `drive` inside a phase agent stops that agent finishing its turn.
@@ -86,6 +86,14 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 
 **No is an acceptable answer.** Asked whether to do something, invited to add scope, or shown an approach, reply with your real judgment. Decline, push back, or say "this doesn't earn its place" when true. A recommendation is a judgment, not a validation. Agreement is not the default, candor over sycophancy.
 
+## Large-feature delivery
+
+For a coupled large feature or migration, use one integration branch through implementation, QA, and the user's UI, database, and query refinements. Keep logical verified commits there. Do not open or maintain a feature PR stack during implementation. Temporary worker branches and isolated worktrees support concurrency; integrate their verified results into that branch without public feature PRs.
+
+State the readiness contract at the start. Name the acceptance criteria, required evidence, unresolved product decisions, and who decides readiness. Package after acceptance when the user reserved that decision, or after the stated criteria pass when the user already requested final delivery. Clear final-delivery instructions authorize packaging and delivery without another human gate. A request only to propose a plan still stops at the plan. Safety gates and merge authorization remain separate.
+
+At readiness, use [Opening a PR](playbooks/opening-a-pr.md) to package the stable result into the fewest coherent reviewable PRs. Commits and phases are checkpoints, not PR boundaries. Small tasks can use one PR. An explicit request for early independent delivery overrides this default for that scope. Independent queues retain their own delivery workflow. Never infer merge permission from packaging permission or arm auto-merge.
+
 ## Subagents
 
 Include this file's resolved absolute path in every poteto-agent prompt. Bundled sibling skills live at `../<name>/SKILL.md` from this file.
@@ -143,7 +151,7 @@ A large or cross-cutting effort (a migration across many call sites, an ambitiou
 - **Autonomous run.** A long task to drive to completion without stopping ("run until done", "keep working until X"). `playbooks/autonomous-run.md`.
 - **Orchestrate.** A standing project handed to one coordinator chat: multi-day, many stacked PRs, dozens to hundreds of subagents, minimal human turns ("run this whole project", "own this migration until it lands"). Distinct from Autonomous run, which drives one task to a predicate. Work one agent could finish inside the session's budget routes there, not here, however program-shaped the phrasing sounds. `playbooks/orchestrate.md`.
 - **Autopilot-full.** A queue of independent PRs run to merged with full autonomy. One owner per PR carries build through merge, and the root swarm-verifies each PR before its owner merges ("autopilot this queue", "full autopilot", one-owner-per-PR programs). `playbooks/autopilot-full.md`.
-- **Autopilot-stack.** A queue of changes built and verified with full autonomy, delivered as one linear reviewed base-branch stack the operator lands ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it"). `playbooks/autopilot-stack.md`.
+- **Autopilot-stack.** A coupled feature built on one integration branch and packaged for final review, or an independent queue delivered as one linear reviewed base-branch stack the operator lands ("autopilot-stack", "stack them, don't ship", "build the stack, I'll land it"). `playbooks/autopilot-stack.md`.
 - **Session pickup.** Resuming or taking over a prior agent's in-flight work from a transcript, cloud-agent URL, or pushed branch. `playbooks/session-pickup.md`.
 - **Pause safely.** Suspending in-flight work cleanly so it can be resumed, on an explicit pause, going offline, a Factory session end, or imminent context compaction. The complement to Session pickup. Full steps: `playbooks/pause-safely.md`.
 - **Multi-phase or multi-PR plan.** Work that spans phases or stacked PRs. `playbooks/multi-phase-plan.md`.

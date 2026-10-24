@@ -7,8 +7,8 @@ When using a skill reader, resolve the registered `poteto-mode` skill and read i
 
 ## Browser
 
-Honor the user's browser choice. For video walkthroughs, use `agent-browser` with `--cursor` per
-[Record a demo](../../poteto-mode/references/video-recording.md). For other driving, prefer available
+Honor the user's browser choice. For video walkthroughs, use [Capture](../../capture/SKILL.md) for raw footage and polished
+derivatives from the same agent-browser native recorder. For other driving, prefer available
 `mcp__cua_repl` tools and read their returned documentation before continuing.
 
 Create a run-owned tab or session and record its origin, viewport, account, and driver. Use observed

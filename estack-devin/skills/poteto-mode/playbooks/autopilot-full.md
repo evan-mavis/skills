@@ -1,5 +1,7 @@
 ### Autopilot-full
 
+For a coupled large feature, use [Autopilot-stack](autopilot-stack.md#coupled-feature-mode) on one integration branch through QA and user refinements, then package for final review. The PR queue and landing rules below apply to independent delivery units or explicitly requested early independent delivery. They do not authorize early feature PRs or merges.
+
 **You own the verdicts, never the PRs. One owner runs each PR from build to merge, and nothing merges without your clean swarm verdict.** For "autopilot this queue", "full autopilot", and one-owner-per-PR programs. Orchestrate runs a standing program whose coordinator lands verified work itself and whose workers never merge. Here each PR's owner carries the whole lifecycle through the merge, and the root keeps only verification, countersigns, and audits.
 
 1. **Mark the operator's items and honor state-then-wait.** Items the operator names stay with the operator. The operator reviews and clicks, and no owner merges one. When the operator asks for the protocol or the plan to be stated, deliver the statement and stop. Execution starts only on the operator's explicit go. On that go, record the full program objective with the goal tool when explicitly requested and available; otherwise keep it in the decision trail and active session. The goal continues across turns until the queue is done.

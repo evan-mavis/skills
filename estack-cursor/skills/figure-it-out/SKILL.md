@@ -19,11 +19,11 @@ Ground first, then commit. Don't start the run until you can state:
 - Scope, quantified: rough units and effort, plus the blockers grounding surfaced.
 - The rigor level, biased high. One-way doors and high blast radius get more. Reversible low-stakes steps get less. Rigor is gates and artifacts, not "try harder".
 
-Present the framing and tradeoffs before committing to a long run. Reversible work proceeds (the **never-block-on-the-human** principle skill), but a multi-hour run earns one checkpoint.
+Present the framing and tradeoffs before committing to a long run. Reversible work proceeds (the **never-block-on-the-human** principle skill). For a coupled feature, state the [readiness contract](../poteto-mode/SKILL.md#large-feature-delivery). Existing instructions to execute and deliver satisfy the checkpoint; do not add another approval gate.
 
 ## Phase B: Design the workflow
 
-Decompose into atomic, independently-landable units. Sequence riskiest-unknown-first. Scaffold and verification come before features (the **foundational-thinking** principle skill).
+Decompose into small verifiable units. For a coupled feature, keep those units as logical commits on one integration branch through QA and user refinements. Temporary worker branches and isolated worktrees support concurrency without public feature PRs. Choose review PR boundaries only at final packaging under [Opening a PR](../poteto-mode/playbooks/opening-a-pr.md). Independent queues and explicit early independent delivery retain their own workflow. Sequence riskiest-unknown-first. Scaffold and verification come before features (the **foundational-thinking** principle skill).
 
 - Build the verification harness before the work, with the baseline captured from the pre-change state, so the check reads as "old value vs new value".
 - For one-way-door design decisions, run the **architect** skill (it runs **arena**). Skip it for mechanical work whose shape is already concrete. A second arena over a settled design is over-engineering (the **laziness-protocol** principle skill).
