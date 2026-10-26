@@ -48,6 +48,8 @@ Before applying any Accepted edit, present the synthesizer's full Accepted/Rejec
 
 Backlog items file to whatever devex / backlog tracker your team uses automatically. Only the Accepted list waits for approval.
 
+Never edit an installed plugin cache. Before approval, show the editable destination. Use the source repository when the user authorizes source changes. Otherwise, copy the skill and its supporting files to a project or personal skill folder supported by this host. Preserve relative references. A reflection request alone does not authorize a PR or push.
+
 For each approved Accepted item, follow the Routing field exactly:
 
 - Trivial existing-skill edit (a one-line bullet, a tightened sentence, a stale fact corrected): parent does directly.
