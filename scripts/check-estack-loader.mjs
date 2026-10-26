@@ -7,12 +7,15 @@ import { fileURLToPath } from 'node:url';
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const skills = path.join(repo, 'estack/skills');
 const fixture = await mkdtemp(path.join(tmpdir(), 'estack-loader-'));
+const validationHome = path.join(fixture, 'codex-home');
 try {
+  await mkdir(validationHome);
   await mkdir(path.join(fixture, '.git'));
   await mkdir(path.join(fixture, '.agents'));
   await cp(skills, path.join(fixture, '.agents/skills'), { recursive: true });
   const messages = JSON.parse(execFileSync('codex', ['debug', 'prompt-input', '$estack describe the bundled workflow'], {
     cwd: fixture, encoding: 'utf8', maxBuffer: 8 * 1024 * 1024, timeout: 30000,
+    env: { ...process.env, CODEX_HOME: validationHome },
   }));
   const catalog = messages.flatMap(message => message.content ?? [])
     .map(content => content.text ?? '').filter(text => text.includes('### Available skills')).join('\n');
