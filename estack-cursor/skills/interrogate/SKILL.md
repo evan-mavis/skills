@@ -34,7 +34,7 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch three reviewers concurrently with the Cursor `Task` tool unless the user requests another count. Give each a prompt that forbids edits.
+Launch three reviewers concurrently with the Cursor `Task` tool unless the user requests another count. Give each a prompt that forbids edits to the reviewed tree. Allow repro files only in its own isolated worktree or scratch directory.
 
 Use Cursor Task with a custom agent whose `model` is `inherit`, and omit the Task model override. Use a different model only when the user requests an available selection. Verify the effective model from the returned task card. Report unavailable selections or routing fallbacks.
 
@@ -52,7 +52,7 @@ The same filled template goes to all reviewers, so every model applies the code-
 
 As results come back, build a unified picture:
 
-1. **Parse all findings** from the reviewers
+1. **Parse all findings** from the reviewers. Rerun each behavior finding's command against the reviewed code. Keep it as verified only when the observed failure breaks the stated intent. If the run is unavailable, report the proof gap. Keep source-backed security and maintainability findings for lead judgment, with their evidence labeled as inspection.
 2. **Identify consensus**. Findings raised by 2+ reviewers independently are highest signal.
 3. **Identify lone-reviewer findings**. Still worth reading, but weight accordingly.
 4. **Deduplicate**. Different reviewers may describe the same issue differently. Merge these and note which reviewers raised it.

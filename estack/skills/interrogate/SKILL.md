@@ -31,7 +31,7 @@ Write one clear paragraph. If you're unsure about the intent, ask the user befor
 
 ## Step 3, Spawn Reviewers
 
-Launch three reviewers concurrently with the available Codex subagent tool unless the user requests another count. Give each a prompt that forbids edits.
+Launch three reviewers concurrently with the available Codex subagent tool unless the user requests another count. Give each a prompt that forbids edits to the reviewed tree. Allow repro files only in its own isolated worktree or scratch directory.
 
 Omit `model` and reasoning overrides to inherit the parent. Only select a model or reasoning effort when the user explicitly requests it and the live Codex subagent tool lists that selection as available. If it is unavailable, report the limitation and inherit the parent.
 
@@ -49,7 +49,7 @@ The same filled template goes to all reviewers, so every model applies the code-
 
 As results come back, build a unified picture:
 
-1. **Parse all findings** from the reviewers
+1. **Parse all findings** from the reviewers. Rerun each behavior finding's command against the reviewed code. Keep it as verified only when the observed failure breaks the stated intent. If the run is unavailable, report the proof gap. Keep source-backed security and maintainability findings for lead judgment, with their evidence labeled as inspection.
 2. **Identify consensus**. Findings raised by 2+ reviewers independently are highest signal.
 3. **Identify lone-reviewer findings**. Still worth reading, but weight accordingly.
 4. **Deduplicate**. Different reviewers may describe the same issue differently. Merge these and note which reviewers raised it.

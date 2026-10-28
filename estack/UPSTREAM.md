@@ -4,9 +4,9 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.32`
-- Commit: [`9580c23696ac8d7abed0c166f2f9918800afb819`](https://github.com/cursor/plugins/commit/9580c23696ac8d7abed0c166f2f9918800afb819)
-- Retrieved and compared: 2026-10-24
+- Version: `0.15.36`
+- Commit: [`c742dd61706fbacc1b95f1a20b7b988cf096ce6c`](https://github.com/cursor/plugins/commit/c742dd61706fbacc1b95f1a20b7b988cf096ce6c)
+- Retrieved and compared: 2026-10-28
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
 - Previous reviewed commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10), version `0.15.30`, compared 2026-10-22.
 - Previous reviewed snapshot: `0.15.30` at [`8b3326d99fd4b993cb33a24dad8af03175c642c5`](https://github.com/cursor/plugins/commit/8b3326d99fd4b993cb33a24dad8af03175c642c5), compared 2026-10-23 in PR #11.
@@ -14,6 +14,14 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Earlier snapshot: `0.15.28` at [`d457567332aa6989e753ea289f30ea2bfbc80bc0`](https://github.com/cursor/plugins/commit/d457567332aa6989e753ea289f30ea2bfbc80bc0), compared 2026-10-19.
 - Earlier snapshot: `0.15.26` at [`0b8e952052d482ee6de06deebf14d590d77b1b34`](https://github.com/cursor/plugins/commit/0b8e952052d482ee6de06deebf14d590d77b1b34), compared 2026-10-18.
 - Earlier snapshot: `0.15.25` at [`e5136d82418d2db3165ea1050d17577cd618cc05`](https://github.com/cursor/plugins/commit/e5136d82418d2db3165ea1050d17577cd618cc05), compared 2026-10-15.
+
+### Reviewed after 0.15.32
+
+- Adopt measurement decisions and noise limits before a run, and limit autonomous side fixes to the task goal. Check live PR state and head against verification receipts before Orchestrate reports.
+- Adapt adversarial review to require reproducible behavior evidence and lead reruns. Preserve the existing rubric, source-backed security and maintainability findings, and each platform's delegation rules. Repros use isolated worktrees or scratch directories.
+- Retain the Orchestrate tools, independent verification gates, capture pipeline, and deferred PR packaging. Skip the wholesale Orchestrate replacement, weaker review gates, stack ownership changes, Cursor model configuration, and video-only guidance without an equivalent skill here.
+- Continue to skip the Statechart compiler rewrite. Preserve chart-to-spec and comparison workflows, safe integers, output recovery, and retained TLC evidence. Its qualified-name and SIGKILL fixes target rewrite-only code. Deslop is unchanged.
+- Previous package snapshot was `9580c23696ac8d7abed0c166f2f9918800afb819`, version `0.15.32`, compared 2026-10-24. The separate run history reviewed `519d36aa98955bf680db01bcde5fdfba686dc901` without package edits on 2026-10-27.
 
 ## Source adaptations
 

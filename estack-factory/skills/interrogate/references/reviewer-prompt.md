@@ -37,7 +37,7 @@ For each finding, provide:
    - `warning`: Design concern, maintainability risk, or correctness issue that isn't immediately broken but will cause pain
    - `nit`: Style, naming, minor improvement.
 2. **Finding**: What the problem is, in concrete terms. Reference specific lines/functions.
-3. **Evidence**: Why you believe this is a problem. Show your reasoning. Don't just assert.
+3. **Evidence**: For a behavior finding, give the exact command you ran, its actual output, and the expected output required by the intent. Keep repro files in your own isolated worktree or scratch directory, and leave the reviewed tree unchanged. Label unrun claims as unverified. For security or maintainability findings supported by inspection, cite the source and execution path without claiming runtime proof.
 4. **Suggestion** (optional): What you'd do instead, if you have a concrete alternative. Skip this if you don't have a clear fix.
 
 ## What Makes a Good Finding
