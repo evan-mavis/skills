@@ -64,7 +64,7 @@ Read the leaf skill in full for any principle you apply. Each entry names when i
 - **Fix Root Causes** (**principle-fix-root-causes**). Debugging. Trace each symptom back to the first place the system went wrong and fix it there. A guard is a fix only when the state it handles is legitimate.
 - **Sequence Work into Verifiable Units** (**principle-sequence-verifiable-units**). Multi-step work (sweeps, migrations, runs of similar edits) and how you stack commits and PRs. Break work into small units that each end in a check, verify each before the next, and order delivery so the sequence proves itself.
 - **Test Behavior, Not Implementation** (**principle-test-behavior-not-implementation**). Writing, changing, or keeping a test. Assert what the code's users can observe, so the test fails when that behavior breaks and keeps passing when only the internals change.
-- **Explain the Number** (**principle-explain-the-number**). Before you trust, report, or act on a measured performance or eval result. Find what limits it and rule out that it measured something other than the intended work.
+- **Explain the Number** (**principle-explain-the-number**). Before you measure, and before you trust, report, or act on a measured performance or eval result. Find what limits it and rule out that it measured something other than the intended work.
 
 **Delegation**
 
