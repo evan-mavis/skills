@@ -78,6 +78,7 @@ estack/
     ├── correct/                                             # Prevent recurring agent mistakes with enforceable safeguards.
     ├── create-verification-skill/                           # Build a project verification skill that exercises real behavior.
     ├── deslop/                                              # Remove AI-generated code clutter and clean up style.
+    ├── draw-that/                                           # Explain code flows with concise briefings and source-grounded diagrams.
     ├── estack/                                              # Route engineering work through poteto-mode with Evan's defaults.
     │   └── references/
     │       ├── personal-defaults.md                         # Evan's working preferences and writing defaults.

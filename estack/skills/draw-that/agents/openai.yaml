@@ -1,0 +1,4 @@
+interface:
+  display_name: "Draw That"
+  short_description: "Explain code flows with clear, source-grounded diagrams"
+  default_prompt: "Use $draw-that to explain this flow with concise briefings and clear diagrams grounded in the code."
