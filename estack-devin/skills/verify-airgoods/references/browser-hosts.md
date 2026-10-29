@@ -7,9 +7,9 @@ When using a skill reader, resolve the registered `poteto-mode` skill and read i
 
 ## Browser
 
-Honor the user's browser choice. For video walkthroughs, use [Capture](../../capture/SKILL.md) for raw footage and polished
-derivatives from the same agent-browser native recorder. For other driving, prefer available
-the browser tools exposed by the active Devin session, or an already installed browser driver. Read their current documentation before continuing.
+Honor the user's browser choice. Use Devin's native screenshots and guided videos through
+[Record a demo](../../poteto-mode/references/video-recording.md). Prefer the browser tools exposed by
+the active Devin session for driving. Read their current instructions before continuing.
 
 Create a run-owned tab or session and record its origin, viewport, account, and driver. Use observed
 roles, labels, and refs. Re-read after page changes. Do not alter the user's tabs, profile, cookies,
@@ -39,7 +39,8 @@ setters are not user actions.
 Define `<evidence-root>` as the absolute, home-expanded path to `~/.local/share/estack-devin/verification`.
 Create a private run directory below it with permissions restricted to the current user.
 
-Save snapshots, screenshots, video, redacted state evidence, and run notes under an absolute
-`~/.local/share/estack-devin/verification/<surface-skill>/<run-id>/` directory. Keep artifacts outside the repository.
+Save exported snapshots, screenshots, video, redacted state evidence, and run notes under an absolute
+`~/.local/share/estack-devin/verification/<surface-skill>/<run-id>/` directory. Record native attachment
+references when file export is unavailable. Keep artifacts outside the repository.
 Finalize and inspect video before closing the run-owned session. Preserve evidence and adopted
 services. Stop only processes or sessions this run owns, and report cleanup failures.

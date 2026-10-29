@@ -51,7 +51,13 @@ if (platform !== 'codex') {
   const sourceSkills = (await readdir(path.join(repo, 'estack/skills'), { withFileTypes: true }))
     .filter(entry => entry.isDirectory()).map(entry => entry.name);
   const nativeSkills = skillFiles.map(file => path.basename(path.dirname(file)));
-  for (const name of sourceSkills) if (!nativeSkills.includes(name)) report(root, `missing corresponding skill: ${name}`);
+  const nativeReplacements = new Set(platform === 'devin' ? ['capture'] : []);
+  for (const name of sourceSkills) {
+    if (!nativeReplacements.has(name) && !nativeSkills.includes(name)) report(root, `missing corresponding skill: ${name}`);
+  }
+  for (const name of nativeSkills) {
+    if (nativeReplacements.has(name)) report(root, `skill replaced by native platform tools: ${name}`);
+  }
   for (const name of nativeSkills) if (!sourceSkills.includes(name)) report(root, `skill missing from Codex variant: ${name}`);
   for (const file of files) {
     if (path.relative(root, file).startsWith('.codex-plugin/') || path.basename(file) === 'openai.yaml') {
