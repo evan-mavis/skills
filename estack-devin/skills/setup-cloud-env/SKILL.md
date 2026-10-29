@@ -11,7 +11,7 @@ Make the current cloud checkout ready for development. A bare setup request star
 
 When this skill is used only to prepare verification, reuse the existing provisioned child and start missing required apps. Provision a child only for an explicit cloud setup request. Do not run this cloud bootstrap on a local desktop checkout.
 
-When using a skill reader, resolve the registered `capture` skill and read its `SKILL.md` and runtime reference. Do not use the plugin root as a skill package.
+For visual proof, follow [Record a demo](../poteto-mode/references/video-recording.md) and the active Devin session's browser instructions.
 
 ## Read the repository setup
 
@@ -23,9 +23,7 @@ Use the checked-out versions as command and port truth. Inspect existing listene
 
 Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Devin.
 
-Cloud environments are expected to include `agent-browser`. Locate the preinstalled version, check its version and current help for compatibility with the required browser and recording operations, and ensure its executable is accessible on `PATH`. Do not reinstall it. If it is missing or incompatible, report `I RAN INTO AN ISSUE:` with the environment prerequisite that needs fixing.
-
-Before capturing visual evidence, run [Capture preflight](../capture/SKILL.md) and check its [runtime requirements](../capture/references/runtime.md). Check Python 3.12, Pillow 12.3, numpy 2.3.5, FFmpeg 7.1.5 with libx264 and ffprobe, agent-browser 0.38.1, and Chrome 154.0.8037.92. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) and the installed browser documentation. Explicit cloud setup includes missing recorder prerequisites; verification alone reports them with `I RAN INTO AN ISSUE:` and continues work that does not depend on them. Do not assume a browser download is needed.
+Check the native browser, screenshot, and guided video capabilities exposed by the active Devin session. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md). If a required capability is unavailable, report `I RAN INTO AN ISSUE:` and continue independent setup work. Do not install a separate browser recorder or its rendering dependencies.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
