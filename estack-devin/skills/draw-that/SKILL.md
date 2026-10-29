@@ -69,6 +69,8 @@ Check identifiers, direction, call order, and source versus derived data against
 Parse Mermaid when a compatible validator is available. Check the database participant type
 and visible label as well as syntax. Do not claim a visual render from a parser-only check.
 Use supported syntax if the renderer lacks a requested shape.
+Avoid bare semicolons in sequence message labels. Mermaid can treat them as statement
+separators. Use a line break or a separate sentence instead.
 
 Keep accepted wording and diagrams when revising an explanation. Make the requested change
 without adding competing versions. Save to an existing README or document when asked,
