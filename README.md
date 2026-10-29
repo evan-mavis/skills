@@ -57,11 +57,11 @@ invoke or pin Estack using your tool's native syntax. it reads personal defaults
 
 project context lives in [estack's references](estack/skills/estack/references/projects/). Airgoods is matched by repository identity, including worktrees and explicitly targeted PRs. other repositories use the generic workflow. add another project's context and a row in each variant's Estack project table to extend routing. project context is a reference, not another skill to invoke.
 
-use [capture](estack/skills/capture/SKILL.md) as the default visual evidence tool across playbooks and verification skills. screenshots, raw footage, and polished walkthroughs share one capture workflow. keep raw evidence, hashes, provenance, and nonvisual checks. installing estack does not install its [runtime dependencies](estack/skills/capture/references/runtime.md).
+Codex, Factory, and Cursor use [capture](estack/skills/capture/SKILL.md) for visual evidence. installing those packages does not install its [runtime dependencies](estack/skills/capture/references/runtime.md). Devin uses its native screenshots and guided videos through [Record a demo](estack-devin/skills/poteto-mode/references/video-recording.md). keep original evidence, provenance, and nonvisual checks.
 
 ## skill tree
 
-skills live directly under `skills/`, with no separate `personal/` or `airgoods/` skill directories. personal defaults and airgoods project context live in the nested references shown below. all four variants share these skill names; tools and runtime instructions differ by platform. other supporting files are omitted.
+skills live directly under `skills/`, with no separate `personal/` or `airgoods/` skill directories. personal defaults and airgoods project context live in the nested references shown below. all four variants share these skill names except `capture`, which Devin replaces with its native recording flow. tools and runtime instructions differ by platform. other supporting files are omitted.
 
 ```text
 estack/
@@ -78,6 +78,7 @@ estack/
     ├── correct/                                             # Prevent recurring agent mistakes with enforceable safeguards.
     ├── create-verification-skill/                           # Build a project verification skill that exercises real behavior.
     ├── deslop/                                              # Remove AI-generated code clutter and clean up style.
+    ├── draw-that/                                           # Explain code flows with concise briefings and source-grounded diagrams.
     ├── estack/                                              # Route engineering work through poteto-mode with Evan's defaults.
     │   └── references/
     │       ├── personal-defaults.md                         # Evan's working preferences and writing defaults.

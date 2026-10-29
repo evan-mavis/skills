@@ -116,6 +116,29 @@ test.each(['devin', 'factory', 'cursor'] as const)('rejects a missing shared ski
   expect(result.stderr).toContain('missing corresponding skill: example');
 });
 
+test.each(['devin', 'factory', 'cursor'] as const)('only Devin replaces capture with native tools (%s)', async platform => {
+  const { root } = await nativeFixture(platform);
+  const capture = path.join(root, 'estack/skills/capture');
+  await cp(path.join(root, 'estack/skills/example'), capture, { recursive: true });
+  const entry = path.join(capture, 'SKILL.md');
+  await writeFile(entry, (await readFile(entry, 'utf8')).replace('name: example', 'name: capture'));
+  const result = await check(root, [platform]);
+  expect(result.code).toBe(platform === 'devin' ? 0 : 1);
+  if (platform !== 'devin') expect(result.stderr).toContain('missing corresponding skill: capture');
+});
+
+test('rejects bundling capture in Devin after its native replacement', async () => {
+  const { root, variant, skill } = await nativeFixture('devin');
+  const capture = path.join(variant, 'skills/capture');
+  await cp(skill, capture, { recursive: true });
+  const entry = path.join(capture, 'SKILL.md');
+  await writeFile(entry, (await readFile(entry, 'utf8')).replace('name: example', 'name: capture'));
+  await cp(path.join(root, 'estack/skills/example'), path.join(root, 'estack/skills/capture'), { recursive: true });
+  const result = await check(root, ['devin']);
+  expect(result.code).toBe(1);
+  expect(result.stderr).toContain('skill replaced by native platform tools: capture');
+});
+
 test.each(['devin', 'factory', 'cursor'] as const)('preserves explicit-only skill policy in %s', async platform => {
   const { root, skill } = await nativeFixture(platform);
   const sourceMetadata = path.join(root, 'estack/skills/example/agents/openai.yaml');
