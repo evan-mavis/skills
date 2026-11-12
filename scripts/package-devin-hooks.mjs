@@ -8,7 +8,8 @@ export function packageHooks(source) {
   const program = source.replace(/^#![^\n]*\n/, '')
     .replace(/^export /gm, '')
     .replace(/if \(process\.argv\[1\][\s\S]*$/, 'main().catch(() => { process.exitCode = 1; });\n');
-  const command = `node --input-type=module -e '${program.replaceAll("'", "'\\''")}'`;
+  const resolve = 'node=$(command -v node 2>/dev/null); if [ -z "$node" ]; then for c in /usr/local/bin/node /opt/homebrew/bin/node "$HOME"/.asdf/shims/node "$HOME"/.volta/bin/node "$HOME"/.local/share/mise/installs/node/*/bin/node "$HOME"/.nvm/versions/node/*/bin/node; do [ -x "$c" ] && node=$c; done; fi; [ -n "$node" ] || exit 0';
+  const command = `${resolve}; "$node" --input-type=module -e '${program.replaceAll("'", "'\\''")}'`;
   return Object.fromEntries(['SessionStart', 'UserPromptSubmit', 'PostCompaction', 'SessionEnd'].map(event => [
     event, [{ hooks: [{ type: 'command', command, timeout: 2 }] }],
   ]));

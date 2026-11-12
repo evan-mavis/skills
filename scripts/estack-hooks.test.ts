@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -158,6 +158,26 @@ test('manifest commands run from another cwd using plugin environment and emit v
       else expect(JSON.parse(result.stdout).hookSpecificOutput.hookEventName).toBe(event);
     }
     expect(context(hook(data, { ...base, prompt: 'continue' }))).toContain('Estack and Poteto Mode are active');
+  });
+});
+
+test('manifest commands resolve a node binary outside PATH', async () => {
+  const realNode = spawnSync('/bin/sh', ['-c', 'command -v node'], { encoding: 'utf8' }).stdout.trim();
+  expect(realNode).not.toBe('');
+  const manifest = JSON.parse(await readFile(path.join(pluginRoot, 'hooks/hooks.json'), 'utf8'));
+  await fixture(async (data) => {
+    const home = path.join(data, 'home');
+    const bin = path.join(home, '.nvm/versions/node/v99.9.9/bin');
+    await mkdir(bin, { recursive: true });
+    await symlink(realNode, path.join(bin, 'node'));
+    const result = spawnSync('/bin/sh', ['-c', manifest.hooks.UserPromptSubmit[0].hooks[0].command], {
+      input: JSON.stringify({ ...base, prompt: '$estack build it' }), encoding: 'utf8',
+      env: { PATH: '/usr/bin:/bin', HOME: home, PLUGIN_ROOT: pluginRoot, PLUGIN_DATA: data },
+      timeout: 2000,
+    });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(context(JSON.parse(result.stdout))).toContain('Estack and Poteto Mode are active');
   });
 });
 

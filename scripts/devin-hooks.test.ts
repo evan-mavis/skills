@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { readFile, readdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { readFile, readdir, mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -70,6 +70,25 @@ test('quoted commands and foreign identities cannot activate; state is scoped to
     await writeFile(path.join(directory, files[0]), JSON.stringify(value));
     expect(hook(state, { ...base, prompt: 'continue' })).toBe(null);
     expect(await readdir(directory)).toHaveLength(0);
+  });
+});
+
+test('native commands resolve a node binary outside PATH', async () => {
+  const realNode = spawnSync('/bin/sh', ['-c', 'command -v node'], { encoding: 'utf8' }).stdout.trim();
+  expect(realNode).not.toBe('');
+  await fixture(async state => {
+    const home = path.join(state, 'home');
+    const bin = path.join(home, '.nvm/versions/node/v99.9.9/bin');
+    await mkdir(bin, { recursive: true });
+    await symlink(realNode, path.join(bin, 'node'));
+    const result = spawnSync('/bin/sh', ['-c', config.UserPromptSubmit[0].hooks[0].command], {
+      input: JSON.stringify({ ...base, prompt: '/estack build' }), encoding: 'utf8',
+      env: { PATH: '/usr/bin:/bin', HOME: home, XDG_STATE_HOME: state, DEVIN_PROJECT_DIR: '/workspace/project a' },
+      timeout: 2000,
+    });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(JSON.parse(result.stdout).hookSpecificOutput.additionalContext).toContain('resolve estack:estack');
   });
 });
 
