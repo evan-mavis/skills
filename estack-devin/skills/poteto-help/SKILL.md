@@ -1,6 +1,6 @@
 ---
 name: poteto-help
-description: Explain Estack setup, poteto-mode, and which skill or playbook fits a task. Use for /estack-devin:poteto-help or questions about how to use Estack or pstack in Devin. Requests to perform work route to poteto-mode.
+description: Explain Estack setup, poteto-mode, and which skill or playbook fits a task. Use for /estack:poteto-help or questions about how to use Estack or pstack in Devin. Requests to perform work route to poteto-mode.
 ---
 
 # Poteto help
@@ -15,9 +15,9 @@ Read the [Estack README](../../README.md) for installation and runtime requireme
 
 [Setup Estack](../setup-pstack/SKILL.md) explains model and reasoning choices. Use `subagent_general` to inherit the parent model. Custom profiles use the subagent router unless pinned. Use another model only when the user requests one that the current tools expose. Independent passes on one model do not establish model diversity. Fewer delegates cost fewer tokens. Save the full playbook for work that needs it.
 
-Start a task with `/estack-devin:estack` or `/estack-devin:poteto-mode`, the goal, and a check that can pass or fail. The playbook tracks its steps and records a reason for each skip.
+Start a task with `/estack:estack` or `/estack:poteto-mode`, the goal, and a check that can pass or fail. The playbook tracks its steps and records a reason for each skip.
 
-Bundled hooks remember explicit `/estack-devin:estack` or `/estack-devin:poteto-mode` activation for the current session and project. Say `disable /estack-devin:estack` or `disable /estack-devin:poteto-mode` to clear it. Check Devin's `/hooks` and a current hook receipt before claiming persistence. Devin currently documents plugin hooks for CLI and Desktop. Without evidence that a hook ran, invoke the skill for each task.
+Bundled hooks remember explicit `/estack:estack` or `/estack:poteto-mode` activation for the current session and project. Say `disable /estack:estack` or `disable /estack:poteto-mode` to clear it. Check Devin's `/hooks` and a current hook receipt before claiming persistence. Devin currently documents plugin hooks for CLI and Desktop. Without evidence that a hook ran, invoke the skill for each task.
 
 ## Pick a workflow
 

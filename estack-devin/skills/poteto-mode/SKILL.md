@@ -20,9 +20,9 @@ Remaining triggers:
 - Contested design → the **interrogate** skill (independent adversarial passes) before shipping.
 - Nontrivial multi-step → write the throughput checkpoint (Feature step 3).
 - Any prose surface → the **unslop** skill. Your reply is a prose surface. Write it per **Writing the reply**. For agent-facing prose, follow the [Devin skill format](https://docs.devin.ai/cli/extensibility/skills/creating-skills) and an available skill-authoring skill.
-- Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/estack-devin:technical-writing`).
+- Docs, RFCs, readmes, PR descriptions, or commit messages → the **technical-writing** skill (`/estack:technical-writing`).
 - Before commit → the bundled **deslop** skill (`../deslop/SKILL.md`).
-- Before review → the **no-comments** skill (`/estack-devin:no-comments`).
+- Before review → the **no-comments** skill (`/estack:no-comments`).
 - Desktop browser visual evidence in every playbook and verification skill → use Devin's native screenshots and guided videos. Follow [Record a demo](references/video-recording.md) before browser setup. Keep required video and nonvisual tests, logs, and state checks. Leave mobile capture to the user as a manual handoff.
 - Shipping UI / IDE / CLI → the available Devin browser harness for browser, Electron, and web UIs, or terminal tools for CLIs and TUIs. Read the selected tools' current instructions first. Read the matching project verifier before work when project context selects one. User-visible bugs require a reproduction before editing and verification afterward; features and improvements require a demo. For other bug fixes, reproduce first on the same surface yourself. Hand to the user only under the narrow Bug fix step 1 exception.
 - Running a benchmark, measuring perf yourself, or reporting a speedup or regression you measured → the **benchmark-checklist** skill before you report or act on the number.

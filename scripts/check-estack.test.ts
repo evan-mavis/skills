@@ -28,7 +28,7 @@ async function check(root: string, args: string[] = []) {
   return { stdout, stderr, code };
 }
 
-async function nativeFixture(platform: 'devin' | 'factory' | 'cursor') {
+async function nativeFixture(platform: 'devin') {
   const { root } = await fixture();
   const variant = path.join(root, `estack-${platform}`);
   const skill = path.join(variant, 'skills/example');
@@ -36,25 +36,8 @@ async function nativeFixture(platform: 'devin' | 'factory' | 'cursor') {
   await cp(path.join(root, 'estack/skills/example'), skill, { recursive: true });
   await rm(path.join(skill, 'agents'), { recursive: true });
   await writeFile(path.join(variant, `.${platform}-plugin/plugin.json`), JSON.stringify({
-    name: `estack-${platform}`, version: '0.1.22', description: 'Native Estack variant',
-    ...(platform === 'cursor' ? { skills: './skills', agents: './agents', logo: 'logo.png' } : {}),
+    name: 'estack', version: '0.1.22', description: 'Native Estack variant',
   }));
-  if (platform === 'cursor') {
-    await mkdir(path.join(variant, 'agents'));
-    await writeFile(path.join(variant, 'logo.png'), 'fixture');
-    await mkdir(path.join(root, '.cursor-plugin'));
-    await writeFile(path.join(root, '.cursor-plugin/marketplace.json'), JSON.stringify({
-      name: 'evan-skills', owner: { name: 'Evan Mavis' },
-      plugins: [{ name: 'estack-cursor', source: 'estack-cursor' }],
-    }));
-  }
-  if (platform === 'factory') {
-    await mkdir(path.join(root, '.factory-plugin'));
-    await writeFile(path.join(root, '.factory-plugin/marketplace.json'), JSON.stringify({
-      name: 'evan-skills',
-      plugins: [{ name: 'estack-factory', source: './estack-factory' }],
-    }));
-  }
   return { root, variant, skill };
 }
 
@@ -101,14 +84,14 @@ test('rejects references outside a registered skill even when their links resolv
   expect(result.stderr).not.toContain('missing reference');
 });
 
-test.each(['devin', 'factory', 'cursor'] as const)('validates the standalone %s package without Codex UI metadata', async platform => {
+test.each(['devin'] as const)('validates the standalone %s package without Codex UI metadata', async platform => {
   const { root } = await nativeFixture(platform);
   const result = await check(root, [platform]);
   expect(result.code).toBe(0);
   expect(result.stdout).toContain('1 bundled references');
 });
 
-test.each(['devin', 'factory', 'cursor'] as const)('rejects a missing shared skill in %s', async platform => {
+test.each(['devin'] as const)('rejects a missing shared skill in %s', async platform => {
   const { root, skill } = await nativeFixture(platform);
   await rm(skill, { recursive: true });
   const result = await check(root, [platform]);
@@ -116,15 +99,14 @@ test.each(['devin', 'factory', 'cursor'] as const)('rejects a missing shared ski
   expect(result.stderr).toContain('missing corresponding skill: example');
 });
 
-test.each(['devin', 'factory', 'cursor'] as const)('only Devin replaces capture with native tools (%s)', async platform => {
-  const { root } = await nativeFixture(platform);
+test('Devin replaces capture with native tools', async () => {
+  const { root } = await nativeFixture('devin');
   const capture = path.join(root, 'estack/skills/capture');
   await cp(path.join(root, 'estack/skills/example'), capture, { recursive: true });
   const entry = path.join(capture, 'SKILL.md');
   await writeFile(entry, (await readFile(entry, 'utf8')).replace('name: example', 'name: capture'));
-  const result = await check(root, [platform]);
-  expect(result.code).toBe(platform === 'devin' ? 0 : 1);
-  if (platform !== 'devin') expect(result.stderr).toContain('missing corresponding skill: capture');
+  const result = await check(root, ['devin']);
+  expect(result.code).toBe(0);
 });
 
 test('rejects bundling capture in Devin after its native replacement', async () => {
@@ -139,20 +121,19 @@ test('rejects bundling capture in Devin after its native replacement', async () 
   expect(result.stderr).toContain('skill replaced by native platform tools: capture');
 });
 
-test.each(['devin', 'factory', 'cursor'] as const)('preserves explicit-only skill policy in %s', async platform => {
-  const { root, skill } = await nativeFixture(platform);
+test('preserves explicit-only skill policy in Devin', async () => {
+  const { root, skill } = await nativeFixture('devin');
   const sourceMetadata = path.join(root, 'estack/skills/example/agents/openai.yaml');
   await writeFile(sourceMetadata, (await readFile(sourceMetadata, 'utf8')) + 'policy:\n  allow_implicit_invocation: false\n');
-  const rejected = await check(root, [platform]);
+  const rejected = await check(root, ['devin']);
   expect(rejected.code).toBe(1);
   expect(rejected.stderr).toContain('must preserve explicit-only invocation policy');
   const entry = path.join(skill, 'SKILL.md');
-  const policy = platform === 'devin' ? 'triggers: [user]' : 'disable-model-invocation: true';
-  await writeFile(entry, (await readFile(entry, 'utf8')).replace('name: example', `name: example\n${policy}`));
-  expect((await check(root, [platform])).code).toBe(0);
+  await writeFile(entry, (await readFile(entry, 'utf8')).replace('name: example', 'name: example\ntriggers: [user]'));
+  expect((await check(root, ['devin'])).code).toBe(0);
 });
 
-test.each(['devin', 'factory', 'cursor'] as const)('rejects broken bundled links and Codex runtime dependencies in %s', async platform => {
+test.each(['devin'] as const)('rejects broken bundled links and Codex runtime dependencies in %s', async platform => {
   const { root, skill } = await nativeFixture(platform);
   const entry = path.join(skill, 'SKILL.md');
   await writeFile(entry, (await readFile(entry, 'utf8')) + '[Missing](references/missing.md)\nRead ~/.codex/sessions.\n');
@@ -162,49 +143,10 @@ test.each(['devin', 'factory', 'cursor'] as const)('rejects broken bundled links
   expect(result.stderr).toContain('unsupported Codex runtime dependency');
 });
 
-test('rejects incorrect native identity and stale Factory marketplace sources', async () => {
-  const { root, variant } = await nativeFixture('factory');
-  await writeFile(path.join(variant, '.factory-plugin/plugin.json'), JSON.stringify({ name: 'estack', version: '0.1.22' }));
-  await writeFile(path.join(root, '.factory-plugin/marketplace.json'), '{"plugins":[]}');
-  const result = await check(root, ['factory']);
+test('rejects incorrect native plugin identity', async () => {
+  const { root, variant } = await nativeFixture('devin');
+  await writeFile(path.join(variant, '.devin-plugin/plugin.json'), JSON.stringify({ name: 'estack-devin', version: '0.1.22' }));
+  const result = await check(root, ['devin']);
   expect(result.code).toBe(1);
   expect(result.stderr).toContain('invalid plugin identity');
-  expect(result.stderr).toContain('missing Factory plugin source');
-});
-
-test('rejects a Factory marketplace without its required name', async () => {
-  const { root } = await nativeFixture('factory');
-  const catalogFile = path.join(root, '.factory-plugin/marketplace.json');
-  const catalog = JSON.parse(await readFile(catalogFile, 'utf8'));
-  delete catalog.name;
-  await writeFile(catalogFile, JSON.stringify(catalog));
-  const result = await check(root, ['factory']);
-  expect(result.code).toBe(1);
-  expect(result.stderr).toContain('invalid Factory marketplace name');
-});
-
-
-test('rejects Cursor manifest paths outside the bundle and missing marketplace source', async () => {
-  const { root, variant } = await nativeFixture('cursor');
-  const manifestFile = path.join(variant, '.cursor-plugin/plugin.json');
-  const manifest = JSON.parse(await readFile(manifestFile, 'utf8'));
-  manifest.logo = '../private.png';
-  manifest.agents = './missing-agents';
-  await writeFile(manifestFile, JSON.stringify(manifest));
-  await writeFile(path.join(root, '.cursor-plugin/marketplace.json'), '{"plugins":[]}');
-  const result = await check(root, ['cursor']);
-  expect(result.code).toBe(1);
-  expect(result.stderr).toContain('invalid logo path');
-  expect(result.stderr).toContain('missing agents path');
-  expect(result.stderr).toContain('invalid Cursor marketplace identity');
-  expect(result.stderr).toContain('missing Cursor plugin source');
-});
-
-test('rejects Factory runtime APIs in Cursor skills', async () => {
-  const { root, skill } = await nativeFixture('cursor');
-  const entry = path.join(skill, 'SKILL.md');
-  await writeFile(entry, (await readFile(entry, 'utf8')) + 'Use CreateAutomation and TaskOutput.\n');
-  const result = await check(root, ['cursor']);
-  expect(result.code).toBe(1);
-  expect(result.stderr).toContain('unsupported non-Cursor runtime dependency');
 });

@@ -1,6 +1,6 @@
 ---
 name: create-formal-verification-skill
-description: "Generate a project-local skill that formally verifies the code where a bug costs the most and tests reach the least, in any language, with whichever verification tool fits. Use for /estack-devin:create-formal-verification-skill, \"model-check this race\", \"prove this invariant\", or when concurrency, retries, state machines, parsers, or unsafe code need more than tests."
+description: "Generate a project-local skill that formally verifies the code where a bug costs the most and tests reach the least, in any language, with whichever verification tool fits. Use for /estack:create-formal-verification-skill, \"model-check this race\", \"prove this invariant\", or when concurrency, retries, state machines, parsers, or unsafe code need more than tests."
 triggers: [user]
 ---
 
@@ -32,7 +32,7 @@ Pick the tool that answers the question at the lowest cost. Consider a model che
 
 Write a project-local skill under `.agents/skills/`, with a name based on the verified area and a `SKILL.md` containing `name` and `description` frontmatter. State its project scope in both the description and opening instructions. Name the actual owner/repository and project, limit it to work in that repository or an explicit request for that project, and exclude all other work. From the skill alone, the next agent must be able to tell whether a change touches the verified code, run the check, tell a real bug from a modeling error, and update the verification when a change is intended. Put the coverage record and sync commit in the skill. Move the sync commit forward only after confirming that the verification describes that committed revision. Record uncommitted covered changes separately until verified at a commit. Use this repo's real commands, paths, and nouns, and leave no placeholders.
 
-If the check uses a TLA+ model, tell the next agent to read each result with [/estack-devin:statechart](../statechart/SKILL.md). Use it to explain invariant violations and checked fixes as paths in plain words, or to draw the behavior of a passing model. Keep the bounds, real-code replay, and PROPERTY evidence. Refer to the skill by name. Do not copy its commands, options, or machine-specific paths into generated skills or scripts.
+If the check uses a TLA+ model, tell the next agent to read each result with [/estack:statechart](../statechart/SKILL.md). Use it to explain invariant violations and checked fixes as paths in plain words, or to draw the behavior of a passing model. Keep the bounds, real-code replay, and PROPERTY evidence. Refer to the skill by name. Do not copy its commands, options, or machine-specific paths into generated skills or scripts.
 
 ## Prove it before you hand off
 
@@ -40,4 +40,4 @@ Use an isolated temporary checkout for scratch changes. Preserve the user's work
 
 ## Hand off
 
-Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one. Use [/estack-devin:maintain-formal-verification-skill](../maintain-formal-verification-skill/SKILL.md) after covered code changes without rechecking it.
+Tell the user what you verified, which tool you used and why, the bounds, what the check found in plain words, how to run it, and what it does not cover. Suggest a second target only if you found a close one. Use [/estack:maintain-formal-verification-skill](../maintain-formal-verification-skill/SKILL.md) after covered code changes without rechecking it.

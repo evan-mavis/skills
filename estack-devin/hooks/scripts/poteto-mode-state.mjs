@@ -10,10 +10,10 @@ export const STATE_SCHEMA = 1;
 export const DEFAULT_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 export const CLEANUP_CONCURRENCY = 16;
 
-const SKILL_COMMAND = String.raw`/(?:estack-devin:)?(?:estack|poteto-mode)`;
+const SKILL_COMMAND = String.raw`/(?:estack:)?(?:estack|poteto-mode)`;
 const ACTIVATION = new RegExp(String.raw`^\s*${SKILL_COMMAND}(?:\s|$)`, "u");
 const DISABLE = new RegExp(String.raw`^\s*disable ${SKILL_COMMAND}[.!]?\s*$`, "iu");
-const REMINDER = "Estack and Poteto Mode are active for this session and project. For substantive engineering work, resolve estack-devin:estack from the current skill catalog and read its SKILL.md, then read poteto-mode/SKILL.md and the selected playbook file in full. Track every playbook step, including explicit skip reasons. Keep casual turns brief and honor current user opt-outs. Respect host and repository instructions and the user's scope; activation grants no additional authority.";
+const REMINDER = "Estack and Poteto Mode are active for this session and project. For substantive engineering work, resolve estack:estack from the current skill catalog and read its SKILL.md, then read poteto-mode/SKILL.md and the selected playbook file in full. Track every playbook step, including explicit skip reasons. Keep casual turns brief and honor current user opt-outs. Respect host and repository instructions and the user's scope; activation grants no additional authority.";
 const MAX_SESSION_ID_LENGTH = 512;
 
 export function hashValue(value) {

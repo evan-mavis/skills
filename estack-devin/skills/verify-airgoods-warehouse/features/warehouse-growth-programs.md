@@ -31,7 +31,7 @@ Preconditions:
 - **Placement requests.** Require `Placement Requests`, then open a request and verify status, location, brand, internal reason, and notification controls. Status or approval changes and lifecycle email are explicit mutations.
 - **Demos.** Require `Demos`, rows or explicit error, and `Enable Retailer`. Open `Enable demo` or `Update demo` and cancel; saving changes retailer eligibility.
 - **Demo requests.** Require `Demo Requests`, filters such as `Status`, `Execution Mode`, and `Location`, then open one request and verify matching detail without editing.
-- **Proof.** Record entity IDs, lifecycle states, selected filters, email/queue posture, and any authorized before/after mutation. Cross-surface changes require matching marketplace evidence under `/estack-devin:verify-airgoods-web`.
+- **Proof.** Record entity IDs, lifecycle states, selected filters, email/queue posture, and any authorized before/after mutation. Cross-surface changes require matching marketplace evidence under `/estack:verify-airgoods-web`.
 
 ## Gotchas
 

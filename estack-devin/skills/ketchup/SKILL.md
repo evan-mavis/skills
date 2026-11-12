@@ -1,6 +1,6 @@
 ---
 name: ketchup
-description: "Catch the user up on this chat since their last message, with current status and every pending decision they need to make from the reply alone. Use for /estack-devin:ketchup or a request to catch up on this chat."
+description: "Catch the user up on this chat since their last message, with current status and every pending decision they need to make from the reply alone. Use for /estack:ketchup or a request to catch up on this chat."
 ---
 
 # Ketchup

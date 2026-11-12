@@ -3,8 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const platform = process.argv[2] ?? 'codex';
-if (process.argv.length > 3 || !['codex', 'devin', 'factory', 'cursor'].includes(platform)) {
-  throw new Error('Usage: bun scripts/check-estack.mjs [codex|devin|factory|cursor]');
+if (process.argv.length > 3 || !['codex', 'devin'].includes(platform)) {
+  throw new Error('Usage: bun scripts/check-estack.mjs [codex|devin]');
 }
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,26 +28,9 @@ const skillDirectories = new Set(skillFiles.map(file => path.dirname(file)));
 if (platform !== 'codex') {
   const manifestFile = path.join(root, `.${platform}-plugin/plugin.json`);
   const manifest = JSON.parse(await readFile(manifestFile, 'utf8'));
-  if (manifest.name !== `estack-${platform}`) report(manifestFile, 'invalid plugin identity');
+  if (manifest.name !== 'estack') report(manifestFile, 'invalid plugin identity');
   if (!/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(manifest.version ?? '')) report(manifestFile, 'invalid plugin version');
   if (typeof manifest.description !== 'string' || !manifest.description.trim()) report(manifestFile, 'missing plugin description');
-  if (platform === 'cursor') {
-    for (const field of ['skills', 'agents', 'logo']) {
-      for (const relative of [].concat(manifest[field] ?? [])) {
-        if (typeof relative !== 'string' || path.isAbsolute(relative) || relative.split('/').includes('..')) {
-          report(manifestFile, `invalid ${field} path`); continue;
-        }
-        try { await stat(path.join(root, relative)); }
-        catch { report(manifestFile, `missing ${field} path: ${relative}`); }
-      }
-    }
-    const catalogFile = path.join(repo, '.cursor-plugin/marketplace.json');
-    const catalog = JSON.parse(await readFile(catalogFile, 'utf8'));
-    if (catalog.name !== 'evan-skills' || !catalog.owner?.name) report(catalogFile, 'invalid Cursor marketplace identity');
-    if (!catalog.plugins?.some(plugin => plugin.name === 'estack-cursor' && plugin.source === 'estack-cursor')) {
-      report(catalogFile, 'missing Cursor plugin source');
-    }
-  }
   const sourceSkills = (await readdir(path.join(repo, 'estack/skills'), { withFileTypes: true }))
     .filter(entry => entry.isDirectory()).map(entry => entry.name);
   const nativeSkills = skillFiles.map(file => path.basename(path.dirname(file)));
@@ -63,30 +46,18 @@ if (platform !== 'codex') {
     if (path.relative(root, file).startsWith('.codex-plugin/') || path.basename(file) === 'openai.yaml') {
       report(file, 'Codex metadata does not belong in this variant');
     }
-    if (/\.(?:md|mjs|sh|ts|json)$/.test(file) && /^(?:skills|agents|droids)\//.test(path.relative(root, file))) {
+    if (/\.(?:md|mjs|sh|ts|json)$/.test(file) && /^(?:skills|agents)\//.test(path.relative(root, file))) {
       const text = await readFile(file, 'utf8');
       if (/mcp__codex_app|mcp__cua_repl|\bCODEX_HOME\b|~\/\.codex|collaboration\.(?:spawn_agent|wait_agent|send_message)/.test(text)) {
         report(file, 'unsupported Codex runtime dependency');
       }
-      if (platform === 'cursor' && /\b(?:TaskOutput|TaskStop|CreateAutomation|EditAutomation|ReadAutomation|ListAutomations)\b|\.factory\/|\.devin\//.test(text)) {
-        report(file, 'unsupported non-Cursor runtime dependency');
-      }
     }
   }
-  const agentRoot = platform === 'factory' ? 'droids' : 'agents';
-  for (const file of files.filter(file => new RegExp(`^${agentRoot}/[^/]+\\.md$`).test(path.relative(root, file)))) {
+  for (const file of files.filter(file => /^agents\/[^/]+\.md$/.test(path.relative(root, file)))) {
     const match = (await readFile(file, 'utf8')).match(/^---\n([\s\S]*?)\n---\n/);
     const metadata = match ? Bun.YAML.parse(match[1]) : {};
     if (metadata.name !== path.basename(file, '.md') || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.name ?? '')) report(file, 'invalid native agent name');
     if (typeof metadata.description !== 'string' || !metadata.description.trim()) report(file, 'missing native agent description');
-  }
-  if (platform === 'factory') {
-    const catalogFile = path.join(repo, '.factory-plugin/marketplace.json');
-    const catalog = JSON.parse(await readFile(catalogFile, 'utf8'));
-    if (catalog.name !== 'evan-skills') report(catalogFile, 'invalid Factory marketplace name');
-    if (!catalog.plugins?.some(plugin => plugin.name === 'estack-factory' && plugin.source === './estack-factory')) {
-      report(catalogFile, 'missing Factory plugin source');
-    }
   }
 }
 for (const file of files) {
@@ -97,8 +68,6 @@ for (const file of files) {
 }
 const supported = new Set(['name', 'description', 'license', 'allowed-tools', 'metadata']);
 if (platform === 'devin') supported.add('triggers');
-if (['factory', 'cursor'].includes(platform)) supported.add('disable-model-invocation');
-if (platform === 'cursor') for (const field of ['paths', 'icon', 'color']) supported.add(field);
 const minorWords = new Set(['a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'in', 'nor', 'of', 'on', 'or', 'the', 'to', 'with']);
 const specialWords = { apis: 'APIs', pr: 'PR', tdd: 'TDD', typescript: 'TypeScript' };
 let links = 0;
@@ -114,15 +83,12 @@ for (const file of skillFiles) {
       (!Array.isArray(frontmatter.triggers) || !frontmatter.triggers.length || frontmatter.triggers.some(trigger => !['user', 'model'].includes(trigger)))) {
     report(file, 'invalid native skill triggers');
   }
-  if (['factory', 'cursor'].includes(platform) && frontmatter['disable-model-invocation'] !== undefined && typeof frontmatter['disable-model-invocation'] !== 'boolean') {
-    report(file, 'invalid model invocation policy');
-  }
   if (platform !== 'codex') {
     const sourceMetadataFile = path.join(repo, 'estack/skills', path.basename(path.dirname(file)), 'agents/openai.yaml');
     try {
       const sourceMetadata = Bun.YAML.parse(await readFile(sourceMetadataFile, 'utf8'));
       if (sourceMetadata.policy?.allow_implicit_invocation === false &&
-          !(platform === 'devin' ? frontmatter.triggers?.length === 1 && frontmatter.triggers[0] === 'user' : frontmatter['disable-model-invocation'] === true)) {
+          !(frontmatter.triggers?.length === 1 && frontmatter.triggers[0] === 'user')) {
         report(file, 'must preserve explicit-only invocation policy');
       }
     } catch (error) {
@@ -168,4 +134,4 @@ for (const file of files.filter(file => file.endsWith('.md'))) {
 }
 if (errors.length) { console.error(errors.join('\n')); process.exitCode = 1; }
 else if (platform === 'codex') console.log(`Verified ${skillFiles.length} Codex skills, UI metadata, and ${links} bundled references.`);
-else console.log(`Verified ${skillFiles.length} ${{devin: 'Devin', factory: 'Factory', cursor: 'Cursor'}[platform]} skills, native metadata, and ${links} bundled references.`);
+else console.log(`Verified ${skillFiles.length} Devin skills, native metadata, and ${links} bundled references.`);

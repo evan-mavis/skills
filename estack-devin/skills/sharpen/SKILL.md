@@ -1,6 +1,6 @@
 ---
 name: sharpen
-description: "Rewrite a prompt with an expert approach and an independent check. Use for /estack-devin:sharpen."
+description: "Rewrite a prompt with an expert approach and an independent check. Use for /estack:sharpen."
 triggers: [user]
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: in-your-own-words
-description: "Restate the user's goals and the problem they want to solve. Use for /estack-devin:in-your-own-words."
+description: "Restate the user's goals and the problem they want to solve. Use for /estack:in-your-own-words."
 triggers: [user]
 ---
 

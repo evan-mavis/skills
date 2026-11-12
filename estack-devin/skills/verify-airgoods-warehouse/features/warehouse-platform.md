@@ -26,7 +26,7 @@ Preconditions:
 - **GTM hub.** Require heading `GTM`, cards `Upload Brand CSV` and `Location Enrichment Backfill`, and their current readiness state.
 - **Brand upload.** Open the upload flow and verify file validation, preview, mapping, and confirmation without submitting. An authorized upload must use a tiny synthetic CSV and prove every created/updated row before cleanup.
 - **Location enrichment.** Prefer `Dry run`; capture proposed missing/stale counts without applying. `Apply missing/stale` or apply-all enqueues external Places/AI work and requires explicit authorization, queue health, provider configuration, and row-level proof.
-- **Proof.** Record integration/brand/location IDs, initial values, selected mode, queue/provider posture, preview counts, and exact changes. Verify marketplace-visible integration changes with `/estack-devin:verify-airgoods-web`.
+- **Proof.** Record integration/brand/location IDs, initial values, selected mode, queue/provider posture, preview counts, and exact changes. Verify marketplace-visible integration changes with `/estack:verify-airgoods-web`.
 
 ## Gotchas
 

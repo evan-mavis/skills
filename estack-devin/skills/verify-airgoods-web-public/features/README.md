@@ -16,7 +16,7 @@ this directory is the maintained source for verifying airgoods public, editorial
 - prefer aria roles and names; use documented `data-*` handles only when needed.
 - exercise wide and compact public chrome when relevant.
 - use browser document/cdp and http evidence for metadata, robots, sitemap, and structured data.
-- cross-surface auth, search, signup, or proxy behavior also invokes `/estack-devin:verify-airgoods-web`.
+- cross-surface auth, search, signup, or proxy behavior also invokes `/estack:verify-airgoods-web`.
 
 ## proof and skip reporting
 

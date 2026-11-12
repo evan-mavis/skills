@@ -13,10 +13,10 @@ Choose the verification surface before launching anything. This skill routes; th
 
 1. Read the task, changed paths, affected routes, and direct consumers.
 2. Select:
-   - `apps/web/**` or marketplace routes → `/estack-devin:verify-airgoods-web`
-   - `apps/web-public/**`, landing, blog, CMS, or public SEO routes → `/estack-devin:verify-airgoods-web-public`
-   - `apps/warehouse/**` or Warehouse operator routes → `/estack-devin:verify-airgoods-warehouse`
-3. Shared public chrome, auth handoff, marketplace search from public pages, main-web proxying, or packages used by both `apps/web` and `apps/web-public` → run `/estack-devin:verify-airgoods-web` and `/estack-devin:verify-airgoods-web-public`.
+   - `apps/web/**` or marketplace routes → `/estack:verify-airgoods-web`
+   - `apps/web-public/**`, landing, blog, CMS, or public SEO routes → `/estack:verify-airgoods-web-public`
+   - `apps/warehouse/**` or Warehouse operator routes → `/estack:verify-airgoods-warehouse`
+3. Shared public chrome, auth handoff, marketplace search from public pages, main-web proxying, or packages used by both `apps/web` and `apps/web-public` → run `/estack:verify-airgoods-web` and `/estack:verify-airgoods-web-public`.
 4. For `apps/backend/**`, `packages/api/**`, or shared package changes, inspect callers and route to every user-facing consumer whose behavior can change. Do not treat an API response alone as proof of a UI outcome.
 5. When a change crosses marketplace/public web and Warehouse, run all affected skills. Keep their service ownership, accounts, screenshots, walkthrough videos, and pass predicates separate.
 6. If no route matches, or the selected skill has no feature recipe covering the exact route, state, action, side effect, viewport, or requested proof, warn the user before testing. Name the missing map entry and label any safe exploratory drive `unmapped`.
@@ -53,4 +53,4 @@ Native push remains unmapped unless a dedicated verifier covers the requested fl
 
 ## Installed layout
 
-The surface skills and [maintain-airgoods-verification](../maintain-airgoods-verification/SKILL.md) are bundled sibling directories. Use `/estack-devin:maintain-airgoods-verification` for verification-skill maintenance. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).
+The surface skills and [maintain-airgoods-verification](../maintain-airgoods-verification/SKILL.md) are bundled sibling directories. Use `/estack:maintain-airgoods-verification` for verification-skill maintenance. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).

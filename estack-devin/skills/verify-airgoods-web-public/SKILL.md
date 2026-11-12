@@ -9,7 +9,7 @@ Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets A
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 
-Drive the public Next.js app in `apps/web-public`. Marketplace account and commerce behavior belongs to `/estack-devin:verify-airgoods-web`; Warehouse belongs to `/estack-devin:verify-airgoods-warehouse`. Shared chrome, authentication handoff, and main-web proxy changes require both public and marketplace verification.
+Drive the public Next.js app in `apps/web-public`. Marketplace account and commerce behavior belongs to `/estack:verify-airgoods-web`; Warehouse belongs to `/estack:verify-airgoods-warehouse`. Shared chrome, authentication handoff, and main-web proxy changes require both public and marketplace verification.
 
 ## Coverage gate
 

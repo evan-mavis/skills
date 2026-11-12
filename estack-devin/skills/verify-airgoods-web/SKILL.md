@@ -9,7 +9,7 @@ Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets A
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 
-Drive the marketplace SSR app in `apps/web`. Public landing, editorial, CMS, SEO, and public chrome belong to `/estack-devin:verify-airgoods-web-public`; Warehouse belongs to `/estack-devin:verify-airgoods-warehouse`. Shared auth, search, navigation, or proxy changes require both marketplace and public verification.
+Drive the marketplace SSR app in `apps/web`. Public landing, editorial, CMS, SEO, and public chrome belong to `/estack:verify-airgoods-web-public`; Warehouse belongs to `/estack:verify-airgoods-warehouse`. Shared auth, search, navigation, or proxy changes require both marketplace and public verification.
 
 ## Coverage gate
 
@@ -21,7 +21,7 @@ Before launch, name the feature, route, audience, state transition, side effect,
 2. Reuse healthy backend/web processes belonging to this checkout. Start only a missing app with `pnpm --dir apps/backend dev` or `pnpm --dir apps/web dev`, subject to the lifecycle-hook guidance in Local runtime.
 3. Use the existing configured database, Redis, ports, and API origins. If a required prerequisite is unavailable, report it instead of generating an environment.
 4. Start `pnpm --dir apps/backend dev:queue` only when the selected recipe needs asynchronous behavior and the worker is missing. Record process/session IDs and ownership.
-5. Start web-public only when `/estack-devin:verify-airgoods-web-public` is also selected for a shared/proxied flow.
+5. Start web-public only when `/estack:verify-airgoods-web-public` is also selected for a shared/proxied flow.
 
 ## Doctor
 

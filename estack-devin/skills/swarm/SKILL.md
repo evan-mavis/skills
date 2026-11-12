@@ -1,5 +1,5 @@
 ---
-{name: swarm,description: "Fan out N parallel workers, drain them, and return one report. Use for /estack-devin:swarm, 'swarm this', or parallel coverage, races, gauntlets, and exploration."}
+{name: swarm,description: "Fan out N parallel workers, drain them, and return one report. Use for /estack:swarm, 'swarm this', or parallel coverage, races, gauntlets, and exploration."}
 ---
 
 # Swarm

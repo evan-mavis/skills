@@ -1,6 +1,6 @@
 # airgoods marketplace web verification map
 
-this directory is the maintained source for verifying the marketplace experience in `apps/web`. public landing, editorial, cms, and seo behavior belongs to `/estack-devin:verify-airgoods-web-public`.
+this directory is the maintained source for verifying the marketplace experience in `apps/web`. public landing, editorial, cms, and seo behavior belongs to `/estack:verify-airgoods-web-public`.
 
 ## baseline preconditions
 
@@ -30,7 +30,7 @@ this directory is the maintained source for verifying the marketplace experience
 - record the feature id, exact url, git sha, mode, and service ownership.
 - for api-backed behavior, retain the relevant response or a read-only confirmation.
 - report an unreachable path with the attempted route and missing prerequisite.
-- shared public chrome, auth handoff, or proxy behavior also requires `/estack-devin:verify-airgoods-web-public`.
+- shared public chrome, auth handoff, or proxy behavior also requires `/estack:verify-airgoods-web-public`.
 
 ## feature entry contract
 

@@ -8,7 +8,7 @@ triggers: [user]
 
 Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
-This is a thin adapter over the bundled `/estack-devin:maintain-verification-skill`, derived from pstack.
+This is a thin adapter over the bundled `/estack:maintain-verification-skill`, derived from pstack.
 
 ## Base workflow
 

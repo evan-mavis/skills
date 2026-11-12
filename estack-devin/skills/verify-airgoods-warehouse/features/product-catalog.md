@@ -33,7 +33,7 @@ Preconditions:
 - **Enrichment.** Require `Enrichment runs`, status badges, and jobs or a settled empty state. Open one job; do not launch or cancel work during routine verification.
 - **Filters.** Require `Filters`, browse one type and value, and inspect `Audit history` or cleanup preview where available. Merge, delete, visibility, and cleanup apply are destructive; stop before confirmation.
 - **Attributes and categories.** Require `Attributes` or `Category Explorer`; drill into one attribute or expand one category node without editing.
-- **Proof.** Record product/job/type/value IDs, initial statuses, queue/provider posture, selected filters, and result. Any catalog mutation also requires marketplace proof through `/estack-devin:verify-airgoods-web`.
+- **Proof.** Record product/job/type/value IDs, initial statuses, queue/provider posture, selected filters, and result. Any catalog mutation also requires marketplace proof through `/estack:verify-airgoods-web`.
 
 ## Gotchas
 

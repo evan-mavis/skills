@@ -23,8 +23,6 @@ jobs:
         include:
           - {platform: codex, variant: estack}
           - {platform: devin, variant: estack-devin}
-          - {platform: factory, variant: estack-factory}
-          - {platform: cursor, variant: estack-cursor}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -85,22 +83,4 @@ jobs:
             --no-audit --no-fund @openai/codex@0.164.0
           printf '%s\n' "$RUNNER_TEMP/codex-cli/node_modules/.bin" >> "$GITHUB_PATH"
       - run: bun scripts/check-estack-loader.mjs
-      - name: Validate Cursor metadata with the official checker
-        shell: bash
-        run: |
-          validation_dir="$RUNNER_TEMP/cursor-validator"
-          source_url=https://raw.githubusercontent.com/cursor/plugins/99b609a72323b70204eab407c622f436e858e112
-          mkdir -p "$validation_dir/scripts" "$validation_dir/schemas"
-          curl --fail --location --silent --show-error \
-            "$source_url/scripts/validate-plugins.mjs" \
-            --output "$validation_dir/scripts/validate-plugins.mjs"
-          for schema in marketplace plugin; do
-            curl --fail --location --silent --show-error \
-              "$source_url/schemas/$schema.schema.json" \
-              --output "$validation_dir/schemas/$schema.schema.json"
-          done
-          cp -R .cursor-plugin estack-cursor "$validation_dir/"
-          npm install --prefix "$validation_dir" --ignore-scripts --no-audit --no-fund \
-            ajv@8.17.1 ajv-formats@3.0.1
-          node "$validation_dir/scripts/validate-plugins.mjs"
       - run: git diff --exit-code && git diff --check

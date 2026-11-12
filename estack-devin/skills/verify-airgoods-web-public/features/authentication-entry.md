@@ -27,7 +27,7 @@ Preconditions:
 - **Account choices.** Choose create account; require `Get started` and retailer/seller choices. Return to sign-in and require the same form.
 - **Password recovery.** Choose forgot password and require the reset form. Do not enter or submit an email during routine verification.
 - **Dismiss.** Press Escape; require the dialog to disappear and `Main navigation` to remain.
-- **Authenticated handoff.** Follow `Authenticated setup` in `../SKILL.md`. Require the expected buyer/seller public chrome and main-web destination; invoke `/estack-devin:verify-airgoods-web` for destination behavior.
+- **Authenticated handoff.** Follow `Authenticated setup` in `../SKILL.md`. Require the expected buyer/seller public chrome and main-web destination; invoke `/estack:verify-airgoods-web` for destination behavior.
 - **Proof.** Capture anonymous before state, selected dialog/handoff result, origin transition, and final route without credentials or tokens.
 
 ## Gotchas

@@ -1,6 +1,6 @@
 # pstack source history
 
-This file records the pstack snapshot reviewed for Estack and its source adaptations. This editable Codex variant is maintained with the other three variants under `AGENTS.md`. Historical entries describe the original Codex adaptation.
+This file records the pstack snapshot reviewed for Estack and its source adaptations. This editable Codex variant is maintained with the other variant under `AGENTS.md`. Historical entries describe the original Codex adaptation.
 
 ## Snapshot
 

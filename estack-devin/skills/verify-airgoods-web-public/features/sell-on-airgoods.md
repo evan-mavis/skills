@@ -25,7 +25,7 @@ Preconditions:
 - **Render.** Require heading `Sell wholesale to thousands of retailers.`.
 - **Map proof.** Scroll to `Trusted by retailers nationwide`. Require image `Approved Airgoods retailers shown across a map of the United States` plus rendered map paths and retailer images.
 - **Benefits and FAQ.** Require `Why Airgoods?` and `Frequently asked questions`.
-- **Signup entry.** Choose the first hero `Get started` only in full mode. Require seller-signup navigation without submitting; invoke `/estack-devin:verify-airgoods-web` for destination behavior.
+- **Signup entry.** Choose the first hero `Get started` only in full mode. Require seller-signup navigation without submitting; invoke `/estack:verify-airgoods-web` for destination behavior.
 - **Webinar entry.** Confirm `Join a live webinar` has the expected external destination. Avoid leaving the evidence tab unless external navigation is in scope.
 - **Proof.** Capture hero, map rendering, origin/mode, and selected handoff or link state.
 

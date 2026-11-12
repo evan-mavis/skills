@@ -25,7 +25,7 @@ To add a project, add its context under `references/projects/` and one row here.
 
 This plugin runs in Devin.
 
-Bundled hooks remember explicit `/estack-devin:estack` or `/estack-devin:poteto-mode` activation for the current session and project. Say `disable /estack-devin:estack` or `disable /estack-devin:poteto-mode` to clear it. Check Devin's `/hooks` and a current hook receipt before claiming persistence. Devin currently documents plugin hooks for CLI and Desktop. Without evidence that a hook ran, invoke the skill for each task.
+Bundled hooks remember explicit `/estack:estack` or `/estack:poteto-mode` activation for the current session and project. Say `disable /estack:estack` or `disable /estack:poteto-mode` to clear it. Check Devin's `/hooks` and a current hook receipt before claiming persistence. Devin currently documents plugin hooks for CLI and Desktop. Without evidence that a hook ran, invoke the skill for each task.
 
 Write ordinary responses in lowercase, clear, warm prose. Preserve case-sensitive technical text and exact required report prefixes. For rewriting text in Evan's voice, use [reword](../reword/SKILL.md).
 

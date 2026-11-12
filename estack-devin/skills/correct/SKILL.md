@@ -1,6 +1,6 @@
 ---
 name: correct
-description: "Prevent repeated agent mistakes in a repository with architecture, types, lint, CI, or tests. Prove each safeguard rejects a real past mistake. Use for /estack-devin:correct or a request to prevent recurring agent mistakes."
+description: "Prevent repeated agent mistakes in a repository with architecture, types, lint, CI, or tests. Prove each safeguard rejects a real past mistake. Use for /estack:correct or a request to prevent recurring agent mistakes."
 ---
 
 # Correct

@@ -1,6 +1,6 @@
 # estack for devin
 
-Evan's pstack workflows and Airgoods skills, maintained directly in `estack-devin/`. This is a complete editable package. Shared changes also belong in the Codex, Factory, and Cursor variants, following the repository's `AGENTS.md`.
+Evan's pstack workflows and Airgoods skills, maintained directly in `estack-devin/`. This is a complete editable package. Shared changes also belong in the Codex variant, following the repository's `AGENTS.md`.
 
 Install from this checkout:
 
@@ -14,7 +14,7 @@ After the files are pushed to the repository, install the remote package:
 devin plugins install evan-mavis/skills#estack-devin
 ```
 
-Start a task with `/estack-devin:estack` or `/estack-devin:poteto-mode`, the goal, and a check that can pass or fail. Individual skills use `/estack-devin:<skill>`. Invocation triggers live in skill frontmatter. Bundled hooks remember explicit activation for the current session and project, remind the agent on later prompts, and restore the reminder after resume or compaction. Say `disable /estack-devin:estack` or `disable /estack-devin:poteto-mode` to clear activation. Check `/hooks` and a current receipt before claiming persistence. Devin currently documents plugin hooks for CLI and Desktop; cloud execution is unverified. Without hook evidence, invoke the skill for each task.
+Start a task with `/estack:estack` or `/estack:poteto-mode`, the goal, and a check that can pass or fail. Individual skills use `/estack:<skill>`. Invocation triggers live in skill frontmatter. Bundled hooks remember explicit activation for the current session and project, remind the agent on later prompts, and restore the reminder after resume or compaction. Say `disable /estack:estack` or `disable /estack:poteto-mode` to clear activation. Check `/hooks` and a current receipt before claiming persistence. Devin currently documents plugin hooks for CLI and Desktop; cloud execution is unverified. Without hook evidence, invoke the skill for each task.
 
 Hooks require Node.js. State and receipts live under `${XDG_STATE_HOME:-~/.local/state}/estack-devin/poteto-mode/`, keyed by hashed session and project identities. They contain activation and timestamps, never prompt text. Inactive state expires after 30 days. Hooks add reminders without granting authority or blocking actions. `hooks/scripts/poteto-mode-state.mjs` is the editable source. After editing it, run `bun scripts/package-devin-hooks.mjs` from the repository root to refresh the self-contained commands in `hooks.json`. This avoids undocumented plugin-path variables.
 
@@ -26,4 +26,4 @@ History skills use accessible task history or scoped transcript exports and repo
 
 Airgoods babysitting keeps the external `@codex review` GitHub reviewer and its existing identity, reply, no-merge, and verification safeguards.
 
-Local folder installs are linked to this source and load edits in the next session. Remote installs refresh with `devin plugins update estack-devin`. See the official [plugin guide](https://docs.devin.ai/cli/extensibility/plugins/overview), [subagent guide](https://docs.devin.ai/cli/subagents), and [skill format](https://docs.devin.ai/cli/extensibility/skills/creating-skills). Repository edits and publication remain separate.
+Local folder installs are linked to this source and load edits in the next session. Remote installs refresh with `devin plugins update skills#estack`. See the official [plugin guide](https://docs.devin.ai/cli/extensibility/plugins/overview), [subagent guide](https://docs.devin.ai/cli/subagents), and [skill format](https://docs.devin.ai/cli/extensibility/skills/creating-skills). Repository edits and publication remain separate.

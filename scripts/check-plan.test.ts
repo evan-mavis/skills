@@ -3,7 +3,7 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s plan template passes its checker after filling placeholders', async variant => {
+test.each(['estack', 'estack-devin'])('%s plan template passes its checker after filling placeholders', async variant => {
   const directory = await mkdtemp(path.join(tmpdir(), 'estack-plan-'));
   try {
     const scripts = path.resolve(import.meta.dir, '..', variant, 'skills/poteto-mode/scripts');
@@ -32,7 +32,7 @@ test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s pla
   }
 });
 
-test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s plan checker respects Markdown fences', async variant => {
+test.each(['estack', 'estack-devin'])('%s plan checker respects Markdown fences', async variant => {
   const directory = await mkdtemp(path.join(tmpdir(), 'estack-plan-fences-'));
   try {
     const scripts = path.resolve(import.meta.dir, '..', variant, 'skills/poteto-mode/scripts');
@@ -75,7 +75,7 @@ test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s pla
   }
 });
 
-test.each(['estack', 'estack-devin', 'estack-factory', 'estack-cursor'])('%s validates coupled-feature units without implementation PRs', async variant => {
+test.each(['estack', 'estack-devin'])('%s validates coupled-feature units without implementation PRs', async variant => {
   const directory = await mkdtemp(path.join(tmpdir(), 'estack-coupled-plan-'));
   try {
     const skill = path.resolve(import.meta.dir, '..', variant, 'skills/poteto-mode');

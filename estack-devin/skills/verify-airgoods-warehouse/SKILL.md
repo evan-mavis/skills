@@ -9,7 +9,7 @@ Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets A
 
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 
-Drive the internal Next.js Warehouse app in `apps/warehouse`. Warehouse is an authenticated operator surface backed by the Airgoods backend and shared API package. Marketplace behavior belongs to `/estack-devin:verify-airgoods-web`; public-web behavior belongs to `/estack-devin:verify-airgoods-web-public`.
+Drive the internal Next.js Warehouse app in `apps/warehouse`. Warehouse is an authenticated operator surface backed by the Airgoods backend and shared API package. Marketplace behavior belongs to `/estack:verify-airgoods-web`; public-web behavior belongs to `/estack:verify-airgoods-web-public`.
 
 ## Coverage gate
 

@@ -33,15 +33,15 @@ test('Devin native config embeds current source and needs no plugin-root variabl
 
 test('explicit native commands persist through prompts, resume and compaction, and disable clears state', async () => {
   await fixture(async state => {
-    for (const [i, prompt] of ['/estack-devin:estack build', '/estack-devin:poteto-mode build', '/estack build', '/poteto-mode build'].entries()) {
+    for (const [i, prompt] of ['/estack:estack build', '/estack:poteto-mode build', '/estack build', '/poteto-mode build'].entries()) {
       const input = { ...base, session_id: `session-${i}`, prompt };
-      expect(hook(state, input).hookSpecificOutput.additionalContext).toContain('resolve estack-devin:estack');
+      expect(hook(state, input).hookSpecificOutput.additionalContext).toContain('resolve estack:estack');
       expect(hook(state, { ...input, prompt: 'continue', prompt_id: 'next-turn' }).hookSpecificOutput.additionalContext).toContain('Track every playbook step');
       expect(hook(state, { ...input, hook_event_name: 'SessionEnd' })).toBe(null);
       for (const event of ['SessionStart', 'PostCompaction']) {
         expect(hook(state, { ...input, hook_event_name: event }).hookSpecificOutput.hookEventName).toBe(event);
       }
-      expect(hook(state, { ...input, prompt: 'disable /estack-devin:estack' })).toBe(null);
+      expect(hook(state, { ...input, prompt: 'disable /estack:estack' })).toBe(null);
       expect(hook(state, { ...input, prompt: 'continue' })).toBe(null);
       expect(hook(state, { ...input, hook_event_name: 'PostCompaction' })).toBe(null);
     }
@@ -53,7 +53,7 @@ test('quoted commands and foreign identities cannot activate; state is scoped to
     for (const prompt of ['please use /estack', '`/estack` build', '> /estack build', '"/estack build"', '/other:estack build', '/estack-extra build', '$estack build']) {
       expect(hook(state, { ...base, prompt })).toBe(null);
     }
-    expect(hook(state, { ...base, prompt: '/estack-devin:estack build' })).not.toBe(null);
+    expect(hook(state, { ...base, prompt: '/estack:estack build' })).not.toBe(null);
     expect(hook(state, { ...base, session_id: 'other', prompt: 'continue' })).toBe(null);
     expect(hook(state, { ...base, prompt: 'continue' }, '/workspace/project b')).toBe(null);
     expect(hook(state, { ...base, prompt: 'continue' }, '')).toBe(null);

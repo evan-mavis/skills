@@ -27,7 +27,7 @@ Preconditions:
 - **Open sign-in.** In `Main navigation`, choose `Sign in`. Require a dialog, then press Escape and require it to disappear.
 - **Open sign-up.** Choose `Sign up`. Require heading `Get started`, capture proof, then press Escape.
 - **Advance a story.** Scroll region `Customer stories` into view and choose `Next customer story`. Require the active story content or rail position to change.
-- **Search entry.** Fill `Search Airgoods`, choose `Search`, and require navigation to main-web marketplace with the query preserved. Run this only in full mode and invoke `/estack-devin:verify-airgoods-web` for the destination.
+- **Search entry.** Fill `Search Airgoods`, choose `Search`, and require navigation to main-web marketplace with the query preserved. Run this only in full mode and invoke `/estack:verify-airgoods-web` for the destination.
 - **Proof.** Record feature ID, origin, mode, viewport, exact action, and result. The screenshot must include public identity and the acted-on state.
 
 ## Gotchas
