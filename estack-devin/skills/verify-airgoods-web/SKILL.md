@@ -29,6 +29,16 @@ Require backend `/api/healthcheck` to return `"message":"OK"` and web to serve t
 
 Use the existing app configuration and verified listener ports; confirm the listeners belong to this Git root. Re-run doctor before the first drive, after surprising state, after failure, and after service restart.
 
+### Verify the executed revision after switching branches
+
+An active feature gate does not prove the intended component executed. Stale backend CommonJS commerce output can leave current source exports undefined; a caught projection failure can return a null `buyerPrice` and silently render the legacy margin dialog.
+
+After switching between development and a pricing-feature revision, verify the relevant exports from the backend's module resolution. If `buildBuyerPrice`, `portionLandedLine`, or `projectLandedBasketPrices` exist in source but resolve to undefined, emit current output with `pnpm --dir packages/commerce exec tsc --incremental false`. Restart only the verified API process that loaded stale output, then reload the browser normally. Do not restart healthy unrelated services or create infrastructure.
+
+Require a fresh nonnull `buyerPrice` and `#pdp-landed-retail-price`, not legacy `#pdp-margin-retail-price`, before accepting landed-calculator evidence. Verify the rendered labels too. Preserve captures from the wrong path as diagnostics, never as feature proof.
+
+For Before/After margin comparisons, match product, selected variant, quantity, cart contents, promotions, viewport, and economic retail input. Record when case-versus-unit presentation requires equivalent but numerically different retail inputs. Preserve originals and disclose missing baseline state rather than claiming pixel-identical evidence.
+
 ## Authenticated setup
 
 Use this setup for buyer, seller, cart, checkout, account, and signed-in home verification:

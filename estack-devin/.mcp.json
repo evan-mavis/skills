@@ -1,0 +1,44 @@
+{
+  "mcpServers": {
+    "render": {
+      "type": "streamable-http",
+      "url": "https://mcp.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${MCP_RENDER_API_KEY}"
+      }
+    },
+    "resend": {
+      "url": "https://mcp.resend.com/mcp"
+    },
+    "vercel": {
+      "url": "https://mcp.vercel.com"
+    },
+    "posthog": {
+      "url": "https://mcp.posthog.com/mcp"
+    },
+    "stripe": {
+      "url": "https://mcp.stripe.com"
+    },
+    "neon": {
+      "url": "https://mcp.neon.tech/mcp"
+    },
+    "sanity": {
+      "url": "https://mcp.sanity.io"
+    },
+    "slack-remote": {
+      "url": "https://mcp.slack.com/mcp"
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp"
+    },
+    "linear": {
+      "url": "https://mcp.linear.app/mcp"
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp"
+    },
+    "expo": {
+      "url": "https://mcp.expo.dev/mcp"
+    }
+  }
+}
