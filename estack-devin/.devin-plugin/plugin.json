@@ -7,5 +7,6 @@
   },
   "repository": "https://github.com/evan-mavis/skills",
   "license": "MIT",
+  "logo": "assets/maul-mandalorian-avatar.png",
   "skills": "skills"
 }
