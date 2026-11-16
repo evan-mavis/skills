@@ -10,4 +10,4 @@ Before rewriting the prompt, state:
 3. Which specific methods and tools they would use.
 4. What independent evidence would show the result is right.
 
-Then return the rewritten prompt. Improve the approach without expanding the task. Preserve explicit constraints and leave product or preference choices with the user. Do not execute the task.
+Then return the rewritten prompt. Improve the approach without expanding the task. Preserve explicit constraints. Ask the agent to prototype choices an experiment can settle and recommend an option from the evidence. Leave product or preference choices that experiments cannot settle with the user. Do not execute the task.
