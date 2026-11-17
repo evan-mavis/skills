@@ -16,6 +16,10 @@ For verification and PR babysitting, follow [Local runtime](../../../verify-airg
 
 The selected verifier owns the surface, feature recipe, synthetic fixtures, pass predicates, evidence path, recording, and cleanup. Read it before editing. Pass this context and the affected verifier pointers to delegates. Preserve mandatory live proof and independent review gates when tools are unavailable; report the blocker.
 
+## iOS simulator work
+
+When Airgoods work needs an iOS Simulator, use one Devin Cloud macOS session by default from Codex desktop or Codex Cloud. Read the [iOS simulator workflow](../../../verify-airgoods/references/ios-simulator.md) before dispatching. The Codex chat owns scope, review, and integration.
+
 ## Other Airgoods workflows
 
 Use the task skill only when its workflow is requested or required by the authorized task:

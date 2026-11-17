@@ -16,6 +16,10 @@ For verification and PR babysitting, follow [Local runtime](../../../verify-airg
 
 The selected verifier owns the surface, feature recipe, synthetic fixtures, pass predicates, evidence path, recording, and cleanup. Read it before editing. Pass this context and the affected verifier pointers to delegates. Preserve mandatory live proof and independent review gates when tools are unavailable; report the blocker.
 
+## iOS simulator work
+
+When running Airgoods work on a Devin macOS session, follow the [iOS simulator workflow](../../../verify-airgoods/references/ios-simulator.md) in that session. Use its simulator for the requested work and return evidence to the caller. Do not start another Devin session for simulator work.
+
 ## Other Airgoods workflows
 
 Use the task skill only when its workflow is requested or required by the authorized task:
