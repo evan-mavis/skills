@@ -376,6 +376,10 @@ test("a rule that TLC finds broken before TLC throws a Java exception keeps its 
     tlcOutputWarning(oneWorker, "tlc.out"),
     `TLC found that Small is broken, and then failed with ${aioobe}. TLC stopped before it checked every state, so the charts can miss states that break Small. The failure is in TLC, not in the rule. Do not weaken Small because of it. A smaller constant can let TLC finish.`,
   );
+  assert.equal(
+    tlcOutputWarning(oneWorker.replaceAll("\n", "\r\n"), "tlc.out"),
+    tlcOutputWarning(oneWorker, "tlc.out"),
+  );
   const workersInterleaved = `${tlcThrew("java.lang.RuntimeException", aioobe)}${smallBroken}${stoppedEarly}`;
   assert.match(
     tlcOutputWarning(workersInterleaved, "tlc.out"),

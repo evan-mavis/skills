@@ -436,7 +436,7 @@ export function tlcOutputWarning(text, file) {
   const named = (re) => new Set(lines.map((l) => re.exec(l)?.[1]).filter(Boolean));
   const broken = named(/^Error: Invariant (\S+) is violated/);
   const failed = [...named(/^Error: Evaluating invariant (\S+) failed\./)];
-  const thrown = [...text.matchAll(/^The exception was a (\S+)\n: (?:([\w.$]+):)?(.*)$/gm)].map(
+  const thrown = [...text.matchAll(/^The exception was a (\S+)\r?\n: (?:([\w.$]+):)?(.*)$/gm)].map(
     ([, cls, cause, message]) => `${cause ?? cls}: ${message.trim()}`,
   );
   const crashed =
