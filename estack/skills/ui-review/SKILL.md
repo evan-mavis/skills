@@ -19,7 +19,7 @@ Use [Capture](../capture/SKILL.md) for screenshots and interaction recordings, i
 
 Capture every materially changed screen and state, shared-component caller, dialog, menu, and relevant desktop/mobile variant through normal user actions in the running app. Use authenticated full-app captures as primary evidence. Report blocked captures; explicitly label component previews as supplemental. Keep execution-mode flags and product behavior unchanged to obtain evidence. Exclude credentials and sensitive account data. Keep static screenshots, adding video when an interaction needs it.
 
-For Airgoods, read the Airgoods `/verify` skill (`.agents/skills/verify/SKILL.md` in the Airgoods checkout) and follow it for the affected apps. A review Site does not replace required verification evidence. Do not claim coverage of uncaptured states.
+When the repository has its own verify skill, read it and follow it for the affected apps. A review Site does not replace required verification evidence. Do not claim coverage of uncaptured states.
 
 ## Build and publish a round
 

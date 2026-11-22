@@ -17,7 +17,7 @@ substantive engineering requests can select estack or poteto-mode automatically.
 
 review and trust the plugin's hook definitions through codex's `/hooks` interface before relying on them. hooks require node.js and a supported execution environment; web installation alone does not deploy scripts. without a confirmed hook receipt, skill use is limited to the current turn. hook reminders do not prove playbook completion. no target-repository or global instruction changes are required. the adapted hooks' license is preserved in `NOTICE-hooks`.
 
-airgoods verification and babysitting use bundled sibling skills. verification preserves feature maps, recorded evidence, cleanup, and the no-previewctl policy. babysitting preserves the shared pstack workflow and applies the personal airgoods overrides.
+airgoods verification uses the repository's own verify skill and keeps the no-previewctl policy.
 
 use [poteto-help](skills/poteto-help/SKILL.md) to choose a workflow, [correct](skills/correct/SKILL.md) to prevent recurring agent mistakes, and [benchmark-checklist](skills/benchmark-checklist/SKILL.md) to vet performance claims.
 

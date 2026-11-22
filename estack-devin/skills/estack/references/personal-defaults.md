@@ -39,3 +39,5 @@ Titles use the commit prefix, stay lowercase except for Linear issue IDs and cas
 - `feat: add retailer workflows (ENG-123, ENG-456)`
 
 Before creating or updating a pull request, read the repository's PR template if one exists. Its structure wins over pstack's default description sections.
+
+Before handing off a PR, get its CI fully green: every test, lint, type check, and other job the repository's CI runs. Then run the review loop in the agent, locally or in a cloud agent, with [interrogate](../../interrogate/SKILL.md), and fix its findings before handoff. Do not request GitHub review bots such as `@codex review` or loop on them on the PR. A merge still needs the person's explicit word.

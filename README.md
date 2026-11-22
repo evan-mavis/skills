@@ -51,7 +51,6 @@ estack/
     ├── architect/                                           # Sketch types, signatures, and modules before implementation.
     ├── arena/                                               # Compare parallel candidates and combine their strongest parts.
     ├── automate-me/                                         # Capture working preferences in a personal mode skill.
-    ├── babysit-airgoods-pr/                                 # Bring an Airgoods PR to a green, merge-ready state.
     ├── benchmark-checklist/                                 # Check that performance measurements reflect real, repeatable work.
     ├── blast-radius/                                        # Find what a change could break and verify its safety.
     ├── bro/                                                 # Restate the last message in plain language.

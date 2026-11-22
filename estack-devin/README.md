@@ -24,6 +24,4 @@ Devin CLI and Desktop load the bundled custom agent profiles. Cloud sessions cur
 
 History skills use accessible task history or scoped transcript exports and report gaps. No local transcript schema or scheduler is assumed. Long runs continue in the active session unless an authorized scheduler is actually exposed. Browser verification uses the active session's browser tools. Visual evidence uses Devin's native screenshots and guided videos through [Record a demo](skills/poteto-mode/references/video-recording.md). This package omits `/capture` and its recorder dependencies. Preserve original files and hashes when available, or native attachment references when export is unavailable. Installing this plugin does not provision app services, browser tools, or credentials.
 
-Airgoods babysitting keeps the external `@codex review` GitHub reviewer and its existing identity, reply, no-merge, and verification safeguards.
-
 Local folder installs are linked to this source and load edits in the next session. Remote installs refresh with `devin plugins update skills#estack`. See the official [plugin guide](https://docs.devin.ai/cli/extensibility/plugins/overview), [subagent guide](https://docs.devin.ai/cli/subagents), and [skill format](https://docs.devin.ai/cli/extensibility/skills/creating-skills). Repository edits and publication remain separate.
