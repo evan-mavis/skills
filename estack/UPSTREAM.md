@@ -4,9 +4,9 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.42`
-- Commit: [`bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7`](https://github.com/cursor/plugins/commit/bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7)
-- Retrieved and compared: 2026-11-15
+- Version: `0.15.46`
+- Commit: [`aaeb0ea3a0584995aa8f55ce44c6c5259414b896`](https://github.com/cursor/plugins/commit/aaeb0ea3a0584995aa8f55ce44c6c5259414b896)
+- Retrieved and compared: 2026-11-20
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
 - Previous reviewed commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10), version `0.15.30`, compared 2026-10-22.
 - Previous reviewed snapshot: `0.15.30` at [`8b3326d99fd4b993cb33a24dad8af03175c642c5`](https://github.com/cursor/plugins/commit/8b3326d99fd4b993cb33a24dad8af03175c642c5), compared 2026-10-23 in PR #11.
@@ -22,6 +22,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Retain the Orchestrate tools, independent verification gates, capture pipeline, and deferred PR packaging. Skip the wholesale Orchestrate replacement, weaker review gates, stack ownership changes, Cursor model configuration, and video-only guidance without an equivalent skill here.
 - Continue to skip the Statechart compiler rewrite. Preserve chart-to-spec and comparison workflows, safe integers, output recovery, and retained TLC evidence. Its qualified-name and SIGKILL fixes target rewrite-only code. Deslop is unchanged.
 - Previous package snapshot was `9580c23696ac8d7abed0c166f2f9918800afb819`, version `0.15.32`, compared 2026-10-24. The separate run history reviewed `519d36aa98955bf680db01bcde5fdfba686dc901` without package edits on 2026-10-27.
+
+### Reviewed through 0.15.46
+
+- Adapt the TLC line-ending fix so CRLF exception output preserves the same warning as LF. Keep the existing renderer and output safeguards.
+- Skip the upstream Statechart compiler and Windows process rewrite, Cursor model configuration, and shortened workflows that remove checks. Deslop is unchanged.
+- Previous reviewed snapshot: `0.15.42` at `bf0c7cd80abdbf7fe47b634978a7d1b4071f71a7`.
 
 ### Reviewed through 0.15.42
 
