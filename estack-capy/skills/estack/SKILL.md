@@ -9,7 +9,7 @@ For a substantive engineering task or explicit Estack request:
 
 1. Read [Personal defaults](references/personal-defaults.md).
 2. Match the target repository using the project table below. Read its context when matched; otherwise use the generic workflow. Resolve the target from its Git remote or an explicit repository or PR supplied by the user. Normalize SSH and HTTPS forms, optional `.git`, and GitHub owner/repository case. Worktrees use their repository's identity. A folder name or similar app layout is not a match. If the task targets multiple repositories, apply each context only to its own work.
-3. Always read [poteto-mode](../poteto-mode/SKILL.md) in full, then open the matched playbook and track its steps. Read the applicable principle skills in full. Project context supplies requirements and task skills; it never replaces the playbook or its independent proof gates.
+3. Resolve `poteto-mode` from the current skill catalog and read it in full, then open its matched playbook and track its steps. If it is absent from the catalog, use the bundled [poteto-mode](../poteto-mode/SKILL.md). Read the applicable principle skills in full. Project context supplies requirements and task skills; it never replaces the playbook or its independent proof gates.
 
 Skip casual turns and user opt-outs. Host instructions, repository instructions, and explicit user requests take precedence.
 
@@ -27,7 +27,7 @@ Use the skills available in the current Capy session. Invoke the relevant skill 
 
 Write ordinary responses in lowercase, clear, warm prose. Preserve case-sensitive technical text and exact required report prefixes. For rewriting text in Evan's voice, use [reword](../reword/SKILL.md).
 
-Resolve bundled skills through the current skill catalog when their workflow applies. With a skill-resource reader, select the target skill and use its returned resource identifier; do not pass a sibling filesystem path as a resource of this entry skill. With filesystem tools, sibling paths are relative to the containing file. Preserve their supporting references and scripts. Report missing capabilities without claiming the workflow completed.
+Resolve each named skill through the current skill catalog first, including when a bundled sibling link appears in a workflow. This honors Capy's repository, Drive, built-in, then plugin precedence. Use a sibling link only when that skill is absent from the catalog. Once selected, resolve references, playbooks, and scripts belonging to that skill relative to its own files. Preserve their supporting files. Report missing capabilities without claiming the workflow completed.
 
 ## Issue reporting
 
