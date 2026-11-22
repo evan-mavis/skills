@@ -1,4 +1,0 @@
-interface:
-  display_name: "Verify Airgoods Web"
-  short_description: "Verify marketplace workflows in the running app"
-  default_prompt: "Use $verify-airgoods-web to verify marketplace workflows in the running app."

@@ -35,7 +35,7 @@ Use [Record a demo](../poteto-mode/references/video-recording.md) when an intera
 
 Use authenticated full-app captures. Label component previews as supplemental. Keep product flags and execution behavior unchanged. Exclude credentials and sensitive account data. Preserve original screenshot and recording bytes, SHA-256 hashes, build/capture provenance and separate highlight rectangles in structured evidence outside the comparison text. Distinguish impersonation, synthetic data and cached native builds from ordinary-user, provider and current-build proof.
 
-For Airgoods, follow [verify-airgoods](../verify-airgoods/SKILL.md) and its runtime safeguards. The review page does not replace verification evidence.
+For Airgoods, follow the Airgoods `/verify` skill (`.agents/skills/verify/SKILL.md` in the Airgoods checkout). The review page does not replace verification evidence.
 
 ## Page layout
 

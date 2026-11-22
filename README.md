@@ -113,10 +113,6 @@ estack/
     ├── typescript-best-practices/                           # Apply TypeScript guidance when reading or editing TypeScript.
     ├── ui-review/                                           # Capture Before/After evidence in Sites and apply review feedback.
     ├── unslop/                                              # Remove AI writing patterns and filler from prose.
-    ├── verify-airgoods/                                     # Route live Airgoods verification to the appropriate app skill.
-    ├── verify-airgoods-warehouse/                           # Verify the Warehouse operator app with recorded browser evidence.
-    ├── verify-airgoods-web/                                 # Verify the marketplace web app with recorded browser evidence.
-    ├── verify-airgoods-web-public/                          # Verify public web, CMS, and SEO behavior with recorded evidence.
     └── why/                                                 # Find evidence for design decisions and explain their tradeoffs.
 ```
 

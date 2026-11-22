@@ -8,17 +8,17 @@ For an Airgoods cloud setup request, read [setup-cloud](../../../setup-cloud/SKI
 
 For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or outstanding PR work, read [babysit-airgoods-pr](../../../babysit-airgoods-pr/SKILL.md) and use its overrides. Opening a PR alone does not trigger babysitting.
 
-For Airgoods verification, read [verify-airgoods](../../../verify-airgoods/SKILL.md) to select the affected app verifiers from the current checkout or use the bundled fallback. User-visible bugs need a reproduction before editing and verification afterward. Features and improvements need a demo. Read the verifier before starting the work so its proof requirements guide the change.
+For Airgoods verification, read the Airgoods `/verify` skill (`.agents/skills/verify/SKILL.md` in the Airgoods checkout) to select the affected apps and journeys. If the current checkout lacks it, report that verification is unavailable. User-visible bugs need a reproduction before editing and verification afterward. Features and improvements need a demo. Read the verifier before starting the work so its proof requirements guide the change.
 
 Airgoods PR babysitting supersedes generic pstack and host babysitting for that task. Preserve its external GitHub Codex reviewer, required identity, review receipts, and no-merge limits. Green CI alone does not satisfy independent verification.
 
-For verification and PR babysitting, follow [Local runtime](../../../verify-airgoods/references/local-runtime.md) and [Browser hosts and evidence](../../../verify-airgoods/references/browser-hosts.md). Reuse the configured checkout's environment and start only missing authorized app processes. Their prohibition on provisioning, previewctl, and environment teardown takes precedence over conflicting setup guidance. Do not invoke cloud setup merely to satisfy a verification prerequisite. Explicit cloud setup follows its own lifecycle skill.
+For verification and PR babysitting, reuse the configured checkout's environment and start only missing authorized app processes. Do not provision environments, use previewctl, or tear down environments; this takes precedence over conflicting setup guidance. Do not invoke cloud setup merely to satisfy a verification prerequisite. Explicit cloud setup follows its own lifecycle skill.
 
 The selected verifier owns the surface, feature recipe, synthetic fixtures, pass predicates, evidence path, recording, and cleanup. Read it before editing. Pass this context and the affected verifier pointers to delegates. Preserve mandatory live proof and independent review gates when tools are unavailable; report the blocker.
 
 ## iOS simulator work
 
-When running Airgoods work on a suitable macOS device, follow the [iOS simulator workflow](../../../verify-airgoods/references/ios-simulator.md) where compatible with the available tools. Use its simulator for the requested work and return evidence to the caller. Report unavailable prerequisites rather than claiming verification.
+When running Airgoods work on a suitable macOS device, follow the Mobile verification steps in the Airgoods `/verify` skill (`.agents/skills/verify/SKILL.md` in the Airgoods checkout) where compatible with the available tools. Use its simulator for the requested work and return evidence to the caller. Report unavailable prerequisites rather than claiming verification.
 
 ## Other Airgoods workflows
 

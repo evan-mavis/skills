@@ -23,7 +23,7 @@ Use the checked-out versions as command and port truth. Inspect existing listene
 
 Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Devin.
 
-Check the native browser, screenshot, and guided video capabilities exposed by the active Devin session. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md). If a required capability is unavailable, report `I RAN INTO AN ISSUE:` and continue independent setup work. Do not install a separate browser recorder or its rendering dependencies.
+Check the native browser, screenshot, and guided video capabilities exposed by the active Devin session. If a required capability is unavailable, report `I RAN INTO AN ISSUE:` and continue independent setup work. Do not install a separate browser recorder or its rendering dependencies.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
@@ -68,4 +68,4 @@ Warehouse is not a configured terminal. When requested, prepare its workspace de
 
 Require Redis `PONG`, a read-only database connectivity check through the repo skill at `.agents/skills/query-local/SKILL.md` in the Airgoods checkout, startup evidence for each required process, and HTTP readiness of the requested apps. Allow cold compiles and inspect logs on failure. Match the query target to the same verified handoff used by backend processes. Use a repo health route or bounded HTTP request; an open port alone is insufficient.
 
-Report the child branch ID/name and expiration, source and freshness evidence or unknown freshness, service URLs, process/session IDs, and any blockers. Omit credentials and customer records. Leave the branch, handoff, Redis, and dev servers available for the task; do not delete them as setup cleanup. For browser verification, continue with [verify-airgoods](../verify-airgoods/SKILL.md) after startup.
+Report the child branch ID/name and expiration, source and freshness evidence or unknown freshness, service URLs, process/session IDs, and any blockers. Omit credentials and customer records. Leave the branch, handoff, Redis, and dev servers available for the task; do not delete them as setup cleanup. For browser verification, continue with the Airgoods `/verify` skill (`.agents/skills/verify/SKILL.md` in the Airgoods checkout) after startup.
