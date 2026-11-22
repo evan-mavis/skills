@@ -8,7 +8,7 @@ For an Airgoods cloud setup request, including `/estack:estack setup cloud`, rea
 
 For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or outstanding PR work, read [babysit-airgoods-pr](../../../babysit-airgoods-pr/SKILL.md) and use its overrides. Opening a PR alone does not trigger babysitting.
 
-For Airgoods verification, read [verify-airgoods](../../../verify-airgoods/SKILL.md) and invoke the affected surface skills. User-visible bugs need a reproduction before editing and verification afterward. Features and improvements need a demo. Read the verifier before starting the work so its proof requirements guide the change.
+For Airgoods verification, read [verify-airgoods](../../../verify-airgoods/SKILL.md) to select the affected app verifiers from the current checkout or use the bundled fallback. User-visible bugs need a reproduction before editing and verification afterward. Features and improvements need a demo. Read the verifier before starting the work so its proof requirements guide the change.
 
 Airgoods PR babysitting supersedes generic pstack and host babysitting for that task. Preserve its external GitHub Codex reviewer, required identity, review receipts, and no-merge limits. Green CI alone does not satisfy independent verification.
 
@@ -28,4 +28,4 @@ Use the task skill only when its workflow is requested or required by the author
 - [Refresh local DB](../../../refresh-local-db/SKILL.md) for an authorized local refresh.
 - [Provision Neon branch](../../../provision-neon-branch/SKILL.md) only for an explicit disposable-branch request. It is not normal cloud setup or verification provisioning.
 - [Close release issues](../../../close-release-issues/SKILL.md) for release closeout. Preserve its audit and user-confirmation gate before changing issue states.
-- [Maintain Airgoods verification](../../../maintain-airgoods-verification/SKILL.md) for maintaining the bundled verifiers. This does not authorize product or infrastructure changes.
+- [Maintain Airgoods verification](../../../maintain-airgoods-verification/SKILL.md) to select the repo-local maintainer or the bundled fallback. This does not authorize product or infrastructure changes.

@@ -7,6 +7,8 @@ description: Use only for work in Airgoods-Inc/airgoods or when the user explici
 
 Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
 
+Before driving, follow [Resolve the verifier](../verify-airgoods/SKILL.md#resolve-the-verifier-in-the-current-checkout) for this app, including when invoked by name. If it selects the repo-local verifier, open that file directly and use it for the journey. The instructions below are the bundled fallback.
+
 Read [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md) before driving. It owns host resolution, harness selection, session isolation, recording availability, and private evidence storage.
 
 Drive the public Next.js app in `apps/web-public`. Marketplace account and commerce behavior belongs to `/estack:verify-airgoods-web`; Warehouse belongs to `/estack:verify-airgoods-warehouse`. Shared chrome, authentication handoff, and main-web proxy changes require both public and marketplace verification.

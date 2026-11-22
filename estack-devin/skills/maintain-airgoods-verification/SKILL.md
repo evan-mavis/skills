@@ -1,12 +1,20 @@
 ---
 name: maintain-airgoods-verification
-description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Maintains the Airgoods surface verifiers and router in the canonical skills repository by applying the bundled maintain-verification-skill workflow with local overrides. Use when the user asks to audit, refresh, or maintain Airgoods verification maps."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Routes maintenance to the Airgoods checkout when it has the repo-local maintainer, otherwise maintains the bundled Estack verifiers. Use when the user asks to audit, refresh, or maintain Airgoods verification maps."
 triggers: [user]
 ---
 
 # Maintain Airgoods verification
 
 Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
+
+## Choose the maintenance target
+
+If the user explicitly asks to maintain the bundled Estack copies, use the fallback below. Otherwise, resolve the current Airgoods Git root and confirm its repository identity. If `.agents/skills/maintain-airgoods-verification/SKILL.md`, `docs/verification/README.md`, and `docs/verification/dev-data.md` are readable there, open the repo-local maintainer by path and audit the repo-owned verifiers. If those files are missing, use the fallback below.
+
+Keep the [local runtime](../verify-airgoods/references/local-runtime.md) and [evidence](../verify-airgoods/references/browser-hosts.md) safeguards. Maintenance does not authorize provisioning, migrations, or product changes. Report blocked live coverage rather than switching workflows.
+
+## Maintain the bundled verifiers
 
 This is a thin adapter over the bundled `/estack:maintain-verification-skill`, derived from pstack.
 
@@ -27,9 +35,9 @@ Do not copy the base workflow into this skill. Non-conflicting changes to the bu
    Never edit installed copies under `~/.config/devin/skills`, `~/.agents/skills`, or Devin plugin caches. Those are installed destinations; editing one creates drift that the next installation or update discards.
 2. **Local-only execution.** Run in a local session that can read and write the skills repository. If it is unavailable or read-only, return `blocked`; do not assume remote edits sync to this machine.
 3. **Target selection.** Apply the complete base maintenance pass separately to the three surface verifiers, serially in the order listed above. Source readers within each surface still run concurrently. Afterward reconcile the router against all three.
-4. **Edit scope.** Edit only those four verifier directories and the harness files they own. Carry shared fixes into the corresponding verifier files in all four variants under the repository synchronization rules. Preserve native browser differences. Never edit Airgoods product code, repository configuration, Git history, plugin caches, settings, or unrelated skills.
+4. **Edit scope.** Edit only those four verifier directories and the harness files they own. Carry shared fixes into the corresponding verifier files in applicable variants under the repository synchronization rules. Preserve native browser differences. Never edit Airgoods product code, repository configuration, Git history, plugin caches, settings, or unrelated skills.
 5. **Canonical sources.** Keep surface skills and feature maps free of runtime-specific calls and paths. Browser tooling belongs in `verify-airgoods/references/browser-hosts.md`; preserve the shared source instead of forking a surface skill or adding runtime branches to a feature map.
-6. **Delivery.** For `changed`, write and verify the canonical repository files, then run `bun scripts/check-estack.mjs`, `bun scripts/check-estack.mjs devin`, `bun scripts/check-estack.mjs factory`, and `bun scripts/check-estack.mjs cursor` from the skills repository. For Codex changes, also run `bun scripts/check-estack-loader.mjs`. Do not install plugins as part of maintenance. Report that installed account or marketplace copies need an update. Leave changes uncommitted for the user to review; do not create a branch, commit, or pull request.
+6. **Delivery.** For `changed`, write and verify the canonical repository files, then run the repository's prescribed package checks for each affected variant from the skills repository. For Codex changes, also run `bun scripts/check-estack-loader.mjs`. Do not install plugins as part of maintenance. Report that installed account or marketplace copies need an update. Leave changes uncommitted for the user to review; do not create a branch, commit, or pull request.
 7. **Run notes.** Keep scratch notes and maintenance evidence under `<evidence-root>/maintain-airgoods-verification/<run-id>/`, outside both repositories, resolving `<evidence-root>` per `verify-airgoods/references/browser-hosts.md`. Preserve them through cleanup. Use the browser and evidence guide owned by `verify-airgoods`; unavailable mandatory proof blocks a complete maintenance verdict.
 8. **Runtime policy.** Preserve the user's no-previewctl workflow. Follow `verify-airgoods/references/local-runtime.md`: reuse the configured development environment and start only missing app processes. Do not reintroduce provisioning helpers or environment teardown from upstream instructions.
 

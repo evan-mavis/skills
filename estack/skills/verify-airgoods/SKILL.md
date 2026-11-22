@@ -1,6 +1,6 @@
 ---
 name: verify-airgoods
-description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Route Airgoods live verification to the correct project-specific skill. Use whenever a task asks to verify, reproduce, demo, or prove behavior in marketplace web, public web, Warehouse, iOS Simulator, or backend behavior consumed by those surfaces.
+description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Route Airgoods live verification to the correct project-specific skill. Use to verify, reproduce, demo, or prove behavior in an Airgoods app or its user-facing dependencies.
 ---
 
 # Verify Airgoods
@@ -9,7 +9,15 @@ Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets A
 
 Choose the verification surface before launching anything. This skill routes; the selected surface skill owns runtime, authentication, feature recipes, evidence, video, and cleanup.
 
-## Route
+## Resolve the verifier in the current checkout
+
+Resolve the Git root of the Airgoods checkout being tested and confirm its repository identity. Check files at that root, not in a plugin, Drive, another worktree, or the remote PR.
+
+If `docs/verification/README.md` and `docs/verification/dev-data.md` are readable, use the index to choose every affected app. Open the indexed `.agents/skills/verify-airgoods-*/SKILL.md` and its `features/README.md` directly when both are readable. The files in this checkout win over same-named installed skills. Include both Web and Web Public for changes to shared chrome, auth handoff, or proxy routing. For backend or shared package changes, follow the changed behavior to every affected app.
+
+Use the bundled route below if the checkout lacks those files or if its map lacks the exact journey and a bundled recipe covers it. When using a bundled recipe for a map gap, identify the gap and use only the covered recipe. Apply the repo preflight whenever it exists and keep the rules below for either route. A failed preflight, unsafe setup, failed journey, or unavailable proof is not a reason to switch recipes or bypass a gate. If neither map covers the journey, warn before testing and label any safe exploration `unmapped`.
+
+## Bundled route
 
 1. Read the task, changed paths, affected routes, and direct consumers.
 2. Select:

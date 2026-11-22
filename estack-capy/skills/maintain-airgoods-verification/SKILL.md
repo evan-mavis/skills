@@ -1,6 +1,6 @@
 ---
 name: maintain-airgoods-verification
-description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Maintains the Airgoods surface verifiers and router in the canonical skills repository by applying the bundled maintain-verification-skill workflow with local overrides. Use when the user asks to audit, refresh, or maintain Airgoods verification maps."
+description: "Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Routes maintenance to the Airgoods checkout when it has the repo-local maintainer, otherwise maintains the bundled Estack verifiers. Use when the user asks to audit, refresh, or maintain Airgoods verification maps."
 ---
 
 Use this skill only when the user explicitly requests it.
@@ -8,6 +8,14 @@ Use this skill only when the user explicitly requests it.
 # Maintain Airgoods verification
 
 Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill.
+
+## Choose the maintenance target
+
+If the user explicitly asks to maintain the bundled Estack copies, use the fallback below. Otherwise, resolve the current Airgoods Git root and confirm its repository identity. If `.agents/skills/maintain-airgoods-verification/SKILL.md`, `docs/verification/README.md`, and `docs/verification/dev-data.md` are readable there, open the repo-local maintainer by path and audit the repo-owned verifiers. If those files are missing, use the fallback below.
+
+Keep the [local runtime](../verify-airgoods/references/local-runtime.md) and [evidence](../verify-airgoods/references/browser-hosts.md) safeguards. Maintenance does not authorize provisioning, migrations, or product changes. Report blocked live coverage rather than switching workflows.
+
+## Maintain the bundled verifiers
 
 This is a thin adapter over the bundled `$maintain-verification-skill`, derived from pstack.
 
