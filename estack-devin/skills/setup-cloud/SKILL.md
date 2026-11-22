@@ -40,7 +40,7 @@ The current scripts use `/tmp/airgoods-cloud-agent-neon.env`, its `.status` file
 
 The start script clears the existing handoff and provisions a new child on every invocation. Never rerun it merely to restart Redis or apps. If a valid child exists but Redis is down, start Redis using the checked-out script's Redis configuration without executing its provisioning step.
 
-Use this repo lifecycle rather than `/estack:provision-neon-branch` for normal cloud setup. Do not point apps at localhost Postgres or the parent. Do not create a second branch when one is already provisioned.
+Use this repository lifecycle for normal cloud setup. Do not provision a separate branch. Do not point apps at localhost Postgres or the parent. Do not create a second branch when one is already provisioned.
 
 The configured production parent is refreshed daily from a production dump by GitHub Actions. The copy can lag production. A child starts from that parent's data and can diverge through development changes and later production updates. The child's creation time does not establish when the production dump or snapshot was taken.
 

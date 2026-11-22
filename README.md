@@ -71,7 +71,6 @@ estack/
     ├── how/                                                 # Explain a subsystem's architecture and runtime behavior.
     ├── interrogate/                                         # Have independent reviewers challenge code and design decisions.
     ├── ketchup/                                             # Catch up on this chat and decisions waiting on the user.
-    ├── maintain-airgoods-verification/                      # Maintain Airgoods verification skills and feature maps.
     ├── maintain-verification-skill/                         # Audit a project's verification skill against source and live behavior.
     ├── no-comments/                                         # Review code comments and fix accepted findings.
     ├── poteto-help/                                         # Explain Estack setup and choose a workflow for the task.
@@ -100,10 +99,8 @@ estack/
     ├── principle-subtract-before-you-add/                   # Remove dead code and redundant checks before adding more.
     ├── principle-test-behavior-not-implementation/          # Test observable behavior against explicit expected results.
     ├── principle-type-system-discipline/                    # Use types to represent valid states and enforce domain constraints.
-    ├── provision-neon-branch/                               # Manage an explicitly requested disposable Neon child with expiration and cleanup.
     ├── recall/                                              # Reconstruct recent work from history and current state.
     ├── reflect/                                             # Review the active transcript and turn lessons into skill edits.
-    ├── refresh-local-db/                                    # Refresh the local Airgoods database from a development parent or export.
     ├── reword/                                              # Rewrite text in Evan's warm, clear, lowercase voice.
     ├── setup-cloud/                                     # Set up or resume the Airgoods cloud development environment.
     ├── setup-pstack/                                        # Choose model and reasoning settings for Estack workflows.

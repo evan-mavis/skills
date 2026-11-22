@@ -62,4 +62,4 @@ Native push remains unmapped unless a dedicated verifier covers the requested fl
 
 ## Installed layout
 
-The surface skills and [maintain-airgoods-verification](../maintain-airgoods-verification/SKILL.md) are bundled sibling directories. Use `$maintain-airgoods-verification` for verification-skill maintenance. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).
+The surface skills are bundled sibling directories. Read their `SKILL.md` files directly if discovery has not refreshed. Browser tooling belongs in [Browser hosts and evidence](references/browser-hosts.md).

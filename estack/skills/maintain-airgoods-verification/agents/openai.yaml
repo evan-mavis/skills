@@ -1,7 +1,0 @@
-interface:
-  display_name: "Maintain Airgoods Verification"
-  short_description: "Keep Airgoods verification recipes aligned with the app"
-  default_prompt: "Use $maintain-airgoods-verification to keep Airgoods verification recipes aligned with the app."
-
-policy:
-  allow_implicit_invocation: false

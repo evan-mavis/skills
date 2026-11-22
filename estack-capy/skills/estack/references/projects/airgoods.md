@@ -25,7 +25,9 @@ When running Airgoods work on a suitable macOS device, follow the [iOS simulator
 Use the task skill only when its workflow is requested or required by the authorized task:
 
 - Read `.agents/skills/query-local/SKILL.md` in the Airgoods checkout for development queries or `.agents/skills/query-prod/SKILL.md` in the Airgoods checkout for production queries. Follow the repo skill for read-only database evidence. Verify the target and keep credentials out of output. If the repo skill is missing, stop database querying and report the missing prerequisite.
-- [Refresh local DB](../../../refresh-local-db/SKILL.md) for an authorized local refresh.
-- [Provision Neon branch](../../../provision-neon-branch/SKILL.md) only for an explicit disposable-branch request. It is not normal cloud setup or verification provisioning.
+- For an authorized local database refresh, read `.agents/skills/refresh-local-db/SKILL.md` in the Airgoods checkout.
+- For an explicit disposable-branch request, read `.agents/skills/provision-neon-branch/SKILL.md` in the Airgoods checkout. Do not use it for normal cloud setup or verification.
 - [Close release issues](../../../close-release-issues/SKILL.md) for release closeout. Preserve its audit and user-confirmation gate before changing issue states.
-- [Maintain Airgoods verification](../../../maintain-airgoods-verification/SKILL.md) to select the repo-local maintainer or the bundled fallback. This does not authorize product or infrastructure changes.
+- For verification maintenance, read `.agents/skills/maintain-verification/SKILL.md` in the Airgoods checkout. This does not authorize product or infrastructure changes.
+
+If the requested repo skill is missing, report that it is unavailable in the current checkout.
