@@ -1,6 +1,6 @@
 ---
-name: setup-cloud-env
-description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Set up or resume the Airgoods cloud development environment in Capy. Use for setup cloud, boot the cloud environment, or missing cloud dev servers. Reuse the provisioned Neon child, install missing dependencies, start dev servers, and verify readiness.
+name: setup-cloud
+description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Set up or resume the Airgoods cloud development environment in Devin. Use for setup cloud, boot the cloud environment, or missing cloud dev servers. Reuse the provisioned Neon child, install missing dependencies, start dev servers, and verify readiness.
 ---
 
 # Set up Airgoods cloud
@@ -11,19 +11,19 @@ Make the current cloud checkout ready for development. A bare setup request star
 
 When this skill is used only to prepare verification, reuse the existing provisioned child and start missing required apps. Provision a child only for an explicit cloud setup request. Do not run this cloud bootstrap on a local desktop checkout.
 
-For visual proof, follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md).
+For visual proof, follow [Record a demo](../poteto-mode/references/video-recording.md) and the active Devin session's browser instructions.
 
 ## Read the repository setup
 
-Resolve the current Airgoods Git root and read its applicable instructions, `.cursor/README.md`, `.cursor/environment.json`, `.cursor/Dockerfile`, and the scripts named by its `install`, `start`, and `terminals` entries. These are repo-managed setup commands even when the host is Capy. Capy may not have run the repository bootstrap or launched its configured services. Their presence alone does not establish a running environment.
+Resolve the current Airgoods Git root and read its applicable instructions, `.cursor/README.md`, `.cursor/environment.json`, `.cursor/Dockerfile`, and the scripts named by its `install`, `start`, and `terminals` entries. These are repo-managed setup commands even when the host is Devin. Devin may not have run the repository bootstrap or launched its configured services. Their presence alone does not establish a running environment.
 
 Use the checked-out versions as command and port truth. Inspect existing listeners and process ownership before starting anything. Reuse healthy processes belonging to this checkout. Do not adopt another checkout's services.
 
 ## Install missing prerequisites
 
-Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Capy.
+Check Node, Corepack/pnpm, Redis server/client, curl, jq, and the PostgreSQL `psql` client. Use the repo's Node and pnpm versions and the available cloud package manager for missing system tools. The repository Dockerfile describes the bootstrap requirements; it may not be the image running in Devin.
 
-Check the browser, screenshot, and recording capabilities available in the active Capy session. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md). If a required capability is unavailable, report `I RAN INTO AN ISSUE:` and continue independent setup work. Do not install a separate browser recorder or its rendering dependencies.
+Check the native browser, screenshot, and guided video capabilities exposed by the active Devin session. Follow [Browser hosts and evidence](../verify-airgoods/references/browser-hosts.md). If a required capability is unavailable, report `I RAN INTO AN ISSUE:` and continue independent setup work. Do not install a separate browser recorder or its rendering dependencies.
 
 If dependencies, app env files, or required workspace build outputs are missing, run the configured install command from the Git root. Currently this is `bash .cursor/scripts/cloud-agent-install.sh`. It copies missing `.env.example` files, installs locked dependencies, and builds backend/web/web-public workspace dependencies. It does not start Redis, provision Neon, or launch apps. Do not overwrite existing env files or rerun a healthy installation without a missing prerequisite.
 
@@ -40,7 +40,7 @@ The current scripts use `/tmp/airgoods-cloud-agent-neon.env`, its `.status` file
 
 The start script clears the existing handoff and provisions a new child on every invocation. Never rerun it merely to restart Redis or apps. If a valid child exists but Redis is down, start Redis using the checked-out script's Redis configuration without executing its provisioning step.
 
-Use this repo lifecycle rather than `$provision-neon-branch` for normal cloud setup. Do not point apps at localhost Postgres or the parent. Do not create a second branch when one is already provisioned.
+Use this repo lifecycle rather than `/estack:provision-neon-branch` for normal cloud setup. Do not point apps at localhost Postgres or the parent. Do not create a second branch when one is already provisioned.
 
 The configured production parent is refreshed daily from a production dump by GitHub Actions. The copy can lag production. A child starts from that parent's data and can diverge through development changes and later production updates. The child's creation time does not establish when the production dump or snapshot was taken.
 

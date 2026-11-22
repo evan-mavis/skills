@@ -105,7 +105,7 @@ estack/
     ├── reflect/                                             # Review the active transcript and turn lessons into skill edits.
     ├── refresh-local-db/                                    # Refresh the local Airgoods database from a development parent or export.
     ├── reword/                                              # Rewrite text in Evan's warm, clear, lowercase voice.
-    ├── setup-cloud-env/                                     # Set up or resume the Airgoods cloud development environment.
+    ├── setup-cloud/                                     # Set up or resume the Airgoods cloud development environment.
     ├── setup-pstack/                                        # Choose model and reasoning settings for Estack workflows.
     ├── show-me-your-work/                                   # Keep a reviewable log of decisions, evidence, and results.
     ├── swarm/                                               # Run parallel workers and combine their results into one report.

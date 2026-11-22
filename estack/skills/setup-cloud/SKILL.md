@@ -1,5 +1,5 @@
 ---
-name: setup-cloud-env
+name: setup-cloud
 description: Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets Airgoods. Otherwise, do not use this skill. Set up or resume the Airgoods cloud development environment in Codex. Use for setup cloud, boot the cloud environment, or missing cloud dev servers. Reuse the provisioned Neon child, install missing dependencies, start dev servers, and verify readiness.
 ---
 

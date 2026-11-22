@@ -1,4 +1,0 @@
-interface:
-  display_name: "Setup Cloud Environment"
-  short_description: "Start Airgoods cloud apps on the task Neon branch"
-  default_prompt: "Use $setup-cloud-env to set up this Airgoods cloud environment."

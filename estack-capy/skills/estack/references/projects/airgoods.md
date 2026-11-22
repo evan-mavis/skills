@@ -4,7 +4,7 @@ Apply this context only to work targeting `github.com/Airgoods-Inc/airgoods`, in
 
 ## Environment, verification, and PR work
 
-For an Airgoods cloud setup request, read [setup-cloud-env](../../../setup-cloud-env/SKILL.md) and carry it through database and server readiness where compatible with Capy. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that the repository bootstrap ran automatically. Documentation-only work does not need app startup.
+For an Airgoods cloud setup request, read [setup-cloud](../../../setup-cloud/SKILL.md) and carry it through database and server readiness where compatible with Capy. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that the repository bootstrap ran automatically. Documentation-only work does not need app startup.
 
 For Airgoods PR babysitting, merge-ready requests, review-comment cleanup, or outstanding PR work, read [babysit-airgoods-pr](../../../babysit-airgoods-pr/SKILL.md) and use its overrides. Opening a PR alone does not trigger babysitting.
 
