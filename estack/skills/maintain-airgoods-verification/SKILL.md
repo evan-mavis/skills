@@ -8,7 +8,7 @@ Use only for work in Airgoods-Inc/airgoods or when the user explicitly targets A
 
 ## Choose the maintenance target
 
-If the user explicitly asks to maintain the bundled Estack copies, use the fallback below. Otherwise, resolve the current Airgoods Git root and confirm its repository identity. If `.agents/skills/maintain-airgoods-verification/SKILL.md`, `docs/verification/README.md`, and `docs/verification/dev-data.md` are readable there, open the repo-local maintainer by path and audit the repo-owned verifiers. If those files are missing, use the fallback below.
+If the user explicitly asks to maintain the bundled Estack copies, use the fallback below. Otherwise, resolve the current Airgoods Git root and confirm its repository identity. Read `docs/verification/README.md` and `docs/verification/dev-data.md` in that checkout. Resolve the index's maintenance skill link relative to the index. If the linked `SKILL.md` is readable in this checkout, open it directly and audit the repo-owned verifiers. If the index, preflight, or linked maintainer is missing or unreadable, or the index has no maintenance link, use the fallback below.
 
 Keep the [local runtime](../verify-airgoods/references/local-runtime.md) and [evidence](../verify-airgoods/references/browser-hosts.md) safeguards. Maintenance does not authorize provisioning, migrations, or product changes. Report blocked live coverage rather than switching workflows.
 
