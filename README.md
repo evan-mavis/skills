@@ -2,7 +2,7 @@
 
 these are the skills i use to get work done with agents :)
 
-built on lauren tan's [pstack](https://github.com/cursor/plugins/tree/main/pstack), with my personal defaults and airgoods workflows. estack has separate editable plugins for codex and devin.
+built on lauren tan's [pstack](https://github.com/cursor/plugins/tree/main/pstack), with my personal defaults and airgoods workflows. estack has separate editable packages for codex, devin, and capy.
 
 ## install codex
 
@@ -28,6 +28,10 @@ devin plugins install evan-mavis/skills#estack-devin
 ```
 
 see [the devin readme](estack-devin/README.md) for activation and runtime limits.
+
+## install capy
+
+see [the capy readme](estack-capy/README.md) for plugin, Drive, and repository skill installation, activation, and runtime limits.
 
 ## routing
 
