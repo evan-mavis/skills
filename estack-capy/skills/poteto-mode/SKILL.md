@@ -1,5 +1,6 @@
 ---
-{name: poteto-mode,description: "Run engineering playbooks for bug fixes, features, refactors, architecture, technical investigations, and PR work. Use for substantive tasks or explicit poteto-mode requests. Skip casual turns and user opt-outs."}
+name: "poteto-mode"
+description: "Run engineering playbooks for bug fixes, features, refactors, architecture, technical investigations, and PR work. Use for substantive tasks or explicit poteto-mode requests. Skip casual turns and user opt-outs."
 ---
 
 # Poteto mode
