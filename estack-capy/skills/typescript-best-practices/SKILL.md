@@ -1,5 +1,6 @@
 ---
-{name: typescript-best-practices,description: TypeScript best practices. Use when reading or editing any .ts or .tsx file.}
+name: "typescript-best-practices"
+description: "TypeScript best practices. Use when reading or editing any .ts or .tsx file."
 ---
 
 # TypeScript best practices

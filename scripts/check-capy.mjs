@@ -30,6 +30,7 @@ for (const name of names) if (!sourceNames.includes(name)) report(root, `unexpec
 for (const file of skills) {
   const match = (await readFile(file, 'utf8')).match(/^---\n([\s\S]*?)\n---\n/);
   if (!match) { report(file, 'missing frontmatter'); continue; }
+  if (/^\s*\{/.test(match[1])) report(file, 'frontmatter must use a block mapping for Capy discovery');
   const metadata = Bun.YAML.parse(match[1]);
   if (metadata.name !== path.basename(path.dirname(file)) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.name) || metadata.name.length > 64) report(file, 'invalid name');
   if (typeof metadata.description !== 'string' || !metadata.description.trim() || metadata.description.length > 1024) report(file, 'invalid description');
