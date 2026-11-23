@@ -13,6 +13,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  capy:
+    name: Capy skills and capture pipeline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.2
+      - run: bun scripts/check-capy.mjs
+      - run: bun test scripts/capy-video-routing.test.mjs
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg python3-venv
+      - run: |
+          python3 -m venv "$RUNNER_TEMP/capture-env"
+          "$RUNNER_TEMP/capture-env/bin/pip" install -r estack-capy/skills/capture/requirements.txt
+          "$RUNNER_TEMP/capture-env/bin/python" estack-capy/skills/capture/scripts/capture.py preflight
+          cd estack-capy/skills/capture
+          "$RUNNER_TEMP/capture-env/bin/python" -m unittest discover -s tests -v
+          "$RUNNER_TEMP/capture-env/bin/python" scripts/validate_fixture.py --output "$RUNNER_TEMP/capy-capture-fixture"
+      - run: git diff --exit-code && git diff --check
+
   variants:
     name: validate (${{ matrix.platform }})
     runs-on: ubuntu-24.04

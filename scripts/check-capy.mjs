@@ -26,7 +26,9 @@ const skills = files.filter(file => /^skills\/[^/]+\/SKILL\.md$/.test(path.relat
 const names = new Set(skills.map(file => path.basename(path.dirname(file))));
 const sourceNames = (await readdir(path.join(repo, 'estack-devin/skills'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name);
 for (const name of sourceNames) if (!names.has(name)) report(root, `missing skill: ${name}`);
-for (const name of names) if (!sourceNames.includes(name)) report(root, `unexpected skill: ${name}`);
+const capyOnly = new Set(['capture']);
+for (const name of capyOnly) if (!names.has(name)) report(root, `missing Capy-native skill: ${name}`);
+for (const name of names) if (!sourceNames.includes(name) && !capyOnly.has(name)) report(root, `unexpected skill: ${name}`);
 for (const file of skills) {
   const match = (await readFile(file, 'utf8')).match(/^---\n([\s\S]*?)\n---\n/);
   if (!match) { report(file, 'missing frontmatter'); continue; }

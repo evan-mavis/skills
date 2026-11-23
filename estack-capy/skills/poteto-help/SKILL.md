@@ -41,7 +41,8 @@ Use poteto-mode for substantive work. Name an individual skill when the user wan
 | Formally verify a race or invariant that tests rarely reach | [Create formal verification skill](../create-formal-verification-skill/SKILL.md) |
 | Bring formal checks back in line after covered code changes | [Maintain formal verification skill](../maintain-formal-verification-skill/SKILL.md) |
 | Show user behavior and bug paths from a TLA+ model, or turn an agreed chart into a model | [Statechart](../statechart/SKILL.md) |
-| Capture visual proof or record a guided walkthrough | Capy's browser or desktop tools, following [Record a demo](../poteto-mode/references/video-recording.md) |
+| Record video proof or a guided walkthrough | Resolve `capture` from the available skill catalog, following [Record a demo](../poteto-mode/references/video-recording.md) |
+| Capture image-only UI comparisons | [UI review](../ui-review/SKILL.md), without video delegation |
 | Vet a measured performance number | [Benchmark checklist](../benchmark-checklist/SKILL.md) |
 | Prevent repeated agent mistakes | [Correct](../correct/SKILL.md) |
 

@@ -10,7 +10,7 @@ For Airgoods verification, read the repository's own verify skill to select the 
 
 For verification and PR work, reuse the configured checkout's environment and start only missing authorized app processes. Do not provision environments, use previewctl, or tear down environments; this takes precedence over conflicting setup guidance. Do not invoke cloud setup merely to satisfy a verification prerequisite. Explicit cloud setup follows its own lifecycle skill.
 
-The selected verifier owns the surface, feature recipe, synthetic fixtures, pass predicates, evidence path, recording, and cleanup. Read it before editing. Pass this context and the affected verifier pointers to delegates. Preserve mandatory live proof and independent review gates when tools are unavailable; report the blocker.
+The selected verifier owns the surface, feature recipe, synthetic fixtures, pass predicates, required evidence, and app cleanup. When video is required, the catalog-resolved capture skill owns recording, rendering, and artifact mechanics. Keep the repository guides agent-agnostic. Read it before editing. Pass this context and the affected verifier pointers to delegates. Preserve mandatory live proof and independent review gates when tools are unavailable; report the blocker.
 
 ## iOS simulator work
 

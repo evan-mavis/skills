@@ -39,11 +39,11 @@ invoke or pin Estack using your tool's native syntax. it reads personal defaults
 
 project context lives in [estack's references](estack/skills/estack/references/projects/). Airgoods is matched by repository identity, including worktrees and explicitly targeted PRs. other repositories use the generic workflow. add another project's context and a row in each variant's Estack project table to extend routing. project context is a reference, not another skill to invoke.
 
-Codex uses [capture](estack/skills/capture/SKILL.md) for visual evidence. installing the package does not install its [runtime dependencies](estack/skills/capture/references/runtime.md). Devin uses its native screenshots and guided videos through [Record a demo](estack-devin/skills/poteto-mode/references/video-recording.md). keep original evidence, provenance, and nonvisual checks.
+Codex uses [capture](estack/skills/capture/SKILL.md) for visual evidence. installing the package does not install its [runtime dependencies](estack/skills/capture/references/runtime.md). Capy uses its [capture adaptation](estack-capy/skills/capture/SKILL.md) for video, with native recording and same-take finishing. image-only UI review stays on its screenshot workflow. Devin uses its native screenshots and guided videos through [Record a demo](estack-devin/skills/poteto-mode/references/video-recording.md). keep original evidence, provenance, and nonvisual checks.
 
 ## skill tree
 
-skills live directly under `skills/`, with no separate `personal/` or `airgoods/` skill directories. personal defaults and airgoods project context live in the nested references shown below. both variants share these skill names except `capture`, which Devin replaces with its native recording flow. tools and runtime instructions differ by platform. other supporting files are omitted.
+skills live directly under `skills/`, with no separate `personal/` or `airgoods/` skill directories. personal defaults and airgoods project context live in the nested references shown below. the variants share these skill names except `capture`, which Devin replaces with its native recording flow. tools and runtime instructions differ by platform. other supporting files are omitted.
 
 ```text
 estack/
