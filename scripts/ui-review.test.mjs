@@ -65,3 +65,70 @@ test('requires a URL for an explicit Linear group', () => withReview((c,d) => {
 test('rejects an unsafe group URL', () => withReview((c,d) => {
   d.issues[0].url = 'javascript:alert(1)';
 }, run => assert.rejects(run, /Invalid group URL/)));
+
+test('excludes text-only entries unless retained as archive history', async () => {
+  const hideImages = (comparison) => { comparison.before = comparison.after = null; };
+  await withReview(hideImages, run => assert.rejects(run, /Text-only entries/));
+  await withReview(comparison => {
+    hideImages(comparison);
+    comparison.archived = true;
+  }, async run => assert.equal((await run()).missingCaptures, 0));
+});
+
+test('shared feedback scopes approvals to reviewer and round and preserves comments across retries', async () => {
+  const { DatabaseSync } = await import('node:sqlite');
+  const { reviewFeedback } = await import('../estack/skills/ui-review/assets/server/review-feedback.mjs');
+  const sql = new DatabaseSync(':memory:');
+  try {
+    sql.exec(`
+      CREATE TABLE ui_review_approvals (reviewer TEXT, view TEXT, PRIMARY KEY (reviewer, view));
+      CREATE TABLE ui_review_comments (id TEXT PRIMARY KEY, reviewer TEXT, view TEXT, text TEXT, created_at TEXT);
+    `);
+    const db = {
+      prepare(query) {
+        const statement = sql.prepare(query);
+        const bind = (...args) => ({
+          run: () => statement.run(...args),
+          first: () => statement.get(...args),
+          all: () => ({ results: statement.all(...args) }),
+        });
+        return { bind, ...bind() };
+      },
+      batch: (statements) => statements.map(statement => statement.all()),
+    };
+    const url = 'https://review.example/api/ui-review';
+    const data = review();
+    data.rounds.push({
+      ...data.rounds[0],
+      id: 'round-2',
+      comparisons: [{ ...data.rounds[0].comparisons[0], id: 'revised' }],
+    });
+    const call = (reviewer, body, origin = 'https://review.example') => reviewFeedback(new Request(url, {
+      method: body ? 'POST' : 'GET',
+      headers: reviewer ? {
+        'oai-authenticated-user-id': reviewer,
+        ...(body && { origin, 'Content-Type': 'application/json' }),
+      } : {},
+      body: body ? JSON.stringify(body) : undefined,
+    }), db, data);
+    const view = 'round-1/desktop';
+    const check = { type: 'approval', view, checked: true };
+    const comment = { type: 'comment', view, comment: { id: crypto.randomUUID(), text: 'Align the labels' } };
+    assert.equal((await call(null)).status, 401);
+    assert.equal((await call('one', check, 'https://other.example')).status, 403);
+    assert.equal((await call('one', { ...check, view: 'round-1/unknown' })).status, 404);
+    assert.equal((await call('one', check)).status, 200);
+    const posted = await (await call('one', comment)).json();
+    assert.deepEqual(await (await call('one', comment)).json(), posted);
+    const state = await (await call('one')).json();
+    assert.deepEqual(state.approved, [view]);
+    assert.equal(state.comments.length, 1);
+    assert.deepEqual(await (await call('two')).json(), { approved: [], comments: state.comments });
+    const nextRound = 'round-2/revised';
+    assert.equal((await call('one', { ...check, view: nextRound })).status, 200);
+    assert.equal((await call('one', { ...check, checked: false })).status, 200);
+    assert.deepEqual((await (await call('one')).json()).approved, [nextRound]);
+  } finally {
+    sql.close();
+  }
+});

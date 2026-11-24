@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.1.0/plugin.schema.json",
   "name": "estack-capy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Estack workflows and Airgoods skills adapted for Capy.",
   "author": { "name": "Evan Mavis" },
   "repository": "https://github.com/evan-mavis/skills"

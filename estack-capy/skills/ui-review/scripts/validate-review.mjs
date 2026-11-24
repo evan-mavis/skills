@@ -54,6 +54,7 @@ export async function validateReview(directory) {
     }
   };
   require(string(review.title) && string(review.summary) && review.issues?.length && review.rounds?.length, 'Missing review content');
+  require(review.feedbackStorage === undefined || review.feedbackStorage === 'shared', 'Invalid feedback storage');
   const issueIds = new Set();
   for (const issue of review.issues) {
     require(string(issue.id) && !issueIds.has(issue.id) && string(issue.title), 'Invalid group');
@@ -67,10 +68,13 @@ export async function validateReview(directory) {
     id(round.id);
     require(string(round.label) && string(round.summary) && round.comparisons?.length, 'Empty round');
     for (const comparison of round.comparisons) {
-      id(comparison.id); count++;
+      id(comparison.id);
+      if (!comparison.archived) count++;
+      require(comparison.archived === undefined || comparison.archived === true, 'Invalid archive flag');
+      require(comparison.archived || comparison.after, 'An After screenshot is required. Text-only entries and missing After captures belong in verification notes or archived history');
       if (string(comparison.gap)) gaps++;
       require(issueIds.has(comparison.issueId) && string(comparison.title) && string(comparison.variant) && string(comparison.explanation), 'Incomplete comparison');
-      if (!comparison.before || !comparison.after) { require(string(comparison.gap), 'Missing captures need a visible gap'); missingCaptures++; }
+      if (!comparison.archived && (!comparison.before || !comparison.after)) { require(string(comparison.gap), 'Missing captures need a visible gap'); missingCaptures++; }
       for (const side of ['before', 'after']) if (comparison[side]) await image(comparison[side], side);
       if (comparison.before && comparison.after) {
         const b = comparison.before.capture, a = comparison.after.capture;

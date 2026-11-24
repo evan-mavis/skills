@@ -33,7 +33,7 @@ Read the full UI diff and shared callers. Maintain a coverage list outside the v
 
 Use [Record a demo](../poteto-mode/references/video-recording.md) when an interaction needs video. Read [capture and highlight guidance](references/capture-metadata.md) for the evidence contract. Verify the running pre-change build before labeling a screenshot Before. Match role, route, state, data, viewport and scroll across pairs. Never relabel After as Before or pass an unmatched baseline off as a comparison. Show "Not captured" for a missing side.
 
-Use authenticated full-app captures. Label component previews as supplemental. Keep product flags and execution behavior unchanged. Exclude credentials and sensitive account data. Preserve original screenshot and recording bytes, SHA-256 hashes, build/capture provenance and separate highlight rectangles in structured evidence outside the comparison text. Distinguish impersonation, synthetic data and cached native builds from ordinary-user, provider and current-build proof.
+Use authenticated full-app captures. Record supplemental component previews in the evidence and capture gaps. Keep image captions to Before and After. Keep product flags and execution behavior unchanged. Exclude credentials and sensitive account data. Preserve original screenshot and recording bytes, SHA-256 hashes, build/capture provenance and separate highlight rectangles in structured evidence outside the comparison text. Distinguish impersonation, synthetic data and cached native builds from ordinary-user, provider and current-build proof.
 
 When the repository has its own verify skill, follow it. The review page does not replace verification evidence.
 
@@ -43,12 +43,12 @@ The page is a visual review, not a technical report. Set full width. Keep PR/iss
 
 Each round is a native Notion **toggle list**, labeled "Round 1", "Round 2", and so on, with a short scope label if useful. Keep rounds in order. Put every comparison inside its round toggle.
 
-Each comparison has only:
+Group long rounds under feature-level toggles. Each comparison has only:
 
 1. A short title naming the exact change introduced by the branch.
 2. Brief plain-English context: what the buyer is doing, what is held constant, what changed, and why that scenario matters. For price or metric changes, explain the actual cause and the units beside the pictures; do not make the reviewer infer it from numbers or provenance notes. Use a few short sentences or labeled lines, not a technical report.
 3. Two equal-width native Notion columns labeled **Before** and **After**, with genuine matched pictures. Every scenario presented as ready for feedback needs an After picture. Capture reachable missing states; keep unavailable scenarios in a clearly labeled coverage-gap section, not in the main review queue as empty After cards. Preserve their earlier evidence and feedback. If the changed behavior is a blocked or unavailable state, show that actual state and label it honestly; never substitute a surrounding screen for an unobserved dialog.
-4. An editable **Comments to address** area immediately below the pair, with a blank checklist or a short "Add feedback here" placeholder.
+4. A native **Looks good to me** checkbox and an editable **Comments to address** area immediately below the pair. Use block comments to anchor feedback to an image. A checked box approves only that comparison in its round. Leave new rounds unchecked. Use the bundled Site template when one-click approval and next-screen navigation are needed.
 
 Keep comparison IDs, routes, hashes, source inventories, provenance JSON, feedback tracking metadata and test reports out of the visible comparisons. Use only short Before/After image captions, replacing old technical captions when reusing media. Do not add per-image metadata toggles. Put necessary original files, videos, unmatched baseline references and detailed coverage gaps in one collapsed **Capture notes and original files** toggle at the bottom, or keep them in durable linked evidence. A material missing-side or reference-only note belongs next to that image and must stay short.
 
