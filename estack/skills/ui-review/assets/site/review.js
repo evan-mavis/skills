@@ -8,6 +8,7 @@ const element = (tag, text, className) => {
 let review, round, comparisons, index, opener;
 let feedback = { approved: [], comments: [] };
 let feedbackReady = false;
+let feedbackError = '';
 let saving = false;
 const drafts = new Map();
 const pendingComments = new Map();
@@ -39,7 +40,8 @@ async function loadFeedback() {
     $('feedback-status').textContent = review.feedbackStorage === 'shared'
       ? '' : 'Saved in this browser. Download feedback to share it.';
   } catch (error) {
-    $('feedback-status').textContent = error.message;
+    feedbackError = error.message;
+    $('feedback-status').textContent = feedbackError;
   }
   updateFeedback();
 }
@@ -78,6 +80,7 @@ async function saveFeedback(change) {
   }
 }
 function updateFeedback() {
+  if (location.hash === '#final-ui') { renderFinal(); return; }
   const available = feedbackReady && !saving;
   for (const input of $('screens').querySelectorAll('input[data-view]')) {
     input.checked = feedback.approved.includes(input.dataset.view);
@@ -133,15 +136,15 @@ function deviceIcon(variant) {
   svg.append(path);
   return svg;
 }
-function picture(image, side) {
+function picture(image, side, title, showRegions = true) {
   const wrapper = element('div', undefined, `image ${side}`);
   const img = element('img');
   img.src = image.src;
-  img.alt = `${side === 'before' ? 'Before' : 'After'}: ${comparisons[index].title}`;
+  img.alt = `${side === 'before' ? 'Before' : 'After'}: ${title}`;
   img.width = image.width;
   img.height = image.height;
   wrapper.append(img);
-  for (const region of image.regions || []) {
+  for (const region of showRegions ? image.regions || [] : []) {
     const box = element('span', undefined, 'region');
     box.title = region.label;
     box.style.cssText = `left:${region.x / image.width * 100}%;top:${region.y / image.height * 100}%;width:${region.width / image.width * 100}%;height:${region.height / image.height * 100}%`;
@@ -157,15 +160,57 @@ function card(image, side) {
   if (!image) { figure.append(element('p', 'Capture unavailable. See the verification gap.', 'missing')); return figure; }
   const button = element('button', undefined, 'image-button');
   button.setAttribute('aria-label', `Enlarge ${name} screenshot`);
-  button.append(picture(image, side), element('span', 'Click to enlarge ↗', 'enlarge-hint'));
+  button.append(picture(image, side, comparisons[index].title), element('span', 'Click to enlarge ↗', 'enlarge-hint'));
   button.onclick = () => {
     opener = button;
     $('enlarged-label').textContent = name;
-    $('enlarged-image').replaceChildren(picture(image, side));
+    $('enlarged-image').replaceChildren(picture(image, side, comparisons[index].title));
     $('enlargement').showModal();
   };
   figure.append(button);
   return figure;
+}
+function renderFinal() {
+  const approved = new Set(feedback.approved);
+  const gallery = $('final-gallery');
+  gallery.replaceChildren();
+  if (!feedbackReady) {
+    $('final-status').textContent = feedbackError || 'Loading approvals…';
+    return;
+  }
+  for (const issue of review.issues) {
+    const entries = review.rounds.flatMap((entry) => entry.comparisons
+      .filter((item) => item.issueId === issue.id && isReviewable(item) &&
+        approved.has(`${entry.id}/${item.id}`))
+      .map((item) => ({ item, round: entry })));
+    if (!entries.length) continue;
+    const section = element('section', undefined, 'final-group');
+    const grid = element('div', undefined, 'final-grid');
+    for (const { item, round: approvedRound } of entries) {
+      const figure = element('figure');
+      const button = element('button', undefined, 'image-button');
+      button.setAttribute('aria-label', `Enlarge ${item.title}, ${item.variant}, ${approvedRound.label}`);
+      const label = `${item.title} · ${item.variant} · ${approvedRound.label}`;
+      const caption = element('figcaption');
+      const link = element('a', label);
+      link.href = `#${approvedRound.id}/${item.id}`;
+      caption.append(link);
+      const preview = picture(item.after, 'after', item.title, false);
+      preview.querySelector('img').loading = 'lazy';
+      button.append(preview);
+      button.onclick = () => {
+        opener = button;
+        $('enlarged-label').textContent = label;
+        $('enlarged-image').replaceChildren(picture(item.after, 'after', item.title, false));
+        $('enlargement').showModal();
+      };
+      figure.append(caption, button);
+      grid.append(figure);
+    }
+    section.append(element('h2', issue.title), grid);
+    gallery.append(section);
+  }
+  $('final-status').textContent = gallery.children.length ? '' : 'Approve a comparison to see its After screenshot here.';
 }
 function setRoute(i) { location.hash = `${round.id}/${comparisons[i].id}`; }
 function render() {
@@ -229,6 +274,13 @@ function renderNavigation() {
 function route() {
   if (!review) return;
   if ($('enlargement').open) $('enlargement').close();
+  const showFinal = location.hash === '#final-ui';
+  $('final-content').hidden = !showFinal;
+  $('comparison-content').hidden = showFinal;
+  $('comparison-view').toggleAttribute('aria-current', !showFinal);
+  $('final-view').toggleAttribute('aria-current', showFinal);
+  $(showFinal ? 'final-view' : 'comparison-view').setAttribute('aria-current', 'page');
+  if (showFinal) { renderFinal(); return; }
   const [roundId, comparisonId] = location.hash.slice(1).split('/');
   const previousRound = round;
   round = review.rounds.find((entry) => entry.id === roundId)
@@ -252,6 +304,7 @@ function route() {
     return;
   }
   index = Math.max(0, comparisons.findIndex((entry) => entry.id === comparisonId));
+  $('comparison-view').href = `#${viewKey()}`;
   render();
 }
 $('approve-current').onchange = (event) => {

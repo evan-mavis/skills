@@ -19,6 +19,10 @@ Use the bundled buildless template in `assets/site/` as a starting point. Copy i
 - For changed copy, show the full readable sentence beneath the images. Unchanged words stay plain; removed words use red with strikethrough, added words use green. Supply ordered `equal`, `remove`, and `add` segments with their original whitespace; do not show escaped HTML or raw patch syntax.
 - Add video with native controls only when motion explains the interaction. Keep both static screenshots. Provide a brief gap note when evidence is incomplete.
 
+## Final UI
+
+Show the current reviewer’s approved After captures across rounds, grouped by review section. Include the round and viewport and link each image caption to its comparison. Use the intact After image without highlight overlays. Click to enlarge it. Remove an image from the gallery when its approval is withdrawn. Preserve approvals for earlier rounds and label their screenshots by round. Exclude archived comparisons.
+
 ## Review data and history
 
 `review.json` contains `title`, `summary`, ordered `issues` group records with `id`, `title`, optional `url`, and optional `kind`, and ordered `rounds`. Each round has a stable `id`, `label`, `summary`, and ordered `comparisons`. Each comparison has `id`, `issueId`, `title`, `variant`, `explanation`, optional `gap`, `before`, `after`, optional `copyDiff`, optional `video`, and `feedback`. Use `archived: true` to retain historical entries that should leave the review queue. Keep verification-only entries outside new rounds. Keep the existing `issues` and `issueId` field names for compatibility; they also represent feature or UI groups. Set `kind` to `linear`, `feature`, or `ui`. A Linear group requires its issue URL; feature and UI groups may omit the URL and display only their descriptive title. Without `kind`, existing records with a URL retain their issue heading, and records without a URL display as feature headings. See [capture metadata](capture-metadata.md) for each image's fields.

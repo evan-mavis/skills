@@ -4,6 +4,8 @@
 <body>
 <aside><nav aria-label="Screens" id="screens"></nav></aside>
 <main>
+<nav class="review-views" aria-label="Review views"><a id="comparison-view" href="#" aria-current="page">Comparisons</a><a id="final-view" href="#final-ui">Final UI</a></nav>
+<div id="comparison-content">
 <header><div class="heading"><h1 id="title"></h1><div class="controls"><select id="round" aria-label="Review round"></select><button id="previous" aria-label="Previous screen">←</button><span id="position"></span><button id="next" aria-label="Next screen">→</button></div></div><p id="explanation"></p></header>
 <div class="toolbar review-toolbar">
   <div id="approval-controls" hidden>
@@ -25,6 +27,12 @@
     <button id="submit-comment" type="submit">Add comment</button>
   </form>
   <p id="feedback-status" role="status"></p>
+</section>
+</div>
+<section id="final-content" aria-labelledby="final-title" hidden>
+  <h1 id="final-title">Final UI</h1>
+  <p id="final-status" role="status"></p>
+  <div id="final-gallery"></div>
 </section>
 <p id="error" role="alert"></p>
 </main>
