@@ -11,6 +11,7 @@
   "feature": "Request reminders",
   "summary": "One sentence on what this review covers.",
   "issues": [{ "id": "checkout", "title": "Checkout", "kind": "feature" }],
+  "coverage": { "...": "coverage inventory" },
   "rounds": [
     {
       "id": "round-1",
@@ -26,6 +27,29 @@
 - `pr` (a positive integer) and `feature` (a non-empty string) are optional. The sidebar shows `PR #<pr>: <feature>`, falling back to `title` for a missing feature. They are display text only: the pasted decisions still carry `title`.
 - `issues` are the sidebar groups, in display order. Give each a `kind` of `linear`, `feature`, or `ui`. A `linear` group requires its issue `url`; the other kinds may show a descriptive title alone. The field name comes from the earlier review format and also carries feature or UI groups.
 - `rounds` are ordered oldest first. `id` and `label` are stable, and the round `id` is what `decisions.mjs` checks the paste against.
+
+## Coverage
+
+```json
+{
+  "base": "<40-character base SHA>",
+  "head": "<40-character head SHA>",
+  "uiPattern": "\\.(tsx|css)$",
+  "changedFiles": ["apps/web/src/checkout/Reminder.tsx", "apps/web/src/checkout/format.tsx"],
+  "notUserVisible": [{ "file": "apps/web/src/checkout/format.tsx", "reason": "Renames an internal helper; output is identical" }],
+  "items": [
+    { "id": "checkout-filled-desktop", "app": "web", "surface": "Checkout", "kind": "route", "state": "filled", "role": "buyer", "platform": "desktop-web", "files": ["apps/web/src/checkout/Reminder.tsx"], "comparison": "request-reminder" },
+    { "id": "checkout-filled-mobile", "app": "web", "surface": "Checkout", "kind": "route", "state": "filled", "role": "buyer", "platform": "mobile-web", "files": ["apps/web/src/checkout/Reminder.tsx"], "uncovered": "The mobile layout needs a seeded cart the dev data lacks",
+      "waiver": { "by": "Evan", "at": "2026-11-25T07:10:00Z", "quote": "skip mobile checkout this round" } }
+  ]
+}
+```
+
+- `base` and `head` are the full SHAs the inventory was computed from. `coverage.mjs --write` records `changedFiles` from `git diff base...head`, filtered by `uiPattern` (a regular expression; the default covers common view and style extensions) and with tests and stories excluded.
+- `items` has one entry per surface, state, role, and platform. `kind` is `route`, `screen`, `modal`, `drawer`, `component`, `email`, or `other`. `platform` is `desktop-web`, `mobile-web`, `tablet-web`, or `native`, and the app name says which native app. `files` names the changed files that reach the surface.
+- Each item has either `comparison`, the id of a live comparison with an After capture, or `uncovered`, the reason it could not be captured. A web item's comparison variant must match its platform.
+- `waiver` is allowed only on an uncovered item and records the reviewer's explicit word: `by`, `at` (a timestamp), and `quote`.
+- `notUserVisible` maps a changed UI file that no user can see a change in, with the reason.
 
 ## Comparisons
 
@@ -78,5 +102,11 @@ The validator is the guard against a review that looks right and misleads.
 - `pr` and `feature`, when present, are a positive integer and a non-empty string.
 - Comparison ids are unique, every `issueId` exists, every live comparison has an After capture and a tier, and every `revises` target exists in an earlier round.
 - Feedback is complete and targets a known comparison.
+- `coverage` has full base and head SHAs and a non-empty inventory. Every changed UI file is in an item or in `notUserVisible`, and every item's files are changed UI files.
+- Every item is complete, has a comparison or an uncovered reason but not both, and points at a live, captured comparison whose variant matches its platform.
+- Every `desktop-web` item has a `mobile-web` item for the same app, surface, kind, state, and role, and the reverse.
+- A waiver sits on an uncovered item and names who gave it, when, and their words.
+
+`build-round.mjs --final` also refuses to build while any item is uncovered without a waiver.
 
 Run it before every build. It cannot prove a capture came from the build it names; verify Git and the running process while capturing.

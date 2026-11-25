@@ -20,6 +20,12 @@ The selected verifier owns the surface, feature recipe, synthetic fixtures, pass
 
 When running Airgoods work on a suitable macOS device, follow the Mobile verification steps in the repository's own verify skill where compatible with the available tools. Use its simulator for the requested work and return evidence to the caller. Report unavailable prerequisites rather than claiming verification.
 
+## UI review coverage
+
+For `ui-review` on an Airgoods PR, inventory every app the diff touches: `adminpanel`, `dashboard`, `dashboard-engineering`, `mobile`, `shopify-pos`, `shopify-sales-channel`, `warehouse`, `web`, and `web-public` under `apps/`, and `packages/ui`, `packages/email-templates`, and `packages/brand` wherever their change reaches a screen or email. Set `coverage.uiPattern` to `^(apps/(adminpanel|dashboard|dashboard-engineering|mobile|shopify-pos|shopify-sales-channel|warehouse|web|web-public)|packages/(ui|email-templates|brand))/.*\.(tsx|ts|jsx|css|svg|png|webp|otf)$` so Mobile styles, theme files, and assets count. Map hooks and other logic-only files to `notUserVisible` with the reason.
+
+Capture `apps/mobile` in the iOS Simulator on one of Evan's MacBooks, following the Mobile verification steps in the repository's verify skill. Find an online MacBook with `tools.machine.list`. If none is online, or the simulator cannot reach a surface, record each affected native item as uncovered with the reason and tell Evan in the message that hands over the round. Never mark native blocked without telling him, and never record a native waiver without his explicit word.
+
 ## Other Airgoods workflows
 
 Use the task skill only when its workflow is requested or required by the authorized task:

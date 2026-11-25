@@ -2,6 +2,7 @@ import { readFile, realpath } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
+import { PLATFORMS, KINDS, device, coverageSummary, unmappedFiles } from './coverage.mjs';
 
 export function imageDimensions(bytes) {
   if (bytes.length >= 24 && bytes.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10]))) return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
@@ -25,6 +26,7 @@ export async function validateReview(directory) {
   const require = (condition, message) => { if (!condition) throw new Error(message); };
   const string = (value) => typeof value === 'string' && value.trim().length > 0;
   const hash = (value) => /^[a-f0-9]{64}$/.test(value);
+  const hash40 = (value) => /^[a-f0-9]{40}$/.test(value);
   const ids = new Set();
   const id = (value) => { require(/^[a-zA-Z0-9_-]+$/.test(value) && !ids.has(value), `Invalid or duplicate ID: ${value}`); ids.add(value); };
   const localAsset = async (src) => {
@@ -66,6 +68,7 @@ export async function validateReview(directory) {
   }
   let count = 0, gaps = 0, missingCaptures = 0;
   const earlier = new Set();
+  const comparisons = new Map();
   for (const round of review.rounds) {
     id(round.id);
     const current = [];
@@ -73,6 +76,7 @@ export async function validateReview(directory) {
     for (const comparison of round.comparisons) {
       id(comparison.id);
       current.push(comparison.id);
+      comparisons.set(comparison.id, comparison);
       if (!comparison.archived) count++;
       if (!comparison.archived) require(['judgment', 'mechanical'].includes(comparison.tier), `Missing tier (judgment or mechanical): ${comparison.id}`);
       require(comparison.revises === undefined || earlier.has(comparison.revises), `A revision must point to a comparison in an earlier round: ${comparison.id}`);
@@ -95,7 +99,32 @@ export async function validateReview(directory) {
     for (const value of current) earlier.add(value);
   }
   for (const round of review.rounds) for (const comparison of round.comparisons) for (const note of comparison.feedback) require(ids.has(note.comparisonId), `Unknown feedback target: ${note.comparisonId}`);
-  return { comparisons: count, gaps, missingCaptures, provenance: 'Metadata and original bytes checked; verify running builds separately.' };
+  const coverage = review.coverage;
+  require(coverage && hash40(coverage.base) && hash40(coverage.head), 'Missing coverage inventory with full base and head SHAs. Inventory the surfaces with coverage.mjs before capturing');
+  require(Array.isArray(coverage.changedFiles) && coverage.changedFiles.every(string), 'Missing coverage.changedFiles. Run coverage.mjs --write');
+  require(Array.isArray(coverage.items) && coverage.items.length > 0, 'Empty coverage inventory');
+  require(Array.isArray(coverage.notUserVisible), 'Missing coverage.notUserVisible list');
+  const changed = new Set(coverage.changedFiles);
+  for (const entry of coverage.notUserVisible) require(changed.has(entry.file) && string(entry.reason), `Not user-visible needs a changed file and a reason: ${entry.file}`);
+  const coverageIds = new Set(), twins = { 'desktop-web': new Set(), 'mobile-web': new Set() };
+  for (const entry of coverage.items) {
+    require(/^[a-zA-Z0-9_-]+$/.test(entry.id) && !coverageIds.has(entry.id), `Invalid or duplicate inventory ID: ${entry.id}`);
+    coverageIds.add(entry.id);
+    require(['app', 'surface', 'state', 'role'].every(key => string(entry[key])) && KINDS.includes(entry.kind) && entry.platform in PLATFORMS, `Incomplete inventory item: ${entry.id}`);
+    require(Array.isArray(entry.files) && entry.files.length > 0 && entry.files.every(file => changed.has(file)), `Inventory item files must come from coverage.changedFiles: ${entry.id}`);
+    require(string(entry.comparison) !== string(entry.uncovered), `Inventory item needs a comparison or an uncovered reason, not both: ${entry.id}`);
+    if (string(entry.comparison)) {
+      const target = comparisons.get(entry.comparison);
+      require(target && !target.archived && target.after, `Inventory item points at a missing, archived, or uncaptured comparison: ${entry.id}`);
+      require(entry.platform === 'native' || device(target.variant) === PLATFORMS[entry.platform], `Inventory platform disagrees with the comparison variant: ${entry.id}`);
+    }
+    if (entry.waiver !== undefined) require(string(entry.uncovered) && string(entry.waiver.by) && string(entry.waiver.quote) && Number.isFinite(Date.parse(entry.waiver.at)), `A waiver needs an uncovered item and the reviewer's by, at, and quote: ${entry.id}`);
+    if (entry.platform in twins) twins[entry.platform].add([entry.app, entry.surface, entry.kind, entry.state, entry.role].join('\u0000'));
+  }
+  for (const [platform, other] of [['desktop-web', 'mobile-web'], ['mobile-web', 'desktop-web']]) for (const key of twins[platform]) require(twins[other].has(key), `Every ${platform} inventory item needs a ${other} item: ${key.split('\u0000').join(', ')}`);
+  const unmapped = unmappedFiles(coverage, coverage.changedFiles);
+  require(!unmapped.length, `Changed UI files in no inventory item and not marked notUserVisible: ${unmapped.join(', ')}`);
+  return { comparisons: count, gaps, missingCaptures, coverage: coverageSummary(review), provenance: 'Metadata and original bytes checked; verify running builds separately.' };
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   try { console.log(JSON.stringify(await validateReview(process.argv[2]), null, 2)); }

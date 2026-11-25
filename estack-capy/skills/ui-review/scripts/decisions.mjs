@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { coverageSummary } from './coverage.mjs';
 
 export const HEADER = 'ui-review decisions v1';
 
@@ -68,7 +69,7 @@ export function toFixList(parsed, review) {
   if (!round) throw new Error('Unknown round: ' + parsed.round);
   if (parsed.review !== review.title.replace(/\s+/g, ' ').trim()) throw new Error('These decisions belong to another review: ' + parsed.review);
   const comparisons = new Map(round.comparisons.filter(comparison => !comparison.archived).map(comparison => [round.id + '/' + comparison.id, comparison]));
-  const fixList = { review: parsed.review, round: parsed.round, approved: [], implicitlyApproved: [], fixes: [], questions: [], pending: [], missing: [], general: parsed.general ? requests(parsed.general) : [] };
+  const fixList = { review: parsed.review, round: parsed.round, approved: [], implicitlyApproved: [], fixes: [], questions: [], pending: [], missing: [], general: parsed.general ? requests(parsed.general) : [], coverage: coverageSummary(review) };
   const seen = new Set();
   for (const item of parsed.items) {
     const comparison = comparisons.get(item.id);
@@ -99,6 +100,9 @@ export function renderFixList(list) {
   section('Approved', list.approved, item => '- ' + item.title + ' (' + item.id + ')');
   section('Approved without comment (no response after review)', list.implicitlyApproved, item => '- ' + item.title + ' (' + item.id + ')');
   section('Missing from the paste (not approved)', list.missing, item => '- ' + item.title + ' (' + item.id + ')');
+  const { coverage } = list;
+  lines.push('## Coverage', '', coverage.captured + ' of ' + coverage.inventory + ' inventory items captured, ' + coverage.waived + ' waived, ' + coverage.uncovered + ' uncovered.' + (coverage.uncovered ? ' Not final until each is captured or waived.' : ''), '');
+  for (const gap of coverage.gaps) lines.push('- ' + gap.status + ': ' + gap.title + ' (' + gap.id + ', ' + gap.platform + '): ' + gap.reason + (gap.waiver ? ' Waived by ' + gap.waiver.by + ': "' + gap.waiver.quote + '"' : ''));
   return lines.join('\n').trimEnd() + '\n';
 }
 

@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateReview } from './validate-review.mjs';
 import { formatDecisions } from './decisions.mjs';
 import { decodePng } from './diff-captures.mjs';
+import { device, coverageSummary, assertCoverageGate } from './coverage.mjs';
 import encodeJpeg from './vendor/jpeg-js-encoder.mjs';
 
 const template = resolve(dirname(fileURLToPath(import.meta.url)), '../assets/round.html');
@@ -29,12 +30,7 @@ function scale(image, factor) {
   return { width, height, pixels };
 }
 
-export function device(variant) {
-  const value = String(variant).toLowerCase();
-  if (value.includes('tablet')) return 'tablet';
-  if (value.includes('mobile') || value.includes('phone')) return 'mobile';
-  return 'desktop';
-}
+export { device };
 
 export function heading(review) {
   if (review.pr === undefined) return review.feature || review.title;
@@ -62,6 +58,7 @@ export async function buildRound(directory, roundId, { final = false } = {}) {
   const roundIndex = final ? review.rounds.length - 1 : review.rounds.findIndex(round => round.id === roundId);
   if (roundIndex < 0) throw new Error('Unknown round: ' + roundId);
   const round = review.rounds[roundIndex];
+  if (final) assertCoverageGate(review);
   const location = new Map();
   for (const entry of review.rounds) for (const comparison of entry.comparisons) location.set(comparison.id, { round: entry, comparison });
   const latest = new Map();
@@ -89,7 +86,7 @@ export async function buildRound(directory, roundId, { final = false } = {}) {
     ? await Promise.all([...latest.values()].filter(({ comparison }) => !comparison.archived).map(({ round: entry, comparison }) => item(entry, comparison)))
     : await Promise.all(round.comparisons.filter(comparison => !comparison.archived).map(comparison => item(round, comparison)));
   const data = { mode: final ? 'final' : 'round', title: review.title, heading: heading(review), summary: review.summary, groups: review.issues,
-    round: { id: round.id, label: final ? 'Final design' : round.label, summary: final ? review.summary : round.summary }, items, earlier };
+    round: { id: round.id, label: final ? 'Final design' : round.label, summary: final ? review.summary : round.summary }, items, earlier, coverage: coverageSummary(review) };
   const html = (await readFile(template, 'utf8'))
     .replace('__UI_REVIEW_FORMAT__', () => formatDecisions.toString())
     .replace('__UI_REVIEW_DATA__', () => JSON.stringify(data).replace(/</g, '\\u003c'));

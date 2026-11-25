@@ -35,7 +35,8 @@ flowchart TD
     Staff --> QA["QA Lead: repository verify skill and capture video evidence last"]
     QA --> Package["CEO: inspect proof and final-head green CI, package result"]
     Package --> Merge{"Human gate 3: approve named PR merge"}
-    Visual -->|Findings| Fix["CEO: route bounded fixes and affected rechecks"]
+    Visual -->|UI-only fixes: commit, push, re-render, report head| Visual
+    Visual -->|Non-UI findings| Fix["CEO: route bounded fixes and affected rechecks"]
     Staff -->|Findings| Fix
     QA -->|Failures| Fix
     CEO -->|CI failures| Fix
@@ -45,7 +46,7 @@ flowchart TD
     class Plan,Design,Merge human
 ```
 
-The CEO routes findings to Lead Eng and resumes the failed and affected gates on the new head. Unchanged, still-valid approvals do not need another full pass. Later UI fixes rerun affected QA journeys and video evidence.
+During UI review, Product Designer commits UI-only fixes to the PR branch itself, runs the relevant local checks, re-renders the round, iterates rounds directly with you, and reports each new head to the CEO. Staff Eng's review covers those commits. The CEO routes every other finding to Lead Eng and resumes the failed and affected gates on the new head. Unchanged, still-valid approvals do not need another full pass. Later UI fixes rerun affected QA journeys and video evidence.
 
 ## Captain responsibilities
 
@@ -53,7 +54,7 @@ The CEO routes findings to Lead Eng and resumes the failed and affected gates on
 | --- | --- | --- | --- |
 | PM | Context, product decisions, and the lean authoritative spec | [grill-me](skills/grill-me/SKILL.md), [to-linear-spec](skills/to-linear-spec/SKILL.md) | Approved scope, open questions, and exact kickoff authorization when given |
 | CEO | Routing, priorities, status, evidence acceptance, and CI through a PR subscription | [Estack](skills/estack/SKILL.md), [Delivery](skills/poteto-mode/playbooks/delivery.md) | Current stage, checked proof, blockers, and the named per-PR merge package |
-| Product Designer | Design candidates and independent visual review on the PR | [prototype](skills/prototype/SKILL.md), [design-critic](skills/design-critic/SKILL.md), [ui-review](skills/ui-review/SKILL.md) | Design revision, sourced approval, image evidence, and concrete findings |
+| Product Designer | Design candidates, independent visual review on the PR, and UI-only fixes during that review | [prototype](skills/prototype/SKILL.md), [design-critic](skills/design-critic/SKILL.md), [ui-review](skills/ui-review/SKILL.md) | Design revision, sourced approval, image evidence, and concrete findings |
 | Lead Eng | Implementation, local self-verification, PR creation, and all engineering fixes | [Estack](skills/estack/SKILL.md), [Feature](skills/poteto-mode/playbooks/feature.md), [Opening a PR](skills/poteto-mode/playbooks/opening-a-pr.md) | PR, exact head, executed local checks, and fix results |
 | Staff Eng | Independent technical review | [interrogate](skills/interrogate/SKILL.md), [blast-radius](skills/blast-radius/SKILL.md), relevant Estack review obligations | File-grounded findings, inspected head, proof, and verdict |
 | QA Lead | Final acceptance journeys and PR video evidence | The repository's own verify skill, [Estack](skills/estack/SKILL.md), [capture](skills/capture/SKILL.md) | Passed, failed, or blocked criteria, exact head, environment, and final video |
@@ -71,7 +72,7 @@ All Captains use Estack for substantive work. Only the CEO monitors CI. Speciali
 
 The initial failed run is not a fix attempt. After two failed fix attempts for the same failure, an independent diagnosis tests the assumed root cause. At most one in-scope recovery attempt follows. Another failure escalates to you. Renaming a finding or starting a thread does not reset the count.
 
-Material scope or design changes, unresolved access, and safety actions escalate early. Engineering writes stay in Lead Eng's builder crew. Independent reviewers remain code-read-only.
+Material scope or design changes, unresolved access, and safety actions escalate early. Engineering writes stay in Lead Eng's builder crew, except UI-only fixes that Product Designer commits during UI review. Other independent reviewers remain code-read-only.
 
 ## Reports and evidence
 

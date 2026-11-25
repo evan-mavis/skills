@@ -40,6 +40,7 @@
   .row:hover { background: var(--side-hover); }
   .row[aria-current] { background: var(--ink); color: var(--page); font-weight: 700; }
   .row svg { flex: none; width: 13px; height: 13px; }
+  .row.uncovered { cursor: default; }
   .row span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .resize { position: fixed; top: 0; bottom: 0; left: calc(var(--sidebar) - 4px); width: 8px; cursor: col-resize; z-index: 5; touch-action: none; }
   .resize:hover, .resize.dragging { background: color-mix(in srgb, var(--accent) 40%, transparent); }
@@ -102,6 +103,7 @@
 <aside>
   <h1 id="title">UI review</h1>
   <p class="round" id="round"></p>
+  <p class="round" id="coverage"></p>
   <nav id="nav" aria-label="Comparisons"></nav>
 </aside>
 <div class="resize" id="resize" role="separator" aria-orientation="vertical" aria-label="Resize sidebar"></div>
@@ -168,13 +170,18 @@ const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', 
 el('title').textContent = data.heading;
 el('round').textContent = data.round.label + ' · ' + data.items.length + (data.items.length === 1 ? ' comparison' : ' comparisons');
 
+const coverage = data.coverage;
+el('coverage').textContent = 'Coverage ' + coverage.captured + ' / ' + coverage.inventory + ' captured' + (coverage.waived ? ' · ' + coverage.waived + ' waived' : '') + (coverage.uncovered ? ' · ' + coverage.uncovered + ' uncovered' : '');
+const icon = name => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + '</svg>';
+const gapsHtml = coverage.gaps.length ? '<details open><summary>Uncovered · ' + coverage.gaps.length + '</summary>' + coverage.gaps.map((gap, index) => '<div class="row uncovered" data-gap="' + index + '">' + icon(gap.device) + '<span>' + esc(gap.title) + '</span></div>').join('') + '</details>' : '';
+
 function nav() {
-  el('nav').innerHTML = data.groups.map(group => {
+  el('nav').innerHTML = gapsHtml + data.groups.map(group => {
     const items = data.items.filter(entry => entry.issueId === group.id);
     if (!items.length) return '';
     return '<details open><summary>' + esc(group.title) + '</summary>' + items.map(entry => {
       const index = data.items.indexOf(entry);
-      return '<a class="row" href="#' + encodeURIComponent(entry.id) + '" data-index="' + index + '"' + (index === current ? ' aria-current="page"' : '') + '><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[entry.device] + '</svg><span>' + esc(entry.title) + '</span></a>';
+      return '<a class="row" href="#' + encodeURIComponent(entry.id) + '" data-index="' + index + '"' + (index === current ? ' aria-current="page"' : '') + '>' + icon(entry.device) + '<span>' + esc(entry.title) + '</span></a>';
     }).join('') + '</details>';
   }).join('');
 }
@@ -294,10 +301,15 @@ handle.addEventListener('dblclick', () => {
 
 const tip = el('tip');
 el('nav').addEventListener('mouseover', event => {
-  const row = event.target.closest('a[data-index]');
+  const row = event.target.closest('a[data-index], [data-gap]');
   if (!row) return;
-  const entry = data.items[Number(row.dataset.index)];
-  tip.innerHTML = esc(entry.title) + '<small>' + esc(entry.device) + '</small>';
+  if (row.dataset.gap) {
+    const gap = coverage.gaps[Number(row.dataset.gap)];
+    tip.innerHTML = esc(gap.title) + '<small>' + esc(gap.platform + ' · ' + (gap.waiver ? 'waived by ' + gap.waiver.by : 'uncovered')) + '</small>' + esc(gap.reason);
+  } else {
+    const entry = data.items[Number(row.dataset.index)];
+    tip.innerHTML = esc(entry.title) + '<small>' + esc(entry.device) + '</small>';
+  }
   tip.hidden = false;
   const box = row.getBoundingClientRect();
   tip.style.left = (document.querySelector('aside').getBoundingClientRect().right + 10) + 'px';

@@ -45,8 +45,22 @@ const review = () => ({
   title: 'Example review',
   summary: 'A reminder moves beside the price.',
   issues: [{ id: 'checkout', title: 'Checkout', kind: 'feature' }],
+  coverage: {
+    base: 'a'.repeat(40),
+    head: 'b'.repeat(40),
+    changedFiles: ['apps/web/checkout.tsx'],
+    notUserVisible: [],
+    items: [
+      surface('checkout-desktop', 'desktop-web', { comparison: 'reminder' }),
+      surface('checkout-mobile', 'mobile-web', { uncovered: 'No seeded cart for the phone layout', waiver: { by: 'Evan', at: '2026-11-25T07:10:00Z', quote: 'skip mobile checkout this round' } }),
+    ],
+  },
   rounds: [{ id: 'round-1', label: 'Round 1', summary: 'Initial', comparisons: [comparison('reminder')] }],
 });
+
+function surface(id, platform, overrides) {
+  return { id, app: 'web', surface: 'Checkout', kind: 'route', state: 'filled', role: 'buyer', platform, files: ['apps/web/checkout.tsx'], ...overrides };
+}
 
 async function withReview(change, check) {
   const directory = await mkdtemp(join(tmpdir(), 'ui-review-test-'));
@@ -85,7 +99,8 @@ for (const [name, change, message] of [
   ['missing After capture', c => { c.after = null; }, /After screenshot/],
 ]) test('rejects ' + name, () => withReview(change, run => assert.rejects(run, message)));
 
-test('keeps text-only history only when archived', () => withReview(c => {
+test('keeps text-only history only when archived', () => withReview((c, d) => {
+  d.coverage.items[0] = surface('checkout-desktop', 'desktop-web', { uncovered: 'Dropped from review' });
   c.before = null;
   c.after = null;
   c.archived = true;
@@ -314,6 +329,7 @@ const designReview = (c, d) => {
     comparison('spacing', { title: 'Card spacing on a phone', variant: 'mobile 390' }),
     comparison('tablet', { title: 'Tablet layout', variant: 'tablet' }),
   );
+  d.coverage.items[1] = surface('checkout-mobile', 'mobile-web', { comparison: 'spacing' });
 };
 
 test('validates the optional PR number and feature name', async () => {
@@ -427,3 +443,96 @@ test('drives the round in a browser: Looks good, the A key, the lightbox, resizi
     await rm(profile, { recursive: true, force: true });
   }
 }));
+
+for (const [name, change, message] of [
+  ['a review without an inventory', d => { delete d.coverage; }, /Missing coverage inventory/],
+  ['an empty inventory', d => { d.coverage.items = []; }, /Empty coverage inventory/],
+  ['a changed UI file in no item', d => { d.coverage.changedFiles.push('apps/mobile/Cart.tsx'); }, /Changed UI files in no inventory item.*apps\/mobile\/Cart\.tsx/],
+  ['an item file outside the diff', d => { d.coverage.items[0].files = ['apps/web/other.tsx']; }, /must come from coverage\.changedFiles/],
+  ['an item with a comparison and an uncovered reason', d => { d.coverage.items[0].uncovered = 'Also missing'; }, /not both/],
+  ['an item with neither', d => { delete d.coverage.items[1].uncovered; delete d.coverage.items[1].waiver; }, /not both/],
+  ['an unknown comparison', d => { d.coverage.items[0].comparison = 'ghost'; }, /missing, archived, or uncaptured/],
+  ['an archived comparison', (d, c) => { c.archived = true; }, /missing, archived, or uncaptured/],
+  ['a platform that disagrees with the variant', d => { d.coverage.items[1] = surface('checkout-mobile', 'mobile-web', { comparison: 'reminder' }); }, /disagrees with the comparison variant/],
+  ['a desktop item without a mobile twin', d => { d.coverage.items.pop(); }, /needs a mobile-web item/],
+  ['a mobile item without a desktop twin', d => { d.coverage.items[0] = surface('checkout-native', 'native', { comparison: 'reminder' }); }, /needs a desktop-web item/],
+  ['an unknown platform', d => { d.coverage.items[0].platform = 'watch'; }, /Incomplete inventory item/],
+  ['an item without a role', d => { d.coverage.items[0].role = ''; }, /Incomplete inventory item/],
+  ['a waiver without the reviewer\'s words', d => { delete d.coverage.items[1].waiver.quote; }, /A waiver needs/],
+  ['a waiver on a captured item', d => { d.coverage.items[0].waiver = { by: 'Evan', at: '2026-11-25T07:10:00Z', quote: 'fine' }; }, /A waiver needs an uncovered item/],
+  ['a not-user-visible file without a reason', d => { d.coverage.changedFiles.push('apps/web/types.tsx'); d.coverage.notUserVisible.push({ file: 'apps/web/types.tsx', reason: ' ' }); }, /Not user-visible needs/],
+  ['a duplicate inventory id', d => { d.coverage.items[1].id = 'checkout-desktop'; }, /duplicate inventory ID/],
+]) test('coverage rejects ' + name, () => withReview((c, d) => change(d, c), run => assert.rejects(run, message)));
+
+test('reports inventory against captured', () => withReview((c, d) => {
+  d.coverage.changedFiles.push('apps/web/types.tsx');
+  d.coverage.notUserVisible.push({ file: 'apps/web/types.tsx', reason: 'Type-only module' });
+  d.coverage.items.push(surface('receipt-native', 'native', { surface: 'Receipt', uncovered: 'No Mac with the iOS Simulator was online' }));
+}, async run => {
+  const { coverage } = await run();
+  assert.deepEqual([coverage.inventory, coverage.captured, coverage.waived, coverage.uncovered], [3, 1, 1, 1]);
+  assert.deepEqual(coverage.open.map(entry => entry.id), ['receipt-native']);
+}));
+
+test('the final doc is gated on every inventory item being captured or waived', () => withReview((c, d) => {
+  delete d.coverage.items[1].waiver;
+}, async (run, directory, data) => {
+  await run();
+  const html = await buildRound(directory, 'round-1');
+  const round = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
+  assert.deepEqual(round.coverage.gaps.map(gap => [gap.id, gap.status, gap.reason]), [['checkout-mobile', 'uncovered', 'No seeded cart for the phone layout']]);
+  assert.match(html, /Uncovered · /);
+  await assert.rejects(buildRound(directory, undefined, { final: true }), /Coverage gate: 1 of 2 inventory items are uncaptured without a recorded waiver: checkout-mobile/);
+  data.coverage.items[1].waiver = { by: 'Evan', at: '2026-11-25T07:10:00Z', quote: 'skip it' };
+  await writeFile(join(directory, 'review.json'), JSON.stringify(data));
+  assert.match(await buildRound(directory, undefined, { final: true }), /Final design/);
+}));
+
+test('the fix list ends with the coverage count and each gap', () => {
+  const data = review();
+  const text = formatDecisions({ title: data.title, round: 'round-1', items: [{ id: 'round-1/reminder', title: 'Reminder', approved: true }] });
+  const markdown = renderFixList(toFixList(parseDecisions(text), data));
+  assert.match(markdown, /## Coverage\n\n1 of 2 inventory items captured, 1 waived, 0 uncovered\./);
+  assert.match(markdown, /- waived: web Checkout, filled, buyer \(checkout-mobile, mobile-web\): No seeded cart for the phone layout Waived by Evan: "skip mobile checkout this round"/);
+});
+
+const coverageCli = join(import.meta.dirname, '../estack-capy/skills/ui-review/scripts/coverage.mjs');
+
+test('coverage.mjs records the changed UI files and fails on unmapped ones', async () => {
+  const repo = await mkdtemp(join(tmpdir(), 'ui-review-repo-'));
+  const git = (...args) => spawnSync('git', ['-C', repo, '-c', 'user.name=test', '-c', 'user.email=test@example.com', ...args], { encoding: 'utf8' }).stdout.trim();
+  const put = async (file, text) => { await mkdir(join(repo, file, '..'), { recursive: true }); await writeFile(join(repo, file), text); };
+  try {
+    git('init', '-q');
+    await put('apps/web/Page.tsx', 'a');
+    git('add', '.'); git('commit', '-qm', 'base');
+    const base = git('rev-parse', 'HEAD');
+    for (const file of ['apps/web/Page.tsx', 'apps/web/Page.test.tsx', 'apps/mobile/Cart.tsx', 'apps/api/route.ts']) await put(file, 'b');
+    git('add', '.'); git('commit', '-qm', 'head');
+    const head = git('rev-parse', 'HEAD');
+    await withReview((c, d) => {
+      Object.assign(d.coverage, { base, head, changedFiles: [] });
+      d.coverage.items.forEach(entry => { entry.files = ['apps/web/Page.tsx']; });
+    }, async (run, directory) => {
+      const cli = (...args) => spawnSync(process.execPath, [coverageCli, directory, repo, ...args], { encoding: 'utf8' });
+      const stale = cli();
+      assert.equal(stale.status, 1);
+      assert.match(stale.stderr, /stale or missing/);
+      const first = cli('--write');
+      assert.equal(first.status, 1);
+      assert.match(first.stdout, /Changed UI files: 2 \(apps\/mobile 1, apps\/web 1\)/);
+      assert.match(first.stderr, /1 changed UI files are in no inventory item[\s\S]*apps\/mobile\/Cart\.tsx/);
+      const data = JSON.parse(await readFile(join(directory, 'review.json'), 'utf8'));
+      assert.deepEqual(data.coverage.changedFiles, ['apps/mobile/Cart.tsx', 'apps/web/Page.tsx']);
+      data.coverage.items.push(surface('cart-native', 'native', { app: 'mobile', surface: 'Cart', files: ['apps/mobile/Cart.tsx'], uncovered: 'No Mac with the iOS Simulator was online' }));
+      await writeFile(join(directory, 'review.json'), JSON.stringify(data));
+      const second = cli();
+      assert.equal(second.status, 0, second.stderr);
+      assert.match(second.stdout, /Inventory 3: captured 1, waived 1, uncovered 1/);
+      assert.match(second.stdout, /uncovered: cart-native \(native\) No Mac/);
+      assert.equal((await run()).coverage.uncovered, 1);
+    });
+  } finally {
+    await rm(repo, { recursive: true, force: true });
+  }
+});
