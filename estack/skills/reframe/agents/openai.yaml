@@ -1,0 +1,6 @@
+interface:
+  display_name: "Reframe"
+  short_description: "Learn the expert terms for what you are building"
+  default_prompt: "Use $reframe to teach the expert terms for what I am building and rewrite my description with them, without executing the task."
+policy:
+  allow_implicit_invocation: false

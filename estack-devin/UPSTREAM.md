@@ -4,9 +4,9 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 
 ## Snapshot
 
-- Version: `0.15.46`
-- Commit: [`aaeb0ea3a0584995aa8f55ce44c6c5259414b896`](https://github.com/cursor/plugins/commit/aaeb0ea3a0584995aa8f55ce44c6c5259414b896)
-- Retrieved and compared: 2026-11-20
+- Version: `0.15.48`
+- Commit: [`41e400932eca14f289e7db717a70455256b6d388`](https://github.com/cursor/plugins/commit/41e400932eca14f289e7db717a70455256b6d388)
+- Retrieved and compared: 2026-11-25
 - Sources: `pstack/` and `cursor-team-kit/skills/deslop/`
 - Previous reviewed commit: [`eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10`](https://github.com/cursor/plugins/commit/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10), version `0.15.30`, compared 2026-10-22.
 - Previous reviewed snapshot: `0.15.30` at [`8b3326d99fd4b993cb33a24dad8af03175c642c5`](https://github.com/cursor/plugins/commit/8b3326d99fd4b993cb33a24dad8af03175c642c5), compared 2026-10-23 in PR #11.
@@ -22,6 +22,12 @@ This file records the pstack snapshot reviewed for Estack and its source adaptat
 - Retain the Orchestrate tools, independent verification gates, capture pipeline, and deferred PR packaging. Skip the wholesale Orchestrate replacement, weaker review gates, stack ownership changes, Cursor model configuration, and video-only guidance without an equivalent skill here.
 - Continue to skip the Statechart compiler rewrite. Preserve chart-to-spec and comparison workflows, safe integers, output recovery, and retained TLC evidence. Its qualified-name and SIGKILL fixes target rewrite-only code. Deslop is unchanged.
 - Previous package snapshot was `9580c23696ac8d7abed0c166f2f9918800afb819`, version `0.15.32`, compared 2026-10-24. The separate run history reviewed `519d36aa98955bf680db01bcde5fdfba686dc901` without package edits on 2026-10-27.
+
+### Reviewed through 0.15.48
+
+- Adopt Reframe as an explicit-only skill and add it to the help table. It teaches ranked expert terms with checked sources, borrows terms from neighboring fields, and rewrites the description without executing the task. Each host keeps its native invocation metadata.
+- Skip the upstream guide and README additions. The help table and skill description cover discovery. Deslop is unchanged.
+- Previous reviewed snapshot: `0.15.46` at `aaeb0ea3a0584995aa8f55ce44c6c5259414b896`.
 
 ### Reviewed through 0.15.46
 
