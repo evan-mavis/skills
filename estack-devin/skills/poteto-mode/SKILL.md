@@ -4,7 +4,7 @@
 
 # Poteto mode
 
-Carry the project context selected by Estack through the full playbook. If invoked directly without that context, resolve it from [Estack's project table](../estack/SKILL.md#project-context); read only the matching context, then continue here. With no matching project, use the generic workflow. Pass the selected context and target repository to delegates.
+Carry the project context selected by Estack through the full playbook. If invoked directly without that context, resolve it from [Estack's project table](../estack/SKILL.md#project-context); read only the matching context, then continue here. With no matching project, use the generic workflow. Pass the selected context and target repository to delegates. Before planning or editing, run Estack's [Gather context](../estack/SKILL.md#gather-context) step with that context.
 
 ## Non-negotiables
 

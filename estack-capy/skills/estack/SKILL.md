@@ -9,7 +9,8 @@ For a substantive engineering task or explicit Estack request:
 
 1. Read [Personal defaults](references/personal-defaults.md).
 2. Match the target repository using the project table below. Read its context when matched; otherwise use the generic workflow. Resolve the target from its Git remote or an explicit repository or PR supplied by the user. Normalize SSH and HTTPS forms, optional `.git`, and GitHub owner/repository case. Worktrees use their repository's identity. A folder name or similar app layout is not a match. If the task targets multiple repositories, apply each context only to its own work.
-3. Resolve `poteto-mode` from the current skill catalog and read it in full, then open its matched playbook and track its steps. If it is absent from the catalog, use the bundled [poteto-mode](../poteto-mode/SKILL.md). Read the applicable principle skills in full. Project context supplies requirements and task skills; it never replaces the playbook or its independent proof gates.
+3. Before planning or editing, follow [Gather context](#gather-context).
+4. Resolve `poteto-mode` from the current skill catalog and read it in full, then open its matched playbook and track its steps. If it is absent from the catalog, use the bundled [poteto-mode](../poteto-mode/SKILL.md). Read the applicable principle skills in full. Project context supplies requirements and task skills; it never replaces the playbook or its independent proof gates.
 
 Skip casual turns and user opt-outs. Host instructions, repository instructions, and explicit user requests take precedence.
 
@@ -20,6 +21,17 @@ Skip casual turns and user opt-outs. Host instructions, repository instructions,
 | `github.com/Airgoods-Inc/airgoods` | [Airgoods](references/projects/airgoods.md) |
 
 To add a project, add its context under `references/projects/` and one row here. Keep project rules out of generic playbooks. Pass the selected context's file pointer and target repository to delegates, including independent reviewers and scheduled runs. Re-resolve the context when the target repository changes.
+
+## Gather context
+
+Before planning or editing substantive work, gather the evidence that already exists:
+
+1. When the task names or links an issue, read all of it: the description, comments, attachments, images and video, linked Slack threads or posts, linked customer requests, and related issues.
+2. Pick the sources that can answer the task's open questions. Use the project context's context-sources map when it links one; otherwise use the connectors available in this session. Skip a source that cannot bear on the task. You do not need to query every service.
+3. Gather bounded, read-only evidence from each source you picked. Confirm the connector and its current tool names in this session before relying on it.
+4. Report each unavailable connector, attachment, or source as an explicit gap. Never skip one silently.
+
+Never write to a source, or refresh, migrate, or mutate a database, only to gather context. Keep secrets, credentials, and customer data out of output. Pass the gathered evidence and gaps to delegates.
 
 ## Host and personal guidance
 

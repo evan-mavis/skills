@@ -2,6 +2,10 @@
 
 Apply this context only to work targeting `github.com/Airgoods-Inc/airgoods`, including its worktrees and explicitly targeted PRs. Continue through poteto-mode and its selected playbook. These project requirements apply throughout implementation, review, and verification.
 
+## Context sources
+
+Before planning or editing, follow Estack's [Gather context](../../SKILL.md#gather-context) step with the [Airgoods context sources](airgoods-context-sources.md) map.
+
 ## Environment, verification, and PR work
 
 For an Airgoods cloud setup request, read [setup-cloud](../../../setup-cloud/SKILL.md) and carry it through database and server readiness where compatible with Capy. Before work requiring a running Airgoods app in a cloud session, use that skill to resolve the handoff and start missing required services. Do not assume dependency installation started the dev servers or that the repository bootstrap ran automatically. Documentation-only work does not need app startup.

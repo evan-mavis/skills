@@ -61,6 +61,8 @@ Capture this as seed context (file paths, symbols, commits, PR numbers, linked t
 
 ### Discovery
 
+If Estack selected a project context that links a context-sources map (see [Estack's project table](../estack/SKILL.md#project-context)), read the map first. Use its category column to assign the project's services to investigators, and give a service marked Other its own investigator when it bears on the question. The map records how the project uses each service, not whether it is connected, so still run the discovery below and record missing connectors as gaps.
+
 Before spawning investigators, list the available MCP and connector tools in this Devin session. Use the available-tools map or tool discovery when present.
 
 Map each available MCP to one evidence category:
