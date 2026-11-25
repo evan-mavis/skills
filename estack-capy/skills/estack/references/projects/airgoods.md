@@ -32,7 +32,7 @@ Use the task skill only when its workflow is requested or required by the author
 
 - Read `.agents/skills/query-local/SKILL.md` in the Airgoods checkout for development queries or `.agents/skills/query-prod/SKILL.md` in the Airgoods checkout for production queries. Follow the repo skill for read-only database evidence. Verify the target and keep credentials out of output. If the repo skill is missing, stop database querying and report the missing prerequisite.
 - For an authorized local database refresh, read `.agents/skills/refresh-local-db/SKILL.md` in the Airgoods checkout.
-- For an explicit disposable-branch request, read `.agents/skills/provision-neon-branch/SKILL.md` in the Airgoods checkout. Do not use it for normal cloud setup or verification.
+- For an explicit disposable-branch request, read `.agents/skills/provision-neon-branch/SKILL.md` in the Airgoods checkout. Do not use it for normal cloud setup or verification. Its parent, `NEON_PARENT_BRANCH_ID`, is the protected Neon branch named `production`: a copy a GitHub Action restores from the real production database on Render, and the correct parent for disposable children. Never write to it, and treat child data as production-copy data with limited access.
 - [Close release issues](../../../close-release-issues/SKILL.md) for release closeout. Preserve its audit and user-confirmation gate before changing issue states.
 - For verification maintenance, read `.agents/skills/maintain-verification/SKILL.md` in the Airgoods checkout. This does not authorize product or infrastructure changes.
 
