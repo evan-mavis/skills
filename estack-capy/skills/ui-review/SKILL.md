@@ -40,7 +40,11 @@ node <skill>/scripts/validate-review.mjs <review-directory>
 node <skill>/scripts/build-round.mjs <review-directory> round-1 <review-directory>/rounds/round-1.html
 ```
 
-The build inlines every screenshot as a data URL and every style, so the file works offline and alone. Give the reviewer the round's path and tell them to copy their decisions before closing it, because the page keeps no state across reloads.
+The build inlines every screenshot as a data URL and every style, so the file works offline and alone. It embeds each PNG as a JPEG copy at quality 62 and scales captures at device scale 2 or higher to 75%. A 1x PNG that is already smaller than its JPEG stays PNG. The PNGs on disk, their hashes, and the diff stay at full size.
+
+The build prints the file size and fails above 3.5 MB. A 3.5 MB round has opened in the Capy Drive viewer and a 12.6 MB round did not. The viewer's exact limit is unknown. Over budget, drop duplicate comparisons from one cluster or move some to a later round, then rebuild.
+
+Give the reviewer the round's path and tell them to copy their decisions before closing it, because the page keeps no state across reloads.
 
 Each comparison offers a **Looks good to me** checkbox and a **Comments to address** box. **Copy all decisions** writes a text block, and falls back to a selected text box when the viewer blocks the clipboard.
 

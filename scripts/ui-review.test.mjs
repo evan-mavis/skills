@@ -3,10 +3,13 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, rm, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { randomBytes } from 'node:crypto';
 import { validateReview, imageDimensions } from '../estack-capy/skills/ui-review/scripts/validate-review.mjs';
 import { diffImages, decodePng } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
 import { formatDecisions, parseDecisions, toFixList, renderFixList } from '../estack-capy/skills/ui-review/scripts/decisions.mjs';
-import { buildRound } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
+import { buildRound, ROUND_BUDGET_BYTES } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
 import { encodePng, sha256, screen, capture } from '../estack-capy/skills/ui-review/scripts/test/fixtures.mjs';
 
 const WIDTH = 32;
@@ -250,4 +253,52 @@ test('an end-to-end round parses back into the next fix list', () => withReview(
   assert.match(html, /fixed/);
   assert.match(html, /open/);
   assert.match(html, /Move it under the total/);
+}));
+
+const buildCli = join(import.meta.dirname, '../estack-capy/skills/ui-review/scripts/build-round.mjs');
+
+async function withCaptures(width, height, pixel, capture, check) {
+  await withReview(() => {}, async (run, directory, data) => {
+    const before = encodePng(width, height, pixel(1));
+    const after = encodePng(width, height, pixel(2));
+    await writeFile(join(directory, 'captures/before.png'), before);
+    await writeFile(join(directory, 'captures/after.png'), after);
+    const c = data.rounds[0].comparisons[0];
+    for (const [side, bytes] of [[c.before, before], [c.after, after]]) Object.assign(side, { width, height, sha256: sha256(bytes), capture: { ...side.capture, ...capture } });
+    await writeFile(join(directory, 'review.json'), JSON.stringify(data));
+    await run();
+    await check(directory);
+  });
+}
+
+const embedded = html => [...html.matchAll(/data:image\/jpeg;base64,([A-Za-z0-9+/=]+)/g)].map(match => imageDimensions(Buffer.from(match[1], 'base64')));
+
+test('embeds 2x captures as JPEG at 75% and leaves the original PNGs alone', () => withCaptures(390, 844, seed => (x, y) => [(x * seed) & 255, (y * seed) & 255, 128],
+  { viewport: { width: 195, height: 422, deviceScaleFactor: 2 } }, async directory => {
+    const original = await readFile(join(directory, 'captures/after.png'));
+    const html = await buildRound(directory, 'round-1');
+    assert.deepEqual(embedded(html), [{ width: 293, height: 633 }, { width: 293, height: 633 }]);
+    assert.match(html, /"width":390,"height":844/);
+    assert.deepEqual(await readFile(join(directory, 'captures/after.png')), original);
+  }));
+
+test('reports the round size and fails above the budget', async () => {
+  const run = directory => promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', join(directory, 'round.html')]);
+  await withReview(() => {}, async (validate, directory) => {
+    const { stdout } = await run(directory);
+    assert.match(stdout, /MB of the 3\.5 MB budget/);
+  });
+  const noise = () => { const bytes = randomBytes(1400 * 1100 * 3); return (x, y) => bytes.subarray((y * 1400 + x) * 3, (y * 1400 + x) * 3 + 3); };
+  await withCaptures(1400, 1100, noise, {}, async directory => {
+    const failure = await run(directory).then(() => null, error => error);
+    assert.ok(failure, 'build should exit non-zero over budget');
+    assert.match(failure.stderr, /Over budget: .* is \d+\.\d MB, above the 3\.5 MB budget/);
+    assert.ok((await readFile(join(directory, 'round.html'))).length > ROUND_BUDGET_BYTES);
+  });
+});
+
+test('keeps the sidebar beside the comparisons down to 600px', () => withReview(() => {}, async (run, directory) => {
+  const html = await buildRound(directory, 'round-1');
+  assert.match(html, /@media \(max-width: 600px\) \{ body \{ grid-template-columns: 1fr; \}/);
+  assert.doesNotMatch(html, /max-width: 880px/);
 }));

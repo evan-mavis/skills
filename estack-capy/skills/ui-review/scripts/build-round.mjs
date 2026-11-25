@@ -3,16 +3,48 @@ import { resolve, dirname, extname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateReview } from './validate-review.mjs';
 import { formatDecisions } from './decisions.mjs';
+import { decodePng } from './diff-captures.mjs';
+import encodeJpeg from './vendor/jpeg-js-encoder.mjs';
 
 const template = resolve(dirname(fileURLToPath(import.meta.url)), '../assets/round.html');
 const OPEN = new Set(['unresolved', 'reopened']);
+export const JPEG_QUALITY = 62;
+export const HIGH_DENSITY_SCALE = 0.75;
+export const ROUND_BUDGET_BYTES = 3_500_000;
+
+function scale(image, factor) {
+  const width = Math.round(image.width * factor), height = Math.round(image.height * factor);
+  const pixels = Buffer.alloc(width * height * 4);
+  for (let y = 0; y < height; y++) {
+    const sy = Math.min(image.height - 1, Math.max(0, (y + 0.5) / factor - 0.5)), y0 = Math.floor(sy), y1 = Math.min(image.height - 1, y0 + 1), fy = sy - y0;
+    for (let x = 0; x < width; x++) {
+      const sx = Math.min(image.width - 1, Math.max(0, (x + 0.5) / factor - 0.5)), x0 = Math.floor(sx), x1 = Math.min(image.width - 1, x0 + 1), fx = sx - x0;
+      for (let c = 0; c < 4; c++) {
+        const at = (px, py) => image.pixels[(py * image.width + px) * 4 + c];
+        const top = at(x0, y0) * (1 - fx) + at(x1, y0) * fx, bottom = at(x0, y1) * (1 - fx) + at(x1, y1) * fx;
+        pixels[(y * width + x) * 4 + c] = Math.round(top * (1 - fy) + bottom * fy);
+      }
+    }
+  }
+  return { width, height, pixels };
+}
+
+function embed(bytes, side) {
+  if (extname(side.src).toLowerCase() !== '.png') return 'data:image/jpeg;base64,' + bytes.toString('base64');
+  const dense = side.capture.viewport.deviceScaleFactor >= 2;
+  let image = decodePng(bytes);
+  if (dense) image = scale(image, HIGH_DENSITY_SCALE);
+  const jpeg = encodeJpeg({ width: image.width, height: image.height, data: image.pixels }, JPEG_QUALITY).data;
+  if (!dense && jpeg.length >= bytes.length) return 'data:image/png;base64,' + bytes.toString('base64');
+  return 'data:image/jpeg;base64,' + Buffer.from(jpeg).toString('base64');
+}
 
 export async function buildRound(directory, roundId, { final = false } = {}) {
   await validateReview(directory);
   const root = resolve(directory);
   const review = JSON.parse(await readFile(resolve(root, 'review.json'), 'utf8'));
   const inline = async side => side && {
-    src: 'data:image/' + (extname(side.src).toLowerCase() === '.png' ? 'png' : 'jpeg') + ';base64,' + (await readFile(resolve(root, side.src))).toString('base64'),
+    src: embed(await readFile(resolve(root, side.src)), side),
     width: side.width, height: side.height, regions: side.regions,
   };
   const roundIndex = final ? review.rounds.length - 1 : review.rounds.findIndex(round => round.id === roundId);
@@ -59,7 +91,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const [roundId, output] = final ? [undefined, rest[0]] : rest;
   try {
     if (!directory || !output) throw new Error('Usage: build-round.mjs <review-directory> <round-id> <output.html> | build-round.mjs <review-directory> --final <output.html>');
-    await writeFile(output, await buildRound(directory, roundId, { final }));
-    console.log('Wrote ' + output);
+    const html = await buildRound(directory, roundId, { final });
+    await writeFile(output, html);
+    const megabytes = bytes => (bytes / 1e6).toFixed(1) + ' MB';
+    const size = Buffer.byteLength(html);
+    if (size <= ROUND_BUDGET_BYTES) console.log('Wrote ' + output + ': ' + megabytes(size) + ' of the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget');
+    else {
+      console.error('Over budget: ' + output + ' is ' + megabytes(size) + ', above the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget. It may not open in the Capy Drive viewer. Drop duplicate comparisons or move some to a later round, then rebuild.');
+      process.exitCode = 1;
+    }
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }

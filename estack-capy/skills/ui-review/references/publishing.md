@@ -17,4 +17,4 @@ GitHub cannot render the HTML file inside a PR body. Do not upload video as part
 
 A Drive link is allowed, not required. Write the final HTML to the project's Drive at `design-reviews/<owner/repo>/<feature>/final.html` and use `tools.drive.share`. State the returned visibility. A private link is not accessible to the team until its owner changes the file's visibility on the Drive page. Confirm access before calling it a team attachment.
 
-Share links follow the latest version, so retain the reviewed head reference in the PR. The self-contained HTML holds its images inline and opens without a server or external assets. Keep it within the Drive size limit.
+Share links follow the latest version, so retain the reviewed head reference in the PR. The self-contained HTML holds its images inline and opens without a server or external assets. Keep it within the 3.5 MB budget that `build-round.mjs` enforces.
