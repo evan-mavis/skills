@@ -86,7 +86,12 @@ export async function validateReview(directory) {
       require(issueIds.has(comparison.issueId) && string(comparison.title) && string(comparison.variant) && string(comparison.explanation), 'Incomplete comparison');
       if (!comparison.archived && (!comparison.before || !comparison.after)) { require(string(comparison.gap), 'Missing captures need a visible gap'); missingCaptures++; }
       for (const side of ['before', 'after']) if (comparison[side]) await image(comparison[side], side);
+      require(comparison.unchanged === undefined || string(comparison.unchanged), `Invalid unchanged note: ${comparison.id}`);
       if (comparison.before && comparison.after) {
+        const highlighted = comparison.before.regions.length > 0 || comparison.after.regions.length > 0;
+        if (!comparison.archived) require(highlighted !== (comparison.unchanged !== undefined), highlighted
+          ? `A comparison with highlight regions cannot also say nothing changed: ${comparison.id}`
+          : `No highlight regions on ${comparison.id}. Run diff-captures.mjs --review, or set unchanged to say why nothing visible changed`);
         const b = comparison.before.capture, a = comparison.after.capture;
         require(b.commit !== a.commit || b.dirtyPatchSha256 !== a.dirtyPatchSha256, 'Before and After claim the same build');
         for (const key of ['kind', 'route', 'role', 'state', 'dataKey', 'viewport', 'scroll']) require(JSON.stringify(b[key]) === JSON.stringify(a[key]), `Pair mismatch: ${key}`);

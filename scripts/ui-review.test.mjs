@@ -8,9 +8,10 @@ import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { validateReview, imageDimensions } from '../estack-capy/skills/ui-review/scripts/validate-review.mjs';
-import { diffImages, decodePng } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
+import { diffImages, decodePng, decodeImage, compareCaptures, highlightRegions, highlightReview } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
+import encodeJpeg from '../estack-capy/skills/ui-review/scripts/vendor/jpeg-js-encoder.mjs';
 import { formatDecisions, parseDecisions, toFixList, renderFixList } from '../estack-capy/skills/ui-review/scripts/decisions.mjs';
-import { buildRound, ROUND_BUDGET_BYTES, heading, device } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
+import { buildRound, ROUND_BUDGET_BYTES, heading, device, highlightCount } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
 import { encodePng, sha256, screen, capture } from '../estack-capy/skills/ui-review/scripts/test/fixtures.mjs';
 
 const WIDTH = 32;
@@ -129,6 +130,76 @@ test('accepts a revision only in a later round', () => withReview((c, d) => {
   assert.match(html, /Earlier comments/);
   assert.match(html, /Move it under the total/);
   assert.match(html, /data:image\/png;base64,/);
+}));
+
+const noRegions = c => { c.before.regions = []; c.after.regions = []; };
+
+for (const [name, change, message] of [
+  ['a pair with no highlight regions and no unchanged note', noRegions, /No highlight regions on reminder\. Run diff-captures\.mjs --review/],
+  ['an unchanged note beside highlight regions', c => { c.unchanged = 'Nothing moved'; }, /cannot also say nothing changed: reminder/],
+  ['an empty unchanged note', c => { noRegions(c); c.unchanged = ' '; }, /Invalid unchanged note: reminder/],
+]) test('rejects ' + name, () => withReview(change, run => assert.rejects(run, message)));
+
+test('accepts a pair without regions when its unchanged note says why', () => withReview(c => { noRegions(c); c.unchanged = 'The reminder copy is identical on both sides.'; }, async (run, directory) => {
+  assert.equal((await run()).comparisons, 1);
+  assert.deepEqual(highlightCount(await buildRound(directory, 'round-1', { inline: true })), { highlighted: 0, total: 1 });
+}));
+
+const jpegOf = png => { const { width, height, pixels } = decodePng(png); return Buffer.from(encodeJpeg({ width, height, data: pixels }, 95).data); };
+
+test('decodes JPEG captures and diffs them like PNG', async () => {
+  const before = decodeImage(jpegOf(basePng)), after = decodeImage(jpegOf(headPng));
+  assert.deepEqual([before.width, before.height, before.pixels.length], [WIDTH, HEIGHT, WIDTH * HEIGHT * 4]);
+  const { regions } = diffImages(before, after, { cell: 4, threshold: 24, gap: 1 });
+  assert.equal(regions.length, 1);
+  assert.ok(regions[0].x <= 8 && regions[0].y <= 4 && regions[0].x + regions[0].width >= 16 && regions[0].y + regions[0].height >= 12);
+  assert.throws(() => decodeImage(Buffer.from('GIF89a')), /PNG or JPEG/);
+  const directory = await mkdtemp(join(tmpdir(), 'ui-review-jpeg-'));
+  try {
+    for (const [side, png] of [['base', basePng], ['head', headPng]]) {
+      await mkdir(join(directory, side));
+      await writeFile(join(directory, side, 'checkout.jpg'), jpegOf(png));
+    }
+    const result = await compareCaptures(join(directory, 'base'), join(directory, 'head'));
+    assert.deepEqual(result.summary, { changed: 1, unchanged: 0, added: 0, removed: 0 });
+    assert.equal(result.captures[0].regions[0].id, 'checkout#1');
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('highlight regions drop noise, merge to eight boxes, drop full-screen boxes, and number the rest', () => {
+  const box = (x, y, changedPixels = 100, size = 10) => ({ x, y, width: size, height: size, changedPixels });
+  const many = Array.from({ length: 12 }, (_, index) => box((index % 4) * 200, Math.floor(index / 4) * 200));
+  const merged = highlightRegions({ width: 1000, height: 1000, regions: [...many, box(900, 900, 39)] });
+  assert.equal(merged.length, 8);
+  assert.ok(merged.every(region => region.x < 900), 'a region under 40 changed pixels is dropped');
+  assert.equal(merged.reduce((sum, region) => sum + region.changedPixels, 0), 1200);
+  assert.deepEqual(merged.map(region => region.label), Array.from({ length: 8 }, (_, index) => 'Changed area ' + (index + 1)));
+  assert.deepEqual(highlightRegions({ width: 100, height: 100, regions: [box(0, 0, 5000, 96), box(0, 0, 40)] }).map(region => [region.x, region.width, region.label]), [[0, 10, 'Changed area 1']]);
+});
+
+test('diff-captures --review writes regions into every pair without them', () => withReview((c, d) => {
+  noRegions(c);
+  d.rounds[0].comparisons.push(comparison('same', { after: { ...image(basePng, 'b'), src: 'captures/before.png', regions: [] }, before: { ...image(basePng, 'a'), regions: [] } }));
+}, async (run, directory) => {
+  await assert.rejects(run, /No highlight regions on reminder/);
+  const result = await highlightReview(directory);
+  assert.deepEqual(result, { highlighted: ['reminder'], unchanged: ['same'], kept: [] });
+  const data = JSON.parse(await readFile(join(directory, 'review.json'), 'utf8'));
+  const written = data.rounds[0].comparisons;
+  for (const side of ['before', 'after']) {
+    const [region] = written[0][side].regions;
+    assert.equal(written[0][side].regions.length, 1);
+    assert.equal(region.label, 'Changed area 1');
+    assert.ok(region.x <= 8 && region.y <= 4 && region.x + region.width >= 16 && region.y + region.height >= 12);
+  }
+  assert.deepEqual(written[1].after.regions, []);
+  await assert.rejects(run, /No highlight regions on same/);
+  written[1].unchanged = 'Both sides render the same reminder.';
+  await writeFile(join(directory, 'review.json'), JSON.stringify(data));
+  assert.equal((await run()).comparisons, 2);
+  assert.deepEqual((await highlightReview(directory)).kept, ['reminder']);
 }));
 
 test('rejects unrecognized image bytes', () => assert.throws(() => imageDimensions(Buffer.from('not an image')), /PNG or JPEG/));
@@ -354,6 +425,18 @@ test('the CLI builds linked by default without the inline budget', async () => {
     for (const src of linkedSources(html)) assert.ok((await readFile(join(directory, 'rounds/round-1', src))).length > 0);
   });
 });
+
+test('the build CLI prints how many comparisons carry highlights', () => withReview(() => {}, async (run, directory) => {
+  const output = join(directory, 'rounds/round-1/round-1.html');
+  const { stdout } = await promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', output]);
+  assert.match(stdout, /Highlights: 1 of 1 comparisons\./);
+}));
+
+test('the build CLI flags a round where no comparison carries a highlight', () => withReview(c => { noRegions(c); c.unchanged = 'Nothing visible changed.'; }, async (run, directory) => {
+  const output = join(directory, 'rounds/round-1/round-1.html');
+  const { stderr } = await promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', output]);
+  assert.match(stderr, /Highlights: 0 of 1 comparisons\. None of them marks a change\. Run diff-captures\.mjs --review/);
+}));
 
 test('keeps the sidebar beside the comparisons down to 600px', () => withReview(() => {}, async (run, directory) => {
   const html = await buildRound(directory, 'round-1', { inline: true });

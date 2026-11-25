@@ -42,8 +42,16 @@ Do not take the list of changes from the diff. Compute them.
    node <skill>/scripts/diff-captures.mjs captures/base captures/head --cell 8 --threshold 24 --gap 2
    ```
 
-   The script decodes both sides, compares every pixel, merges nearby changed cells into regions in original pixels, and reports changed, unchanged, added, and removed captures. It also groups regions whose before and after crops are identical under one cluster, which is the same fix appearing in several places.
-6. Drop unchanged captures that no inventory item points at. An item whose capture did not change keeps its comparison, with an explanation saying nothing visible changed, so the reviewer can confirm it. Match each changed region against the route map and the diff to name the visible change in one sentence. Tier each kept comparison:
+   The script decodes both sides as PNG or JPEG, compares every pixel, merges nearby changed cells into regions in original pixels, and reports changed, unchanged, added, and removed captures. It also groups regions whose before and after crops are identical under one cluster, which is the same fix appearing in several places.
+
+   Once `review.json` lists the comparisons, write their highlights:
+
+   ```bash
+   node <skill>/scripts/diff-captures.mjs --review <review-directory>
+   ```
+
+   It diffs every live pair that has no regions yet and writes the boxes to both sides. It drops regions under 40 changed pixels, merges the rest down to at most 8 boxes, drops any box over 90% of the screen, and labels each `Changed area N`. Rename the labels to say what changed. `--replace` redoes pairs that already have regions. It lists the pairs that show no visible change.
+6. Drop unchanged captures that no inventory item points at. An item whose capture did not change keeps its comparison, with an `unchanged` note saying why nothing visible changed, so the reviewer can confirm it. The validator rejects a live pair with no regions and no `unchanged` note. Match each changed region against the route map and the diff to name the visible change in one sentence. Tier each kept comparison:
    - **judgment**: layout, hierarchy, wording, density, or a new affordance, where reasonable people disagree.
    - **mechanical**: spacing, alignment, a missing state, a copy typo, an unchanged component now in a new place.
 
@@ -59,7 +67,7 @@ node <skill>/scripts/validate-review.mjs <review-directory>
 node <skill>/scripts/build-round.mjs <review-directory> round-1 <review-directory>/rounds/round-1/round-1.html
 ```
 
-The build writes a linked round: the HTML, and each comparison's Before and After image in `images/<round-id>/<comparison-id>-before.jpg` and `-after.jpg` beside it. Each image's `src` is that relative path. Each PNG becomes a JPEG copy at quality 62, and captures at device scale 2 or higher are scaled to 75%. A 1x PNG that is already smaller than its JPEG stays PNG. The PNGs in `captures/`, their hashes, and the diff stay at full size. One round holds every comparison of the cycle, with no size budget.
+The build writes a linked round: the HTML, and each comparison's Before and After image in `images/<round-id>/<comparison-id>-before.jpg` and `-after.jpg` beside it. Each image's `src` is that relative path. Each PNG becomes a JPEG copy at quality 62, and captures at device scale 2 or higher are scaled to 75%. A 1x PNG that is already smaller than its JPEG stays PNG. The PNGs in `captures/`, their hashes, and the diff stay at full size. One round holds every comparison of the cycle, with no size budget. The build prints how many comparisons carry highlights, out of the total. Treat a zero as a missed `--review` run.
 
 Add `--inline` only where a single file is required, such as the optional Drive copy in [publishing](references/publishing.md). It embeds every image as a data URL instead, and fails above 3.5 MB, the largest round known to open in the Capy Drive viewer.
 

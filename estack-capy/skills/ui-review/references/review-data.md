@@ -83,6 +83,7 @@
 - `tier` is `judgment` or `mechanical`. It is required on a live comparison and drives the agent's ordering and triage. The round does not show it.
 - `explanation` says what changed and why the scenario matters, in plain sentences. `lookAt` points at the precise area when an overlay would be noise. Use one or the other, briefly.
 - `before` and `after` are capture records from [capture metadata](capture-metadata.md). A side may be `null` with an `gap` sentence, and an unarchived comparison needs an After capture.
+- `unchanged` is a sentence saying why a pair shows no visible change. Set it only on a pair whose `before` and `after` both have empty `regions`; the validator rejects a live pair with neither regions nor this note, and a pair with both.
 - `copyDiff` carries `equal`, `remove`, and `add` segments in original order and whitespace. Use it only when the change is text.
 - `video` is a packaged relative path, kept only for a recording that already belongs to this review. A round normally holds still pictures.
 - `revises` names an earlier comparison in an earlier round. A revision appears only in a later round, and it must keep the same matched baseline and current pair.
@@ -98,7 +99,8 @@ The validator is the guard against a review that looks right and misleads.
 - Every image has a capture record with a full commit, a capture kind, build evidence, a valid timestamp, a tool, a route, a role, a state, a data key, a viewport, and a scroll position.
 - Before has no dirty patch, and a pair never claims the same build twice.
 - A pair matches on kind, route, role, state, data key, viewport, and scroll.
-- Every highlight rectangle fits inside its image and covers less than the whole screen.
+- Every highlight rectangle fits inside its image and covers less than 90% of it.
+- Every live pair has highlight regions on at least one side, or an `unchanged` note, but not both.
 - `pr` and `feature`, when present, are a positive integer and a non-empty string.
 - Comparison ids are unique, every `issueId` exists, every live comparison has an After capture and a tier, and every `revises` target exists in an earlier round.
 - Feedback is complete and targets a known comparison.

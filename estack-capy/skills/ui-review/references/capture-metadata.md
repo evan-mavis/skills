@@ -14,7 +14,7 @@ Use authenticated full-app captures first. When one is blocked, state the exact 
 
 ## Capture record
 
-For each image, store a record in this shape. The diff script produces `regions`; you supply the rest.
+For each image, store a record in this shape. `diff-captures.mjs --review` writes `regions`; you supply the rest.
 
 ```json
 {

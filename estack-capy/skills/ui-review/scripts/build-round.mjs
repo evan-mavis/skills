@@ -102,6 +102,11 @@ export async function buildRound(directory, roundId, { final = false, inline = f
   return html;
 }
 
+export function highlightCount(html) {
+  const { items } = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
+  return { highlighted: items.filter(item => item.before?.regions.length || item.after?.regions.length).length, total: items.length };
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2);
   const final = args.includes('--final'), inline = args.includes('--inline');
@@ -114,6 +119,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     await writeFile(output, html);
     const megabytes = bytes => (bytes / 1e6).toFixed(1) + ' MB';
     const size = Buffer.byteLength(html);
+    const { highlighted, total } = highlightCount(html);
+    (highlighted ? console.log : console.error)('Highlights: ' + highlighted + ' of ' + total + ' comparisons' + (highlighted ? '.' : '. None of them marks a change. Run diff-captures.mjs --review before you deliver this round.'));
     if (!inline) console.log('Wrote ' + output + ' with its images in ' + join(dirname(output), 'images') + '. Deliver the whole folder.');
     else if (size <= ROUND_BUDGET_BYTES) console.log('Wrote ' + output + ': ' + megabytes(size) + ' of the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget');
     else {

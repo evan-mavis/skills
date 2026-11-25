@@ -1,8 +1,9 @@
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { inflateSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import decodeJpegBytes from './vendor/jpeg-js-decoder.mjs';
 
 export function decodePng(bytes) {
   const signature = [137, 80, 78, 71, 13, 10, 26, 10];
@@ -52,6 +53,15 @@ export function decodePng(bytes) {
   return { width, height, pixels };
 }
 
+export function decodeImage(bytes) {
+  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    const { width, height, data } = decodeJpegBytes(bytes, { useTArray: true, formatAsRGBA: true });
+    return { width, height, pixels: Buffer.from(data.buffer, data.byteOffset, data.byteLength) };
+  }
+  if (bytes[0] === 137 && bytes[1] === 80) return decodePng(bytes);
+  throw new Error('Expected a PNG or JPEG capture');
+}
+
 const pixel = (image, x, y) => x < image.width && y < image.height ? image.pixels.subarray((y * image.width + x) * 4, (y * image.width + x) * 4 + 4) : null;
 
 export function diffImages(before, after, { cell = 8, threshold = 24, gap = 2 } = {}) {
@@ -84,6 +94,27 @@ export function diffImages(before, after, { cell = 8, threshold = 24, gap = 2 } 
   return { width, height, sizeChanged: before.width !== after.width || before.height !== after.height, regions: regions.sort((a, b) => a.y - b.y || a.x - b.x) };
 }
 
+export function highlightRegions({ width, height, regions }, { minPixels = 40, maxBoxes = 8, maxShare = 0.9 } = {}) {
+  const boxes = regions.filter(region => region.changedPixels >= minPixels).map(({ x, y, width, height, changedPixels }) => ({ x, y, width, height, changedPixels }));
+  const union = (a, b) => {
+    const x = Math.min(a.x, b.x), y = Math.min(a.y, b.y);
+    return { x, y, width: Math.max(a.x + a.width, b.x + b.width) - x, height: Math.max(a.y + a.height, b.y + b.height) - y, changedPixels: a.changedPixels + b.changedPixels };
+  };
+  while (boxes.length > maxBoxes) {
+    let best;
+    for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+      const merged = union(boxes[i], boxes[j]);
+      if (!best || merged.width * merged.height < best.merged.width * best.merged.height) best = { i, j, merged };
+    }
+    boxes.splice(best.j, 1);
+    boxes.splice(best.i, 1, best.merged);
+  }
+  return boxes
+    .filter(box => box.width * box.height < width * height * maxShare)
+    .sort((a, b) => a.y - b.y || a.x - b.x)
+    .map((box, index) => ({ ...box, label: 'Changed area ' + (index + 1) }));
+}
+
 function cropHash(image, region) {
   const hash = createHash('sha256').update(region.width + 'x' + region.height);
   for (let y = region.y; y < region.y + region.height; y++) for (let x = region.x; x < region.x + region.width; x++) hash.update(pixel(image, x, y) || Buffer.alloc(4));
@@ -91,15 +122,15 @@ function cropHash(image, region) {
 }
 
 export async function compareCaptures(baseDirectory, headDirectory, options) {
-  const list = async directory => (await readdir(directory)).filter(name => name.toLowerCase().endsWith('.png')).sort();
+  const list = async directory => (await readdir(directory)).filter(name => /\.(png|jpe?g)$/i.test(name)).sort();
   const [baseNames, headNames] = await Promise.all([list(baseDirectory), list(headDirectory)]);
   const captures = [], groups = new Map();
   for (const name of [...new Set([...baseNames, ...headNames])].sort()) {
     if (!headNames.includes(name)) { captures.push({ name, status: 'removed', regions: [] }); continue; }
     if (!baseNames.includes(name)) { captures.push({ name, status: 'added', regions: [] }); continue; }
-    const [before, after] = await Promise.all([readFile(join(baseDirectory, name)).then(decodePng), readFile(join(headDirectory, name)).then(decodePng)]);
+    const [before, after] = await Promise.all([readFile(join(baseDirectory, name)).then(decodeImage), readFile(join(headDirectory, name)).then(decodeImage)]);
     const result = diffImages(before, after, options);
-    const regions = result.regions.map((region, index) => ({ id: name.replace(/\.png$/i, '') + '#' + (index + 1), ...region, signature: cropHash(before, region) + ':' + cropHash(after, region) }));
+    const regions = result.regions.map((region, index) => ({ id: name.replace(/\.(png|jpe?g)$/i, '') + '#' + (index + 1), ...region, signature: cropHash(before, region) + ':' + cropHash(after, region) }));
     for (const region of regions) groups.set(region.signature, [...(groups.get(region.signature) || []), { capture: name, region: region.id }]);
     captures.push({ name, status: regions.length ? 'changed' : 'unchanged', sizeChanged: result.sizeChanged, width: after.width, height: after.height, regions });
   }
@@ -111,12 +142,39 @@ export async function compareCaptures(baseDirectory, headDirectory, options) {
   };
 }
 
+export async function highlightReview(directory, { replace = false, ...options } = {}) {
+  const path = join(directory, 'review.json');
+  const review = JSON.parse(await readFile(path, 'utf8'));
+  const result = { highlighted: [], unchanged: [], kept: [] };
+  for (const round of review.rounds) for (const comparison of round.comparisons) {
+    const { before, after } = comparison;
+    if (comparison.archived || !before || !after) continue;
+    if (!replace && (before.regions?.length || after.regions?.length)) { result.kept.push(comparison.id); continue; }
+    const [a, b] = await Promise.all([before, after].map(side => readFile(resolve(directory, side.src)).then(decodeImage)));
+    const boxes = highlightRegions(diffImages(a, b, options));
+    for (const side of [before, after]) side.regions = boxes
+      .map(({ x, y, width, height, label }) => ({ x, y, width: Math.min(x + width, side.width) - x, height: Math.min(y + height, side.height) - y, label }))
+      .filter(box => box.width > 0 && box.height > 0);
+    result[boxes.length ? 'highlighted' : 'unchanged'].push(comparison.id);
+  }
+  await writeFile(path, JSON.stringify(review, null, 2) + '\n');
+  return result;
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  const [base, head, ...flags] = process.argv.slice(2);
-  const option = name => { const index = flags.indexOf('--' + name); return index >= 0 ? Number(flags[index + 1]) : undefined; };
+  const args = process.argv.slice(2);
+  const option = name => { const index = args.indexOf('--' + name); return index >= 0 ? Number(args[index + 1]) : undefined; };
   try {
-    if (!base || !head) throw new Error('Usage: diff-captures.mjs <base-directory> <head-directory> [--cell 8] [--threshold 24] [--gap 2]');
     const options = Object.fromEntries(['cell', 'threshold', 'gap'].map(name => [name, option(name)]).filter(([, value]) => value !== undefined));
-    console.log(JSON.stringify(await compareCaptures(base, head, options), null, 2));
+    if (args[0] === '--review') {
+      if (!args[1]) throw new Error('Usage: diff-captures.mjs --review <review-directory> [--replace] [--cell 8] [--threshold 24] [--gap 2]');
+      const { highlighted, unchanged, kept } = await highlightReview(args[1], { replace: args.includes('--replace'), ...options });
+      console.log('Wrote regions for ' + highlighted.length + ' comparisons. Kept existing regions on ' + kept.length + '.');
+      if (unchanged.length) console.log('No visible change in ' + unchanged.length + ': ' + unchanged.join(', ') + '. Confirm each and set its unchanged note, or recapture.');
+    } else {
+      const [base, head] = args;
+      if (!base || !head || base.startsWith('--') || head.startsWith('--')) throw new Error('Usage: diff-captures.mjs <base-directory> <head-directory> [--cell 8] [--threshold 24] [--gap 2] | diff-captures.mjs --review <review-directory> [--replace]');
+      console.log(JSON.stringify(await compareCaptures(base, head, options), null, 2));
+    }
   } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
