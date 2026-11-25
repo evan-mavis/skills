@@ -29,7 +29,7 @@ Do not take the list of changes from the diff. Compute them.
    - **judgment**: layout, hierarchy, wording, density, or a new affordance, where reasonable people disagree.
    - **mechanical**: spacing, alignment, a missing state, a copy typo, an unchanged component now in a new place.
 
-   State the tier. It tells the reviewer where their opinion is the whole point.
+   Record the tier in `review.json`. The round does not show it; it drives ordering and your own triage.
 
 ## Build the round
 
@@ -44,11 +44,17 @@ The build inlines every screenshot as a data URL and every style, so the file wo
 
 The build prints the file size and fails above 3.5 MB. A 3.5 MB round has opened in the Capy Drive viewer and a 12.6 MB round did not. The viewer's exact limit is unknown. Over budget, drop duplicate comparisons from one cluster or move some to a later round, then rebuild.
 
-Give the reviewer the round's path and tell them to copy their decisions before closing it, because the page keeps no state across reloads.
+Give the reviewer the round's path, and say in your own message that they must copy their decisions before closing the file. The page no longer says it, and it keeps no state across reloads.
 
-Each comparison offers a **Looks good to me** checkbox and a **Comments to address** box. **Copy all decisions** writes a text block, and falls back to a selected text box when the viewer blocks the clipboard.
+`assets/round.html` is the default template. Its colours are CSS custom properties at the top of the file, so a project can re-theme it. The round shows:
 
-Open the built file in a browser before handing it over. Check that it renders, that both images load, that the overlay toggle works, and that the export panel appears with its text when the clipboard is blocked.
+- A sidebar titled `PR #<pr>: <feature>` when `review.json` sets them, with one row per comparison: a device icon and the truncated title, and a tooltip with the full title and device on hover. Drag its right edge to resize it from 180 to 560px; double-click resets it to 268px. The page remembers the width when the viewer allows storage. Below 600px the sidebar stacks above the comparison.
+- A **Looks good** box at the top right of each comparison. Checking it, or pressing **A** outside a text field, approves the comparison and moves to the next one after 140 ms. Unchecking does not move. **←** and **→** step between comparisons.
+- A **Comments to address** box.
+- Clicking a screenshot opens it full screen. **←** and **→** switch between Before and After, and Esc or any click closes it.
+- A footer with **Highlight changes**, **Previous**, **Next**, and **Copy all decisions**. Copying falls back to a selected text box when the viewer blocks the clipboard.
+
+Open the built file in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, and that the export panel appears with its text when the clipboard is blocked.
 
 ## Later rounds
 

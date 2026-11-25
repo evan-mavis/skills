@@ -7,6 +7,8 @@
 ```json
 {
   "title": "Request reminders",
+  "pr": 1812,
+  "feature": "Request reminders",
   "summary": "One sentence on what this review covers.",
   "issues": [{ "id": "checkout", "title": "Checkout", "kind": "feature" }],
   "rounds": [
@@ -21,6 +23,7 @@
 ```
 
 - `title` is the review's name. The pasted decisions carry it, and the parser rejects a paste that names another review.
+- `pr` (a positive integer) and `feature` (a non-empty string) are optional. The sidebar shows `PR #<pr>: <feature>`, falling back to `title` for a missing feature. They are display text only: the pasted decisions still carry `title`.
 - `issues` are the sidebar groups, in display order. Give each a `kind` of `linear`, `feature`, or `ui`. A `linear` group requires its issue `url`; the other kinds may show a descriptive title alone. The field name comes from the earlier review format and also carries feature or UI groups.
 - `rounds` are ordered oldest first. `id` and `label` are stable, and the round `id` is what `decisions.mjs` checks the paste against.
 
@@ -52,7 +55,8 @@
 ```
 
 - `id` is permanent and unique inside the review. The page addresses each comparison by `#<round-id>/<comparison-id>`.
-- `tier` is `judgment` or `mechanical`. It is required on a live comparison and shows the reviewer where their opinion decides the outcome.
+- `variant` names the capture's device and viewport. The sidebar icon and tooltip read `tablet`, `mobile` or `phone` from it, and anything else shows as desktop.
+- `tier` is `judgment` or `mechanical`. It is required on a live comparison and drives the agent's ordering and triage. The round does not show it.
 - `explanation` says what changed and why the scenario matters, in plain sentences. `lookAt` points at the precise area when an overlay would be noise. Use one or the other, briefly.
 - `before` and `after` are capture records from [capture metadata](capture-metadata.md). A side may be `null` with an `gap` sentence, and an unarchived comparison needs an After capture.
 - `copyDiff` carries `equal`, `remove`, and `add` segments in original order and whitespace. Use it only when the change is text.
@@ -71,6 +75,7 @@ The validator is the guard against a review that looks right and misleads.
 - Before has no dirty patch, and a pair never claims the same build twice.
 - A pair matches on kind, route, role, state, data key, viewport, and scroll.
 - Every highlight rectangle fits inside its image and covers less than the whole screen.
+- `pr` and `feature`, when present, are a positive integer and a non-empty string.
 - Comparison ids are unique, every `issueId` exists, every live comparison has an After capture and a tier, and every `revises` target exists in an earlier round.
 - Feedback is complete and targets a known comparison.
 

@@ -54,6 +54,8 @@ export async function validateReview(directory) {
     }
   };
   require(string(review.title) && string(review.summary) && review.issues?.length && review.rounds?.length, 'Missing review content');
+  require(review.pr === undefined || (Number.isInteger(review.pr) && review.pr > 0), 'Invalid PR number');
+  require(review.feature === undefined || string(review.feature), 'Invalid feature name');
   const issueIds = new Set();
   for (const issue of review.issues) {
     require(string(issue.id) && !issueIds.has(issue.id) && string(issue.title), 'Invalid group');

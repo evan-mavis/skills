@@ -29,6 +29,18 @@ function scale(image, factor) {
   return { width, height, pixels };
 }
 
+export function device(variant) {
+  const value = String(variant).toLowerCase();
+  if (value.includes('tablet')) return 'tablet';
+  if (value.includes('mobile') || value.includes('phone')) return 'mobile';
+  return 'desktop';
+}
+
+export function heading(review) {
+  if (review.pr === undefined) return review.feature || review.title;
+  return 'PR #' + review.pr + ': ' + (review.feature || review.title);
+}
+
 function embed(bytes, side) {
   if (extname(side.src).toLowerCase() !== '.png') return 'data:image/jpeg;base64,' + bytes.toString('base64');
   const dense = side.capture.viewport.deviceScaleFactor >= 2;
@@ -61,7 +73,7 @@ export async function buildRound(directory, roundId, { final = false } = {}) {
   const chainHead = id => { let origin = id; while (location.get(origin).comparison.revises) origin = location.get(origin).comparison.revises; return latest.get(origin); };
   const item = async (entry, comparison) => ({
     id: entry.id + '/' + comparison.id, round: entry.label, issueId: comparison.issueId, title: comparison.title,
-    explanation: comparison.explanation, lookAt: comparison.lookAt || '', tier: comparison.tier, variant: comparison.variant,
+    explanation: comparison.explanation, lookAt: comparison.lookAt || '', tier: comparison.tier, variant: comparison.variant, device: device(comparison.variant),
     gap: comparison.gap || '', copyDiff: comparison.copyDiff || [],
     approved: comparison.feedback.some(note => note.disposition === 'approved'),
     before: await inline(comparison.before), after: await inline(comparison.after),
@@ -76,7 +88,7 @@ export async function buildRound(directory, roundId, { final = false } = {}) {
   const items = final
     ? await Promise.all([...latest.values()].filter(({ comparison }) => !comparison.archived).map(({ round: entry, comparison }) => item(entry, comparison)))
     : await Promise.all(round.comparisons.filter(comparison => !comparison.archived).map(comparison => item(round, comparison)));
-  const data = { mode: final ? 'final' : 'round', title: review.title, summary: review.summary, groups: review.issues,
+  const data = { mode: final ? 'final' : 'round', title: review.title, heading: heading(review), summary: review.summary, groups: review.issues,
     round: { id: round.id, label: final ? 'Final design' : round.label, summary: final ? review.summary : round.summary }, items, earlier };
   const html = (await readFile(template, 'utf8'))
     .replace('__UI_REVIEW_FORMAT__', () => formatDecisions.toString())

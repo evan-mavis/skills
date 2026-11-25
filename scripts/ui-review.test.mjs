@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import { mkdtemp, writeFile, rm, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { execFile } from 'node:child_process';
+import { execFile, spawnSync } from 'node:child_process';
 import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 import { validateReview, imageDimensions } from '../estack-capy/skills/ui-review/scripts/validate-review.mjs';
 import { diffImages, decodePng } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
 import { formatDecisions, parseDecisions, toFixList, renderFixList } from '../estack-capy/skills/ui-review/scripts/decisions.mjs';
-import { buildRound, ROUND_BUDGET_BYTES } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
+import { buildRound, ROUND_BUDGET_BYTES, heading, device } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
 import { encodePng, sha256, screen, capture } from '../estack-capy/skills/ui-review/scripts/test/fixtures.mjs';
 
 const WIDTH = 32;
@@ -301,4 +302,128 @@ test('keeps the sidebar beside the comparisons down to 600px', () => withReview(
   const html = await buildRound(directory, 'round-1');
   assert.match(html, /@media \(max-width: 600px\) \{ body \{ grid-template-columns: 1fr; \}/);
   assert.doesNotMatch(html, /max-width: 880px/);
+}));
+
+const chrome = [process.env.CHROME_PATH, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', 'google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser']
+  .find(candidate => candidate && spawnSync(candidate, ['--version']).status === 0);
+
+const designReview = (c, d) => {
+  d.pr = 12;
+  d.feature = 'Reminders';
+  d.rounds[0].comparisons.push(
+    comparison('spacing', { title: 'Card spacing on a phone', variant: 'mobile 390' }),
+    comparison('tablet', { title: 'Tablet layout', variant: 'tablet' }),
+  );
+};
+
+test('validates the optional PR number and feature name', async () => {
+  await withReview(designReview, async run => assert.equal((await run()).comparisons, 3));
+  for (const [, change, message] of [
+    ['a PR number that is not a positive integer', d => { d.pr = '12'; }, /Invalid PR number/],
+    ['an empty feature name', d => { d.feature = ' '; }, /Invalid feature name/],
+  ]) await withReview((c, d) => change(d), run => assert.rejects(run, message));
+});
+
+test('the sidebar title is display text and the export keeps the review title', () => withReview(designReview, async (run, directory) => {
+  const html = await buildRound(directory, 'round-1');
+  const data = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
+  assert.equal(data.heading, 'PR #12: Reminders');
+  assert.equal(data.title, 'Example review');
+  assert.deepEqual(data.items.map(item => item.device), ['desktop', 'mobile', 'tablet']);
+  assert.equal(heading({ title: 'Example review', pr: 7 }), 'PR #7: Example review');
+  assert.equal(heading({ title: 'Example review' }), 'Example review');
+  assert.equal(device('Phone 390'), 'mobile');
+}));
+
+test('the round drops the counter, general notes, closing note, tier badge, and row status', () => withReview(() => {}, async (run, directory) => {
+  const html = await buildRound(directory, 'round-1');
+  for (const removed of [/id="progress"/, /id="general"/, /Notes on the whole review/, /Copy your decisions before closing/, /class="tier"/, /class="dot/, /Looks good to me/, /prefers-color-scheme: dark/]) assert.doesNotMatch(html, removed);
+  assert.match(html, /<label class="looks-good"><span>Looks good<\/span><input type="checkbox" id="approve"><\/label>/);
+  assert.match(html, /--accent: #6248FF;/);
+}));
+
+test('decisions without a general line still parse into a fix list', () => {
+  const text = formatDecisions({ title: 'Example review', round: 'round-1', items: [{ id: 'round-1/reminder', title: 'Reminder', approved: true }] });
+  assert.doesNotMatch(text, /general:/);
+  const parsed = parseDecisions(text);
+  assert.equal(parsed.general, '');
+  assert.deepEqual(toFixList(parsed, review()).approved.map(item => item.id), ['round-1/reminder']);
+});
+
+const harness = String.raw`<script>
+(async () => {
+  const wait = ms => new Promise(done => setTimeout(done, ms));
+  const key = (name, options = {}) => window.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true, ...options }));
+  const state = () => ({ current, approved: [...approved] });
+  const result = { heading: el('title').textContent, rows: [...document.querySelectorAll('#nav .row')].map(row => ({ icon: !!row.querySelector('svg'), title: row.textContent, native: row.hasAttribute('title') || !!row.querySelector('[title], input') })) };
+  key('a'); result.aKey = state(); await wait(200); result.aKeyLater = state();
+  go(0); key('a'); await wait(200); result.uncheck = state();
+  key('a'); key('a'); await wait(200); result.quickUncheck = state();
+  key('a', { metaKey: true }); key('a', { ctrlKey: true }); key('a', { altKey: true }); result.modifiers = state();
+  el('comment').focus(); key('a'); result.inComment = state(); el('comment').blur();
+  el('approve').click(); result.click = { ...state(), focused: document.activeElement === el('approve') }; await wait(200); result.clickLater = state();
+  key('ArrowRight'); result.arrow = state();
+  el('approve').click(); await wait(200); result.last = state();
+  go(0);
+  document.querySelector('#pair .shot[data-side="1"]').click();
+  result.lightbox = { open: !el('lightbox').hidden, side: el('lightbox').querySelector('.shot').dataset.side, buttons: el('lightbox').querySelectorAll('button').length };
+  key('ArrowLeft'); result.lightboxLeft = { side: el('lightbox').querySelector('.shot').dataset.side, current };
+  key('ArrowRight'); result.lightboxRight = el('lightbox').querySelector('.shot').dataset.side;
+  key('Escape'); result.escape = el('lightbox').hidden;
+  document.querySelector('#pair .shot[data-side="0"]').click(); el('lightbox').click(); result.clickClose = el('lightbox').hidden;
+  const handle = el('resize'), width = () => getComputedStyle(document.querySelector('aside')).width;
+  result.sidebar = [width()];
+  handle.dispatchEvent(new PointerEvent('pointerdown', { clientX: 20, pointerId: 1, bubbles: true })); result.sidebar.push(width());
+  handle.dispatchEvent(new PointerEvent('pointermove', { clientX: 2000, pointerId: 1, bubbles: true })); result.sidebar.push(width());
+  handle.dispatchEvent(new PointerEvent('pointermove', { clientX: 320, pointerId: 1, bubbles: true })); result.sidebar.push(width());
+  handle.dispatchEvent(new PointerEvent('pointerup', { clientX: 320, pointerId: 1, bubbles: true }));
+  handle.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })); result.sidebar.push(width());
+  document.querySelectorAll('#nav .row')[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
+  result.tip = { shown: !el('tip').hidden, text: el('tip').textContent };
+  el('export').click(); await wait(300);
+  result.exported = el('export-text').value;
+  const output = document.createElement('output');
+  output.id = 'results';
+  output.textContent = JSON.stringify(result);
+  document.body.append(output);
+})();
+</script>`;
+
+test('drives the round in a browser: Looks good, the A key, the lightbox, resizing, the tooltip, and copy', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(designReview, async (run, directory) => {
+  const page = join(directory, 'round.html');
+  await writeFile(page, (await buildRound(directory, 'round-1')).replace('</body>', harness + '</body>'));
+  const profile = await mkdtemp(join(tmpdir(), 'ui-review-chrome-'));
+  try {
+    const { stdout } = await promisify(execFile)(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run', '--user-data-dir=' + profile, '--window-size=1200,900', '--virtual-time-budget=10000', '--dump-dom', pathToFileURL(page).href], { maxBuffer: 64 * 1024 * 1024 });
+    const match = /<output id="results">(.*?)<\/output>/s.exec(stdout);
+    assert.ok(match, 'the harness did not finish');
+    const result = JSON.parse(match[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
+    const [first, second, third] = ['round-1/reminder', 'round-1/spacing', 'round-1/tablet'];
+    assert.equal(result.heading, 'PR #12: Reminders');
+    assert.deepEqual(result.rows.map(row => [row.icon, row.title, row.native]), [[true, 'Request reminder', false], [true, 'Card spacing on a phone', false], [true, 'Tablet layout', false]]);
+    assert.deepEqual(result.aKey, { current: 0, approved: [first] });
+    assert.deepEqual(result.aKeyLater, { current: 1, approved: [first] });
+    assert.deepEqual(result.uncheck, { current: 0, approved: [] });
+    assert.deepEqual(result.quickUncheck, { current: 0, approved: [] });
+    assert.deepEqual(result.modifiers, { current: 0, approved: [] });
+    assert.deepEqual(result.inComment, { current: 0, approved: [] });
+    assert.deepEqual(result.click, { current: 0, approved: [first], focused: false });
+    assert.deepEqual(result.clickLater, { current: 1, approved: [first] });
+    assert.deepEqual(result.arrow, { current: 2, approved: [first] });
+    assert.deepEqual(result.last, { current: 2, approved: [first, third] });
+    assert.deepEqual(result.lightbox, { open: true, side: '1', buttons: 0 });
+    assert.deepEqual(result.lightboxLeft, { side: '0', current: 0 });
+    assert.equal(result.lightboxRight, '1');
+    assert.equal(result.escape, true);
+    assert.equal(result.clickClose, true);
+    assert.deepEqual(result.sidebar, ['268px', '180px', '560px', '320px', '268px']);
+    assert.deepEqual(result.tip, { shown: true, text: 'Card spacing on a phonemobile' });
+    assert.match(result.exported, /^ui-review decisions v1\nreview: Example review\nround: round-1\n/);
+    const list = toFixList(parseDecisions(result.exported), JSON.parse(await readFile(join(directory, 'review.json'), 'utf8')));
+    assert.deepEqual(list.approved.map(item => item.id), [first, third]);
+    assert.deepEqual(list.implicitlyApproved.map(item => item.id), [second]);
+    assert.equal(list.general.length, 0);
+  } finally {
+    await rm(profile, { recursive: true, force: true });
+  }
 }));
