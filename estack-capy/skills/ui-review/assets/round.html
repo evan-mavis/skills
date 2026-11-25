@@ -173,17 +173,17 @@ el('round').textContent = data.round.label + ' · ' + data.items.length + (data.
 const coverage = data.coverage;
 el('coverage').textContent = 'Coverage ' + coverage.captured + ' / ' + coverage.inventory + ' captured' + (coverage.waived ? ' · ' + coverage.waived + ' waived' : '') + (coverage.uncovered ? ' · ' + coverage.uncovered + ' uncovered' : '');
 const icon = name => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + '</svg>';
-const gapsHtml = coverage.gaps.length ? '<details open><summary>Uncovered · ' + coverage.gaps.length + '</summary>' + coverage.gaps.map((gap, index) => '<div class="row uncovered" data-gap="' + index + '">' + icon(gap.device) + '<span>' + esc(gap.title) + '</span></div>').join('') + '</details>' : '';
+const gapsHtml = coverage.gaps.length ? '<details><summary>Not captured · ' + coverage.gaps.length + '</summary>' + coverage.gaps.map((gap, index) => '<div class="row uncovered" data-gap="' + index + '">' + icon(gap.device) + '<span>' + esc(gap.title) + '</span></div>').join('') + '</details>' : '';
 
 function nav() {
-  el('nav').innerHTML = gapsHtml + data.groups.map(group => {
+  el('nav').innerHTML = data.groups.map(group => {
     const items = data.items.filter(entry => entry.issueId === group.id);
     if (!items.length) return '';
     return '<details open><summary>' + esc(group.title) + '</summary>' + items.map(entry => {
       const index = data.items.indexOf(entry);
       return '<a class="row" href="#' + encodeURIComponent(entry.id) + '" data-index="' + index + '"' + (index === current ? ' aria-current="page"' : '') + '>' + icon(entry.device) + '<span>' + esc(entry.title) + '</span></a>';
     }).join('') + '</details>';
-  }).join('');
+  }).join('') + gapsHtml;
 }
 
 function frame(side, label) {

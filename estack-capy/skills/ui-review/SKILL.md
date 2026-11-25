@@ -69,7 +69,7 @@ Deliver a round by copying the whole round folder to the reviewer's machine with
 
 `assets/round.html` is the default template. Its colours are CSS custom properties at the top of the file, so a project can re-theme it. The round shows:
 
-- A sidebar titled `PR #<pr>: <feature>` when `review.json` sets them, with a coverage line (inventory items captured, waived, and uncovered), an **Uncovered** section listing each uncaptured item with its reason on hover, and one row per comparison: a device icon and the truncated title, and a tooltip with the full title and device on hover. Drag its right edge to resize it from 180 to 560px; double-click resets it to 268px. The page remembers the width when the viewer allows storage. Below 600px the sidebar stacks above the comparison.
+- A sidebar titled `PR #<pr>: <feature>` when `review.json` sets them, with a coverage line (inventory items captured, waived, and uncovered), one row per comparison: a device icon and the truncated title, and a tooltip with the full title and device on hover. A collapsed **Not captured · N** section comes last and lists each uncaptured item with its reason on hover. Drag its right edge to resize it from 180 to 560px; double-click resets it to 268px. The page remembers the width when the viewer allows storage. Below 600px the sidebar stacks above the comparison.
 - A **Looks good** box at the top right of each comparison. Checking it, or pressing **A** outside a text field, approves the comparison and moves to the next one after 140 ms. Unchecking does not move. **←** and **→** step between comparisons.
 - A **Comments to address** box.
 - Clicking a screenshot opens it full screen. **←** and **→** switch between Before and After, and Esc or any click closes it.

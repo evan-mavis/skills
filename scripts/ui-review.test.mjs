@@ -525,11 +525,30 @@ test('the final doc is gated on every inventory item being captured or waived', 
   const html = await buildRound(directory, 'round-1', { inline: true });
   const round = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
   assert.deepEqual(round.coverage.gaps.map(gap => [gap.id, gap.status, gap.reason]), [['checkout-mobile', 'uncovered', 'No seeded cart for the phone layout']]);
-  assert.match(html, /Uncovered · /);
+  assert.match(html, /Not captured · /);
   await assert.rejects(buildRound(directory, undefined, { final: true, inline: true }), /Coverage gate: 1 of 2 inventory items are uncaptured without a recorded waiver: checkout-mobile/);
   data.coverage.items[1].waiver = { by: 'Evan', at: '2026-11-25T07:10:00Z', quote: 'skip it' };
   await writeFile(join(directory, 'review.json'), JSON.stringify(data));
   assert.match(await buildRound(directory, undefined, { final: true, inline: true }), /Final design/);
+}));
+
+test('the sidebar lists comparisons first and collapses the uncaptured items last', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview((c, d) => {
+  delete d.coverage.items[1].waiver;
+}, async (run, directory) => {
+  const page = join(directory, 'round.html');
+  await writeFile(page, await buildRound(directory, 'round-1', { output: page }));
+  const profile = await mkdtemp(join(tmpdir(), 'ui-review-chrome-'));
+  try {
+    const { stdout } = await promisify(execFile)(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run', '--user-data-dir=' + profile, '--window-size=1200,900', '--virtual-time-budget=10000', '--dump-dom', pathToFileURL(page).href], { maxBuffer: 64 * 1024 * 1024 });
+    const nav = /<nav id="nav"[^>]*>(.*?)<\/nav>/s.exec(stdout)[1];
+    const comparison = nav.indexOf('<a class="row"'), gap = nav.indexOf('data-gap=');
+    assert.ok(comparison >= 0 && gap > comparison, 'the first comparison comes before any uncaptured row');
+    const gaps = /<details([^>]*)><summary>([^<]*)<\/summary>(?:(?!<\/details>).)*data-gap=/s.exec(nav.slice(nav.lastIndexOf('<details')));
+    assert.equal(gaps[1], '');
+    assert.equal(gaps[2], 'Not captured · 1');
+  } finally {
+    await rm(profile, { recursive: true, force: true });
+  }
 }));
 
 test('the fix list ends with the coverage count and each gap', () => {
