@@ -45,3 +45,39 @@ test('status and readiness require current proof, not dispatch or summaries', ()
 test('reusable delivery skills contain no personal Captain roster', () => {
   for (const text of [estack, mode, delivery]) expect(text).not.toMatch(/AIR-(?:304|302|303|17|8|20)\b/);
 });
+
+test('PR review precedes independent engineering review and final QA video', () => {
+  const stages = delivery.slice(delivery.indexOf('#### Run the stages in order'), delivery.indexOf('#### Own CI'));
+  for (const stage of ['open the PR before design review', 'image-only `ui-review`', 'independent engineering specialist', 'independent acceptance specialist']) {
+    expect(stages.indexOf(stage)).toBeGreaterThanOrEqual(0);
+  }
+  expect(stages.indexOf('open the PR before design review')).toBeLessThan(stages.indexOf('image-only `ui-review`'));
+  expect(stages.indexOf('image-only `ui-review`')).toBeLessThan(stages.indexOf('independent engineering specialist'));
+  expect(stages.indexOf('independent engineering specialist')).toBeLessThan(stages.indexOf('independent acceptance specialist'));
+  expect(stages).toContain('use `capture` for the final PR video evidence');
+  expect(stages).toContain('Later UI fixes require affected acceptance journeys and video evidence again');
+  for (const file of ['poteto-mode/playbooks/feature.md', 'poteto-mode/playbooks/opening-a-pr.md']) {
+    expect(read(file)).toMatch(/opens? the PR before/);
+  }
+});
+
+test('only the coordinator watches CI and scoped specialists bypass Babysit', () => {
+  expect(delivery).toContain('Only the coordinator monitors CI');
+  expect(delivery).toContain('`capy.subscribe`');
+  expect(delivery).toContain('source: { type: "pull"');
+  expect(delivery).toContain('Confirm fully green CI on the final head');
+  expect(mode).toContain('specialists do not poll, wait on, or babysit CI');
+  expect(read('poteto-mode/playbooks/babysit.md')).toContain('A bounded specialist stage never starts Babysit');
+  expect(read('estack/references/personal-defaults.md')).toContain("delivery coordinator's final merge package");
+});
+
+test('public review images and QA video are accepted without changing media ownership', () => {
+  for (const file of ['ui-review/SKILL.md', 'ui-review/references/publishing.md']) {
+    const text = read(file);
+    expect(text).toContain('tools.pr.uploadAsset');
+    expect(text).toContain('image-only');
+    expect(text).toContain('secrets or credentials');
+  }
+  expect(read('ui-review/references/publishing.md')).toContain('Drive link is allowed, not required');
+  expect(delivery).toContain('"this is totally fine"');
+});

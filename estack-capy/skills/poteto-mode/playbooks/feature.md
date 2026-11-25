@@ -2,6 +2,8 @@
 
 **You own the design. Plan, review, verify.** Delegate implementation. Stay in the lead.
 
+For a bounded coordinated build, follow the scoped-stage contract instead of restarting these stages. Self-verify with Estack and the repository's local checks, then open the PR before the coordinator dispatches design review, independent engineering review, and final QA evidence. Do not wait on CI or start Babysit; the coordinator alone monitors CI.
+
 1. `how` over the affected subsystem.
 2. `architect` for parallel design exploration.
 3. Before building UI, read the design-decisions section of the Linear spec and confirm the design is approved. When the section is missing or still lists the UI question as open, settle it with a `prototype` first and do not start the UI build until a variant is chosen. Work with no visible UI change proceeds without it. A visual change made without the prototype follows the design-critic and ui-review pass before review.

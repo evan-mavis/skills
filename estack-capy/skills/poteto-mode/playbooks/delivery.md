@@ -4,7 +4,7 @@ Use this playbook when the user explicitly hands delivery to a coordinator. Keep
 
 1. Confirm kickoff and the authoritative issue.
 2. Brief the design specialist and obtain the user's design approval.
-3. Brief the builder and complete implementation.
+3. Brief the builder, self-verify implementation, and open the PR.
 4. Run design critique and visual review, then fix findings.
 5. Run independent engineering review, then fix findings.
 6. Run independent acceptance verification, then fix findings.
@@ -38,12 +38,18 @@ For issue records, use `tools.issue.read`, `tools.issue.update`, and `tools.issu
 #### Run the stages in order
 
 1. Have the design specialist apply `prototype` to unresolved design choices and use `design-critic` before presenting the candidates. Require real artifacts and decision pointers. Pause for the user's approval of a specific design revision before implementation. If the design skills or taste inputs are unavailable, report the gap rather than claiming design passed. For a feature without UI, record the evidence for a design-stage exemption and obtain the user's approval of that boundary.
-2. Have the builder apply the relevant implementation playbook, tests, and `deslop` within the approved design and scope. Start from the selected prototype branch when appropriate. Keep one integration branch for coupled work. Use the repository's required checks and evidence, not only compilation.
-3. Have the design specialist inspect the built head with `design-critic` and `ui-review`. Run visual review and in-scope correction rounds autonomously. Send concrete findings to the builder. Do not require another user approval for each cosmetic fix. Reopen design approval if the proposed correction materially changes the approved design or scope.
+2. Have the builder apply Estack's relevant implementation playbook, tests, and `deslop` within the approved design and scope. Start from the selected prototype branch when appropriate. Keep one integration branch for coupled work. Self-verify with the repository's required local checks and evidence, then open the PR before design review. Report the PR and exact head without waiting for CI.
+3. Have the design specialist inspect the PR branch and exact head with `design-critic` and image-only `ui-review`. Run visual review and in-scope correction rounds autonomously. Send concrete findings to the builder. Do not require another user approval for each cosmetic fix. Reopen design approval if the proposed correction materially changes the approved design or scope.
 4. Have an independent engineering specialist apply `interrogate` and `blast-radius` to the actual diff and affected behavior. Require file-grounded findings and executed proof where the skill requires it. Send accepted findings to the builder. The builder's own second look does not satisfy independence.
-5. Have an independent acceptance specialist apply the repository's own verifier and full affected user flows against the acceptance criteria. Require its environment and data preflight, negative cases, and regression coverage. Report each criterion as passed, failed, or blocked with evidence. Do not substitute a review summary or green CI for these journeys.
+5. Have an independent acceptance specialist apply the repository's own verifier and full affected user flows against the acceptance criteria. Require its environment and data preflight, negative cases, and regression coverage. Report each criterion as passed, failed, or blocked with evidence. After design and independent engineering review pass, use `capture` for the final PR video evidence. Keep `ui-review` image-only and `capture` video-only. Later UI fixes require affected acceptance journeys and video evidence again on the new head. Do not substitute a review summary or green CI for these journeys.
 
 After design approval, continue within the approved scope without routine permission requests. Ask early for material scope or design changes, unresolved access, safety actions, or the repeated-failure limit below. These gates override general autonomy grants. Safety and merge permissions remain separate from delivery permission. If a required skill or repository verifier is missing, report the gap and obtain an authorized equivalent proof plan. Never mark that gate passed without its proof.
+
+#### Own CI at the coordinator
+
+Only the coordinator monitors CI during coordinated delivery. Specialists do not poll, wait on, or babysit CI. They verify their supplied head, report local proof and findings, and return. CI does not delay dispatch of design, engineering review, or acceptance verification.
+
+PR callbacks normally reach the thread that opened the PR. The coordinator reads the current `capy.subscribe` signature and subscribes from its own thread with `source: { type: "pull", repository: "owner/repo", number: <PR number> }`. Inspect current-head checks on each relevant wake. Route a failed check's logs and bounded fix brief to the builder, then recheck the new head and affected gates. If subscriptions are unavailable, report the monitoring gap rather than assigning CI babysitting to a specialist. Confirm fully green CI on the final head before the merge package. Cancel the subscription when delivery ends.
 
 #### Handle failures without restarting delivery
 
@@ -59,7 +65,7 @@ Every specialist returns a verdict, exact inspected head, commands or journeys r
 
 The coordinator reads the underlying logs, screenshots, recordings, diffs, and approval sources before accepting a stage. Check the head, target environment, criteria coverage, and result. Re-run missing or ambiguous proof through the responsible specialist. Do not claim tests ran from reports alone. Label unavailable proof as blocked and simulations as simulated.
 
-At readiness, present the PR links and current heads, approved spec and design, acceptance results, independent engineering and visual verdicts, CI results, remaining risks, and private evidence links. Keep copied customer data out of public attachments. Resolve findings or state exactly what remains. Request the user's explicit approval for each named PR. Never merge or enable auto-merge from plan approval, kickoff, design approval, green CI, or a general autonomy grant. If approval reaches another specialist, forward its exact source, but the merge executor must still satisfy the host's explicit authorization requirement in its own conversation.
+At readiness, present the PR links and current heads, approved spec and design, acceptance results, independent engineering and visual verdicts, CI results, remaining risks, and evidence links. Evan explicitly accepted public PR review images and QA recordings through `tools.pr.uploadAsset` at 2026-11-25 02:50-02:52 UTC in DevEx, saying "this is totally fine" after disclosure that the URLs are public and dev data is copied from production. Upload final review images and QA video, then embed exactly the Markdown the tool prescribes. Never include secrets or credentials in artifacts. Drive links remain allowed but are not required. Resolve findings or state exactly what remains. Request the user's explicit approval for each named PR. Never merge or enable auto-merge from plan approval, kickoff, design approval, green CI, or a general autonomy grant. If approval reaches another specialist, forward its exact source, but the merge executor must still satisfy the host's explicit authorization requirement in its own conversation.
 
 Immediately before merge, compare the current PR head with the reviewed head and authorized revision. A later push requires affected gates again and renewed approval for changes outside the user's exact authorization. Never treat approval for one revision as permission for arbitrary later changes.
 

@@ -82,14 +82,9 @@ Deliver the fix list to whoever owns the code. Keep the disposition of each requ
 
 ## Attach the final design doc to the PR
 
-A PR description cannot hold an HTML file. `tools.pr.uploadAsset` publishes media at a public, unauthenticated URL, and development data is copied from production, so a screenshot of a customer account must never reach it. Attach the doc this way instead:
+Build the final round, inspect its images for secrets and credentials, and publish the final review images with `tools.pr.uploadAsset`. Embed exactly the Markdown the tool prescribes in a **Design** section with the approved judgments, variant, and reviewed revisions. Evan accepted the public URLs and copied-production dev data for PR review images and QA recordings. Never include secrets or credentials.
 
-1. Build the final round in the review directory.
-2. Write the HTML into the project's Drive under `design-reviews/<owner/repo>/<feature>/final.html`. The review directory is the working copy; the Drive file is the shared one.
-3. Run `tools.drive.share` for that file and put the returned URL in the PR body. The link starts private: only the reviewer can open it until they set the file to organization visibility on the Drive page. Say that in the reply, and confirm it before calling the doc attached.
-4. Add a **Design** section to the PR body: one sentence per approved judgment call, the approved variant where a prototype chose between them, and the link. Keep it text. Do not inline screenshots of application data.
-
-Read [publishing](references/publishing.md) for the two methods this deliberately does not use, and the privacy limit behind each.
+Keep this review image-only. QA uses `capture` for final video evidence after design and independent engineering review. A Drive link to the complete HTML remains optional, not required. Read [publishing](references/publishing.md) for the recorded decision, attachment steps, and Drive access limits.
 
 ## Handoff
 
