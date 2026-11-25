@@ -706,6 +706,13 @@ const stateHarness = String.raw`<script>
 (async () => {
   const wait = ms => new Promise(done => setTimeout(done, ms));
   const phase = new URLSearchParams(location.search).get('phase');
+  const rows = () => [...document.querySelectorAll('#nav a.row')];
+  const firstRows = rows();
+  const initial = firstRows.map(row => row.dataset.mark || '');
+  if (phase === 'both') {
+    el('comment').value = 'Move it under the total';
+    el('comment').dispatchEvent(new Event('input', { bubbles: true }));
+  }
   if (phase === 'mark') {
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true }));
     await wait(200);
@@ -717,7 +724,7 @@ const stateHarness = String.raw`<script>
   go(0);
   const output = document.createElement('output');
   output.id = 'results';
-  output.textContent = JSON.stringify({ title: el('item-title').textContent, approved: [...approved], comments: Object.fromEntries([...comments].filter(([, text]) => text)), checked: el('approve').checked, stored: localStorage.getItem('${STATE_KEY}') });
+  output.textContent = JSON.stringify({ title: el('item-title').textContent, approved: [...approved], comments: Object.fromEntries([...comments].filter(([, text]) => text)), checked: el('approve').checked, stored: localStorage.getItem('${STATE_KEY}'), initial, marks: rows().map(row => row.dataset.mark || ''), symbols: rows().map(row => getComputedStyle(row.querySelector('.mark'), '::after').content), fills: rows().map(row => getComputedStyle(row.querySelector('.mark')).backgroundColor), opacity: rows().map(row => getComputedStyle(row.querySelector('span')).opacity), sameRows: rows().every((row, index) => row === firstRows[index]) });
   document.body.append(output);
 })();
 </script>`;
@@ -745,6 +752,36 @@ test('marks and comments autosave and survive a reload', { skip: !chrome && 'no 
   assert.deepEqual({ approved: reloaded.approved, comments: reloaded.comments }, expected);
   assert.equal(reloaded.checked, true);
 })));
+
+test('sidebar rows mark reviewed comparisons in place and keep the marks after a reload', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(designReview, async (run, directory) => withRoundPage(directory, {}, async open => {
+  const marked = await open('?phase=mark');
+  assert.deepEqual(marked.initial, ['', '', '']);
+  assert.deepEqual(marked.marks, ['approved', '', 'comment']);
+  assert.deepEqual(marked.symbols, ['"✓"', 'none', '"!"']);
+  assert.deepEqual(marked.fills, ['rgb(98, 72, 255)', 'rgba(0, 0, 0, 0)', 'rgb(0, 0, 0)']);
+  assert.deepEqual(marked.opacity, ['1', '1', '0.5']);
+  assert.equal(marked.sameRows, true);
+  const both = await open('?phase=both');
+  assert.deepEqual(both.initial, ['approved', '', 'comment']);
+  assert.deepEqual(both.marks, ['comment', '', 'comment']);
+  assert.equal(both.sameRows, true);
+  const reloaded = await open();
+  assert.deepEqual(reloaded.initial, ['comment', '', 'comment']);
+  assert.deepEqual(reloaded.symbols, ['"!"', 'none', '"!"']);
+})));
+
+test('sidebar marks start from the --seed decisions and dim reviewed rows except the current one', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(designReview, async (run, directory) => {
+  const seed = formatDecisions({ title: 'Example review', round: 'round-1', items: [
+    { id: 'round-1/reminder', title: 'Request reminder', approved: true },
+    { id: 'round-1/spacing', title: 'Card spacing on a phone', approved: true, comment: 'Tighten the gap' },
+    { id: 'round-1/tablet', title: 'Tablet layout', approved: false },
+  ] });
+  await withRoundPage(directory, { seed }, async open => {
+    const result = await open();
+    assert.deepEqual(result.initial, ['approved', 'comment', '']);
+    assert.deepEqual(result.opacity, ['1', '0.5', '1']);
+  });
+}));
 
 test('ignores stored state that does not parse or names missing comparisons', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, async () => {
   for (const value of ['{not json', '"text"', 'null', '[]', JSON.stringify({ approved: 'round-1/reminder', comments: {} }), JSON.stringify({ approved: [], comments: [] }), JSON.stringify({ approved: ['round-1/ghost'], comments: {} }), JSON.stringify({ approved: ['round-1/reminder'], comments: { 'round-0/gone': 'Old note' } }), JSON.stringify({ approved: [], comments: { 'round-1/reminder': 7 } })]) {
