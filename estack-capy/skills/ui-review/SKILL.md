@@ -1,11 +1,11 @@
 ---
 name: ui-review
-description: Review every UI surface a branch changes as one self-contained HTML round per round, from Before and After screenshots computed on the base and head branches, then turn the pasted decisions into a fix list. Use for ui-review, a visual review of a PR or feature branch, design sign-off, or "show me what changed".
+description: Review every UI surface a branch changes as one linked HTML round per cycle, from Before and After screenshots computed on the base and head branches, then turn the pasted decisions into a fix list. Use for ui-review, a visual review of a PR or feature branch, design sign-off, or "show me what changed".
 ---
 
 # UI review
 
-A review is a directory: matched pairs of base and head screenshots, a `review.json` of what changed, and one self-contained HTML file per round. The reviewer marks each comparison and pastes the decisions back. The skill turns that paste into a fix list.
+A review is a directory: matched pairs of base and head screenshots, a `review.json` of what changed, and one round folder per cycle. A round folder holds `round-N.html` and an `images/` folder beside it. The reviewer marks each comparison and pastes the decisions back. The skill turns that paste into a fix list.
 
 The review does not replace the repository's verifier. Its captures are review evidence, not proof the change works.
 
@@ -56,14 +56,16 @@ Write `review.json` following [review data](references/review-data.md). Point ea
 ```bash
 node <skill>/scripts/coverage.mjs <review-directory> <repository>
 node <skill>/scripts/validate-review.mjs <review-directory>
-node <skill>/scripts/build-round.mjs <review-directory> round-1 <review-directory>/rounds/round-1.html
+node <skill>/scripts/build-round.mjs <review-directory> round-1 <review-directory>/rounds/round-1/round-1.html
 ```
 
-The build inlines every screenshot as a data URL and every style, so the file works offline and alone. It embeds each PNG as a JPEG copy at quality 62 and scales captures at device scale 2 or higher to 75%. A 1x PNG that is already smaller than its JPEG stays PNG. The PNGs on disk, their hashes, and the diff stay at full size.
+The build writes a linked round: the HTML, and each comparison's Before and After image in `images/<round-id>/<comparison-id>-before.jpg` and `-after.jpg` beside it. Each image's `src` is that relative path. Each PNG becomes a JPEG copy at quality 62, and captures at device scale 2 or higher are scaled to 75%. A 1x PNG that is already smaller than its JPEG stays PNG. The PNGs in `captures/`, their hashes, and the diff stay at full size. One round holds every comparison of the cycle, with no size budget.
 
-The build prints the file size and fails above 3.5 MB. A 3.5 MB round has opened in the Capy Drive viewer and a 12.6 MB round did not. The viewer's exact limit is unknown. Over budget, drop duplicate comparisons from one cluster or move some to a later round, then rebuild.
+Add `--inline` only where a single file is required, such as the optional Drive copy in [publishing](references/publishing.md). It embeds every image as a data URL instead, and fails above 3.5 MB, the largest round known to open in the Capy Drive viewer.
 
-Give the reviewer the round's path, and say in your own message that they must copy their decisions before closing the file. The page no longer says it, and it keeps no state across reloads.
+A crew thread only captures. The coordinating agent collects every capture and `review.json` entry and builds the single round.
+
+Deliver a round by copying the whole round folder to the reviewer's machine with `tools.transfer.files`. For Evan, that is his MacBook Pro at `~/Desktop/airgoods-review/<round-id>/`. The reviewer opens the HTML there from `file://`. Give the reviewer its path, and say in your own message that they must copy their decisions before closing the file. The page no longer says it, and it keeps no state across reloads.
 
 `assets/round.html` is the default template. Its colours are CSS custom properties at the top of the file, so a project can re-theme it. The round shows:
 
@@ -71,9 +73,9 @@ Give the reviewer the round's path, and say in your own message that they must c
 - A **Looks good** box at the top right of each comparison. Checking it, or pressing **A** outside a text field, approves the comparison and moves to the next one after 140 ms. Unchecking does not move. **←** and **→** step between comparisons.
 - A **Comments to address** box.
 - Clicking a screenshot opens it full screen. **←** and **→** switch between Before and After, and Esc or any click closes it.
-- A footer with **Highlight changes**, **Previous**, **Next**, and **Copy all decisions**. Copying falls back to a selected text box when the viewer blocks the clipboard.
+- A footer with **Highlight changes**, **Previous**, **Next**, and **Copy all decisions**. When the browser blocks the clipboard, as it can under `file://`, copying selects the text in a box and asks for Cmd+C.
 
-Open the built file in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, and that the export panel appears with its text when the clipboard is blocked.
+Open the built file from `file://` in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, and that the export panel appears with its text when the clipboard is blocked.
 
 ## Later rounds
 
@@ -89,7 +91,7 @@ Between rounds, apply UI-only fixes yourself. A UI-only fix changes presentation
 Build each round with its round id. A round is not final while any inventory item is uncovered without a recorded waiver. When every comparison is approved and the gate passes, build the final doc:
 
 ```bash
-node <skill>/scripts/build-round.mjs <review-directory> --final <review-directory>/rounds/final.html
+node <skill>/scripts/build-round.mjs <review-directory> --final <review-directory>/rounds/final/final.html
 ```
 
 The final build fails and names each open item until it is captured or waived.
@@ -122,4 +124,4 @@ Keep this review image-only. QA uses `capture` for final video evidence after de
 ## Handoff
 
 - **In:** the base and head revisions, the repository's verify skill, the project context's app list and native capture method, and the Linear spec or issue the review belongs to.
-- **Out:** the review directory with its coverage inventory, one HTML file per round, each new head from UI-only fixes, the fix list for each pasted decision round, and the final design doc linked from the PR body.
+- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list for each pasted decision round, and the final design doc linked from the PR body.

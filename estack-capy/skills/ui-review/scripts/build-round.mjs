@@ -1,5 +1,5 @@
-import { readFile, writeFile } from 'node:fs/promises';
-import { resolve, dirname, extname } from 'node:path';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { resolve, dirname, extname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateReview } from './validate-review.mjs';
 import { formatDecisions } from './decisions.mjs';
@@ -37,22 +37,31 @@ export function heading(review) {
   return 'PR #' + review.pr + ': ' + (review.feature || review.title);
 }
 
-function embed(bytes, side) {
-  if (extname(side.src).toLowerCase() !== '.png') return 'data:image/jpeg;base64,' + bytes.toString('base64');
+function compress(bytes, side) {
+  if (extname(side.src).toLowerCase() !== '.png') return { type: 'jpeg', bytes };
   const dense = side.capture.viewport.deviceScaleFactor >= 2;
   let image = decodePng(bytes);
   if (dense) image = scale(image, HIGH_DENSITY_SCALE);
   const jpeg = encodeJpeg({ width: image.width, height: image.height, data: image.pixels }, JPEG_QUALITY).data;
-  if (!dense && jpeg.length >= bytes.length) return 'data:image/png;base64,' + bytes.toString('base64');
-  return 'data:image/jpeg;base64,' + Buffer.from(jpeg).toString('base64');
+  if (!dense && jpeg.length >= bytes.length) return { type: 'png', bytes };
+  return { type: 'jpeg', bytes: Buffer.from(jpeg) };
 }
 
-export async function buildRound(directory, roundId, { final = false } = {}) {
+export async function buildRound(directory, roundId, { final = false, inline = false, output } = {}) {
+  if (!inline && !output) throw new Error('A linked round needs the output path so its images/ folder can sit beside it');
   await validateReview(directory);
   const root = resolve(directory);
   const review = JSON.parse(await readFile(resolve(root, 'review.json'), 'utf8'));
-  const inline = async side => side && {
-    src: embed(await readFile(resolve(root, side.src)), side),
+  const place = async (side, entry, comparison, name) => {
+    const image = compress(await readFile(resolve(root, side.src)), side);
+    if (inline) return 'data:image/' + image.type + ';base64,' + image.bytes.toString('base64');
+    const path = ['images', entry.id, comparison.id + '-' + name + (image.type === 'png' ? '.png' : '.jpg')];
+    await mkdir(join(dirname(resolve(output)), ...path.slice(0, -1)), { recursive: true });
+    await writeFile(join(dirname(resolve(output)), ...path), image.bytes);
+    return path.map(encodeURIComponent).join('/');
+  };
+  const picture = async (side, entry, comparison, name) => side && {
+    src: await place(side, entry, comparison, name),
     width: side.width, height: side.height, regions: side.regions,
   };
   const roundIndex = final ? review.rounds.length - 1 : review.rounds.findIndex(round => round.id === roundId);
@@ -73,7 +82,7 @@ export async function buildRound(directory, roundId, { final = false } = {}) {
     explanation: comparison.explanation, lookAt: comparison.lookAt || '', tier: comparison.tier, variant: comparison.variant, device: device(comparison.variant),
     gap: comparison.gap || '', copyDiff: comparison.copyDiff || [],
     approved: comparison.feedback.some(note => note.disposition === 'approved'),
-    before: await inline(comparison.before), after: await inline(comparison.after),
+    before: await picture(comparison.before, entry, comparison, 'before'), after: await picture(comparison.after, entry, comparison, 'after'),
   });
   const earlier = [];
   if (!final) for (const entry of review.rounds.slice(0, roundIndex)) for (const comparison of entry.comparisons) for (const note of comparison.feedback) {
@@ -95,18 +104,20 @@ export async function buildRound(directory, roundId, { final = false } = {}) {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2);
-  const final = args.includes('--final');
-  const [directory, ...rest] = args.filter(arg => arg !== '--final');
+  const final = args.includes('--final'), inline = args.includes('--inline');
+  const [directory, ...rest] = args.filter(arg => arg !== '--final' && arg !== '--inline');
   const [roundId, output] = final ? [undefined, rest[0]] : rest;
   try {
-    if (!directory || !output) throw new Error('Usage: build-round.mjs <review-directory> <round-id> <output.html> | build-round.mjs <review-directory> --final <output.html>');
-    const html = await buildRound(directory, roundId, { final });
+    if (!directory || !output) throw new Error('Usage: build-round.mjs <review-directory> <round-id> <output.html> [--inline] | build-round.mjs <review-directory> --final <output.html> [--inline]');
+    await mkdir(dirname(resolve(output)), { recursive: true });
+    const html = await buildRound(directory, roundId, { final, inline, output });
     await writeFile(output, html);
     const megabytes = bytes => (bytes / 1e6).toFixed(1) + ' MB';
     const size = Buffer.byteLength(html);
-    if (size <= ROUND_BUDGET_BYTES) console.log('Wrote ' + output + ': ' + megabytes(size) + ' of the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget');
+    if (!inline) console.log('Wrote ' + output + ' with its images in ' + join(dirname(output), 'images') + '. Deliver the whole folder.');
+    else if (size <= ROUND_BUDGET_BYTES) console.log('Wrote ' + output + ': ' + megabytes(size) + ' of the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget');
     else {
-      console.error('Over budget: ' + output + ' is ' + megabytes(size) + ', above the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget. It may not open in the Capy Drive viewer. Drop duplicate comparisons or move some to a later round, then rebuild.');
+      console.error('Over budget: ' + output + ' is ' + megabytes(size) + ', above the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget. It may not open in the Capy Drive viewer. Build without --inline to write a linked round instead.');
       process.exitCode = 1;
     }
   } catch (error) { console.error(error.message); process.exitCode = 1; }

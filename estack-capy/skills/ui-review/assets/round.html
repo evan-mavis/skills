@@ -188,7 +188,7 @@ function nav() {
 
 function frame(side, label) {
   const rects = side.regions.map(region => '<rect x="' + region.x + '" y="' + region.y + '" width="' + region.width + '" height="' + region.height + '" fill="' + (label === 'Before' ? 'rgba(214,73,73,.14)' : 'rgba(31,122,76,.14)') + '" stroke="' + (label === 'Before' ? 'var(--before)' : 'var(--after)') + '" stroke-width="2" vector-effect="non-scaling-stroke"></rect>').join('');
-  return '<div class="shot" data-side="' + SIDES.indexOf(label) + '" style="--natural: ' + side.width + 'px"><img src="' + side.src + '" width="' + side.width + '" height="' + side.height + '" alt="' + label + ' of ' + esc(item().title) + '"><svg viewBox="0 0 ' + side.width + ' ' + side.height + '" preserveAspectRatio="none" class="overlay">' + rects + '</svg></div>';
+  return '<div class="shot" data-side="' + SIDES.indexOf(label) + '" style="--natural: ' + side.width + 'px"><img src="' + side.src + '" loading="lazy" width="' + side.width + '" height="' + side.height + '" alt="' + label + ' of ' + esc(item().title) + '"><svg viewBox="0 0 ' + side.width + ' ' + side.height + '" preserveAspectRatio="none" class="overlay">' + rects + '</svg></div>';
 }
 
 function shot(side, label) {

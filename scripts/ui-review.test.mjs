@@ -125,7 +125,7 @@ test('accepts a revision only in a later round', () => withReview((c, d) => {
   });
 }, async (run, directory) => {
   assert.equal((await run()).comparisons, 2);
-  const html = await buildRound(directory, 'round-2');
+  const html = await buildRound(directory, 'round-2', { inline: true });
   assert.match(html, /Earlier comments/);
   assert.match(html, /Move it under the total/);
   assert.match(html, /data:image\/png;base64,/);
@@ -214,7 +214,7 @@ test('treats silence after a review as approval and a missing item as unapproved
 
 test('builds one self-contained html round with a clipboard fallback', () => withReview(() => {}, async (run, directory) => {
   await run();
-  const html = await buildRound(directory, 'round-1');
+  const html = await buildRound(directory, 'round-1', { inline: true });
   assert.match(html, /data:image\/png;base64,/);
   assert.match(html, /Copy all decisions/);
   assert.match(html, /id="export-text"/);
@@ -222,14 +222,14 @@ test('builds one self-contained html round with a clipboard fallback', () => wit
   assert.match(html, /execCommand/);
   assert.match(html, /ui-review decisions v1/);
   assert.doesNotMatch(html, /captures\/before\.png/);
-  await assert.rejects(buildRound(directory, 'round-9'), /Unknown round/);
+  await assert.rejects(buildRound(directory, 'round-9', { inline: true }), /Unknown round/);
 }));
 
 test('the final doc shows the latest revision only', () => withReview((c, d) => {
   d.rounds.push({ id: 'round-2', label: 'Round 2', summary: 'Revised', comparisons: [comparison('reminder-2', { revises: 'reminder', title: 'Request reminder, revised' })] });
 }, async (run, directory) => {
   await run();
-  const html = await buildRound(directory, undefined, { final: true });
+  const html = await buildRound(directory, undefined, { final: true, inline: true });
   assert.match(html, /Request reminder, revised/);
   assert.doesNotMatch(html, /"title":"Request reminder"/);
   assert.match(html, /Final design/);
@@ -265,7 +265,7 @@ test('an end-to-end round parses back into the next fix list', () => withReview(
   const firstList = toFixList(parseDecisions(first), reviewData);
   assert.equal(firstList.fixes.length, 2);
 
-  const html = await buildRound(directory, 'round-2');
+  const html = await buildRound(directory, 'round-2', { inline: true });
   assert.match(html, /fixed/);
   assert.match(html, /open/);
   assert.match(html, /Move it under the total/);
@@ -292,14 +292,14 @@ const embedded = html => [...html.matchAll(/data:image\/jpeg;base64,([A-Za-z0-9+
 test('embeds 2x captures as JPEG at 75% and leaves the original PNGs alone', () => withCaptures(390, 844, seed => (x, y) => [(x * seed) & 255, (y * seed) & 255, 128],
   { viewport: { width: 195, height: 422, deviceScaleFactor: 2 } }, async directory => {
     const original = await readFile(join(directory, 'captures/after.png'));
-    const html = await buildRound(directory, 'round-1');
+    const html = await buildRound(directory, 'round-1', { inline: true });
     assert.deepEqual(embedded(html), [{ width: 293, height: 633 }, { width: 293, height: 633 }]);
     assert.match(html, /"width":390,"height":844/);
     assert.deepEqual(await readFile(join(directory, 'captures/after.png')), original);
   }));
 
 test('reports the round size and fails above the budget', async () => {
-  const run = directory => promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', join(directory, 'round.html')]);
+  const run = directory => promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', join(directory, 'round.html'), '--inline']);
   await withReview(() => {}, async (validate, directory) => {
     const { stdout } = await run(directory);
     assert.match(stdout, /MB of the 3\.5 MB budget/);
@@ -313,8 +313,50 @@ test('reports the round size and fails above the budget', async () => {
   });
 });
 
+const linkedSources = html => [...html.matchAll(/"src":"([^"]+)"/g)].map(match => match[1]);
+
+test('a linked round writes relative image paths that resolve beside the html', () => withReview((c, d) => {
+  d.rounds.push({ id: 'round-2', label: 'Round 2', summary: 'Revised', comparisons: [comparison('reminder-2', { revises: 'reminder' })] });
+}, async (run, directory) => {
+  await run();
+  const output = join(directory, 'rounds/round-2/round-2.html');
+  await mkdir(join(directory, 'rounds/round-2'), { recursive: true });
+  const html = await buildRound(directory, 'round-2', { output });
+  assert.doesNotMatch(html, /data:/);
+  const sources = linkedSources(html);
+  assert.deepEqual(sources, ['images/round-2/reminder-2-before.png', 'images/round-2/reminder-2-after.png']);
+  for (const src of sources) {
+    const bytes = await readFile(join(directory, 'rounds/round-2', src));
+    assert.deepEqual(imageDimensions(bytes), { width: WIDTH, height: HEIGHT });
+  }
+  await assert.rejects(buildRound(directory, 'round-2'), /needs the output path/);
+}));
+
+test('a linked round keeps the compression and writes 2x captures as 75% JPEG files', () => withCaptures(390, 844, seed => (x, y) => [(x * seed) & 255, (y * seed) & 255, 128],
+  { viewport: { width: 195, height: 422, deviceScaleFactor: 2 } }, async directory => {
+    const output = join(directory, 'out/round-1.html');
+    await mkdir(join(directory, 'out'));
+    const html = await buildRound(directory, 'round-1', { output });
+    assert.doesNotMatch(html, /data:/);
+    const sources = linkedSources(html);
+    assert.deepEqual(sources, ['images/round-1/reminder-before.jpg', 'images/round-1/reminder-after.jpg']);
+    for (const src of sources) assert.deepEqual(imageDimensions(await readFile(join(directory, 'out', src))), { width: 293, height: 633 });
+  }));
+
+test('the CLI builds linked by default without the inline budget', async () => {
+  const noise = () => { const bytes = randomBytes(1400 * 1100 * 3); return (x, y) => bytes.subarray((y * 1400 + x) * 3, (y * 1400 + x) * 3 + 3); };
+  await withCaptures(1400, 1100, noise, {}, async directory => {
+    const output = join(directory, 'rounds/round-1/round-1.html');
+    const { stdout } = await promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', output]);
+    assert.match(stdout, /Deliver the whole folder/);
+    const html = await readFile(output, 'utf8');
+    assert.doesNotMatch(html, /data:/);
+    for (const src of linkedSources(html)) assert.ok((await readFile(join(directory, 'rounds/round-1', src))).length > 0);
+  });
+});
+
 test('keeps the sidebar beside the comparisons down to 600px', () => withReview(() => {}, async (run, directory) => {
-  const html = await buildRound(directory, 'round-1');
+  const html = await buildRound(directory, 'round-1', { inline: true });
   assert.match(html, /@media \(max-width: 600px\) \{ body \{ grid-template-columns: 1fr; \}/);
   assert.doesNotMatch(html, /max-width: 880px/);
 }));
@@ -341,7 +383,7 @@ test('validates the optional PR number and feature name', async () => {
 });
 
 test('the sidebar title is display text and the export keeps the review title', () => withReview(designReview, async (run, directory) => {
-  const html = await buildRound(directory, 'round-1');
+  const html = await buildRound(directory, 'round-1', { inline: true });
   const data = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
   assert.equal(data.heading, 'PR #12: Reminders');
   assert.equal(data.title, 'Example review');
@@ -352,7 +394,7 @@ test('the sidebar title is display text and the export keeps the review title', 
 }));
 
 test('the round drops the counter, general notes, closing note, tier badge, and row status', () => withReview(() => {}, async (run, directory) => {
-  const html = await buildRound(directory, 'round-1');
+  const html = await buildRound(directory, 'round-1', { inline: true });
   for (const removed of [/id="progress"/, /id="general"/, /Notes on the whole review/, /Copy your decisions before closing/, /class="tier"/, /class="dot/, /Looks good to me/, /prefers-color-scheme: dark/]) assert.doesNotMatch(html, removed);
   assert.match(html, /<label class="looks-good"><span>Looks good<\/span><input type="checkbox" id="approve"><\/label>/);
   assert.match(html, /--accent: #6248FF;/);
@@ -372,6 +414,7 @@ const harness = String.raw`<script>
   const key = (name, options = {}) => window.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true, ...options }));
   const state = () => ({ current, approved: [...approved] });
   const result = { heading: el('title').textContent, rows: [...document.querySelectorAll('#nav .row')].map(row => ({ icon: !!row.querySelector('svg'), title: row.textContent, native: row.hasAttribute('title') || !!row.querySelector('[title], input') })) };
+  await wait(500); result.images = [...el('pair').querySelectorAll('img')].map(img => [img.getAttribute('src').startsWith('images/'), img.loading, img.complete && img.naturalWidth > 0]);
   key('a'); result.aKey = state(); await wait(200); result.aKeyLater = state();
   go(0); key('a'); await wait(200); result.uncheck = state();
   key('a'); key('a'); await wait(200); result.quickUncheck = state();
@@ -407,7 +450,7 @@ const harness = String.raw`<script>
 
 test('drives the round in a browser: Looks good, the A key, the lightbox, resizing, the tooltip, and copy', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(designReview, async (run, directory) => {
   const page = join(directory, 'round.html');
-  await writeFile(page, (await buildRound(directory, 'round-1')).replace('</body>', harness + '</body>'));
+  await writeFile(page, (await buildRound(directory, 'round-1', { output: page })).replace('</body>', harness + '</body>'));
   const profile = await mkdtemp(join(tmpdir(), 'ui-review-chrome-'));
   try {
     const { stdout } = await promisify(execFile)(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run', '--user-data-dir=' + profile, '--window-size=1200,900', '--virtual-time-budget=10000', '--dump-dom', pathToFileURL(page).href], { maxBuffer: 64 * 1024 * 1024 });
@@ -416,6 +459,7 @@ test('drives the round in a browser: Looks good, the A key, the lightbox, resizi
     const result = JSON.parse(match[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
     const [first, second, third] = ['round-1/reminder', 'round-1/spacing', 'round-1/tablet'];
     assert.equal(result.heading, 'PR #12: Reminders');
+    assert.deepEqual(result.images, [[true, 'lazy', true], [true, 'lazy', true]]);
     assert.deepEqual(result.rows.map(row => [row.icon, row.title, row.native]), [[true, 'Request reminder', false], [true, 'Card spacing on a phone', false], [true, 'Tablet layout', false]]);
     assert.deepEqual(result.aKey, { current: 0, approved: [first] });
     assert.deepEqual(result.aKeyLater, { current: 1, approved: [first] });
@@ -478,14 +522,14 @@ test('the final doc is gated on every inventory item being captured or waived', 
   delete d.coverage.items[1].waiver;
 }, async (run, directory, data) => {
   await run();
-  const html = await buildRound(directory, 'round-1');
+  const html = await buildRound(directory, 'round-1', { inline: true });
   const round = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
   assert.deepEqual(round.coverage.gaps.map(gap => [gap.id, gap.status, gap.reason]), [['checkout-mobile', 'uncovered', 'No seeded cart for the phone layout']]);
   assert.match(html, /Uncovered · /);
-  await assert.rejects(buildRound(directory, undefined, { final: true }), /Coverage gate: 1 of 2 inventory items are uncaptured without a recorded waiver: checkout-mobile/);
+  await assert.rejects(buildRound(directory, undefined, { final: true, inline: true }), /Coverage gate: 1 of 2 inventory items are uncaptured without a recorded waiver: checkout-mobile/);
   data.coverage.items[1].waiver = { by: 'Evan', at: '2026-11-25T07:10:00Z', quote: 'skip it' };
   await writeFile(join(directory, 'review.json'), JSON.stringify(data));
-  assert.match(await buildRound(directory, undefined, { final: true }), /Final design/);
+  assert.match(await buildRound(directory, undefined, { final: true, inline: true }), /Final design/);
 }));
 
 test('the fix list ends with the coverage count and each gap', () => {
