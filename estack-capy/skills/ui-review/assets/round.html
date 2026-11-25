@@ -84,19 +84,14 @@
   .bar label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
   .bar label input { accent-color: var(--ink); }
   .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  #export-status { font-size: 12px; max-width: 46ch; }
-  #export-status:empty { display: none; }
   button { font: inherit; font-size: 13px; font-weight: 700; padding: 7px 12px; border: 2px solid var(--ink); border-radius: 0; background: var(--page); color: var(--ink); cursor: pointer; }
   button:hover:not(:disabled) { background: var(--ink); color: var(--page); }
   button.primary { background: var(--accent); color: var(--accent-ink); box-shadow: 3px 3px 0 var(--ink); }
   button:disabled { opacity: .3; cursor: default; }
-  .export { position: fixed; left: var(--sidebar); right: 0; bottom: 62px; padding: 12px 40px; background: var(--page); border-top: 2px solid var(--ink); }
-  .export textarea { height: 130px; font-family: var(--mono); font-size: 12px; }
-  .export p { margin: 6px 0 0; font-size: 12px; }
   #lightbox { position: fixed; inset: 0; z-index: 30; background: var(--scrim); overflow: auto; padding: 16px; display: flex; justify-content: center; align-items: flex-start; cursor: zoom-out; }
   #lightbox[hidden] { display: none; }
   #lightbox .shot { width: min(100%, var(--natural)); flex: none; border-color: var(--page); cursor: zoom-out; }
-  @media (max-width: 600px) { body { grid-template-columns: 1fr; } aside { position: static; height: auto; max-height: 34dvh; border-right: 0; border-bottom: 2px solid var(--ink); } .resize { display: none; } .bar, .export { left: 0; padding: 12px 18px; } main { padding: 20px 18px 200px; } .pair { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { body { grid-template-columns: 1fr; } aside { position: static; height: auto; max-height: 34dvh; border-right: 0; border-bottom: 2px solid var(--ink); } .resize { display: none; } .bar { left: 0; padding: 12px 18px; } main { padding: 20px 18px 200px; } .pair { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -128,14 +123,9 @@
     <ul id="earlier-list"></ul>
   </section>
 </main>
-<div class="export" id="export-panel" hidden>
-  <textarea id="export-text" readonly aria-label="Decisions text"></textarea>
-  <p>Select all, copy, and paste this into the thread.</p>
-</div>
 <div class="bar">
   <label><input type="checkbox" id="highlights" checked> Highlight changes</label>
   <div class="actions">
-    <span id="export-status" role="status"></span>
     <button id="prev" type="button">Previous</button>
     <button id="next" type="button">Next</button>
     <button id="export" class="primary" type="button">Copy all decisions</button>
@@ -160,6 +150,8 @@ const SIDEBAR_KEY = 'ui-review-sidebar';
 const SIDEBAR_MIN = 180;
 const SIDEBAR_MAX = 560;
 const ADVANCE_DELAY_MS = 140;
+const COPY_LABEL_MS = 1600;
+const STATE_KEY = 'ui-review-state:' + data.title + ':' + data.round.id;
 let current = 0;
 let lightboxSide = 0;
 
@@ -215,10 +207,29 @@ function render() {
   history.replaceState(null, '', '#' + encodeURIComponent(entry.id));
 }
 
+function validState(state) {
+  if (!state || typeof state !== 'object' || !Array.isArray(state.approved) || !state.comments || typeof state.comments !== 'object' || Array.isArray(state.comments)) return false;
+  const ids = [...state.approved, ...Object.keys(state.comments)];
+  return ids.every(id => comments.has(id)) && Object.values(state.comments).every(text => typeof text === 'string');
+}
+function saveState() {
+  const state = { approved: [...approved], comments: Object.fromEntries([...comments].filter(([, text]) => text)) };
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch (error) {}
+}
+let stored = null;
+try { stored = JSON.parse(localStorage.getItem(STATE_KEY)); } catch (error) {}
+const restored = [stored, data.seed].find(validState);
+if (restored) {
+  approved.clear();
+  for (const id of restored.approved) approved.add(id);
+  for (const [id, text] of Object.entries(restored.comments)) comments.set(id, text);
+}
+
 function go(index) { current = Math.min(Math.max(index, 0), data.items.length - 1); render(); }
 function setApproved(value) {
   value ? approved.add(item().id) : approved.delete(item().id);
   el('approve').checked = value;
+  saveState();
   if (!value) return;
   const at = current;
   setTimeout(() => { if (current === at && approved.has(item().id) && current < data.items.length - 1) go(current + 1); }, ADVANCE_DELAY_MS);
@@ -226,7 +237,7 @@ function setApproved(value) {
 el('prev').onclick = () => go(current - 1);
 el('next').onclick = () => go(current + 1);
 el('approve').onchange = event => { event.target.blur(); setApproved(event.target.checked); };
-el('comment').oninput = event => comments.set(item().id, event.target.value);
+el('comment').oninput = event => { comments.set(item().id, event.target.value); saveState(); };
 el('highlights').onchange = event => document.body.classList.toggle('hide-highlights', !event.target.checked);
 el('nav').onclick = event => {
   const link = event.target.closest('a[data-index]');
@@ -331,21 +342,28 @@ function decisionsText() {
   });
 }
 
+const exportLabel = el('export').textContent;
+let exportTimer = null;
 el('export').onclick = async () => {
   const text = decisionsText();
-  const box = el('export-text');
-  box.value = text;
-  el('export-panel').hidden = false;
   let copied = false;
   try { await navigator.clipboard.writeText(text); copied = true; } catch (error) { copied = false; }
   if (!copied) {
+    const box = document.createElement('textarea');
+    box.value = text;
+    box.readOnly = true;
+    box.setAttribute('aria-hidden', 'true');
+    box.style.cssText = 'position: fixed; top: 0; left: -9999px; width: 1px; height: 1px; opacity: 0;';
+    document.body.append(box);
     box.focus();
     box.select();
     try { copied = document.execCommand('copy'); } catch (error) { copied = false; }
+    box.remove();
+    el('export').focus();
   }
-  el('export-status').textContent = copied
-    ? 'Copied. Paste it into the thread now, then close this file.'
-    : 'Clipboard blocked. The text is selected above: press \u2318C or Ctrl+C, paste it into the thread, then close this file.';
+  el('export').textContent = copied ? 'Copied' : 'Copy failed';
+  clearTimeout(exportTimer);
+  exportTimer = setTimeout(() => { el('export').textContent = exportLabel; }, COPY_LABEL_MS);
 };
 
 const start = data.items.findIndex(entry => entry.id === decodeURIComponent(location.hash.slice(1)));

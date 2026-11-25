@@ -73,7 +73,9 @@ Add `--inline` only where a single file is required, such as the optional Drive 
 
 A crew thread only captures. The coordinating agent collects every capture and `review.json` entry and builds the single round.
 
-Deliver a round by copying the whole round folder to the reviewer's machine with `tools.transfer.files`. For Evan, that is his MacBook Pro at `~/Desktop/airgoods-review/<round-id>/`. The reviewer opens the HTML there from `file://`. Give the reviewer its path, and say in your own message that they must copy their decisions before closing the file. The page no longer says it, and it keeps no state across reloads.
+Deliver a round by copying the whole round folder to the reviewer's machine with `tools.transfer.files`. For Evan, that is his MacBook Pro at `~/Desktop/airgoods-review/<round-id>/`. The reviewer opens the HTML there from `file://`. Give the reviewer its path. The page autosaves each Looks good mark and comment in the browser's local storage, keyed by review title and round id, and restores them on reload. It ignores stored state that does not parse or names comparisons the round no longer shows.
+
+To carry decisions into a rebuilt round, save the reviewer's copied decisions text for that round to a file and add `--seed <decisions.txt>` to the build. The build fails when the text belongs to another review or round, or names a comparison the round does not show. The page starts from the seed only when the browser holds no saved state for that round.
 
 `assets/round.html` is the default template. Its colours are CSS custom properties at the top of the file, so a project can re-theme it. The round shows:
 
@@ -81,9 +83,9 @@ Deliver a round by copying the whole round folder to the reviewer's machine with
 - A **Looks good** box at the top right of each comparison. Checking it, or pressing **A** outside a text field, approves the comparison and moves to the next one after 140 ms. Unchecking does not move. **←** and **→** step between comparisons.
 - A **Comments to address** box.
 - Clicking a screenshot opens it full screen. **←** and **→** switch between Before and After, and Esc or any click closes it.
-- A footer with **Highlight changes**, **Previous**, **Next**, and **Copy all decisions**. When the browser blocks the clipboard, as it can under `file://`, copying selects the text in a box and asks for Cmd+C.
+- A footer with **Highlight changes**, **Previous**, **Next**, and **Copy all decisions**. Copying writes the decisions text to the clipboard and adds no UI. The button reads **Copied** for 1.6 s, or **Copy failed** when the browser blocks both the clipboard API and the `execCommand` fallback.
 
-Open the built file from `file://` in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, and that the export panel appears with its text when the clipboard is blocked.
+Open the built file from `file://` in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, that **Copy all decisions** changes its label to **Copied**, and that marks survive a reload.
 
 ## Later rounds
 

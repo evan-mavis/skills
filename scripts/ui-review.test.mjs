@@ -288,7 +288,7 @@ test('builds one self-contained html round with a clipboard fallback', () => wit
   const html = await buildRound(directory, 'round-1', { inline: true });
   assert.match(html, /data:image\/png;base64,/);
   assert.match(html, /Copy all decisions/);
-  assert.match(html, /id="export-text"/);
+  assert.doesNotMatch(html, /id="export-(?:panel|text|status)"/);
   assert.match(html, /navigator\.clipboard/);
   assert.match(html, /execCommand/);
   assert.match(html, /ui-review decisions v1/);
@@ -522,8 +522,23 @@ const harness = String.raw`<script>
   handle.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })); result.sidebar.push(width());
   document.querySelectorAll('#nav .row')[1].dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
   result.tip = { shown: !el('tip').hidden, text: el('tip').textContent };
-  el('export').click(); await wait(300);
-  result.exported = el('export-text').value;
+  const visible = () => [...document.body.querySelectorAll('*')].filter(node => node.getClientRects().length && node.getBoundingClientRect().right > 0 && getComputedStyle(node).opacity !== '0').length;
+  const shown = visible();
+  let clipboard = null;
+  navigator.clipboard.writeText = async text => { clipboard = text; };
+  el('export').click(); await wait(50);
+  result.copy = { label: el('export').textContent, added: visible() - shown, panel: !!document.querySelector('#export-panel, #export-text, #export-status') };
+  await wait(1700); result.copy.labelLater = el('export').textContent;
+  result.exported = clipboard;
+  navigator.clipboard.writeText = async () => { throw new Error('blocked'); };
+  let fallback = null;
+  document.execCommand = command => { const box = document.activeElement; fallback = { command, text: box.value, offscreen: box.getBoundingClientRect().right <= 0 }; return true; };
+  el('export').click(); await wait(50);
+  result.fallback = { ...fallback, label: el('export').textContent, added: visible() - shown, textareas: document.querySelectorAll('textarea').length };
+  document.execCommand = () => false;
+  el('export').click(); await wait(50);
+  result.failed = { label: el('export').textContent, added: visible() - shown, textareas: document.querySelectorAll('textarea').length };
+  await wait(1700); result.failed.labelLater = el('export').textContent;
   const output = document.createElement('output');
   output.id = 'results';
   output.textContent = JSON.stringify(result);
@@ -561,6 +576,9 @@ test('drives the round in a browser: Looks good, the A key, the lightbox, resizi
     assert.equal(result.clickClose, true);
     assert.deepEqual(result.sidebar, ['268px', '180px', '560px', '320px', '268px']);
     assert.deepEqual(result.tip, { shown: true, text: 'Card spacing on a phonemobile' });
+    assert.deepEqual(result.copy, { label: 'Copied', added: 0, panel: false, labelLater: 'Copy all decisions' });
+    assert.deepEqual(result.fallback, { command: 'copy', text: result.exported, offscreen: true, label: 'Copied', added: 0, textareas: 1 });
+    assert.deepEqual(result.failed, { label: 'Copy failed', added: 0, textareas: 1, labelLater: 'Copy all decisions' });
     assert.match(result.exported, /^ui-review decisions v1\nreview: Example review\nround: round-1\n/);
     const list = toFixList(parseDecisions(result.exported), JSON.parse(await readFile(join(directory, 'review.json'), 'utf8')));
     assert.deepEqual(list.approved.map(item => item.id), [first, third]);
@@ -682,3 +700,92 @@ test('coverage.mjs records the changed UI files and fails on unmapped ones', asy
     await rm(repo, { recursive: true, force: true });
   }
 });
+
+const STATE_KEY = 'ui-review-state:Example review:round-1';
+const stateHarness = String.raw`<script>
+(async () => {
+  const wait = ms => new Promise(done => setTimeout(done, ms));
+  const phase = new URLSearchParams(location.search).get('phase');
+  if (phase === 'mark') {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'a', bubbles: true, cancelable: true }));
+    await wait(200);
+    go(2);
+    el('comment').value = 'Tighten the gap\nMatch the card radius';
+    el('comment').dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  await wait(100);
+  go(0);
+  const output = document.createElement('output');
+  output.id = 'results';
+  output.textContent = JSON.stringify({ title: el('item-title').textContent, approved: [...approved], comments: Object.fromEntries([...comments].filter(([, text]) => text)), checked: el('approve').checked, stored: localStorage.getItem('${STATE_KEY}') });
+  document.body.append(output);
+})();
+</script>`;
+
+async function openRound(page, profile, query = '') {
+  const { stdout } = await promisify(execFile)(chrome, ['--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run', '--user-data-dir=' + profile, '--window-size=1200,900', '--virtual-time-budget=10000', '--dump-dom', pathToFileURL(page).href + query], { maxBuffer: 64 * 1024 * 1024 });
+  const match = /<output id="results">(.*?)<\/output>/s.exec(stdout);
+  assert.ok(match, 'the harness did not finish');
+  return JSON.parse(match[1].replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
+}
+
+async function withRoundPage(directory, { before = '', seed } = {}, check) {
+  const page = join(directory, 'round.html');
+  const html = await buildRound(directory, 'round-1', { output: page, seed });
+  await writeFile(page, html.replace('<script id="review-data"', before + '<script id="review-data"').replace('</body>', stateHarness + '</body>'));
+  const profile = await mkdtemp(join(tmpdir(), 'ui-review-chrome-'));
+  try { await check(query => openRound(page, profile, query)); } finally { await rm(profile, { recursive: true, force: true }); }
+}
+
+test('marks and comments autosave and survive a reload', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(designReview, async (run, directory) => withRoundPage(directory, {}, async open => {
+  const marked = await open('?phase=mark');
+  const expected = { approved: ['round-1/reminder'], comments: { 'round-1/tablet': 'Tighten the gap\nMatch the card radius' } };
+  assert.deepEqual(JSON.parse(marked.stored), expected);
+  const reloaded = await open();
+  assert.deepEqual({ approved: reloaded.approved, comments: reloaded.comments }, expected);
+  assert.equal(reloaded.checked, true);
+})));
+
+test('ignores stored state that does not parse or names missing comparisons', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, async () => {
+  for (const value of ['{not json', '"text"', 'null', '[]', JSON.stringify({ approved: 'round-1/reminder', comments: {} }), JSON.stringify({ approved: [], comments: [] }), JSON.stringify({ approved: ['round-1/ghost'], comments: {} }), JSON.stringify({ approved: ['round-1/reminder'], comments: { 'round-0/gone': 'Old note' } }), JSON.stringify({ approved: [], comments: { 'round-1/reminder': 7 } })]) {
+    await withReview(designReview, async (run, directory) => withRoundPage(directory, { before: '<script>localStorage.setItem(' + JSON.stringify(STATE_KEY) + ', ' + JSON.stringify(value) + ')</script>' }, async open => {
+      const result = await open();
+      assert.equal(result.title, 'Request reminder', value);
+      assert.deepEqual({ approved: result.approved, comments: result.comments }, { approved: [], comments: {} }, value);
+    }));
+  }
+});
+
+test('--seed preloads copied decisions, and saved state wins over the seed', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(designReview, async (run, directory) => {
+  const seed = formatDecisions({ title: 'Example review', round: 'round-1', items: [
+    { id: 'round-1/reminder', title: 'Request reminder', approved: true },
+    { id: 'round-1/spacing', title: 'Card spacing on a phone', approved: false, comment: 'Tighten the gap\nMatch the radius' },
+    { id: 'round-1/tablet', title: 'Tablet layout', approved: false },
+  ] });
+  await withRoundPage(directory, { seed }, async open => {
+    const result = await open();
+    assert.deepEqual({ approved: result.approved, comments: result.comments }, { approved: ['round-1/reminder'], comments: { 'round-1/spacing': 'Tighten the gap\nMatch the radius' } });
+  });
+  const saved = JSON.stringify({ approved: ['round-1/tablet'], comments: {} });
+  await withRoundPage(directory, { seed, before: '<script>localStorage.setItem(' + JSON.stringify(STATE_KEY) + ', ' + JSON.stringify(saved) + ')</script>' }, async open => {
+    const result = await open();
+    assert.deepEqual({ approved: result.approved, comments: result.comments }, { approved: ['round-1/tablet'], comments: {} });
+  });
+}));
+
+test('--seed rejects decisions from another round or for comparisons the round does not show', () => withReview(designReview, async (run, directory) => {
+  const output = join(directory, 'round.html');
+  const decisions = (round, id) => formatDecisions({ title: 'Example review', round, items: [{ id, title: 'x', approved: true }] });
+  await assert.rejects(buildRound(directory, 'round-1', { output, seed: decisions('round-2', 'round-2/reminder') }), /belong to Example review, round-2, not round-1/);
+  await assert.rejects(buildRound(directory, 'round-1', { output, seed: decisions('round-1', 'round-1/ghost') }), /does not show: round-1\/ghost/);
+  await assert.rejects(buildRound(directory, 'round-1', { output, seed: 'pasted nothing' }), /No ui-review decisions found/);
+  const file = join(directory, 'decisions.txt');
+  await writeFile(file, decisions('round-1', 'round-1/spacing'));
+  const cli = join(process.cwd(), 'estack-capy/skills/ui-review/scripts/build-round.mjs');
+  const built = spawnSync(process.execPath, [cli, directory, 'round-1', output, '--seed', file], { encoding: 'utf8' });
+  assert.equal(built.status, 0, built.stderr);
+  const data = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(await readFile(output, 'utf8'))[1]);
+  assert.deepEqual(data.seed, { approved: ['round-1/spacing'], comments: {} });
+  assert.equal(spawnSync(process.execPath, [cli, directory, 'round-1', output, '--seed'], { encoding: 'utf8' }).status, 1);
+  assert.equal((await buildRound(directory, 'round-1', { output })).includes('"seed":null'), true);
+}));

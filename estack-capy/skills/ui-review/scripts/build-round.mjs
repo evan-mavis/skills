@@ -2,7 +2,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, dirname, extname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateReview } from './validate-review.mjs';
-import { formatDecisions } from './decisions.mjs';
+import { formatDecisions, parseDecisions } from './decisions.mjs';
 import { decodePng } from './diff-captures.mjs';
 import { device, coverageSummary, assertCoverageGate } from './coverage.mjs';
 import encodeJpeg from './vendor/jpeg-js-encoder.mjs';
@@ -47,7 +47,19 @@ function compress(bytes, side) {
   return { type: 'jpeg', bytes: Buffer.from(jpeg) };
 }
 
-export async function buildRound(directory, roundId, { final = false, inline = false, output } = {}) {
+function seedState(text, review, round, items) {
+  const parsed = parseDecisions(text);
+  if (parsed.review !== review.title.replace(/\s+/g, ' ').trim() || parsed.round !== round.id) throw new Error('The seed decisions belong to ' + parsed.review + ', ' + parsed.round + ', not ' + round.id);
+  const ids = new Set(items.map(entry => entry.id));
+  const unknown = parsed.items.filter(entry => !ids.has(entry.id)).map(entry => entry.id);
+  if (unknown.length) throw new Error('The seed decisions name comparisons this round does not show: ' + unknown.join(', '));
+  return {
+    approved: parsed.items.filter(entry => entry.decision === 'approved').map(entry => entry.id),
+    comments: Object.fromEntries(parsed.items.filter(entry => entry.comment).map(entry => [entry.id, entry.comment])),
+  };
+}
+
+export async function buildRound(directory, roundId, { final = false, inline = false, output, seed } = {}) {
   if (!inline && !output) throw new Error('A linked round needs the output path so its images/ folder can sit beside it');
   await validateReview(directory);
   const root = resolve(directory);
@@ -95,7 +107,8 @@ export async function buildRound(directory, roundId, { final = false, inline = f
     ? await Promise.all([...latest.values()].filter(({ comparison }) => !comparison.archived).map(({ round: entry, comparison }) => item(entry, comparison)))
     : await Promise.all(round.comparisons.filter(comparison => !comparison.archived).map(comparison => item(round, comparison)));
   const data = { mode: final ? 'final' : 'round', title: review.title, heading: heading(review), summary: review.summary, groups: review.issues,
-    round: { id: round.id, label: final ? 'Final design' : round.label, summary: final ? review.summary : round.summary }, items, earlier, coverage: coverageSummary(review) };
+    round: { id: round.id, label: final ? 'Final design' : round.label, summary: final ? review.summary : round.summary }, items, earlier, coverage: coverageSummary(review),
+    seed: seed === undefined ? null : seedState(seed, review, round, items) };
   const html = (await readFile(template, 'utf8'))
     .replace('__UI_REVIEW_FORMAT__', () => formatDecisions.toString())
     .replace('__UI_REVIEW_DATA__', () => JSON.stringify(data).replace(/</g, '\\u003c'));
@@ -110,12 +123,15 @@ export function highlightCount(html) {
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const args = process.argv.slice(2);
   const final = args.includes('--final'), inline = args.includes('--inline');
-  const [directory, ...rest] = args.filter(arg => arg !== '--final' && arg !== '--inline');
+  const seedAt = args.indexOf('--seed');
+  const seedFile = seedAt >= 0 ? args[seedAt + 1] : undefined;
+  const [directory, ...rest] = args.filter((arg, index) => arg !== '--final' && arg !== '--inline' && (seedAt < 0 || (index !== seedAt && index !== seedAt + 1)));
   const [roundId, output] = final ? [undefined, rest[0]] : rest;
   try {
-    if (!directory || !output) throw new Error('Usage: build-round.mjs <review-directory> <round-id> <output.html> [--inline] | build-round.mjs <review-directory> --final <output.html> [--inline]');
+    if (!directory || !output || (seedAt >= 0 && !seedFile)) throw new Error('Usage: build-round.mjs <review-directory> <round-id> <output.html> [--inline] [--seed <decisions.txt>] | build-round.mjs <review-directory> --final <output.html> [--inline]');
+    const seed = seedFile === undefined ? undefined : await readFile(seedFile, 'utf8');
     await mkdir(dirname(resolve(output)), { recursive: true });
-    const html = await buildRound(directory, roundId, { final, inline, output });
+    const html = await buildRound(directory, roundId, { final, inline, output, seed });
     await writeFile(output, html);
     const megabytes = bytes => (bytes / 1e6).toFixed(1) + ' MB';
     const size = Buffer.byteLength(html);
