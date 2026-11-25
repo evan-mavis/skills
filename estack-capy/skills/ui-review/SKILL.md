@@ -131,11 +131,11 @@ Apply the UI-only requests as **Later rounds** describes, and deliver the rest t
 
 Rounds with real dev data (copies of production) stay local on the reviewer's machine. Never commit them or publish them publicly, for example with `tools.pr.uploadAsset`, unless Evan explicitly says so.
 
-Build the final round and add a **Design** section to the PR body with the approved judgments, variant, and reviewed revisions. Attach the final review images only when Evan explicitly says so.
+Evan explicitly accepted public final review images for the PR. Build the final round and publish its images with `tools.pr.uploadAsset`. Embed exactly the Markdown the tool prescribes in a **Design** section with the approved judgments, variant, and reviewed revisions. Never include secrets or credentials.
 
-Keep this review image-only. QA uses `capture` for final video evidence after design and independent engineering review. A Drive link to the complete HTML remains optional, not required. Read [publishing](references/publishing.md) for the PR steps and Drive access limits.
+Keep this review image-only. QA uses `capture` for final video evidence after design and independent engineering review. A Drive link to the complete HTML remains optional, not required. Read [publishing](references/publishing.md) for the recorded decision, attachment steps, and Drive access limits.
 
 ## Handoff
 
 - **In:** the base and head revisions, the repository's verify skill, the project context's app list and native capture method, and the Linear spec or issue the review belongs to.
-- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list for each pasted decision round, and the **Design** section in the PR body.
+- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list for each pasted decision round, and the final design doc linked from the PR body.

@@ -47,6 +47,6 @@ Revisions edit a copy of the finishing manifest and render a new derivative. Kee
 
 Decode the whole video. Inspect the opening, each interaction and route change, scrolls, loading, held text, and ending. Check that the action and result are visible and match the tested build. Preserve raw hashes, source presentation timestamps, and derivative receipts. These are integrity checks, not signed attestations or measured acquisition fps.
 
-Attach the reviewed video through the thread's message tool. Keep raw evidence private and link it only through an authorized artifact flow. Recordings with real dev data (copies of production) stay local on the reviewer's machine. Never commit them or publish them publicly, for example with `tools.pr.uploadAsset`, unless Evan explicitly says so. UI review retains ownership of its own publishing. Never put recordings, account data, or raw evidence in a portable skill bundle.
+Attach the reviewed video through the thread's message tool. Keep raw evidence private and link it only through an authorized artifact flow. Publishing to GitHub with `tools.pr.uploadAsset` makes media public and requires Evan's explicit authorization. UI review retains ownership of its own publishing. Never put recordings, account data, or raw evidence in a portable skill bundle.
 
 After changing the pipeline, run the bundled tests and [fixture validation](scripts/validate_fixture.py). Report static checks separately from a live native capture. See [dependencies and asset rights](references/licenses.md).
