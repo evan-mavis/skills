@@ -64,13 +64,61 @@ export function decodeImage(bytes) {
 
 const pixel = (image, x, y) => x < image.width && y < image.height ? image.pixels.subarray((y * image.width + x) * 4, (y * image.width + x) * 4 + 4) : null;
 
-export function diffImages(before, after, { cell = 8, threshold = 24, gap = 2 } = {}) {
+export const DEFAULTS = { cell: 8, threshold: 32, gap: 2 };
+const MOVE_SAMPLE = 2000, MOVE_CANDIDATES = 8, MOVE_MATCHES = 32;
+
+function same(source, target, box, dx, dy, threshold, pastEdge) {
+  for (let y = box.y; y < box.y + box.height; y++) for (let x = box.x; x < box.x + box.width; x++) {
+    const tx = x + dx, ty = y + dy;
+    if (tx < 0 || ty < 0) return false;
+    if (tx >= target.width || ty >= target.height) { if (pastEdge) continue; return false; }
+    const s = (y * source.width + x) * 4, t = (ty * target.width + tx) * 4;
+    for (let c = 0; c < 4; c++) if (Math.abs(source.pixels[s + c] - target.pixels[t + c]) > threshold) return false;
+  }
+  return true;
+}
+
+function uniform(image, box) {
+  const first = (box.y * image.width + box.x) * 4;
+  for (let y = box.y; y < box.y + box.height; y++) for (let x = box.x; x < box.x + box.width; x++) {
+    const at = (y * image.width + x) * 4;
+    for (let c = 0; c < 4; c++) if (image.pixels[at + c] !== image.pixels[first + c]) return false;
+  }
+  return true;
+}
+
+function moves(before, after, boxes, threshold) {
+  const votes = new Map();
+  const step = Math.max(1, Math.floor(boxes.length / MOVE_SAMPLE));
+  for (let index = 0; index < boxes.length; index += step) {
+    const box = boxes[index];
+    if (uniform(after, box)) continue;
+    const found = [];
+    for (let distance = 1; distance <= Math.max(before.width, before.height) && found.length < MOVE_MATCHES; distance++) for (const [dx, dy] of [[0, distance], [0, -distance], [distance, 0], [-distance, 0]]) {
+      if (found.length < MOVE_MATCHES && same(after, before, box, -dx, -dy, threshold, false)) found.push(dx + ',' + dy);
+    }
+    for (const key of found) votes.set(key, (votes.get(key) || 0) + 1 / found.length);
+  }
+  return [...votes].sort((a, b) => b[1] - a[1]).slice(0, MOVE_CANDIDATES).map(([key]) => key.split(',').map(Number));
+}
+
+export function diffImages(before, after, { cell = DEFAULTS.cell, threshold = DEFAULTS.threshold, gap = DEFAULTS.gap } = {}) {
   const width = Math.max(before.width, after.width), height = Math.max(before.height, after.height);
   const columns = Math.ceil(width / cell), rows = Math.ceil(height / cell);
   const changed = new Uint32Array(columns * rows);
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
     const a = pixel(before, x, y), b = pixel(after, x, y);
     if (!a || !b || Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1]), Math.abs(a[2] - b[2]), Math.abs(a[3] - b[3])) > threshold) changed[Math.floor(y / cell) * columns + Math.floor(x / cell)]++;
+  }
+  const box = (index, image) => {
+    const x = (index % columns) * cell, y = Math.floor(index / columns) * cell;
+    return x < image.width && y < image.height ? { x, y, width: Math.min(cell, image.width - x), height: Math.min(cell, image.height - y) } : null;
+  };
+  const cells = [...changed.keys()].filter(index => changed[index]);
+  const shifts = moves(before, after, cells.map(index => box(index, after)).filter(Boolean), threshold);
+  for (const index of cells) {
+    const a = box(index, before), b = box(index, after);
+    if (shifts.some(([dx, dy], rank) => (!a || same(before, after, a, dx, dy, threshold, rank === 0)) && (!b || same(after, before, b, -dx, -dy, threshold, rank === 0)))) changed[index] = 0;
   }
   const seen = new Uint8Array(changed.length);
   const regions = [];
@@ -167,13 +215,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   try {
     const options = Object.fromEntries(['cell', 'threshold', 'gap'].map(name => [name, option(name)]).filter(([, value]) => value !== undefined));
     if (args[0] === '--review') {
-      if (!args[1]) throw new Error('Usage: diff-captures.mjs --review <review-directory> [--replace] [--cell 8] [--threshold 24] [--gap 2]');
+      if (!args[1]) throw new Error('Usage: diff-captures.mjs --review <review-directory> [--replace] [--cell 8] [--threshold 32] [--gap 2]');
       const { highlighted, unchanged, kept } = await highlightReview(args[1], { replace: args.includes('--replace'), ...options });
       console.log('Wrote regions for ' + highlighted.length + ' comparisons. Kept existing regions on ' + kept.length + '.');
       if (unchanged.length) console.log('No visible change in ' + unchanged.length + ': ' + unchanged.join(', ') + '. Confirm each and set its unchanged note, or recapture.');
     } else {
       const [base, head] = args;
-      if (!base || !head || base.startsWith('--') || head.startsWith('--')) throw new Error('Usage: diff-captures.mjs <base-directory> <head-directory> [--cell 8] [--threshold 24] [--gap 2] | diff-captures.mjs --review <review-directory> [--replace]');
+      if (!base || !head || base.startsWith('--') || head.startsWith('--')) throw new Error('Usage: diff-captures.mjs <base-directory> <head-directory> [--cell 8] [--threshold 32] [--gap 2] | diff-captures.mjs --review <review-directory> [--replace]');
       console.log(JSON.stringify(await compareCaptures(base, head, options), null, 2));
     }
   } catch (error) { console.error(error.message); process.exitCode = 1; }

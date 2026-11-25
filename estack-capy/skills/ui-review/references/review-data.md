@@ -39,6 +39,7 @@
   "notUserVisible": [{ "file": "apps/web/src/checkout/format.tsx", "reason": "Renames an internal helper; output is identical" }],
   "items": [
     { "id": "checkout-filled-desktop", "app": "web", "surface": "Checkout", "kind": "route", "state": "filled", "role": "buyer", "platform": "desktop-web", "files": ["apps/web/src/checkout/Reminder.tsx"], "comparison": "request-reminder" },
+    { "id": "receipt-empty-desktop", "app": "web", "surface": "Receipt", "kind": "route", "state": "empty", "role": "buyer", "platform": "desktop-web", "files": ["apps/web/src/checkout/Reminder.tsx"], "comparison": "receipt-empty", "sameOnOtherPlatform": "The empty receipt is one centered line at both widths" },
     { "id": "checkout-filled-mobile", "app": "web", "surface": "Checkout", "kind": "route", "state": "filled", "role": "buyer", "platform": "mobile-web", "files": ["apps/web/src/checkout/Reminder.tsx"], "uncovered": "The mobile layout needs a seeded cart the dev data lacks",
       "waiver": { "by": "Evan", "at": "2026-11-25T07:10:00Z", "quote": "skip mobile checkout this round" } }
   ]
@@ -46,8 +47,9 @@
 ```
 
 - `base` and `head` are the full SHAs the inventory was computed from. `coverage.mjs --write` records `changedFiles` from `git diff base...head`, filtered by `uiPattern` (a regular expression; the default covers common view and style extensions) and with tests and stories excluded.
-- `items` has one entry per surface, state, role, and platform. `kind` is `route`, `screen`, `modal`, `drawer`, `component`, `email`, or `other`. `platform` is `desktop-web`, `mobile-web`, `tablet-web`, or `native`, and the app name says which native app. `files` names the changed files that reach the surface.
+- `items` has one entry per distinct user-visible surface, state, role, and platform. Variants that look the same share one item. `kind` is `route`, `screen`, `modal`, `drawer`, `component`, `email`, or `other`. `platform` is `desktop-web`, `mobile-web`, `tablet-web`, or `native`, and the app name says which native app. `files` names the changed files that reach the surface.
 - Each item has either `comparison`, the id of a live comparison with an After capture, or `uncovered`, the reason it could not be captured. A web item's comparison variant must match its platform.
+- `sameOnOtherPlatform` on a `desktop-web` or `mobile-web` item is a short reason the other width looks the same. It replaces the other platform's item.
 - `waiver` is allowed only on an uncovered item and records the reviewer's explicit word: `by`, `at` (a timestamp), and `quote`.
 - `notUserVisible` maps a changed UI file that no user can see a change in, with the reason.
 
@@ -106,9 +108,9 @@ The validator is the guard against a review that looks right and misleads.
 - Feedback is complete and targets a known comparison.
 - `coverage` has full base and head SHAs and a non-empty inventory. Every changed UI file is in an item or in `notUserVisible`, and every item's files are changed UI files.
 - Every item is complete, has a comparison or an uncovered reason but not both, and points at a live, captured comparison whose variant matches its platform.
-- Every `desktop-web` item has a `mobile-web` item for the same app, surface, kind, state, and role, and the reverse.
+- Every `desktop-web` item has a `mobile-web` item for the same app, surface, kind, state, and role, and the reverse, unless it sets `sameOnOtherPlatform` with a reason. An item cannot set it and also have that twin.
 - A waiver sits on an uncovered item and names who gave it, when, and their words.
 
-`build-round.mjs --final` also refuses to build while any item is uncovered without a waiver.
+`build-round.mjs --final` also refuses to build while any item is uncovered without a waiver, or while any shown highlight region keeps a generic label such as `Changed area 2`. A regular round build lists those labels as a warning.
 
 Run it before every build. It cannot prove a capture came from the build it names; verify Git and the running process while capturing.

@@ -111,7 +111,7 @@ export async function validateReview(directory) {
   require(Array.isArray(coverage.notUserVisible), 'Missing coverage.notUserVisible list');
   const changed = new Set(coverage.changedFiles);
   for (const entry of coverage.notUserVisible) require(changed.has(entry.file) && string(entry.reason), `Not user-visible needs a changed file and a reason: ${entry.file}`);
-  const coverageIds = new Set(), twins = { 'desktop-web': new Set(), 'mobile-web': new Set() };
+  const coverageIds = new Set(), twins = { 'desktop-web': new Map(), 'mobile-web': new Map() };
   for (const entry of coverage.items) {
     require(/^[a-zA-Z0-9_-]+$/.test(entry.id) && !coverageIds.has(entry.id), `Invalid or duplicate inventory ID: ${entry.id}`);
     coverageIds.add(entry.id);
@@ -124,9 +124,14 @@ export async function validateReview(directory) {
       require(entry.platform === 'native' || device(target.variant) === PLATFORMS[entry.platform], `Inventory platform disagrees with the comparison variant: ${entry.id}`);
     }
     if (entry.waiver !== undefined) require(string(entry.uncovered) && string(entry.waiver.by) && string(entry.waiver.quote) && Number.isFinite(Date.parse(entry.waiver.at)), `A waiver needs an uncovered item and the reviewer's by, at, and quote: ${entry.id}`);
-    if (entry.platform in twins) twins[entry.platform].add([entry.app, entry.surface, entry.kind, entry.state, entry.role].join('\u0000'));
+    if (entry.sameOnOtherPlatform !== undefined) require(entry.platform in twins && string(entry.sameOnOtherPlatform), `sameOnOtherPlatform needs a desktop-web or mobile-web item and the reason both look the same: ${entry.id}`);
+    if (entry.platform in twins) twins[entry.platform].set([entry.app, entry.surface, entry.kind, entry.state, entry.role].join('\u0000'), entry);
   }
-  for (const [platform, other] of [['desktop-web', 'mobile-web'], ['mobile-web', 'desktop-web']]) for (const key of twins[platform]) require(twins[other].has(key), `Every ${platform} inventory item needs a ${other} item: ${key.split('\u0000').join(', ')}`);
+  for (const [platform, other] of [['desktop-web', 'mobile-web'], ['mobile-web', 'desktop-web']]) for (const [key, entry] of twins[platform]) {
+    const surface = key.split('\u0000').join(', ');
+    if (twins[other].has(key)) require(entry.sameOnOtherPlatform === undefined, `${entry.id} says ${other} looks the same but also has a ${other} item: ${surface}`);
+    else require(entry.sameOnOtherPlatform !== undefined, `Every ${platform} inventory item needs a ${other} item, or sameOnOtherPlatform with the reason both look the same: ${surface}`);
+  }
   const unmapped = unmappedFiles(coverage, coverage.changedFiles);
   require(!unmapped.length, `Changed UI files in no inventory item and not marked notUserVisible: ${unmapped.join(', ')}`);
   return { comparisons: count, gaps, missingCaptures, coverage: coverageSummary(review), provenance: 'Metadata and original bytes checked; verify running builds separately.' };

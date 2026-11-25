@@ -6,9 +6,9 @@ Before editing, identify and verify the pre-change Git baseline, including why t
 
 Record the current commit and the dirty patch digest when the head includes uncommitted changes. Confirm that the serving process uses that source and that any required rebuild has finished. Match account role, route, action sequence, fixture data, viewport, device scale, and scroll position. Capture through normal app actions. Record the capture time and tool, plus evidence of the running build. A SHA written into JSON alone does not prove provenance.
 
-Build a coverage list from changed code and shared callers. Include the roles, permissions, loading, empty and populated data, validation, errors, disabled controls, content lengths, dialogs, menus, and responsive states that the change materially affects. Inspect each image before keeping it.
+Build a coverage list from changed code and shared callers. Include the roles, permissions, loading, empty and populated data, validation, errors, disabled controls, content lengths, dialogs, menus, and responsive states that the change materially affects. Capture each distinct user-visible state once. Skip variants that look the same, such as ones that differ only in backend behavior. Inspect each image before keeping it.
 
-Export original screenshots from the browser tools. Keep them outside the application repository. Record each raw screenshot's SHA-256 and its capture provenance. Keep highlight metadata and any annotated viewing copy separate from the raw evidence. Avoid sensitive data at capture time. If an image holds a secret or a customer's record, discard it and recapture with safe data.
+Export original screenshots from the browser tools. Keep them outside the application repository. Record each raw screenshot's SHA-256 and its capture provenance. Keep highlight metadata and any annotated viewing copy separate from the raw evidence. Rounds with real dev data (copies of production) stay local on the reviewer's machine. Never commit them or publish them publicly, for example with `tools.pr.uploadAsset`, unless Evan explicitly says so.
 
 Use authenticated full-app captures first. When one is blocked, state the exact gap beside the comparison. A component preview may supplement the evidence with `kind: "component-preview"` and a short gap note. Use `kind: "example-fixture"` for template validation. Never present either as authenticated evidence. For entirely new UI, Before may show the previous entry point or the surrounding screen, with the comparison explaining that the new UI did not exist.
 
@@ -35,14 +35,14 @@ For each image, store a record in this shape. `diff-captures.mjs --review` write
     "route": "/requests/example",
     "role": "brand",
     "state": "filled request",
-    "dataKey": "safe-fixture-identity",
+    "dataKey": "dev-data-snapshot",
     "viewport": { "width": 1440, "height": 1000, "deviceScaleFactor": 1 },
     "scroll": { "x": 0, "y": 0 }
   }
 }
 ```
 
-Use actual PNG or JPEG pixel dimensions for `width`, `height`, and the rectangles, not CSS viewport units. Convert CSS measurements by the capture scale and crop origin. Keep region coordinates relative to that image. Each rectangle has positive dimensions and fits inside the image. Several rectangles are allowed. Mark an old location in Before and the new location in After for moved content. Exclude unrelated timestamps, avatars, animation, and other dynamic noise. Never mark the whole screen to hide an uncertain diff.
+Use actual PNG or JPEG pixel dimensions for `width`, `height`, and the rectangles, not CSS viewport units. Convert CSS measurements by the capture scale and crop origin. Keep region coordinates relative to that image. Each rectangle has positive dimensions and fits inside the image. Several rectangles are allowed. When a move is itself the change, such as a reordered list, mark the old location in Before and the new location in After by hand. Exclude unrelated timestamps, avatars, animation, and other dynamic noise. Never mark the whole screen to hide an uncertain diff.
 
 The page draws each region as a box sized from these coordinates, as a percentage of the stored width and height, inside a wrapper with the same aspect ratio. The image renders at `width: 100%; height: auto` with no letterboxing. A border uses `box-sizing: border-box` so it stays inside its rectangle. If you change the layout to contain or cover, account for the image offset and crop before reusing the metadata.
 
@@ -50,4 +50,4 @@ The validator requires Before to have no dirty patch and rejects a pair with the
 
 ## Overlays
 
-`regions` from the diff script carry a rectangle per changed area plus a `signature` of the before and after crop, and a `changedPixels` count. Keep the ones worth pointing at and give each a label that names what changed. Drop regions that only follow a layout shift, and replace them with one region around the moved block. Before uses red, After uses green. Never bake marks into the original image.
+`regions` from the diff script carry a rectangle per changed area plus a `signature` of the before and after crop, and a `changedPixels` count. The script already ignores content that only moved. Curate the rest by hand: keep a region only around a change a user would see as different, drop shifted or unchanged content, and label each kept region specifically. `Changed area N` is a placeholder; the final build rejects it. Before uses red, After uses green. Never bake marks into the original image.

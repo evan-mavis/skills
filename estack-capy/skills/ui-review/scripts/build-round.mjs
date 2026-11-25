@@ -12,6 +12,10 @@ const OPEN = new Set(['unresolved', 'reopened']);
 export const JPEG_QUALITY = 62;
 export const HIGH_DENSITY_SCALE = 0.75;
 export const ROUND_BUDGET_BYTES = 3_500_000;
+export const GENERIC_LABEL = /^\s*(changed\s+)?(area|region|change|highlight)\s*\d*\s*$/i;
+
+export const genericLabels = items => [...new Set(items.flatMap(entry => [entry.before, entry.after].flatMap(side => side?.regions || [])
+  .filter(region => GENERIC_LABEL.test(region.label)).map(region => entry.id + ': ' + region.label)))];
 
 function scale(image, factor) {
   const width = Math.round(image.width * factor), height = Math.round(image.height * factor);
@@ -106,6 +110,8 @@ export async function buildRound(directory, roundId, { final = false, inline = f
   const items = final
     ? await Promise.all([...latest.values()].filter(({ comparison }) => !comparison.archived).map(({ round: entry, comparison }) => item(entry, comparison)))
     : await Promise.all(round.comparisons.filter(comparison => !comparison.archived).map(comparison => item(round, comparison)));
+  const generic = final ? genericLabels(items) : [];
+  if (generic.length) throw new Error('Label gate: ' + generic.length + ' highlight regions carry a generic label: ' + generic.join(', ') + '. Name what the user sees change in each, or drop the region, before the final doc.');
   const data = { mode: final ? 'final' : 'round', title: review.title, heading: heading(review), summary: review.summary, groups: review.issues,
     round: { id: round.id, label: final ? 'Final design' : round.label, summary: final ? review.summary : round.summary }, items, earlier, coverage: coverageSummary(review),
     seed: seed === undefined ? null : seedState(seed, review, round, items) };
@@ -115,8 +121,10 @@ export async function buildRound(directory, roundId, { final = false, inline = f
   return html;
 }
 
+const roundItems = html => JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]).items;
+
 export function highlightCount(html) {
-  const { items } = JSON.parse(/<script id="review-data" type="application\/json">(.*?)<\/script>/s.exec(html)[1]);
+  const items = roundItems(html);
   return { highlighted: items.filter(item => item.before?.regions.length || item.after?.regions.length).length, total: items.length };
 }
 
@@ -137,6 +145,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     const size = Buffer.byteLength(html);
     const { highlighted, total } = highlightCount(html);
     (highlighted ? console.log : console.error)('Highlights: ' + highlighted + ' of ' + total + ' comparisons' + (highlighted ? '.' : '. None of them marks a change. Run diff-captures.mjs --review before you deliver this round.'));
+    const generic = genericLabels(roundItems(html));
+    if (generic.length) console.error('Generic labels on ' + generic.length + ' regions: ' + generic.join(', ') + '. Curate the highlights: keep only real user-visible changes and name each one.');
     if (!inline) console.log('Wrote ' + output + ' with its images in ' + join(dirname(output), 'images') + '. Deliver the whole folder.');
     else if (size <= ROUND_BUDGET_BYTES) console.log('Wrote ' + output + ': ' + megabytes(size) + ' of the ' + megabytes(ROUND_BUDGET_BYTES) + ' budget');
     else {

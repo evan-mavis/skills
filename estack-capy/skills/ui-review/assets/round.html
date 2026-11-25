@@ -159,6 +159,7 @@ const SIDEBAR_MAX = 560;
 const ADVANCE_DELAY_MS = 140;
 const COPY_LABEL_MS = 1600;
 const STATE_KEY = 'ui-review-state:' + data.title + ':' + data.round.id;
+const ACCORDION_KEY = 'ui-review-accordion:' + data.title + ':' + data.round.id;
 let current = 0;
 let lightboxSide = 0;
 
@@ -173,13 +174,20 @@ const coverage = data.coverage;
 el('coverage').textContent = 'Coverage ' + coverage.captured + ' / ' + coverage.inventory + ' captured' + (coverage.waived ? ' · ' + coverage.waived + ' waived' : '') + (coverage.uncovered ? ' · ' + coverage.uncovered + ' uncovered' : '');
 const icon = name => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + '</svg>';
 const markOf = id => comments.get(id).trim() ? 'comment' : approved.has(id) ? 'approved' : '';
-const gapsHtml = coverage.gaps.length ? '<details><summary>Not captured · ' + coverage.gaps.length + '</summary>' + coverage.gaps.map((gap, index) => '<div class="row uncovered" data-gap="' + index + '">' + icon(gap.device) + '<span>' + esc(gap.title) + '</span></div>').join('') + '</details>' : '';
+const sections = [...data.groups.filter(group => data.items.some(entry => entry.issueId === group.id)).map(group => 'group:' + group.id), ...(coverage.gaps.length ? ['gaps'] : [])];
+let accordion = {};
+try {
+  const saved = JSON.parse(localStorage.getItem(ACCORDION_KEY));
+  if (saved && typeof saved === 'object' && !Array.isArray(saved) && Object.entries(saved).every(([section, open]) => sections.includes(section) && typeof open === 'boolean')) accordion = saved;
+} catch (error) {}
+const section = (name, open) => ' data-section="' + esc(name) + '"' + ((accordion[name] ?? open) ? ' open' : '');
+const gapsHtml = coverage.gaps.length ? '<details' + section('gaps', false) + '><summary>Not captured · ' + coverage.gaps.length + '</summary>' + coverage.gaps.map((gap, index) => '<div class="row uncovered" data-gap="' + index + '">' + icon(gap.device) + '<span>' + esc(gap.title) + '</span></div>').join('') + '</details>' : '';
 
 function nav() {
   el('nav').innerHTML = data.groups.map(group => {
     const items = data.items.filter(entry => entry.issueId === group.id);
     if (!items.length) return '';
-    return '<details open><summary>' + esc(group.title) + '</summary>' + items.map(entry => {
+    return '<details' + section('group:' + group.id, true) + '><summary>' + esc(group.title) + '</summary>' + items.map(entry => {
       const index = data.items.indexOf(entry);
       return '<a class="row" href="#' + encodeURIComponent(entry.id) + '" data-index="' + index + '"' + (markOf(entry.id) ? ' data-mark="' + markOf(entry.id) + '"' : '') + '>' + icon(entry.device) + '<span>' + esc(entry.title) + '</span><i class="mark" aria-hidden="true"></i></a>';
     }).join('') + '</details>';
@@ -254,6 +262,12 @@ el('prev').onclick = () => go(current - 1);
 el('next').onclick = () => go(current + 1);
 el('approve').onchange = event => { event.target.blur(); setApproved(event.target.checked); };
 el('comment').oninput = event => { comments.set(item().id, event.target.value); saveState(); markRow(item().id); };
+el('nav').addEventListener('toggle', event => {
+  const name = event.target.dataset?.section;
+  if (!name) return;
+  accordion[name] = event.target.open;
+  try { localStorage.setItem(ACCORDION_KEY, JSON.stringify(accordion)); } catch (error) {}
+}, true);
 el('highlights').onchange = event => document.body.classList.toggle('hide-highlights', !event.target.checked);
 el('nav').onclick = event => {
   const link = event.target.closest('a[data-index]');

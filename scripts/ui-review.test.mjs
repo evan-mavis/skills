@@ -8,7 +8,7 @@ import { promisify } from 'node:util';
 import { randomBytes } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { validateReview, imageDimensions } from '../estack-capy/skills/ui-review/scripts/validate-review.mjs';
-import { diffImages, decodePng, decodeImage, compareCaptures, highlightRegions, highlightReview } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
+import { diffImages, decodePng, decodeImage, compareCaptures, highlightRegions, highlightReview, DEFAULTS } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
 import encodeJpeg from '../estack-capy/skills/ui-review/scripts/vendor/jpeg-js-encoder.mjs';
 import { formatDecisions, parseDecisions, toFixList, renderFixList } from '../estack-capy/skills/ui-review/scripts/decisions.mjs';
 import { buildRound, ROUND_BUDGET_BYTES, heading, device, highlightCount } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
@@ -645,7 +645,7 @@ test('the sidebar lists comparisons first and collapses the uncaptured items las
     const comparison = nav.indexOf('<a class="row"'), gap = nav.indexOf('data-gap=');
     assert.ok(comparison >= 0 && gap > comparison, 'the first comparison comes before any uncaptured row');
     const gaps = /<details([^>]*)><summary>([^<]*)<\/summary>(?:(?!<\/details>).)*data-gap=/s.exec(nav.slice(nav.lastIndexOf('<details')));
-    assert.equal(gaps[1], '');
+    assert.doesNotMatch(gaps[1], /\bopen\b/);
     assert.equal(gaps[2], 'Not captured · 1');
   } finally {
     await rm(profile, { recursive: true, force: true });
@@ -826,3 +826,125 @@ test('--seed rejects decisions from another round or for comparisons the round d
   assert.equal(spawnSync(process.execPath, [cli, directory, 'round-1', output, '--seed'], { encoding: 'utf8' }).status, 1);
   assert.equal((await buildRound(directory, 'round-1', { output })).includes('"seed":null'), true);
 }));
+
+
+const picture = (width, height, paint) => {
+  const pixels = Buffer.alloc(width * height * 4);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) pixels.set([...paint(x, y), 255], (y * width + x) * 4);
+  return { width, height, pixels };
+};
+const ink = (x, y) => y >= 0 && y % 24 < 12 && x > 20 && x < 300 && (x * 7 + y * 3 + Math.floor(x / 37) * 11 + Math.floor(y / 24) * 5) % 5 < 2;
+const page = (shift = 0, { banner = -1, edit } = {}) => picture(320, 240, (x, y) => {
+  if (banner >= 0 && y >= banner && y < banner + shift) return [98, 72, 255];
+  const source = banner >= 0 && y >= banner ? y - shift : y;
+  if (edit && x >= edit.x && x < edit.x + edit.width && source >= edit.y && source < edit.y + edit.height) return [214, 73, 73];
+  return ink(x, source) ? [30, 30, 30] : [255, 255, 255];
+});
+const covers = (region, box) => region.x <= box.x && region.y <= box.y && region.x + region.width >= box.x + box.width && region.y + region.height >= box.y + box.height;
+
+test('the default threshold ignores recompression noise and still marks a subtle text colour change', () => {
+  const jpeg = (image, quality) => decodeImage(Buffer.from(encodeJpeg({ width: image.width, height: image.height, data: image.pixels }, quality).data));
+  const text = page();
+  assert.equal(DEFAULTS.threshold, 32);
+  assert.ok(diffImages(jpeg(text, 95), jpeg(text, 80), { threshold: 24 }).regions.length > 0, 'the old threshold marks recompression noise');
+  assert.deepEqual(diffImages(jpeg(text, 95), jpeg(text, 80)).regions, []);
+  const gray = value => picture(320, 240, (x, y) => x > 40 && x < 200 && y > 100 && y < 114 && ink(x, y) ? [value, value, value] : [255, 255, 255]);
+  assert.equal(diffImages(gray(0x33), gray(0x55)).regions.length, 1);
+});
+
+test('content that only moved is not marked: an inserted banner marks the banner alone', () => {
+  const { regions } = diffImages(page(), page(16, { banner: 40 }));
+  assert.equal(regions.length, 1);
+  assert.ok(covers(regions[0], { x: 0, y: 40, width: 320, height: 16 }) && regions[0].height <= 24, JSON.stringify(regions));
+});
+
+test('a removed banner marks where it was, and content pushed off the bottom stays unmarked', () => {
+  const { regions } = diffImages(page(16, { banner: 40 }), page());
+  assert.equal(regions.length, 1);
+  assert.ok(covers(regions[0], { x: 0, y: 40, width: 320, height: 16 }) && regions[0].y + regions[0].height <= 64, JSON.stringify(regions));
+});
+
+test('a real change inside moved content is still marked', () => {
+  const edit = { x: 120, y: 150, width: 40, height: 10 };
+  const { regions } = diffImages(page(), page(16, { banner: 40, edit }));
+  assert.equal(regions.length, 2, JSON.stringify(regions));
+  assert.ok(covers(regions[1], { ...edit, y: edit.y + 16 }) && regions[1].height <= 32, JSON.stringify(regions));
+});
+
+test('a block that slid sideways without changing is not marked', () => {
+  const card = offset => picture(320, 120, (x, y) => x >= 40 + offset && x < 140 + offset && y >= 30 && y < 90 && ink(x - offset + 40, y) ? [30, 30, 30] : [255, 255, 255]);
+  assert.deepEqual(diffImages(card(0), card(24)).regions, []);
+  assert.equal(diffImages(card(0), card(24), { threshold: 24 }).regions.length, 0);
+});
+
+test('the final doc rejects generic highlight labels and a round warns about them', () => withReview(c => {
+  c.before.regions[0].label = 'Changed area 1';
+  c.after.regions[0].label = 'Changed area 1';
+}, async (run, directory, data) => {
+  await run();
+  await assert.rejects(buildRound(directory, undefined, { final: true, inline: true }), /Label gate: 1 highlight regions carry a generic label: round-1\/reminder: Changed area 1/);
+  const output = join(directory, 'rounds/round-1/round-1.html');
+  const { stderr } = await promisify(execFile)(process.execPath, [buildCli, directory, 'round-1', output]);
+  assert.match(stderr, /Generic labels on 1 regions: round-1\/reminder: Changed area 1\. Curate the highlights/);
+  for (const side of ['before', 'after']) data.rounds[0].comparisons[0][side].regions[0].label = 'Reminder beside the total';
+  await writeFile(join(directory, 'review.json'), JSON.stringify(data));
+  assert.match(await buildRound(directory, undefined, { final: true, inline: true }), /Final design/);
+}));
+
+test('a web item can say the other platform looks the same instead of needing a twin', () => withReview((c, d) => {
+  d.coverage.items = [surface('checkout-desktop', 'desktop-web', { comparison: 'reminder', sameOnOtherPlatform: 'The checkout column is a single fixed-width card at both widths' })];
+}, async run => assert.equal((await run()).coverage.inventory, 1)));
+
+for (const [name, change, message] of [
+  ['a same-on-other-platform declaration without a reason', d => { d.coverage.items = [surface('checkout-desktop', 'desktop-web', { comparison: 'reminder', sameOnOtherPlatform: ' ' })]; }, /sameOnOtherPlatform needs a desktop-web or mobile-web item and the reason/],
+  ['a same-on-other-platform declaration on a native item', d => { d.coverage.items.push(surface('checkout-native', 'native', { uncovered: 'No simulator', sameOnOtherPlatform: 'Same' })); }, /sameOnOtherPlatform needs a desktop-web or mobile-web item/],
+  ['a same-on-other-platform declaration beside a twin', d => { d.coverage.items[0].sameOnOtherPlatform = 'Looks the same'; }, /checkout-desktop says mobile-web looks the same but also has a mobile-web item/],
+]) test('coverage rejects ' + name, () => withReview((c, d) => change(d, c), run => assert.rejects(run, message)));
+
+const ACCORDION_KEY = 'ui-review-accordion:Example review:round-1';
+const accordionHarness = String.raw`<script>
+(async () => {
+  const wait = ms => new Promise(done => setTimeout(done, ms));
+  const sections = () => [...document.querySelectorAll('#nav details')].map(details => [details.dataset.section, details.open]);
+  const initial = sections();
+  if (new URLSearchParams(location.search).get('phase') === 'toggle') {
+    const [group, gaps] = document.querySelectorAll('#nav details');
+    group.open = false;
+    gaps.open = true;
+  }
+  await wait(100);
+  const output = document.createElement('output');
+  output.id = 'results';
+  output.textContent = JSON.stringify({ initial, sections: sections(), stored: localStorage.getItem('${ACCORDION_KEY}') });
+  document.body.append(output);
+})();
+</script>`;
+
+const accordionReview = (c, d) => {
+  designReview(c, d);
+  d.coverage.items.push(surface('receipt-native', 'native', { surface: 'Receipt', uncovered: 'No Mac with the iOS Simulator was online' }));
+};
+
+async function withAccordionPage(directory, before, check) {
+  const page = join(directory, 'round.html');
+  const html = await buildRound(directory, 'round-1', { output: page });
+  await writeFile(page, html.replace('<script id="review-data"', before + '<script id="review-data"').replace('</body>', accordionHarness + '</body>'));
+  const profile = await mkdtemp(join(tmpdir(), 'ui-review-chrome-'));
+  try { await check(query => openRound(page, profile, query)); } finally { await rm(profile, { recursive: true, force: true }); }
+}
+
+test('the sidebar accordion state saves per review and round and survives a reload', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, () => withReview(accordionReview, async (run, directory) => withAccordionPage(directory, '', async open => {
+  const toggled = await open('?phase=toggle');
+  assert.deepEqual(toggled.initial, [['group:checkout', true], ['gaps', false]]);
+  assert.deepEqual(JSON.parse(toggled.stored), { 'group:checkout': false, gaps: true });
+  const reloaded = await open();
+  assert.deepEqual(reloaded.initial, [['group:checkout', false], ['gaps', true]]);
+})));
+
+test('the sidebar accordion ignores corrupt or stale saved state', { skip: !chrome && 'no Chrome found; set CHROME_PATH' }, async () => {
+  for (const value of ['{not json', '[]', '"open"', JSON.stringify({ 'group:checkout': 'closed' }), JSON.stringify({ 'group:ghost': false }), JSON.stringify({ 'group:checkout': false, 'group:gone': true })]) {
+    await withReview(accordionReview, async (run, directory) => withAccordionPage(directory, '<script>localStorage.setItem(' + JSON.stringify(ACCORDION_KEY) + ', ' + JSON.stringify(value) + ')</script>', async open => {
+      assert.deepEqual((await open()).initial, [['group:checkout', true], ['gaps', false]], value);
+    }));
+  }
+});

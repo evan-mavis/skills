@@ -21,8 +21,8 @@ The review exists so the reviewer can trust everything the PR ships. Inventory e
    ```
 
    The script lists the files that `git diff base...head` changed and that match the UI pattern, counts them by app, and stores them in `coverage.changedFiles`. Tests and stories are excluded. Set `coverage.uiPattern` when the project context names one.
-3. Add one `coverage.items` entry for each surface, state, role, and platform the change reaches, in every app the repository has. The project context names the apps. Surfaces are routes, screens, modals, drawers and side carts, emails, and component variants. States include empty, loading, error, each feature flag on and off, and each signed-in role. An item lists the changed files that reach it. A changed shared component gets an item on each surface where its change is visible.
-4. Give every web surface a `desktop-web` and a `mobile-web` item, captured at the verify skill's widths, or 1440 and 390 CSS pixels when it names none. Capture native apps with the method in the repository's verify skill or project context.
+3. Add one `coverage.items` entry for each distinct user-visible state the change reaches, in every app the repository has. The project context names the apps. Surfaces are routes, screens, modals, drawers and side carts, emails, and component variants. States include empty, loading, error, each feature flag on and off, and each signed-in role, when each looks different. Variants that render the same, such as ones that differ only in backend data or API behavior, share one item. An item lists the changed files that reach it. A changed shared component gets an item on each surface where its change is visible.
+4. Capture web surfaces at the verify skill's desktop and mobile widths, or 1440 and 390 CSS pixels when it names none. When both widths look the same, keep one item and set `sameOnOtherPlatform` to a short reason instead of a second item. Capture native apps with the method in the repository's verify skill or project context.
 5. Put a changed UI file that changes nothing a user can see in `coverage.notUserVisible` with the reason.
 6. Rerun the script without `--write`. It fails while `coverage.changedFiles` is stale or any changed UI file is in no item and not marked not user-visible.
 
@@ -34,15 +34,15 @@ Do not take the list of changes from the diff. Compute them.
 
 1. Read the repository's own verify skill for the route map, accounts, fixtures, and how to build and start each revision. Both revisions run from that skill's environment. If the repository has no verify skill, stop and report it.
 2. Build and start the base and the head as two separate revisions, such as two worktrees. Copy the same development data to both. Never point one revision at another's database.
-3. Capture every inventory item on both revisions, plus any other route and state in the route map that either revision can reach. Match role, route, action sequence, data, viewport, device scale, and scroll between the two sides. Name each file `<route-slug>--<state>--<viewport>.png` and write it to `captures/base/` and `captures/head/`.
+3. Capture every inventory item on both revisions, once each. Capture another route or state only when it shows a user-visible change no item covers, and add an item for it. Match role, route, action sequence, data, viewport, device scale, and scroll between the two sides. Name each file `<route-slug>--<state>--<viewport>.png` and write it to `captures/base/` and `captures/head/`.
 4. Capture through the browser tools and keep the original bytes. Read [capture and highlight guidance](references/capture-metadata.md) for the evidence this skill stores. Image-only reviews stop there. A round holds still pictures, so when an interaction needs video, that proof belongs to the repository's verifier, not to the round.
 5. Compute the differences:
 
    ```bash
-   node <skill>/scripts/diff-captures.mjs captures/base captures/head --cell 8 --threshold 24 --gap 2
+   node <skill>/scripts/diff-captures.mjs captures/base captures/head
    ```
 
-   The script decodes both sides as PNG or JPEG, compares every pixel, merges nearby changed cells into regions in original pixels, and reports changed, unchanged, added, and removed captures. It also groups regions whose before and after crops are identical under one cluster, which is the same fix appearing in several places.
+   The script decodes both sides as PNG or JPEG, compares every pixel, and ignores channel differences of 32 or less (`--threshold`). It drops changed cells whose content only moved: when both sides match the other image at a shift that the changed content agrees on, such as everything below an inserted banner. It merges the remaining changed cells into regions in original pixels and reports changed, unchanged, added, and removed captures. It also groups regions whose before and after crops are identical under one cluster, which is the same fix appearing in several places.
 
    Once `review.json` lists the comparisons, write their highlights:
 
@@ -50,7 +50,9 @@ Do not take the list of changes from the diff. Compute them.
    node <skill>/scripts/diff-captures.mjs --review <review-directory>
    ```
 
-   It diffs every live pair that has no regions yet and writes the boxes to both sides. It drops regions under 40 changed pixels, merges the rest down to at most 8 boxes, drops any box over 90% of the screen, and labels each `Changed area N`. Rename the labels to say what changed. `--replace` redoes pairs that already have regions. It lists the pairs that show no visible change.
+   It diffs every live pair that has no regions yet and writes the boxes to both sides. It drops regions under 40 changed pixels, merges the rest down to at most 8 boxes, drops any box over 90% of the screen, and labels each `Changed area N` as a placeholder. `--replace` redoes pairs that already have regions. It lists the pairs that show no visible change.
+
+   Curate the regions by hand before you build. Keep a region only around a change a user would see as different. Delete regions on shifted or unchanged content and on timestamps, avatars, and other dynamic noise. Label each kept region with what changed, such as `Reminder beside the total`. `Changed area N` is never a final label: every build lists the generic labels left, and the final build fails on them.
 6. Drop unchanged captures that no inventory item points at. An item whose capture did not change keeps its comparison, with an `unchanged` note saying why nothing visible changed, so the reviewer can confirm it. The validator rejects a live pair with no regions and no `unchanged` note. Match each changed region against the route map and the diff to name the visible change in one sentence. Tier each kept comparison:
    - **judgment**: layout, hierarchy, wording, density, or a new affordance, where reasonable people disagree.
    - **mechanical**: spacing, alignment, a missing state, a copy typo, an unchanged component now in a new place.
@@ -73,7 +75,7 @@ Add `--inline` only where a single file is required, such as the optional Drive 
 
 A crew thread only captures. The coordinating agent collects every capture and `review.json` entry and builds the single round.
 
-Deliver a round by copying the whole round folder to the reviewer's machine with `tools.transfer.files`. For Evan, that is his MacBook Pro at `~/Desktop/airgoods-review/<round-id>/`. The reviewer opens the HTML there from `file://`. Give the reviewer its path. The page autosaves each Looks good mark and comment in the browser's local storage, keyed by review title and round id, and restores them on reload. It ignores stored state that does not parse or names comparisons the round no longer shows.
+Deliver a round by copying the whole round folder to the reviewer's machine with `tools.transfer.files`. For Evan, that is his MacBook Pro at `~/Desktop/airgoods-review/<round-id>/`. The reviewer opens the HTML there from `file://`. Give the reviewer its path. The page autosaves each Looks good mark and comment, and which sidebar sections are open, in the browser's local storage, keyed by review title and round id, and restores them on reload. It ignores stored state that does not parse or names comparisons or sections the round no longer shows.
 
 To carry decisions into a rebuilt round, save the reviewer's copied decisions text for that round to a file and add `--seed <decisions.txt>` to the build. The build fails when the text belongs to another review or round, or names a comparison the round does not show. The page starts from the seed only when the browser holds no saved state for that round.
 
@@ -85,11 +87,11 @@ To carry decisions into a rebuilt round, save the reviewer's copied decisions te
 - Clicking a screenshot opens it full screen. **←** and **→** switch between Before and After, and Esc or any click closes it.
 - A footer with **Highlight changes**, **Previous**, **Next**, and **Copy all decisions**. Copying writes the decisions text to the clipboard and adds no UI. The button reads **Copied** for 1.6 s, or **Copy failed** when the browser blocks both the clipboard API and the `execCommand` fallback.
 
-Open the built file from `file://` in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, that **Copy all decisions** changes its label to **Copied**, and that marks survive a reload.
+Open the built file from `file://` in a browser before handing it over. Check that it renders, that both images load and open in the lightbox, that the overlay toggle works, that **Copy all decisions** changes its label to **Copied**, and that marks and open sidebar sections survive a reload.
 
 ## Later rounds
 
-Round 2 and later show only what changed since the round the reviewer answered.
+Round 2 and later show only fixes and new states since the round the reviewer answered. Recapture only the items a fix touched and the states that are new.
 
 - Set `revises` on each revised comparison to an earlier comparison id from an earlier round.
 - Copy each earlier comment into the new round's `feedback` with `disposition: "fixed"` or `disposition: "unresolved"`, which the round shows as open. The round lists them under **Earlier comments** and links each one to the comparison that answered it.
@@ -104,7 +106,7 @@ Build each round with its round id. A round is not final while any inventory ite
 node <skill>/scripts/build-round.mjs <review-directory> --final <review-directory>/rounds/final/final.html
 ```
 
-The final build fails and names each open item until it is captured or waived.
+The final build fails and names each open item until it is captured or waived, and each highlight region whose label is still generic.
 
 ## Read the decisions
 
@@ -127,11 +129,13 @@ Apply the UI-only requests as **Later rounds** describes, and deliver the rest t
 
 ## Attach the final design doc to the PR
 
-Build the final round, inspect its images for secrets and credentials, and publish the final review images with `tools.pr.uploadAsset`. Embed exactly the Markdown the tool prescribes in a **Design** section with the approved judgments, variant, and reviewed revisions. Evan accepted the public URLs and copied-production dev data for PR review images and QA recordings. Never include secrets or credentials.
+Rounds with real dev data (copies of production) stay local on the reviewer's machine. Never commit them or publish them publicly, for example with `tools.pr.uploadAsset`, unless Evan explicitly says so.
 
-Keep this review image-only. QA uses `capture` for final video evidence after design and independent engineering review. A Drive link to the complete HTML remains optional, not required. Read [publishing](references/publishing.md) for the recorded decision, attachment steps, and Drive access limits.
+Build the final round and add a **Design** section to the PR body with the approved judgments, variant, and reviewed revisions. Attach the final review images only when Evan explicitly says so.
+
+Keep this review image-only. QA uses `capture` for final video evidence after design and independent engineering review. A Drive link to the complete HTML remains optional, not required. Read [publishing](references/publishing.md) for the PR steps and Drive access limits.
 
 ## Handoff
 
 - **In:** the base and head revisions, the repository's verify skill, the project context's app list and native capture method, and the Linear spec or issue the review belongs to.
-- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list for each pasted decision round, and the final design doc linked from the PR body.
+- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list for each pasted decision round, and the **Design** section in the PR body.
