@@ -9,10 +9,16 @@ For a substantive engineering task or explicit Estack request:
 
 1. Read [Personal defaults](references/personal-defaults.md).
 2. Match the target repository using the project table below. Read its context when matched; otherwise use the generic workflow. Resolve the target from its Git remote or an explicit repository or PR supplied by the user. Normalize SSH and HTTPS forms, optional `.git`, and GitHub owner/repository case. Worktrees use their repository's identity. A folder name or similar app layout is not a match. If the task targets multiple repositories, apply each context only to its own work.
-3. Before planning or editing, follow [Gather context](#gather-context).
+3. Before planning or editing, follow [Gather context](#gather-context). For a bounded delivery stage, read the supplied evidence first and gather only the missing context relevant to that stage.
 4. Resolve `poteto-mode` from the current skill catalog and read it in full, then open its matched playbook and track its steps. If it is absent from the catalog, use the bundled [poteto-mode](../poteto-mode/SKILL.md). Read the applicable principle skills in full. Project context supplies requirements and task skills; it never replaces the playbook or its independent proof gates.
 
 Skip casual turns and user opt-outs. Host instructions, repository instructions, and explicit user requests take precedence.
+
+## Delivery coordination and scoped stages
+
+When the user explicitly hands delivery to a coordinator, use poteto-mode's [Delivery](../poteto-mode/playbooks/delivery.md) playbook. Plan approval alone is not a build kickoff. Keep standalone Estack tasks on their normal playbook.
+
+A specialist receiving a bounded stage brief applies the relevant skill and proof obligations, not the whole delivery program. Follow poteto-mode's [Scoped stages](../poteto-mode/SKILL.md#scoped-stages). Do not restart planning or dispatch the next stage.
 
 ## Project context
 

@@ -1,5 +1,5 @@
 ---
-name: "poteto-mode"
+name: poteto-mode
 description: "Run engineering playbooks for bug fixes, features, refactors, architecture, technical investigations, and PR work. Use for substantive tasks or explicit poteto-mode requests. Skip casual turns and user opt-outs."
 ---
 
@@ -101,13 +101,21 @@ At readiness, use [Opening a PR](playbooks/opening-a-pr.md) to package the stabl
 
 Include this file's resolved absolute path in every poteto-agent prompt. Bundled sibling skills live at `../<name>/SKILL.md` from this file.
 
-**Delegation.** The thread receiving poteto-mode owns the workflow and its progress. Give each delegate a scoped brief with relevant context and constraints. Do not hand off the whole playbook. If delegation is unavailable, perform authorized work directly and report the limitation. A second pass by the same agent does not satisfy an independent-review gate.
+**Delegation.** The coordinator owns the workflow and its progress. A delegate owns only its scoped stage, as defined below. Give each delegate a scoped brief with relevant context and constraints. Do not hand off the whole playbook. If delegation is unavailable, perform authorized work directly and report the limitation. A second pass by the same agent does not satisfy an independent-review gate.
 
 **Defaults for every subagent.** Use `tools.subagent.create` and `tools.subagent.start` to dispatch, `tools.subagent.get` or `tools.subagent.list` to inspect status, and `message_agent` to communicate. Choose shared machines for read-only work and isolated machines for independent writers. Give each worker its brief and constraints explicitly. Inherit the parent model unless a different available model is justified or requested. Respect capacity and review each worker's diff before shipping.
 
 You own every subagent's work. Review the diff and write your own summary, don't pass through what it said. A second opinion uses the same prompt in a fresh independent subagent. Use a different model only when the user requests an available one. Agreement is high-signal.
 
 **Fresh subagents by default.** Give new work to a fresh subagent with consolidated scope. Include the original brief, every later directive, the prior report, and the branch. This applies to fix rounds, follow-ups, retries, and the next queue item. Resume or message an existing agent for more work only when it needs costly state that still lives there, such as a local checkout, uncommitted changes, a dev server, or a watcher. A stop or hold order is not reuse. A PR owner role outlives its agent. Once that agent returns, a fresh agent takes the next round. Interrupt-chained resumes can drop directives, so start fresh with the consolidated brief.
+
+## Scoped stages
+
+For a bounded stage brief, read the relevant skill and playbook sections, then execute only the assigned stage and its proof obligations. This rule takes precedence over full-playbook todo lists, orchestration triggers, fresh-worker defaults, and the automatic Opening a PR step. It does not remove safety gates or independent proof requirements. Without a coordinator brief, use the normal standalone workflow.
+
+Require the delivery issue, coordinator's current return address, stage, approved scope, acceptance criteria, exact branch and head, evidence inputs, allowed writes, required proof, and stop conditions. Resolve missing facts through bounded reads or ask the coordinator. Do not invent authorization. Do not restart the feature, create another delivery issue, route to the next specialist, or open a parallel engineering writer. Keep fixes in the builder's crew. Reviewers stay code-read-only and report findings.
+
+Return the stage verdict, inspected head, evidence references and observed results, unresolved findings, and any bounded authorization received directly from the user. Include the user's exact words, source thread or comment, time, artifact revision, and limits. Explicitly send the report to the coordinator with `message_agent` using the current address from the brief. An ordinary reply or a report to your own Captain does not notify a different coordinator. Follow the [Delivery contract](playbooks/delivery.md) for handoffs and failed gates.
 
 ## Writing the reply
 
@@ -134,6 +142,10 @@ Resolve bundled helper paths from this skill's directory and run them by absolut
 Open a todolist whose first items are the matched playbook's steps, copied in verbatim, before any task-specific todos. A step you choose not to do stays in the list with a one-line `skip: <reason>`. Match the task to a playbook below, open its file, and copy its steps in verbatim.
 
 A large or cross-cutting effort (a migration across many call sites, an ambitious multi-part change), or work the user steps away from to trust later, routes to the **figure-it-out** skill even when a narrower playbook like Feature fits. Use **figure-it-out** whenever no bundled playbook fits. It designs a bespoke, rigorous playbook for the task. A standing project-scale program (multi-day, many stacked PRs, a fleet of subagents under one coordinator) routes to **Orchestrate** instead. figure-it-out designs one bespoke run, orchestrate runs the program.
+
+An explicit coordinator-led delivery kickoff routes to Delivery before those broad program triggers. A bounded specialist stage follows Scoped stages instead of selecting a program playbook.
+
+- **Delivery.** Coordinate an explicitly authorized delivery across planning, design, implementation, independent review, and acceptance verification. Plan approval is not kickoff. `playbooks/delivery.md`.
 
 - **Investigation.** Read-only question: how does X work, why was Y built this way, are we sure about Z, should we do X or Y. `playbooks/investigation.md`.
 - **Bug fix.** A reported defect to reproduce, root-cause, and fix with runtime evidence. `playbooks/bug-fix.md`.
