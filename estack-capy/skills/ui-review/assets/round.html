@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UI review</title>
+<style>
+  :root { color-scheme: light; --ink: #1f2023; --muted: #6b6f76; --line: #e3e3df; --page: #fff; --side: #f8f8f6; --hover: #eeeeeb; --active: #e9e9e6; --accent: #1f2023; --ok: #1f7a4c; --warn: #a0442a; --fixed: #1f7a4c; --open: #a0442a; }
+  @media (prefers-color-scheme: dark) {
+    :root { color-scheme: dark; --ink: #ececea; --muted: #a2a5ab; --line: #2f3136; --page: #17181a; --side: #1d1e21; --hover: #26282c; --active: #2c2f34; --accent: #ececea; --ok: #6ec195; --warn: #e0927a; --fixed: #6ec195; --open: #e0927a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); background: var(--page); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: grid; grid-template-columns: 268px 1fr; min-height: 100vh; }
+  aside { position: sticky; top: 0; align-self: start; height: 100dvh; overflow-y: auto; overscroll-behavior: contain; background: var(--side); border-right: 1px solid var(--line); padding: 20px 12px; }
+  aside h1 { font-size: 14px; font-weight: 600; margin: 4px 10px 2px; }
+  aside p.round { margin: 0 10px 14px; font-size: 12px; color: var(--muted); }
+  nav details + details { margin-top: 4px; }
+  nav summary { cursor: pointer; padding: 7px 10px; font-size: 13px; font-weight: 600; border-radius: 4px; }
+  nav summary:hover { background: var(--hover); }
+  .row { display: flex; align-items: center; gap: 8px; }
+  .row a { flex: 1; min-width: 0; padding: 6px 4px 6px 10px; font-size: 14px; color: var(--muted); text-decoration: none; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row:hover { background: var(--hover); }
+  .row[aria-current] { background: var(--active); }
+  .row a[aria-current], .row:has(a[aria-current]) a { color: var(--ink); font-weight: 600; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; background: var(--line); }
+  .dot.resolved { background: var(--ok); }
+  main { padding: 28px 32px 168px; max-width: 1080px; }
+  .bar { position: fixed; inset: auto 0 0 268px; background: var(--page); border-top: 1px solid var(--line); padding: 12px 32px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+  .bar .progress { font-size: 13px; color: var(--muted); }
+  button { font: inherit; font-size: 13px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--side); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--page); border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: default; }
+  .head { display: flex; gap: 16px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+  h2 { font-size: 22px; margin: 0 0 4px; }
+  .meta { font-size: 12px; color: var(--muted); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .tier { border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .tier[data-tier="mechanical"] { color: var(--muted); }
+  .explain { margin: 10px 0 0; color: var(--ink); max-width: 70ch; }
+  .look { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+  .gap { margin: 10px 0 0; color: var(--warn); font-size: 13px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 18px; }
+  @media (max-width: 880px) { body { grid-template-columns: 1fr; } aside { position: static; height: auto; max-height: 34dvh; border-right: 0; } .bar { left: 0; padding: 12px 18px; } main { padding: 20px 18px 200px; } .pair { grid-template-columns: 1fr; } }
+  figure { margin: 0; }
+  figcaption { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .shot { position: relative; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--side); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .shot.missing { display: grid; place-items: center; min-height: 220px; color: var(--muted); font-size: 13px; }
+  .copy { margin-top: 16px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; max-width: 70ch; }
+  .copy del { color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, transparent); }
+  .copy ins { color: var(--fixed); background: color-mix(in srgb, var(--fixed) 12%, transparent); text-decoration: none; }
+  .check { display: flex; gap: 10px; align-items: flex-start; margin-top: 20px; padding: 12px; border: 1px solid var(--line); border-radius: 6px; }
+  .check input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); }
+  label.field { display: block; margin-top: 14px; font-size: 13px; color: var(--muted); }
+  textarea { width: 100%; font: inherit; font-size: 14px; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--side); color: var(--ink); resize: vertical; }
+  .earlier { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 16px; }
+  .earlier h3 { font-size: 15px; margin: 0 0 10px; }
+  .earlier ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .earlier li { display: grid; gap: 4px; font-size: 14px; }
+  .earlier .state { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  .earlier .state.fixed { color: var(--fixed); }
+  .earlier .state.open { color: var(--open); }
+  .earlier a { color: inherit; }
+  .general { margin-top: 28px; }
+  .nav { display: flex; gap: 8px; align-items: center; order: 2; }
+  .export { position: fixed; left: 268px; right: 0; bottom: 62px; padding: 12px 32px; background: var(--side); border-top: 1px solid var(--line); }
+  .export textarea { height: 130px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .export p { margin: 6px 0 0; font-size: 12px; color: var(--muted); }
+  @media (max-width: 880px) { .export { left: 0; padding: 12px 18px; } }
+  .note { font-size: 12px; color: var(--muted); margin: 12px 0 0; }
+</style>
+</head>
+<body>
+<aside>
+  <h1 id="title">UI review</h1>
+  <p class="round" id="round"></p>
+  <nav id="nav" aria-label="Comparisons"></nav>
+</aside>
+<main>
+  <div class="head">
+    <div>
+      <h2 id="item-title"></h2>
+      <div class="meta" id="item-meta"></div>
+    </div>
+  </div>
+  <p class="explain" id="item-explain"></p>
+  <p class="look" id="item-look" hidden></p>
+  <p class="gap" id="item-gap" hidden></p>
+  <div class="pair" id="pair"></div>
+  <div class="copy" id="item-copy" hidden></div>
+  <label class="check"><input type="checkbox" id="approve"><span>Looks good to me. Leave it unchecked and add a comment if it needs a change.</span></label>
+  <label class="field" for="comment">Comments to address</label>
+  <textarea id="comment" rows="3" placeholder="What should change? One request per line."></textarea>
+  <section class="general">
+    <label class="field" for="general">Notes on the whole review</label>
+    <textarea id="general" rows="2" placeholder="Anything that applies across these screens."></textarea>
+    <p class="note">Copy your decisions before closing this file. Capy's viewer does not keep them between reloads, and nothing here is saved anywhere else.</p>
+  </section>
+  <section class="earlier" id="earlier" hidden>
+    <h3>Earlier comments</h3>
+    <ul id="earlier-list"></ul>
+  </section>
+</main>
+<div class="export" id="export-panel" hidden>
+  <textarea id="export-text" readonly aria-label="Decisions text"></textarea>
+  <p>Select all, copy, and paste this into the thread.</p>
+</div>
+<div class="bar">
+  <span class="progress" id="progress"></span>
+  <div class="nav">
+    <button id="prev" type="button">Previous</button>
+    <button id="next" type="button">Next</button>
+    <label><input type="checkbox" id="highlights" checked> Highlight changes</label>
+    <button id="export" class="primary" type="button">Copy all decisions</button>
+  </div>
+  <span class="progress" id="export-status" role="status"></span>
+</div>
+<script id="review-data" type="application/json">__UI_REVIEW_DATA__</script>
+<script>
+const FORMAT_DECISIONS = __UI_REVIEW_FORMAT__;
+</script>
+<script>
+const data = JSON.parse(document.getElementById('review-data').textContent);
+const approved = new Set(data.items.filter(item => item.approved).map(item => item.id));
+const comments = new Map(data.items.map(item => [item.id, '']));
+const dismissed = new Set();
+let current = 0;
+
+const el = id => document.getElementById(id);
+const item = () => data.items[current];
+const resolved = entry => approved.has(entry.id) || comments.get(entry.id).trim() !== '' || dismissed.has(entry.id);
+const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+
+el('title').textContent = data.title;
+el('round').textContent = data.round.label + ' · ' + data.items.length + (data.items.length === 1 ? ' comparison' : ' comparisons');
+
+function nav() {
+  const entries = [];
+  for (const group of data.groups) {
+    const items = data.items.filter(entry => entry.issueId === group.id);
+    if (!items.length) continue;
+    entries.push('<details open><summary>' + esc(group.title) + '</summary>' + items.map(entry => {
+      const index = data.items.indexOf(entry);
+      return '<div class="row"' + (index === current ? ' aria-current="page"' : '') + '><span class="dot' + (resolved(entry) ? ' resolved' : '') + '"></span><a href="#' + encodeURIComponent(entry.id) + '" data-index="' + index + '">' + esc(entry.title) + '</a></div>';
+    }).join('') + '</details>');
+  }
+  el('nav').innerHTML = entries.join('');
+}
+
+function shot(side, label) {
+  if (!side) return '<figure><figcaption>' + label + '</figcaption><div class="shot missing">Not captured. See the gap note above.</div></figure>';
+  const rects = side.regions.map(region => '<rect x="' + region.x + '" y="' + region.y + '" width="' + region.width + '" height="' + region.height + '" fill="' + (label === 'Before' ? 'rgba(214,73,73,.14)' : 'rgba(31,122,76,.14)') + '" stroke="' + (label === 'Before' ? '#d64949' : '#1f7a4c') + '" stroke-width="2" vector-effect="non-scaling-stroke"></rect>').join('');
+  return '<figure><figcaption>' + label + '</figcaption><div class="shot"><img src="' + side.src + '" width="' + side.width + '" height="' + side.height + '" alt="' + label + ' of ' + esc(item().title) + '"><svg viewBox="0 0 ' + side.width + ' ' + side.height + '" preserveAspectRatio="none" class="overlay">' + rects + '</svg></div></figure>';
+}
+
+function render() {
+  const entry = item();
+  el('item-title').textContent = entry.title;
+  el('item-meta').innerHTML = '<span>' + esc(entry.round) + '</span><span>' + esc(entry.variant) + '</span><span class="tier" data-tier="' + esc(entry.tier) + '">' + esc(entry.tier) + '</span>';
+  el('item-explain').textContent = entry.explanation;
+  el('item-look').hidden = !entry.lookAt;
+  el('item-look').textContent = entry.lookAt ? 'Look at: ' + entry.lookAt : '';
+  el('item-gap').hidden = !entry.gap;
+  el('item-gap').textContent = entry.gap || '';
+  el('pair').innerHTML = shot(entry.before, 'Before') + shot(entry.after, 'After');
+  el('item-copy').hidden = !entry.copyDiff.length;
+  el('item-copy').innerHTML = entry.copyDiff.map(segment => segment.type === 'remove' ? '<del>' + esc(segment.text) + '</del>' : segment.type === 'add' ? '<ins>' + esc(segment.text) + '</ins>' : esc(segment.text)).join('');
+  el('approve').checked = approved.has(entry.id);
+  el('comment').value = comments.get(entry.id);
+  el('prev').disabled = current === 0;
+  el('next').disabled = current === data.items.length - 1;
+  const done = data.items.filter(resolved).length;
+  el('progress').textContent = (current + 1) + ' of ' + data.items.length + ' · ' + done + ' with a decision';
+  nav();
+  history.replaceState(null, '', '#' + encodeURIComponent(entry.id));
+}
+
+function go(index) { current = Math.min(Math.max(index, 0), data.items.length - 1); render(); }
+el('prev').onclick = () => go(current - 1);
+el('next').onclick = () => go(current + 1);
+el('approve').onchange = event => { event.target.checked ? approved.add(item().id) : approved.delete(item().id); render(); };
+el('comment').oninput = event => { comments.set(item().id, event.target.value); el('progress').textContent = (current + 1) + ' of ' + data.items.length + ' · ' + data.items.filter(resolved).length + ' with a decision'; };
+el('highlights').onchange = event => document.querySelectorAll('.overlay').forEach(svg => { svg.style.display = event.target.checked ? '' : 'none'; });
+el('nav').onclick = event => {
+  const link = event.target.closest('a[data-index]');
+  if (!link) return;
+  event.preventDefault();
+  go(Number(link.dataset.index));
+};
+window.addEventListener('keydown', event => {
+  const tag = document.activeElement.tagName;
+  if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+  if (event.key === 'ArrowRight') go(current + 1);
+  if (event.key === 'ArrowLeft') go(current - 1);
+});
+window.addEventListener('hashchange', () => {
+  const index = data.items.findIndex(entry => entry.id === decodeURIComponent(location.hash.slice(1)));
+  if (index >= 0) go(index);
+});
+
+if (data.earlier.length) {
+  el('earlier').hidden = false;
+  el('earlier-list').innerHTML = data.earlier.map(note => '<li><span class="state ' + note.state + '">' + note.state + '</span><span>' + esc(note.round) + ' · ' + (note.target ? '<a href="#' + encodeURIComponent(note.target) + '">' + esc(note.title) + '</a>' : esc(note.title)) + '</span><span>' + esc(note.text) + '</span></li>').join('');
+}
+
+function decisionsText() {
+  return FORMAT_DECISIONS({
+    title: data.title,
+    round: data.round.id,
+    items: data.items.map(entry => ({ id: entry.id, title: entry.title, approved: approved.has(entry.id), comment: comments.get(entry.id) })),
+    general: el('general').value,
+  });
+}
+
+el('export').onclick = async () => {
+  const text = decisionsText();
+  const box = el('export-text');
+  box.value = text;
+  el('export-panel').hidden = false;
+  let copied = false;
+  try { await navigator.clipboard.writeText(text); copied = true; } catch (error) { copied = false; }
+  if (!copied) {
+    box.focus();
+    box.select();
+    try { copied = document.execCommand('copy'); } catch (error) { copied = false; }
+  }
+  el('export-status').textContent = copied
+    ? 'Copied. Paste it into the thread now, then close this file.'
+    : 'Clipboard blocked. The text is selected below: press \u2318C or Ctrl+C, paste it into the thread, then close this file.';
+};
+
+const start = data.items.findIndex(entry => entry.id === decodeURIComponent(location.hash.slice(1)));
+current = start >= 0 ? start : 0;
+render();
+</script>
+</body>
+</html>

@@ -23,7 +23,13 @@ When Tech specs are requested, include them on subissues with consequential impl
 2. Draft the parent using [the exact parent template](references/parent-template.md). Make subissues vertical slices: each should deliver a coherent outcome that can be built, reviewed, verified, and merged as one PR without requiring unfinished sibling code. A shared foundation may be its own subissue when later slices genuinely depend on it; it must still be independently mergeable. Do not split work by file or engineering layer merely to create tickets. Draft every subissue using [the exact subissue template](references/subissue-template.md). Keep the normal user journey as numbered steps. Name and connect subissues according to [ordering and dependencies](references/ordering-and-dependencies.md).
 3. Follow the user's Tech spec choice. For included Tech specs, use [the exact Tech spec template and example](references/tech-spec-template.md). Render `Proposed files` as the template's fenced plain-text directory tree with nested branches, not a flat path list or Markdown bullets. Inspect the actual repo before naming paths, entities, or interfaces. Never present a guess as an agreed contract.
 4. When Tech specs are requested and several subissues must follow consequential shared architecture, use `$architect with checkpoint` when available and appropriate. It explores the design before implementation; do not continue into its implementation phase as part of writing Linear specs. Distill its settled decisions into relevant Tech specs. A subissue can instead leave a technical choice to its implementer when a shared decision is unnecessary.
-5. Apply `$unslop` to the final copy when available. Preserve concrete behavior and constraints while cutting filler and repeated context. Keep references and inspiration on the parent. Keep open questions on the parent, with an owner or next action when known.
+5. Apply `$unslop` to the final copy when available. Preserve concrete behavior and constraints while cutting filler and repeated context. Keep references and inspiration on the parent. Keep other open questions on the parent, with an owner or next action when known. An open UI question belongs in the Design decisions block.
+
+## Design decisions
+
+A feature with a UI decision keeps one collapsible `Design decisions` block, as [the parent template](references/parent-template.md) shows. It holds the open question, the chosen variant, one line of reason, and the link to the visual review.
+
+Update it in place. The block states where each decision stands now, so a settled question loses its "open" and gains its variant and reason, and a rejected variant is named in that same line. Do not append a line per review round: the rounds already hold that history, and a growing log is exactly the bloat this block exists to avoid. A prototype or a review round rewrites the line it owns; nothing else touches it.
 
 ## Publish
 

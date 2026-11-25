@@ -1,134 +1,253 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, rm, mkdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createHash } from 'node:crypto';
-import { validateReview, imageDimensions } from '../estack/skills/ui-review/scripts/validate-review.mjs';
+import { validateReview, imageDimensions } from '../estack-capy/skills/ui-review/scripts/validate-review.mjs';
+import { diffImages, decodePng } from '../estack-capy/skills/ui-review/scripts/diff-captures.mjs';
+import { formatDecisions, parseDecisions, toFixList, renderFixList } from '../estack-capy/skills/ui-review/scripts/decisions.mjs';
+import { buildRound } from '../estack-capy/skills/ui-review/scripts/build-round.mjs';
+import { encodePng, sha256, screen, capture } from '../estack-capy/skills/ui-review/scripts/test/fixtures.mjs';
 
-const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64');
-const image = (commit) => ({
-  src: 'capture.png', width: 1, height: 1,
-  sha256: createHash('sha256').update(png).digest('hex'),
-  regions: [{ x: 0, y: 0, width: .5, height: .5, label: 'Copy' }],
-  capture: { kind: 'example-fixture', commit: commit.repeat(40), dirtyPatchSha256: null,
-    buildEvidence: 'Unit fixture only', capturedAt: '2026-10-23T12:00:00Z', tool: 'test fixture',
-    route: '/example', role: 'example', state: 'filled', dataKey: 'example',
-    viewport: { width: 1, height: 1, deviceScaleFactor: 1 }, scroll: { x: 0, y: 0 } }
+const WIDTH = 32;
+const HEIGHT = 24;
+const basePng = encodePng(WIDTH, HEIGHT, screen([])(WIDTH, HEIGHT));
+const headPng = encodePng(WIDTH, HEIGHT, screen([{ x: 8, y: 4, width: 8, height: 8, color: [20, 20, 20] }])(WIDTH, HEIGHT));
+
+const image = (bytes, commit) => ({
+  src: 'captures/' + (commit === 'a' ? 'before' : 'after') + '.png',
+  width: WIDTH,
+  height: HEIGHT,
+  sha256: sha256(bytes),
+  regions: [{ x: 8, y: 4, width: 8, height: 8, label: 'Reminder' }],
+  capture: capture(commit),
 });
-const review = () => ({ title: 'Example', summary: 'A text replacement',
-  issues: [{ id: 'EX-1', title: 'Example', url: 'https://linear.app/example/issue/EX-1' }],
-  rounds: [{ id: 'round-1', label: 'Round 1', summary: 'Initial', comparisons: [{
-    id: 'desktop', issueId: 'EX-1', title: 'Request', variant: 'desktop', explanation: 'Replace the copy',
-    before: image('a'), after: image('b'), feedback: [],
-    copyDiff: [{ type: 'remove', text: 'Old' }, { type: 'add', text: 'New' }]
-  }] }]
+
+const comparison = (id, overrides = {}) => ({
+  id,
+  issueId: 'checkout',
+  title: 'Request reminder',
+  variant: 'desktop',
+  tier: 'judgment',
+  explanation: 'The reminder moves beside the price.',
+  before: image(basePng, 'a'),
+  after: image(headPng, 'b'),
+  copyDiff: [{ type: 'remove', text: 'Allow up to 5 days' }, { type: 'add', text: 'Allow up to 7 days' }],
+  feedback: [],
+  ...overrides,
 });
+
+const review = () => ({
+  title: 'Example review',
+  summary: 'A reminder moves beside the price.',
+  issues: [{ id: 'checkout', title: 'Checkout', kind: 'feature' }],
+  rounds: [{ id: 'round-1', label: 'Round 1', summary: 'Initial', comparisons: [comparison('reminder')] }],
+});
+
 async function withReview(change, check) {
-  const directory = await mkdtemp(join(tmpdir(), 'estack-review-test-'));
+  const directory = await mkdtemp(join(tmpdir(), 'ui-review-test-'));
   try {
-    const data = review(); change(data.rounds[0].comparisons[0], data);
-    await writeFile(join(directory, 'capture.png'), png);
+    await mkdir(join(directory, 'captures'));
+    await writeFile(join(directory, 'captures/before.png'), basePng);
+    await writeFile(join(directory, 'captures/after.png'), headPng);
+    const data = review();
+    change(data.rounds[0].comparisons[0], data);
     await writeFile(join(directory, 'review.json'), JSON.stringify(data));
-    await check(() => validateReview(directory));
-  } finally { await rm(directory, { recursive: true, force: true }); }
+    await check(() => validateReview(directory), directory, data);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 }
-test('accepts original screenshot metadata and changed copy', () => withReview(() => {}, async run => {
+
+test('accepts a review with verified pairs and unchanged assets', () => withReview(() => {}, async run => {
   assert.equal((await run()).comparisons, 1);
 }));
+
 for (const [name, change, message] of [
   ['same build labeled Before', c => { c.after.capture.commit = c.before.capture.commit; }, /same build/],
   ['dirty Before', c => { c.before.capture.dirtyPatchSha256 = 'a'.repeat(64); }, /clean baseline/],
   ['mismatched role', c => { c.after.capture.role = 'other'; }, /Pair mismatch/],
   ['altered original bytes', c => { c.after.sha256 = 'a'.repeat(64); }, /hash mismatch/],
-  ['wrong capture dimensions', c => { c.after.width = 2; }, /dimensions disagree/],
-  ['out of bounds overlay', c => { c.after.regions[0].x = 2; }, /rectangle/],
-  ['whole screen highlight', c => { c.after.regions[0].width = c.after.regions[0].height = 1; }, /entire screen/],
+  ['wrong capture dimensions', c => { c.after.width = 40; }, /dimensions disagree/],
+  ['out of bounds overlay', c => { c.after.regions[0].x = 40; }, /rectangle/],
+  ['whole screen highlight', c => { c.after.regions[0] = { x: 0, y: 0, width: WIDTH, height: HEIGHT, label: 'All' }; }, /entire screen/],
   ['missing image without gap', c => { c.before = null; }, /visible gap/],
-  ['external asset', c => { c.after.src = 'https://example.com/capture.png'; }, /packaged relative/],
+  ['external asset', c => { c.after.src = 'https://example.com/a.png'; }, /packaged relative/],
   ['invalid copy segment', c => { c.copyDiff[0].type = 'html'; }, /text diff/],
-  ['duplicate comparison ID', (c,d) => { d.rounds[0].comparisons.push(c); }, /duplicate ID/],
-  ['unknown feedback target', c => { c.feedback.push({ source: 'chat:1', text: 'Approved', comparisonId: 'unknown', disposition: 'approved' }); }, /Unknown feedback/]
-]) test(`rejects ${name}`, () => withReview(change, run => assert.rejects(run, message)));
-test('reports missing evidence even when the review is valid', () => withReview(c => {
-  c.before = null; c.gap = 'Baseline is blocked';
-}, async run => { const result = await run(); assert.equal(result.gaps, 1); assert.equal(result.missingCaptures, 1); }));
-test('rejects unrecognized screenshot bytes', () => assert.throws(() => imageDimensions(Buffer.from('not an image')), /PNG or JPEG/));
+  ['duplicate comparison ID', (c, d) => { d.rounds[0].comparisons.push(c); }, /duplicate ID/],
+  ['unknown feedback target', c => { c.feedback.push({ source: 'thread', text: 'Approved', comparisonId: 'unknown', disposition: 'approved' }); }, /Unknown feedback/],
+  ['missing tier', c => { c.tier = undefined; }, /Missing tier/],
+  ['unknown revision target', c => { c.revises = 'older'; }, /earlier round/],
+  ['missing After capture', c => { c.after = null; }, /After screenshot/],
+]) test('rejects ' + name, () => withReview(change, run => assert.rejects(run, message)));
 
-for (const kind of ['feature', 'ui', undefined]) test(`accepts ${kind || 'implicit feature'} groups without issue links`, () => withReview((c,d) => {
-  d.issues = [{ id: 'checkout', title: 'Checkout', ...(kind ? { kind } : {}) }];
-  c.issueId = 'checkout';
-}, async run => assert.equal((await run()).comparisons, 1)));
-test('requires a URL for an explicit Linear group', () => withReview((c,d) => {
-  d.issues[0] = { id: 'EX-1', title: 'Example', kind: 'linear' };
-}, run => assert.rejects(run, /require an issue URL/)));
-test('rejects an unsafe group URL', () => withReview((c,d) => {
-  d.issues[0].url = 'javascript:alert(1)';
-}, run => assert.rejects(run, /Invalid group URL/)));
+test('keeps text-only history only when archived', () => withReview(c => {
+  c.before = null;
+  c.after = null;
+  c.archived = true;
+}, async run => assert.equal((await run()).missingCaptures, 0)));
 
-test('excludes text-only entries unless retained as archive history', async () => {
-  const hideImages = (comparison) => { comparison.before = comparison.after = null; };
-  await withReview(hideImages, run => assert.rejects(run, /Text-only entries/));
-  await withReview(comparison => {
-    hideImages(comparison);
-    comparison.archived = true;
-  }, async run => assert.equal((await run()).missingCaptures, 0));
+test('reports a gap without failing the review', () => withReview(c => {
+  c.before = null;
+  c.gap = 'The baseline build cannot start.';
+}, async run => {
+  const result = await run();
+  assert.equal(result.gaps, 1);
+  assert.equal(result.missingCaptures, 1);
+}));
+
+test('accepts a revision only in a later round', () => withReview((c, d) => {
+  c.feedback = [{ source: 'thread', text: 'Move it under the total', comparisonId: 'reminder', disposition: 'fixed' }];
+  d.rounds.push({
+    id: 'round-2',
+    label: 'Round 2',
+    summary: 'Fixed reminder',
+    comparisons: [comparison('reminder-2', { revises: 'reminder' })],
+  });
+}, async (run, directory) => {
+  assert.equal((await run()).comparisons, 2);
+  const html = await buildRound(directory, 'round-2');
+  assert.match(html, /Earlier comments/);
+  assert.match(html, /Move it under the total/);
+  assert.match(html, /data:image\/png;base64,/);
+}));
+
+test('rejects unrecognized image bytes', () => assert.throws(() => imageDimensions(Buffer.from('not an image')), /PNG or JPEG/));
+
+test('computes changed regions in original pixels', async () => {
+  const before = decodePng(basePng);
+  const after = decodePng(headPng);
+  const result = diffImages(before, after, { cell: 4, threshold: 24, gap: 1 });
+  assert.equal(result.regions.length, 1);
+  const [region] = result.regions;
+  assert.ok(region.x <= 8 && region.y <= 4, 'region starts at or before the change');
+  assert.ok(region.x + region.width >= 16 && region.y + region.height >= 12, 'region covers the change');
+  assert.equal(diffImages(before, before).regions.length, 0);
 });
 
-test('shared feedback scopes approvals to reviewer and round and preserves comments across retries', async () => {
-  const { DatabaseSync } = await import('node:sqlite');
-  const { reviewFeedback } = await import('../estack/skills/ui-review/assets/server/review-feedback.mjs');
-  const sql = new DatabaseSync(':memory:');
-  try {
-    sql.exec(`
-      CREATE TABLE ui_review_approvals (reviewer TEXT, view TEXT, PRIMARY KEY (reviewer, view));
-      CREATE TABLE ui_review_comments (id TEXT PRIMARY KEY, reviewer TEXT, view TEXT, text TEXT, created_at TEXT);
-    `);
-    const db = {
-      prepare(query) {
-        const statement = sql.prepare(query);
-        const bind = (...args) => ({
-          run: () => statement.run(...args),
-          first: () => statement.get(...args),
-          all: () => ({ results: statement.all(...args) }),
-        });
-        return { bind, ...bind() };
-      },
-      batch: (statements) => statements.map(statement => statement.all()),
-    };
-    const url = 'https://review.example/api/ui-review';
-    const data = review();
-    data.rounds.push({
-      ...data.rounds[0],
-      id: 'round-2',
-      comparisons: [{ ...data.rounds[0].comparisons[0], id: 'revised' }],
-    });
-    const call = (reviewer, body, origin = 'https://review.example') => reviewFeedback(new Request(url, {
-      method: body ? 'POST' : 'GET',
-      headers: reviewer ? {
-        'oai-authenticated-user-id': reviewer,
-        ...(body && { origin, 'Content-Type': 'application/json' }),
-      } : {},
-      body: body ? JSON.stringify(body) : undefined,
-    }), db, data);
-    const view = 'round-1/desktop';
-    const check = { type: 'approval', view, checked: true };
-    const comment = { type: 'comment', view, comment: { id: crypto.randomUUID(), text: 'Align the labels' } };
-    assert.equal((await call(null)).status, 401);
-    assert.equal((await call('one', check, 'https://other.example')).status, 403);
-    assert.equal((await call('one', { ...check, view: 'round-1/unknown' })).status, 404);
-    assert.equal((await call('one', check)).status, 200);
-    const posted = await (await call('one', comment)).json();
-    assert.deepEqual(await (await call('one', comment)).json(), posted);
-    const state = await (await call('one')).json();
-    assert.deepEqual(state.approved, [view]);
-    assert.equal(state.comments.length, 1);
-    assert.deepEqual(await (await call('two')).json(), { approved: [], comments: state.comments });
-    const nextRound = 'round-2/revised';
-    assert.equal((await call('one', { ...check, view: nextRound })).status, 200);
-    assert.equal((await call('one', { ...check, checked: false })).status, 200);
-    assert.deepEqual((await (await call('one')).json()).approved, [nextRound]);
-  } finally {
-    sql.close();
-  }
+test('round trips the copied decisions text', () => {
+  const text = formatDecisions({
+    title: 'Example review',
+    round: 'round-1',
+    items: [
+      { id: 'round-1/reminder', title: 'Request reminder', approved: true, comment: 'Move it under the total' },
+      { id: 'round-1/spacing', title: 'Spacing', approved: false, comment: 'Tighten the gap\nShould the label be bold?' },
+    ],
+    general: 'Keep the sidebar width.',
+  });
+  const parsed = parseDecisions(text);
+  assert.equal(parsed.review, 'Example review');
+  assert.equal(parsed.round, 'round-1');
+  assert.equal(parsed.items[0].decision, 'approved');
+  assert.equal(parsed.items[0].comment, 'Move it under the total');
+  assert.equal(parsed.items[1].comment, 'Tighten the gap\nShould the label be bold?');
+  assert.equal(parsed.general, 'Keep the sidebar width.');
 });
+
+for (const [name, mutate, message] of [
+  ['missing header', text => text.replace('ui-review decisions v1', 'notes'), /No ui-review decisions/],
+  ['cut off text', text => text.replace(/\nend\n$/, '\n'), /cut off/],
+  ['unknown decision', text => text.replace('decision: approved', 'decision: maybe'), /Unknown decision/],
+]) test('rejects decisions with ' + name, () => {
+  const text = formatDecisions({ title: 'Example review', round: 'round-1', items: [{ id: 'round-1/reminder', title: 'Reminder', approved: true }] });
+  assert.throws(() => parseDecisions(mutate(text)), message);
+});
+
+test('rejects a paste for another round or an unknown comparison', () => {
+  const data = review();
+  const other = formatDecisions({ title: 'Another review', round: 'round-1', items: [{ id: 'round-1/reminder', title: 'Reminder', approved: true }] });
+  assert.throws(() => toFixList(parseDecisions(other), data), /another review/);
+  const ghost = formatDecisions({ title: data.title, round: 'round-1', items: [{ id: 'round-9/ghost', title: 'Ghost', approved: true }] });
+  assert.throws(() => toFixList(parseDecisions(ghost), data), /Unknown item/);
+  const late = formatDecisions({ title: data.title, round: 'round-4', items: [{ id: 'round-1/reminder', title: 'Reminder', approved: true }] });
+  assert.throws(() => toFixList(parseDecisions(late), data), /Unknown round/);
+});
+
+test('turns a pasted round into a fix list', () => {
+  const data = review();
+  data.rounds[0].comparisons.push(comparison('spacing', { title: 'Card spacing' }));
+  const text = formatDecisions({
+    title: data.title,
+    round: 'round-1',
+    items: [
+      { id: 'round-1/reminder', title: 'Request reminder', approved: true },
+      { id: 'round-1/spacing', title: 'Card spacing', approved: false, comment: 'Tighten the gap\nShould the label be bold?' },
+    ],
+  });
+  const list = toFixList(parseDecisions(text), data);
+  assert.deepEqual(list.approved.map(item => item.id), ['round-1/reminder']);
+  assert.deepEqual(list.fixes.map(item => item.requests), [['Tighten the gap']]);
+  assert.deepEqual(list.questions.map(item => item.text), ['Should the label be bold?']);
+  assert.deepEqual(list.missing, []);
+  const markdown = renderFixList(list);
+  assert.match(markdown, /Tighten the gap/);
+  assert.match(markdown, /Questions to answer/);
+});
+
+test('treats silence after a review as approval and a missing item as unapproved', () => {
+  const data = review();
+  data.rounds[0].comparisons.push(comparison('spacing', { title: 'Card spacing' }));
+  const text = formatDecisions({ title: data.title, round: 'round-1', items: [{ id: 'round-1/reminder', title: 'Reminder', approved: false }] });
+  const list = toFixList(parseDecisions(text), data);
+  assert.deepEqual(list.implicitlyApproved.map(item => item.id), ['round-1/reminder']);
+  assert.deepEqual(list.missing.map(item => item.id), ['round-1/spacing']);
+});
+
+test('builds one self-contained html round with a clipboard fallback', () => withReview(() => {}, async (run, directory) => {
+  await run();
+  const html = await buildRound(directory, 'round-1');
+  assert.match(html, /data:image\/png;base64,/);
+  assert.match(html, /Copy all decisions/);
+  assert.match(html, /id="export-text"/);
+  assert.match(html, /navigator\.clipboard/);
+  assert.match(html, /execCommand/);
+  assert.match(html, /ui-review decisions v1/);
+  assert.doesNotMatch(html, /captures\/before\.png/);
+  await assert.rejects(buildRound(directory, 'round-9'), /Unknown round/);
+}));
+
+test('the final doc shows the latest revision only', () => withReview((c, d) => {
+  d.rounds.push({ id: 'round-2', label: 'Round 2', summary: 'Revised', comparisons: [comparison('reminder-2', { revises: 'reminder', title: 'Request reminder, revised' })] });
+}, async (run, directory) => {
+  await run();
+  const html = await buildRound(directory, undefined, { final: true });
+  assert.match(html, /Request reminder, revised/);
+  assert.doesNotMatch(html, /"title":"Request reminder"/);
+  assert.match(html, /Final design/);
+}));
+
+test('an end-to-end round parses back into the next fix list', () => withReview((c, d) => {
+  c.feedback = [{ source: 'thread', text: 'Move it under the total', comparisonId: 'reminder', disposition: 'fixed' }];
+  d.rounds[0].comparisons.push(comparison('spacing', {
+    title: 'Card spacing',
+    feedback: [{ source: 'thread', text: 'Tighten the gap', comparisonId: 'spacing', disposition: 'unresolved' }],
+  }));
+  d.rounds.push({
+    id: 'round-2',
+    label: 'Round 2',
+    summary: 'After the first pass',
+    comparisons: [
+      comparison('reminder-2', { revises: 'reminder' }),
+      comparison('spacing-2', { revises: 'spacing', title: 'Card spacing, tightened' }),
+    ],
+  });
+}, async (run, directory) => {
+  await run();
+  const first = formatDecisions({
+    title: 'Example review',
+    round: 'round-1',
+    items: [
+      { id: 'round-1/reminder', title: 'Request reminder', approved: false, comment: 'Move it under the total' },
+      { id: 'round-1/spacing', title: 'Card spacing', approved: false, comment: 'Tighten the gap' },
+    ],
+  });
+  await writeFile(join(directory, 'decisions.txt'), first);
+  const reviewData = JSON.parse(await readFile(join(directory, 'review.json'), 'utf8'));
+  const firstList = toFixList(parseDecisions(first), reviewData);
+  assert.equal(firstList.fixes.length, 2);
+
+  const html = await buildRound(directory, 'round-2');
+  assert.match(html, /fixed/);
+  assert.match(html, /open/);
+  assert.match(html, /Move it under the total/);
+}));

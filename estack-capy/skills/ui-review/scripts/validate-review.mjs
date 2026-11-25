@@ -54,7 +54,6 @@ export async function validateReview(directory) {
     }
   };
   require(string(review.title) && string(review.summary) && review.issues?.length && review.rounds?.length, 'Missing review content');
-  require(review.feedbackStorage === undefined || review.feedbackStorage === 'shared', 'Invalid feedback storage');
   const issueIds = new Set();
   for (const issue of review.issues) {
     require(string(issue.id) && !issueIds.has(issue.id) && string(issue.title), 'Invalid group');
@@ -64,12 +63,17 @@ export async function validateReview(directory) {
     issueIds.add(issue.id);
   }
   let count = 0, gaps = 0, missingCaptures = 0;
+  const earlier = new Set();
   for (const round of review.rounds) {
     id(round.id);
+    const current = [];
     require(string(round.label) && string(round.summary) && round.comparisons?.length, 'Empty round');
     for (const comparison of round.comparisons) {
       id(comparison.id);
+      current.push(comparison.id);
       if (!comparison.archived) count++;
+      if (!comparison.archived) require(['judgment', 'mechanical'].includes(comparison.tier), `Missing tier (judgment or mechanical): ${comparison.id}`);
+      require(comparison.revises === undefined || earlier.has(comparison.revises), `A revision must point to a comparison in an earlier round: ${comparison.id}`);
       require(comparison.archived === undefined || comparison.archived === true, 'Invalid archive flag');
       require(comparison.archived || comparison.after, 'An After screenshot is required. Text-only entries and missing After captures belong in verification notes or archived history');
       if (string(comparison.gap)) gaps++;
@@ -84,8 +88,9 @@ export async function validateReview(directory) {
       if (comparison.video) await localAsset(comparison.video);
       for (const segment of comparison.copyDiff || []) require(['equal', 'remove', 'add'].includes(segment.type) && typeof segment.text === 'string', 'Invalid text diff');
       require(Array.isArray(comparison.feedback), 'Missing feedback list');
-      for (const note of comparison.feedback) require(string(note.source) && string(note.text) && string(note.comparisonId) && ['unresolved', 'approved', 'omitted', 'reopened'].includes(note.disposition), 'Incomplete feedback');
+      for (const note of comparison.feedback) require(string(note.source) && string(note.text) && string(note.comparisonId) && ['unresolved', 'approved', 'omitted', 'reopened', 'fixed', 'answered'].includes(note.disposition), 'Incomplete feedback');
     }
+    for (const value of current) earlier.add(value);
   }
   for (const round of review.rounds) for (const comparison of round.comparisons) for (const note of comparison.feedback) require(ids.has(note.comparisonId), `Unknown feedback target: ${note.comparisonId}`);
   return { comparisons: count, gaps, missingCaptures, provenance: 'Metadata and original bytes checked; verify running builds separately.' };

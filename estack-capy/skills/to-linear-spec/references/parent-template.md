@@ -30,6 +30,15 @@ If a decision tree or branching flow is hard to follow in the list, add one Merm
 
 +++
 
++++ ## Design decisions
+
+Keep this block lean. It states where each UI decision stands now: the question while it is open, and the chosen variant with one line of reason once it is settled. Update it in place as decisions land, and never append a round-by-round history. Omit the block when the feature has no UI decision.
+
+- **Reminder placement**: open. Options and captures are in the linked review.
+- **Price density on the product card**: variant C, price beside the unit, the same density as the list page. Rejected A (stacked) and B (on hover).
+
++++
+
 +++ ## Subissue dependencies
 
 ```mermaid

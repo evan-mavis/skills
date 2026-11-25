@@ -48,5 +48,6 @@ test('image-only ui-review does not acquire a capture-skill dependency', () => {
   for (const file of walk(path.join(root, 'ui-review')).filter(file => file.endsWith('.md'))) {
     assert.doesNotMatch(readFileSync(file, 'utf8'), /capture\/SKILL\.md|available skill catalog|\$capture/);
   }
-  assert.match(read('ui-review/SKILL.md'), /Record a demo[^\n]*when an interaction needs video/);
+  assert.match(read('ui-review/SKILL.md'), /when an interaction needs video[^\n]*repository's verifier/);
+  assert.doesNotMatch(read('ui-review/SKILL.md'), /record a demo/i);
 });
