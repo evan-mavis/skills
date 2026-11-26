@@ -1,17 +1,17 @@
 ---
 name: design-critic
-description: Review built screens against a taste file of Evan's design rules before he sees them, send failures back as a fix list, and turn repeated feedback into new rules. Use for design-critic, "critique this UI", a pass on built screens before their review, or turning repeated design feedback into rules.
+description: Review built screens against a taste file of Evan's design rules before he sees them, send failures back as a fix list, and propose new rules from repeated feedback for his approval. Use for design-critic, "critique this UI", a pass on built screens before their review, or turning repeated design feedback into rules.
 ---
 
 # Design critic
 
-Two jobs. Before Evan sees a screen, catch what his taste file already says. After he reacts, turn what he keeps saying into rules.
+Two jobs. Before Evan sees a screen, catch what his taste file already says. After he reacts, turn what he keeps saying into proposed rules, and add each one only after he approves it.
 
 ## Read the taste file
 
 The rules live in [the taste file](assets/taste.md). Read it before every review. It starts empty on purpose: an empty file means no invented opinions.
 
-Add a rule only from evidence. Never from your own preference, from a design article, or from a guess about what Evan would like.
+Add a rule only from evidence and only after Evan approves it. Never from your own preference, from a design article, or from a guess about what Evan would like.
 
 ## Review the built screens
 
@@ -37,19 +37,21 @@ After every review round, classify each piece of feedback once the fix list is i
 | confirmed | Evan states a preference that outlives this screen | a candidate rule |
 | question | asks for information | answered, no rule |
 
-A candidate becomes a rule when two rounds agree on it, or when Evan states it as a general preference. Write the rule with three things:
+A candidate becomes a proposed rule when two rounds agree on it, or when Evan states it as a general preference. Propose rules and never write them to the taste file yourself. Send Evan each proposal with:
 
 - what it forbids or requires, in one sentence that a screenshot can settle;
-- the feedback it came from, quoted, with the round and the date;
-- the check that catches a violation, as an instruction the next reviewer can follow.
+- the check that catches a violation, as an instruction the next reviewer can follow;
+- the feedback it came from, quoted, with the round and the date.
+
+Add a proposal to the taste file only after Evan explicitly approves that rule. Approval of one proposal does not cover the others. When he edits a proposal, write his wording. When he rejects one, drop it. Record approval in the rule's Source line, for example `approved by Evan, <date>`.
 
 Never write a rule Evan did not say. Never write a rule about motion, timing, or behaviour that a still image cannot show. Never widen a rule past the words he used: "stop using all-caps labels on this screen" is not "stop using all-caps".
 
 ## Keep the file small
 
-A rule that has never fired twice is noise, and a long file stops being read. Merge rules that describe one thing, and delete a rule Evan has since overruled. Keep his wording in the quote so the file stays checkable.
+A rule that has never fired twice is noise, and a long file stops being read. Propose merging rules that describe one thing, and deleting a rule Evan has since overruled. Change the file only after he approves, as for a new rule. Keep his wording in the quote so the file stays checkable.
 
 ## Handoff
 
 - **In:** the built screens on the branch, the design-decisions section of the Linear spec, and Evan's feedback from a review round.
-- **Out:** a fix list for the code owner, a pass or fail verdict per rule with evidence, and taste-file rules that trace back to quoted feedback.
+- **Out:** a fix list for the code owner, a pass or fail verdict per rule with evidence, proposed taste rules sent to Evan for approval, and taste-file rules that he approved and that trace back to quoted feedback.

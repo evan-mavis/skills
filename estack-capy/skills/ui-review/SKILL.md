@@ -127,6 +127,13 @@ The rules the parser applies:
 
 Apply the UI-only requests as **Later rounds** describes, and deliver the rest to whoever owns the code. The fix list ends with the coverage count and every uncovered item. Keep the disposition of each request in `review.json` with its source, as [review data](references/review-data.md) describes, so the next round can mark it fixed or open. Write approved decisions into the design-decisions section of the Linear spec through [to-linear-spec](../to-linear-spec/SKILL.md).
 
+Wrap up each round's taste rules once its decisions are read. Classify the feedback as [design-critic](../design-critic/SKILL.md) describes, then do one of two things:
+
+- list each proposed taste rule and send it to Evan for approval, as design-critic describes;
+- say "no new taste rules" with a one-line reason.
+
+A round's handoff is not complete without one of them.
+
 ## Attach the final design doc to the PR
 
 Rounds with real dev data (copies of production) stay local on the reviewer's machine. Never commit them or publish them publicly, for example with `tools.pr.uploadAsset`, unless Evan explicitly says so.
@@ -138,4 +145,4 @@ Keep this review image-only. QA uses `capture` for final video evidence after de
 ## Handoff
 
 - **In:** the base and head revisions, the repository's verify skill, the project context's app list and native capture method, and the Linear spec or issue the review belongs to.
-- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list for each pasted decision round, and the final design doc linked from the PR body.
+- **Out:** the review directory with its coverage inventory, one round folder per cycle, each new head from UI-only fixes, the fix list and taste wrap-up for each pasted decision round, and the final design doc linked from the PR body.

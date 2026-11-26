@@ -1,6 +1,6 @@
 # Evan's design taste
 
-Rules earned from his own feedback. Empty until his feedback puts something here. Do not invent a rule.
+Rules earned from his own feedback. A reviewer proposes each rule and adds it only after Evan approves it. Empty until he approves one. Do not invent a rule.
 
 ## Format
 
@@ -10,7 +10,7 @@ Each rule is one sentence a screenshot can settle, followed by where it came fro
 ### R1. <what the rule forbids or requires>
 
 - **Check:** <how a reviewer confirms a violation from a screenshot>
-- **Source:** "<Evan's words, quoted>", <round or thread>, <date>
+- **Source:** "<Evan's words, quoted>", <round or thread>, <date>; approved by Evan, <date>
 - **Fired:** <count of times a built screen broke it>
 ```
 
