@@ -1,6 +1,6 @@
 # Evan's design taste
 
-Rules earned from his own feedback. A reviewer proposes each rule and adds it only after Evan approves it. Empty until he approves one. Do not invent a rule.
+Rules earned from his own feedback. A reviewer proposes each rule and adds it only after Evan approves it. Each rule is a generic UI or design principle that applies across features and screens, such as spacing, hierarchy, type, color, or states. Never a feature-specific fix, copy, or behavior; that feedback stays a one-off fix. Empty until he approves one. Do not invent a rule.
 
 ## Format
 

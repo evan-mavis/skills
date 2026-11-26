@@ -32,12 +32,12 @@ After every review round, classify each piece of feedback once the fix list is i
 
 | class | what it looks like | what it does to the file |
 | --- | --- | --- |
-| one-off | a local fix, nothing implied about other screens | nothing |
+| one-off | a local fix, nothing implied about other screens, or any feature-specific fix, copy, or behavior | nothing |
 | repeated | the same request in two or more rounds, or on two or more screens | a candidate rule |
 | confirmed | Evan states a preference that outlives this screen | a candidate rule |
 | question | asks for information | answered, no rule |
 
-A candidate becomes a proposed rule when two rounds agree on it, or when Evan states it as a general preference. Propose rules and never write them to the taste file yourself. Send Evan each proposal with:
+A candidate becomes a proposed rule when two rounds agree on it, or when Evan states it as a general preference. A taste rule must be a generic UI or design principle that applies across features and screens, such as spacing, hierarchy, type, color, or states. Never propose a feature-specific fix, copy, or behavior; that feedback stays a one-off fix. Propose rules and never write them to the taste file yourself. Send Evan each proposal with:
 
 - what it forbids or requires, in one sentence that a screenshot can settle;
 - the check that catches a violation, as an instruction the next reviewer can follow;
